@@ -174,8 +174,8 @@
                 <processor>io.vertx.codegen.CodeGenProcessor</processor>
               </processors>
               <optionMap>
-                <nameTemplate>${project.basedir}/src/test/groovy/@{typeFQN.replace("io.vertx.codegen", "io.vertx.groovy.codegen").replace(".", "/")}.groovy</nameTemplate>
-                <templateFileName>vertx-groovy/template/groovy.templ</templateFileName>
+                <nameTemplate>${project.basedir}/src/test/java/@{typeFQN.replace("io.vertx.codegen", "io.vertx.java.codegen").replace(".", "/")}.java</nameTemplate>
+                <templateFileName>vertx-java/template/java.templ</templateFileName>
               </optionMap>
               <sourceDirectory>${project.build.directory}/sources/codegen</sourceDirectory>
             </configuration>

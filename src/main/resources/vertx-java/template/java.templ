@@ -36,169 +36,81 @@ this.delegate
 @end{}
 
 @declare{'paramTemplate'}
-	@if{param.type.kind == OPTIONS || param.type.kind == JSON_OBJECT}
-		Map<String, Object> @{param.name}
-	@else{param.type.kind == JSON_ARRAY}
-		List<Object> @{param.name}
-	@else{param.type.kind == HANDLER && param.type.args[0].kind.json}
-		@if{param.type.args[0].kind == JSON_OBJECT}
-			@code{groovyJsonType='Map<String, Object>'}
-		@else{}
-			@code{groovyJsonType='List<Object>'}
-		@end{}
-		Handler<@{groovyJsonType}> @{param.name}
-	@else{param.type.kind == HANDLER && param.type.args[0].kind == JSON_ARRAY}
-		Handler<List<Object>> @{param.name}
-	@else{param.type.kind == HANDLER && param.type.args[0].kind == LIST && param.type.args[0].args[0].kind.json}
-		@if{param.type.args[0].args[0].kind == JSON_OBJECT}
-			@code{groovyJsonType='Map<String, Object>'}
-		@else{}
-			@code{groovyJsonType='List<Object>'}
-		@end{}
-		Handler<List<@{groovyJsonType}>> @{param.name}
-	@else{param.type.kind == HANDLER && param.type.args[0].kind == ASYNC_RESULT && param.type.args[0].args[0].kind.json}
-		@if{param.type.args[0].args[0].kind == JSON_OBJECT}
-			@code{groovyJsonType='Map<String, Object>'}
-		@else{}
-			@code{groovyJsonType='List<Object>'}
-		@end{}
-		Handler<AsyncResult<@{groovyJsonType}>> @{param.name}
-	@else{param.type.kind == HANDLER && param.type.args[0].kind == ASYNC_RESULT && param.type.args[0].args[0].kind.collection && param.type.args[0].args[0].args[0].kind.json}
-		@if{param.type.args[0].args[0].args[0].kind == JSON_OBJECT}
-			@code{groovyJsonType='Map<String, Object>'}
-		@else{}
-			@code{groovyJsonType='List<Object>'}
-		@end{}
-		Handler<AsyncResult<@{param.type.args[0].args[0].raw.simpleName}<@{groovyJsonType}>>> @{param.name}
-	@else{}
-		@{param.type.simpleName} @{param.name}
-	@end{}
+	@{param.type.simpleName} @{param.name}
 @end{}
 
 @declare{'resultHandlerTemplate'}
 	new Handler<AsyncResult<@{eventJavaType}>>() {\n
 	      public void handle(AsyncResult<@{eventJavaType}> event) {\n
-	        AsyncResult<@{eventGroovyType}> f\n
+	        AsyncResult<@{eventGroovyType}> f;\n
 	        if (event.succeeded()) {\n
-	          f = InternalHelper.<@{eventGroovyType}>result(@{callbackObject})\n
+	          f = InternalHelper.<@{eventGroovyType}>result(@{callbackObject});\n
 	        } else {\n
-	          f = InternalHelper.<@{eventGroovyType}>failure(event.cause())\n
+	          f = InternalHelper.<@{eventGroovyType}>failure(event.cause());\n
 	        }\n
-	        @{callbackName}.handle(f)\n
+	        @{callbackName}.handle(f);\n
 	      }\n
 	    }
 @end{}
 
 @declare{'paramArgument'}
-	@if{param.type.kind == OPTIONS}
-		new @{param.type.name}(new io.vertx.core.json.JsonObject(@{param.name}))
-	@else{param.type.kind.json}
-		new @{param.type.name}(@{param.name})
-	@else{param.type.kind == API}
-		@{param.name}.delegate
-	@else{param.type.kind == OBJECT}
-		InternalHelper.unwrapObject(@{param.name})
-	@else{param.type.kind == HANDLER}
+	@if{param.type.kind == CLASS_API}
+		(@{param.type.name}) @{param.name}.getDelegate()
+	@else{param.type.kind == CLASS_HANDLER}
 		@code{eventType=param.type.args[0]}
 		@code{eventKind=eventType.kind}
-		@if{eventKind == OTHER || eventKind.basic || eventKind == VOID || eventKind == THROWABLE}
+		@if{eventKind == CLASS_OTHER || eventKind.basic || eventKind == CLASS_VOID || eventKind == CLASS_OBJECT || eventKind.json || eventKind == CLASS_THROWABLE}
 			@{param.name}
-		@else{eventKind == JSON_OBJECT}
-			new Handler<JsonObject>() {\n
-			      public void handle(JsonObject event) {\n
-			        @{param.name}.handle(event.toMap());\n
-			      }\n
-			    }
-		@else{eventKind == JSON_ARRAY}
-			new Handler<JsonArray>() {\n
-			      public void handle(JsonArray event) {\n
-			        @{param.name}.handle(event.toList());\n
-			      }\n
-			    }
-		@else{eventKind == LIST || eventKind == SET}
+		@else{eventKind == CLASS_LIST || eventKind == CLASS_SET}
 			@code{elementType=eventType.args[0]}
 			@code{elementKind=elementType.kind}
-			@if{elementKind == PRIMITIVE || elementKind == BOXED_PRIMITIVE || elementKind == STRING}
+			@if{elementKind == CLASS_PRIMITIVE || elementKind == CLASS_BOXED_PRIMITIVE || elementKind == CLASS_STRING}
 				@{param.name}
-			@else{elementKind == API || elementKind.json}
+			@else{elementKind == CLASS_API}
 				@code{collectionName=eventType.raw.simpleName}
-				@if{elementKind == API}
-					@code{toGroovyElement='new ' + elementType.simpleName + '(it)'}
-					@code{elementJavaType=elementType.name}
-				@else{elementKind == JSON_OBJECT}
-					@code{toGroovyElement='it.toMap()'}
-					@code{elementJavaType='JsonObject'}
-				@else{}
-					@code{toGroovyElement='it.toList()'}
-					@code{elementJavaType='JsonArray'}
-				@end{}
+				@code{toGroovyElement= elementType.simpleName + '::new'}
+				@code{elementJavaType=elementType.name}
 				new Handler<@{collectionName}<@{elementJavaType}>>() {\n
 				      public void handle(@{collectionName}<@{elementJavaType}> event) {\n
-				        @{param.name}.handle(event.collect({\n
-				          @{toGroovyElement}\n
-				        }) as @{collectionName})\n
+				        @{param.name}.handle(event.stream().map(@{toGroovyElement}).collect(java.util.stream.Collectors.to@{collectionName}()));\n
 				      }\n
 				    }
 			@else{}
-				null
+				@{param.name}
 			@end{}
-		@else{eventKind == API}
-			new Handler<@{eventType.erased.name}>() {\n
-			      public void handle(@{eventType.erased.name} event) {\n
-			        @{param.name}.handle(new @{eventType.erased.simpleName}(event));\n
+		@else{eventKind == CLASS_API}
+			new Handler<@{eventType.name}>() {\n
+			      public void handle(@{eventType.name} event) {\n
+			        @{param.name}.handle(new @{eventType.simpleName}(event));\n
 			      }\n
 			    }
-		@else{eventKind == ASYNC_RESULT}
+		@else{eventKind == CLASS_ASYNC_RESULT}
 			@code{resultType=eventType.args[0]}
 			@code{resultKind=resultType.kind}
-			@if{resultKind == OTHER || resultKind.basic || resultKind == VOID}
+			@if{resultKind == CLASS_OTHER || resultKind.basic || resultKind == CLASS_VOID || resultKind == CLASS_OBJECT || resultKind.json}
 				@{param.name}
-			@else{resultKind == LIST || resultKind == SET}
+			@else{resultKind == CLASS_LIST || resultKind == CLASS_SET}
 				@code{elementType=resultType.args[0]}
 				@code{elementKind=elementType.kind}
-				@if{elementKind == PRIMITIVE || elementKind == BOXED_PRIMITIVE || elementKind == STRING}
+				@if{elementKind == CLASS_PRIMITIVE || elementKind == CLASS_BOXED_PRIMITIVE || elementKind == CLASS_STRING}
 					@{param.name}
-				@else{elementKind == API || elementKind.json}
+				@else{elementKind == CLASS_API}
 					@code{collectionName=resultType.raw.simpleName}
-					@if{elementKind == API}
-						@code{toGroovyElement='new ' + elementType.simpleName + '(element)'}
-						@code{elementJavaType=elementType.name}
-						@code{elementGroovyType=elementType.simpleName}
-					@else{elementKind == JSON_OBJECT}
-						@code{toGroovyElement='element.toMap()'}
-						@code{elementJavaType='JsonObject'}
-						@code{elementGroovyType='Map<String, Object>'}
-					@else{}
-						@code{toGroovyElement='element.toList()'}
-						@code{elementJavaType='JsonArray'}
-						@code{elementGroovyType='List<Object>'}
-					@end{}
+					@code{toGroovyElement=elementType.simpleName + '::new'}
+					@code{elementJavaType=elementType.name}
+					@code{elementGroovyType=elementType.simpleName}
 					@code{eventJavaType=collectionName + '<' + elementJavaType + '>'}
 					@code{eventGroovyType=collectionName + '<' + elementGroovyType + '>'}
-					@code{callbackObject='event.result().collect({\n            ' + elementType.name + ' element ->\n            ' + toGroovyElement + '\n          }) as ' + collectionName}
+					@code{callbackObject='event.result().stream().map(' + toGroovyElement + ').collect(java.util.stream.Collectors.to' + collectionName + '())'}
 					@includeNamed{'resultHandlerTemplate';eventJavaType=eventJavaType;eventGroovyType=eventGroovyType;callbackObject=callbackObject;callbackName=param.name}
 				@else{}
-					null
+					@{param.name}
 				@end{}
-			@else{resultKind == JSON_OBJECT}
-				@includeNamed{'resultHandlerTemplate';eventJavaType=resultType.name;eventGroovyType='Map<String, Object>';callbackObject='event.result().toMap()';callbackName=param.name}
-			@else{resultKind == JSON_ARRAY}
-				@includeNamed{'resultHandlerTemplate';eventJavaType=resultType.name;eventGroovyType='List<Object>';callbackObject='event.result().toList()';callbackName=param.name}
-			@else{resultKind == OBJECT}
-				@includeNamed{'resultHandlerTemplate';eventJavaType='Object';eventGroovyType='Object';callbackObject='InternalHelper.wrapObject(event.result())';callbackName=param.name}
-			@else{resultKind == API}
-				@comment{'Workaround for https://jira.codehaus.org/browse/GROOVY-6977 : Message<R> -> Message'}
-				@code{resultType=resultType.erased}
+			@else{resultKind == CLASS_API}
 				@includeNamed{'resultHandlerTemplate';eventJavaType=resultType.name;eventGroovyType=resultType.simpleName;callbackObject='new ' + resultType.simpleName + '(event.result())';callbackName=param.name}
 			@else{}
 				null /* Handler<AsyncResult<@{resultType.name}>> with kind @{resultKind} not yet implemented */
 			@end{}
-		@else{eventKind == OBJECT}
-			new Handler<Object>() {\n
-			      public void handle(Object event) {\n
-			        @{param.name}.handle(InternalHelper.wrapObject(event))\n
-			      }\n
-			    }
 		@else{}
 			null /* Handler<@{eventType.name}> with kind @{eventKind} not yet implemented */
 		@end{}
@@ -208,24 +120,20 @@ this.delegate
 @end{}
 
 @declare{'returnTypeTemplate'}
-	@if{type.kind == JSON_OBJECT}
-		Map<String, Object>
-	@else{type.kind == JSON_ARRAY}
-		List<Object>
-	@else{}
-		@{type.simpleName}
-	@end{}
+	@{type.simpleName}
 @end{}
 
+import java.util.Map;
+import io.vertx.lang.java.InternalHelper;
 @comment{"Generate the imports"}
 @foreach{importedType:importedTypes}
-	@if{importedType.kind == API}
+	@if{importedType.kind == CLASS_API}
 		@if{!ifacePackageName.equals(importedType.packageName)}
-			import @{importedType.toString().replace("io.vertx.", "io.vertx.java.")}\n
+			import @{importedType.toString().replace("io.vertx.", "io.vertx.java.")};\n
 		@end{}
 	@else{}
 		@if{!importedType.packageName.equals("java.lang")}
-			import @{importedType}\n
+			import @{importedType};\n
 		@end{}
 	@end{}
 @end{}
@@ -255,7 +163,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 
 @if{concrete}
 
-	  final def @{helper.getNonGenericType(ifaceFQCN)} delegate;\n
+	  final @{helper.getNonGenericType(ifaceFQCN)} delegate;\n
 	  public @{ifaceSimpleName}(@{helper.getNonGenericType(ifaceFQCN)} delegate) {\n
 	@if{concrete && concreteSuperTypes.size() > 0}
 	    super(delegate);\n
@@ -263,7 +171,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 	    this.delegate = delegate;\n
 	  }\n
 
-	  public @{ifaceFQCN} getDelegate() {\n
+	  public Object getDelegate() {\n
 	    return delegate;\n
 	  }\n
 
@@ -285,26 +193,15 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 		      return cached_@{cacheDecls.size()};\n
 		    }\n
 		@end{}
-		@if{method.returnType.kind == OBJECT}
+		@if{method.returnType.kind == CLASS_OBJECT}
 			@code{cachedType=method.returnType.simpleName}
-		    def ret = @includeNamed{'invokeDelegate';method:method};\n
-		    if (ret instanceof io.vertx.core.json.JsonObject) {\n
-		      ret = (@{method.returnType.simpleName}) ((io.vertx.core.json.JsonObject) ret).toMap();\n
-		    } else if (ret instanceof io.vertx.core.json.JsonArray) {\n
-		      ret = (@{method.returnType.simpleName}) ((io.vertx.core.json.JsonArray) ret).toList();\n
-		    }\n
-		@else{method.returnType.kind == JSON_OBJECT}
-			@code{cachedType='Map<String, Object>'}
-		    def ret = @includeNamed{'invokeDelegate';method:method}.toMap();\n
-		@else{method.returnType.kind == JSON_ARRAY}
-			@code{cachedType='List<Object>'}
-		    def ret = @includeNamed{'invokeDelegate';method:method}.toList();\n
-		@else{!method.returnType.name.startsWith('io.vertx.')}
+		    @{cachedType=method.returnType.simpleName} ret = (@{cachedType=method.returnType.simpleName}) @includeNamed{'invokeDelegate';method:method};\n
+		@else{!method.returnType.name.startsWith('io.vertx.') || method.returnType.kind.json}
 			@code{cachedType=method.returnType.name}
-		    def ret = @includeNamed{'invokeDelegate';method:method};\n
+		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n
 		@else{}
 			@code{cachedType=method.returnType.simpleName}
-		    def ret= new @{method.returnType.simpleName}(@includeNamed{'invokeDelegate';method:method});\n
+		    @{method.returnType.simpleName} ret= new @{method.returnType.simpleName}(@includeNamed{'invokeDelegate';method:method});\n
 		@end{}
 		@if{method.cacheReturn}
 		    cached_@{cacheDecls.size()} = ret;\n
@@ -317,7 +214,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 
 @else{}
 
-	  @{ifaceFQCN} getDelegate();\n
+	  Object getDelegate();\n
 
 	@foreach{method:methods}
 	  @if{method.staticMethod}static @end{}@if{method.typeParams.size() > 0}<@foreach{typeVar:method.typeParams}@{typeVar}@end{}> @end{}@{method.returnType.simpleName} @{method.name}(@foreach{param: method.params}@includeNamed{'paramTemplate';param=param}@end{', '});\n
