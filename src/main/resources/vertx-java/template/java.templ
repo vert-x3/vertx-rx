@@ -212,6 +212,10 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 	  }\n
 	@end{}
 
+	@foreach{cacheDecl:cacheDecls}
+	  @{cacheDecl};\n
+	@end{}
+
 @else{}
 
 	  Object getDelegate();\n
@@ -220,10 +224,6 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 	  @if{method.staticMethod}static @end{}@if{method.typeParams.size() > 0}<@foreach{typeVar:method.typeParams}@{typeVar}@end{}> @end{}@{method.returnType.simpleName} @{method.name}(@foreach{param: method.params}@includeNamed{'paramTemplate';param=param}@end{', '});\n
 	@end{}
 
-@end{}
-
-@foreach{cacheDecl:cacheDecls}
-  @{cacheDecl};\n
 @end{}
 
 }\n
