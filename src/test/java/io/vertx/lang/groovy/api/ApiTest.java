@@ -17,8 +17,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class ApiTest {
 
-  final TestInterface obj = new TestInterface(new TestInterfaceImpl());
+  final TestInterface<?> obj = new TestInterface(new TestInterfaceImpl());
 
   @Test
   public void testMethodWithBasicParams() {
@@ -62,31 +63,57 @@ public class ApiTest {
   @Test
   public void testMethodWithHandlerAsyncResultBasicTypes() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultBasicTypes(false,
-        checker.asyncExpectedResult((byte) 123),
-        checker.asyncExpectedResult((short) 12345),
-        checker.asyncExpectedResult(1234567),
-        checker.asyncExpectedResult(1265615234l),
-        checker.asyncExpectedResult(12.345f),
-        checker.asyncExpectedResult(12.34566d),
-        checker.asyncExpectedResult(true),
-        checker.asyncExpectedResult('X'),
-        checker.asyncExpectedResult("quux!")
-    );
+    obj.methodWithHandlerAsyncResultByte(false, checker.asyncExpectedResult((byte) 123));
+    obj.methodWithHandlerAsyncResultShort(false, checker.asyncExpectedResult((short) 12345));
+    obj.methodWithHandlerAsyncResultInteger(false, checker.asyncExpectedResult(1234567));
+    obj.methodWithHandlerAsyncResultLong(false, checker.asyncExpectedResult(1265615234l));
+    obj.methodWithHandlerAsyncResultFloat(false, checker.asyncExpectedResult(12.345f));
+    obj.methodWithHandlerAsyncResultDouble(false, checker.asyncExpectedResult(12.34566d));
+    obj.methodWithHandlerAsyncResultBoolean(false, checker.asyncExpectedResult(true));
+    obj.methodWithHandlerAsyncResultCharacter(false, checker.asyncExpectedResult('X'));
+    obj.methodWithHandlerAsyncResultString(false, checker.asyncExpectedResult("quux!"));
     assertEquals(9, checker.count);
     checker.count = 0;
-    obj.methodWithHandlerAsyncResultBasicTypes(true,
-        checker.failureAsserter("foobar!"),
-        checker.failureAsserter("foobar!"),
-        checker.failureAsserter("foobar!"),
-        checker.failureAsserter("foobar!"),
-        checker.failureAsserter("foobar!"),
-        checker.failureAsserter("foobar!"),
-        checker.failureAsserter("foobar!"),
-        checker.failureAsserter("foobar!"),
-        checker.failureAsserter("foobar!")
-    );
+    obj.methodWithHandlerAsyncResultByte(true, checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultShort(true, checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultInteger(true, checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultLong(true, checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultFloat(true, checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultDouble(true, checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultBoolean(true, checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultCharacter(true, checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultString(true, checker.failureAsserter("foobar!"));
     assertEquals(9, checker.count);
+  }
+
+  @Test
+  public void testMethodWithFutureBasicTypes() throws Exception {
+    assertEquals((byte) 123, (byte) obj.methodWithHandlerAsyncResultByteFuture(false).get());
+    assertEquals((short) 12345, (short) obj.methodWithHandlerAsyncResultShortFuture(false).get());
+    assertEquals(1234567, (int) obj.methodWithHandlerAsyncResultIntegerFuture(false).get());
+    assertEquals(1265615234l, (long) obj.methodWithHandlerAsyncResultLongFuture(false).get());
+    assertEquals(12.345f, (float) obj.methodWithHandlerAsyncResultFloatFuture(false).get(), 0);
+    assertEquals(12.34566d, (double) obj.methodWithHandlerAsyncResultDoubleFuture(false).get(), 0);
+    assertEquals(true, obj.methodWithHandlerAsyncResultBooleanFuture(false).get());
+    assertEquals('X', (char) obj.methodWithHandlerAsyncResultCharacterFuture(false).get());
+    assertEquals("quux!", obj.methodWithHandlerAsyncResultStringFuture(false).get());
+    assertFailure("foobar!", obj.methodWithHandlerAsyncResultByteFuture(true));
+    assertFailure("foobar!", obj.methodWithHandlerAsyncResultShortFuture(true));
+    assertFailure("foobar!", obj.methodWithHandlerAsyncResultIntegerFuture(true));
+    assertFailure("foobar!", obj.methodWithHandlerAsyncResultLongFuture(true));
+    assertFailure("foobar!", obj.methodWithHandlerAsyncResultFloatFuture(true));
+    assertFailure("foobar!", obj.methodWithHandlerAsyncResultDoubleFuture(true));
+    assertFailure("foobar!", obj.methodWithHandlerAsyncResultBooleanFuture(true));
+    assertFailure("foobar!", obj.methodWithHandlerAsyncResultCharacterFuture(true));
+    assertFailure("foobar!", obj.methodWithHandlerAsyncResultStringFuture(true));
+  }
+
+  private <T> void assertFailure(String message, CompletableFuture<T> future) throws Exception {
+    try {
+      future.get();
+    } catch (ExecutionException e) {
+      assertEquals(message, e.getCause().getMessage());
+    }
   }
 
   @Test
@@ -126,13 +153,19 @@ public class ApiTest {
   @Test
   public void testMethodWithHandlerAsyncResultListAndSet() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultListAndSet(
-        checker.asyncExpectedResult(Arrays.asList("foo", "bar", "wibble")),
-        checker.asyncExpectedResult(Arrays.asList(5, 12, 100)),
-        checker.asyncExpectedResult(new HashSet<>(Arrays.asList("foo", "bar", "wibble"))),
-        checker.asyncExpectedResult(new HashSet<>(Arrays.asList(5, 12, 100)))
-    );
+    obj.methodWithHandlerAsyncResultListString(checker.asyncExpectedResult(Arrays.asList("foo", "bar", "wibble")));
+    obj.methodWithHandlerAsyncResultListInteger(checker.asyncExpectedResult(Arrays.asList(5, 12, 100)));
+    obj.methodWithHandlerAsyncResultSetString(checker.asyncExpectedResult(new HashSet<>(Arrays.asList("foo", "bar", "wibble"))));
+    obj.methodWithHandlerAsyncResultSetInteger(checker.asyncExpectedResult(new HashSet<>(Arrays.asList(5, 12, 100))));
     assertEquals(4, checker.count);
+  }
+
+  @Test
+  public void testMethodWithFutureListAndSet() throws Exception {
+    assertEquals(Arrays.asList("foo", "bar", "wibble"), obj.methodWithHandlerAsyncResultListStringFuture().get());
+    assertEquals(Arrays.asList(5, 12, 100), obj.methodWithHandlerAsyncResultListIntegerFuture().get());
+    assertEquals(new HashSet<>(Arrays.asList("foo", "bar", "wibble")), obj.methodWithHandlerAsyncResultSetStringFuture().get());
+    assertEquals(new HashSet<>(Arrays.asList(5, 12, 100)), obj.methodWithHandlerAsyncResultSetIntegerFuture().get());
   }
 
   @Test
@@ -153,6 +186,14 @@ public class ApiTest {
           assertEquals("bar", event.get(1).getString());
         }));
     assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithFutureListVertxGen() throws Exception {
+    List<RefedInterface1> result = obj.methodWithHandlerAsyncResultListVertxGenFuture().get();
+    assertEquals(2, result.size());
+    assertEquals("foo", result.get(0).getString());
+    assertEquals("bar", result.get(1).getString());
   }
 
   @Test
@@ -179,6 +220,14 @@ public class ApiTest {
   }
 
   @Test
+  public void testMethodWithFutureSetVertxGen() throws Exception {
+    Set<RefedInterface1> result = obj.methodWithHandlerAsyncResultSetVertxGenFuture().get();
+    List<String> list = result.stream().map(RefedInterface1::getString).collect(Collectors.toList());
+    Collections.sort(list);
+    assertEquals(Arrays.asList("bar", "foo"), list);
+  }
+
+  @Test
   public void testMethodWithHandlerListJsonObject() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerListJsonObject(checker.expectedResult(
@@ -193,6 +242,12 @@ public class ApiTest {
         checker.asyncExpectedResult(Arrays.asList(new JsonObject().putString("cheese", "stilton"), new JsonObject().putString("socks", "tartan")))
     );
     assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithFutureListJsonObject() throws Exception {
+    List<JsonObject> result = obj.methodWithHandlerAsyncResultListJsonObjectFuture().get();
+    assertEquals(Arrays.asList(new JsonObject().putString("cheese", "stilton"), new JsonObject().putString("socks", "tartan")), result);
   }
 
   @Test
@@ -214,6 +269,12 @@ public class ApiTest {
   }
 
   @Test
+  public void testMethodWithFutureSetJsonObject() throws Exception {
+    Set<JsonObject> result = obj.methodWithHandlerAsyncResultSetJsonObjectFuture().get();
+    assertEquals(Arrays.asList(new JsonObject().putString("cheese", "stilton"), new JsonObject().putString("socks", "tartan")), new ArrayList<>(result));
+  }
+
+  @Test
   public void testMethodWithHandlerListJsonArray() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerListJsonArray(checker.expectedResult(
@@ -227,6 +288,12 @@ public class ApiTest {
     obj.methodWithHandlerAsyncResultListJsonArray(checker.asyncExpectedResult(
         Arrays.asList(new JsonArray().add("green").add("blue"), new JsonArray().add("yellow").add("purple"))));
     assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithFutureListJsonArray() throws Exception {
+    List<JsonArray> result = obj.methodWithHandlerAsyncResultListJsonArrayFuture().get();
+    assertEquals(result, Arrays.asList(new JsonArray().add("green").add("blue"), new JsonArray().add("yellow").add("purple")));
   }
 
   @Test
@@ -248,6 +315,12 @@ public class ApiTest {
   }
 
   @Test
+  public void testMethodWithFutureSetJsonArray() throws Exception {
+    Set<JsonArray> result = obj.methodWithHandlerAsyncResultSetJsonArrayFuture().get();
+    assertEquals(Arrays.asList(new JsonArray().add("green").add("blue"), new JsonArray().add("yellow").add("purple")), new ArrayList<>(result));
+  }
+
+  @Test
   public void testMethodWithHandlerUserTypes() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerUserTypes(checker.<RefedInterface1>resultHandler( it -> assertEquals("echidnas", it.getString())));
@@ -259,6 +332,12 @@ public class ApiTest {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerAsyncResultUserTypes(checker.<RefedInterface1>asyncResultHandler( it -> assertEquals("cheetahs", it.getString())));
     assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithFutureUserTypes() throws Exception {
+    RefedInterface1 result = obj.methodWithHandlerAsyncResultUserTypesFuture().get();
+    assertEquals("cheetahs", result.getString());
   }
 
   @Test
@@ -276,10 +355,21 @@ public class ApiTest {
   }
 
   @Test
+  public void testMethodWithFutureVoid() throws Exception {
+    Void result = obj.methodWithHandlerAsyncResultVoidFuture(false).get();
+    assertEquals(null, result);
+  }
+
+  @Test
   public void testMethodWithHandlerAsyncResultVoidFails() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerAsyncResultVoid(true, checker.<Void>failureAsserter("foo!"));
     assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithFutureVoidFails() throws Exception {
+    assertFailure("foo!", obj.methodWithHandlerAsyncResultVoidFuture(true));
   }
 
   @Test
@@ -319,6 +409,16 @@ public class ApiTest {
     obj.methodWithGenericHandlerAsyncResult("JsonArray", checker.asyncExpectedResult(new JsonArray().add("foo").add("bar").add("wib")));
     assertEquals(4, checker.count);
   }
+
+  @Test
+  public void testMethodWithGenericFuture() throws Exception {
+    assertEquals("asyncResultHandlerFoo", obj.methodWithGenericHandlerAsyncResultFuture("String").get());
+    RefedInterface1Impl ref = obj.<RefedInterface1Impl>methodWithGenericHandlerAsyncResultFuture("Ref").get();
+    assertEquals("bar", ref.getString());
+    assertEquals(new JsonObject().putString("foo", "hello").putNumber("bar", 123), obj.methodWithGenericHandlerAsyncResultFuture("JsonObject").get());
+    assertEquals(new JsonArray().add("foo").add("bar").add("wib"), obj.methodWithGenericHandlerAsyncResultFuture("JsonArray").get());
+  }
+
   @Test
   public void testBasicReturns() {
     assertEquals(123, obj.methodWithByteReturn());
@@ -426,10 +526,14 @@ public class ApiTest {
   @Test
   public void testJsonHandlerAsyncResultParams() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultJson(
-        checker.<JsonObject>asyncResultHandler(it -> assertEquals(Collections.<String, Object>singletonMap("cheese", "stilton"), it.toMap())),
-        checker.<JsonArray>asyncResultHandler(it -> assertEquals(Arrays.asList("socks","shoes"), it.toList())
-        ));
+    obj.methodWithHandlerAsyncResultJsonObject(checker.<JsonObject>asyncResultHandler(it -> assertEquals(Collections.<String, Object>singletonMap("cheese", "stilton"), it.toMap())));
+    obj.methodWithHandlerAsyncResultJsonArray(checker.<JsonArray>asyncResultHandler(it -> assertEquals(Arrays.asList("socks","shoes"), it.toList())));
     assertEquals(2, checker.count);
+  }
+
+  @Test
+  public void testJsonFutureParams() throws Exception {
+    assertEquals(new JsonObject().putString("cheese", "stilton"), obj.methodWithHandlerAsyncResultJsonObjectFuture().get());
+    assertEquals(new JsonArray().add("socks").add("shoes"), obj.methodWithHandlerAsyncResultJsonArrayFuture().get());
   }
 }

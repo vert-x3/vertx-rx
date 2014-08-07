@@ -123,8 +123,13 @@ this.delegate
 	@{type.simpleName}
 @end{}
 
+@declare{'startMethodTemplate'}
+public @if{method.staticMethod}static @end{}@if{method.typeParams.size() > 0}<@foreach{typeVar:method.typeParams}@{typeVar}@end{', '}> @end{}@includeNamed{'returnTypeTemplate';type=method.returnType} @{method.name}(@foreach{param: method.params}@includeNamed{'paramTemplate';param=param}@end{', '}) {
+@end{}
+
 import java.util.Map;
 import io.vertx.lang.java.InternalHelper;
+import java.util.concurrent.CompletableFuture;
 @comment{"Generate the imports"}
 @foreach{importedType:importedTypes}
 	@if{importedType.kind == CLASS_API}
@@ -181,7 +186,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 	   *@{method.comment.replaceAll('\n(?!$)', '\n   *')}
 	   */\n
 	@end{}
-	  public @if{method.staticMethod}static @end{}@if{method.typeParams.size() > 0}<@foreach{typeVar:method.typeParams}@{typeVar}@end{', '}> @end{}@includeNamed{'returnTypeTemplate';type=method.returnType} @{method.name}(@foreach{param: method.params}@includeNamed{'paramTemplate';param=param}@end{', '}) {\n
+	  @includeNamed{'startMethodTemplate';method:method}\n
 	@if{method.fluent}
 	    @includeNamed{'invokeDelegate';method:method};\n
 	    return this;\n
@@ -210,6 +215,21 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 		    return ret;\n
 		@end{}
 	  }\n
+
+	@if{method.kind == METHOD_FUTURE}
+	@code{methodName=method.name}
+	@code{futureParams=new java.util.ArrayList(method.params)}
+	@code{futureParam=futureParams.remove(futureParams.size()-1)}
+	@code{futureType=futureParam.type.args[0].args[0]}
+	@code{futureReturnType=new io.vertx.codegen.TypeInfo$Parameterized(new io.vertx.codegen.TypeInfo$Class(CLASS_OTHER, "java.util.concurrent.CompletableFuture"), java.util.Collections.singletonList(futureType))}
+	@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,method.name + 'Future',method.kind,futureReturnType,method.fluent,method.cacheReturn,futureParams,method.comment,method.staticMethod,method.typeParams)}
+	  @includeNamed{'startMethodTemplate';method=futureMethod}\n
+	    CompletableFuture<@{futureType.simpleName}> @{futureParam.name} = new CompletableFuture<>();\n
+	    @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}InternalHelper.asyncResultHandler(@{futureParam.name}));\n
+	    return @{futureParam.name};\n
+	  }\n
+	@end{}
+
 	@end{}
 
 	@foreach{cacheDecl:cacheDecls}
