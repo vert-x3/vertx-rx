@@ -597,7 +597,7 @@ public class ApiTest {
 
   @Test
   public void testJsonReturns() {
-    JsonObject ret1 = obj.methodwithJsonObjectReturn();
+    JsonObject ret1 = obj.methodWithJsonObjectReturn();
     assertEquals(new JsonObject().putString("cheese", "stilton"), ret1);
     JsonArray ret2 = obj.methodWithJsonArrayReturn();
     assertEquals(new JsonArray().add("socks").add("shoes"), ret2);
