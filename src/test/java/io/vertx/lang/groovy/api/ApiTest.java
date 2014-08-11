@@ -567,10 +567,10 @@ public class ApiTest {
   public void testMethodWithGenericReturn() {
     Object ret = obj.methodWithGenericReturn(true);
     assertTrue("Was expecting " + ret + " to implement JsonObject", ret instanceof JsonObject);
-    assertEquals(Collections.<String, Object>singletonMap("foo", "bar"), ((JsonObject) ret).toMap());
+    assertEquals(new JsonObject().putString("foo", "bar"), ret);
     ret = obj.methodWithGenericReturn(false);
     assertTrue("Was expecting " + ret + " to implement JsonArray", ret instanceof JsonArray);
-    assertEquals(Arrays.asList("foo","bar"), ((JsonArray) ret).toList());
+    assertEquals(new JsonArray().add("foo").add("bar"), ret);
   }
 
   @Test
@@ -598,9 +598,9 @@ public class ApiTest {
   @Test
   public void testJsonReturns() {
     JsonObject ret1 = obj.methodwithJsonObjectReturn();
-    assertEquals(Collections.<String, Object>singletonMap("cheese", "stilton"), ret1.toMap());
+    assertEquals(new JsonObject().putString("cheese", "stilton"), ret1);
     JsonArray ret2 = obj.methodWithJsonArrayReturn();
-    assertEquals(Arrays.asList("socks", "shoes"), ret2.toList());
+    assertEquals(new JsonArray().add("socks").add("shoes"), ret2);
   }
 
   @Test
@@ -631,8 +631,8 @@ public class ApiTest {
   public void testJsonHandlerParams() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerJson(
-        checker.<JsonObject>resultHandler(it -> assertEquals(Collections.<String, Object>singletonMap("cheese", "stilton"), it.toMap())),
-        checker.<JsonArray>resultHandler(it -> assertEquals(Arrays.asList("socks","shoes"), it.toList())
+        checker.<JsonObject>resultHandler(it -> assertEquals(new JsonObject().putString("cheese", "stilton"), it)),
+        checker.<JsonArray>resultHandler(it -> assertEquals(new JsonArray().add("socks").add("shoes"), it)
     ));
     assertEquals(2, checker.count);
   }
@@ -650,8 +650,8 @@ public class ApiTest {
   @Test
   public void testJsonHandlerAsyncResultParams() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultJsonObject(checker.<JsonObject>asyncResultHandler(it -> assertEquals(Collections.<String, Object>singletonMap("cheese", "stilton"), it.toMap())));
-    obj.methodWithHandlerAsyncResultJsonArray(checker.<JsonArray>asyncResultHandler(it -> assertEquals(Arrays.asList("socks","shoes"), it.toList())));
+    obj.methodWithHandlerAsyncResultJsonObject(checker.<JsonObject>asyncResultHandler(it -> assertEquals(new JsonObject().putString("cheese", "stilton"), it)));
+    obj.methodWithHandlerAsyncResultJsonArray(checker.<JsonArray>asyncResultHandler(it -> assertEquals(new JsonArray().add("socks").add("shoes"), it)));
     assertEquals(2, checker.count);
   }
 
