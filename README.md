@@ -5,7 +5,7 @@ Support for a Vert.x API based on Java 8 CompletableFuture. Methods with an `Han
 a `CompletableFuture` counter part, for instance:
 
 ~~~~
-createServer().listen(serve -> {});
+createServer().listen(server -> {});
 ~~~~
 
 can be rewritten:
