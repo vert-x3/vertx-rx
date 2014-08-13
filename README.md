@@ -28,7 +28,7 @@ Vertx vertx = new io.vertx.java.core.Vertx(io.core.vertx.Vertx.verts());
 ~~~~
 public class MyVerticle extends io.vertx.lang.java.AbstractVerticle {
   public void start() {
-    // Use wrapper Vertx here
+    // Use wrapped Vertx here
   }
 }
 ~~~~
