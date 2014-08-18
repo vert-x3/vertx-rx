@@ -32,7 +32,7 @@ public class DeployTest {
   public void testDeploy() throws Exception {
     io.vertx.core.Vertx vertx = io.vertx.core.Vertx.vertx();
     CountDownLatch latch = new CountDownLatch(1);
-    vertx.deployVerticleInstance(new AbstractVerticle() {
+    vertx.deployVerticle(new AbstractVerticle() {
       @Override
       public void start() throws Exception {
         HttpServer s1 = vertx.createHttpServer(HttpServerOptions.options().setPort(8080)).requestHandler(req -> {});
