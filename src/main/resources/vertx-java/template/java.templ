@@ -221,7 +221,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 	@code{futureParams=new java.util.ArrayList(method.params)}
 	@code{futureParam=futureParams.remove(futureParams.size()-1)}
 	@code{futureType=futureParam.type.args[0].args[0]}
-	@code{futureReturnType=new io.vertx.codegen.TypeInfo$Parameterized(new io.vertx.codegen.TypeInfo$Class(CLASS_OTHER, "java.util.concurrent.CompletableFuture"), java.util.Collections.singletonList(futureType))}
+	@code{futureReturnType=new io.vertx.codegen.TypeInfo$Parameterized(io.vertx.codegen.TypeInfo.create(java.util.concurrent.CompletableFuture), java.util.Collections.singletonList(futureType))}
 	@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,method.name + 'Future',method.kind,futureReturnType,method.fluent,method.cacheReturn,futureParams,method.comment,method.staticMethod,method.typeParams)}
 	  @includeNamed{'startMethodTemplate';method=futureMethod}\n
 	    CompletableFuture<@{futureType.simpleName}> @{futureParam.name} = new CompletableFuture<>();\n

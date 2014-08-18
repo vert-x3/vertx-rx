@@ -1,5 +1,5 @@
 {
   "name": "Java",
-  "nameTemplate": "java/@{typeFQN.replace('io.vertx', 'io.vertx.java').replace('.', '/')}.java",
+  "nameTemplate": "java/@{type.name.replace('io.vertx', 'io.vertx.java').replace('.', '/')}.java",
   "templateFileName": "vertx-java/template/java.templ"
 }
