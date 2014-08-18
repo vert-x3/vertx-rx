@@ -143,8 +143,7 @@
                 <processor>io.vertx.codegen.CodeGenProcessor</processor>
               </processors>
               <optionMap>
-                <nameTemplate>${project.basedir}/src/main/java/@{typeFQN.replace("io.vertx.core", "io.vertx.java.core").replace(".", "/")}.java</nameTemplate>
-                <templateFileName>vertx-java/template/java.templ</templateFileName>
+                <outputDirectory>${project.basedir}/src/main</outputDirectory>
               </optionMap>
               <sourceDirectory>${project.build.directory}/sources/vertx-core</sourceDirectory>
             </configuration>
@@ -161,8 +160,7 @@
                 <processor>io.vertx.codegen.CodeGenProcessor</processor>
               </processors>
               <optionMap>
-                <nameTemplate>${project.basedir}/src/test/java/@{typeFQN.replace("io.vertx.codegen", "io.vertx.java.codegen").replace(".", "/")}.java</nameTemplate>
-                <templateFileName>vertx-java/template/java.templ</templateFileName>
+                <outputDirectory>${project.basedir}/src/test</outputDirectory>
               </optionMap>
               <sourceDirectory>${project.build.directory}/sources/codegen</sourceDirectory>
             </configuration>
