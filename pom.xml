@@ -8,19 +8,6 @@
   <artifactId>vertx-java</artifactId>
   <version>3.0.0-SNAPSHOT</version>
 
-  <repositories>
-    <repository>
-      <id>jsdoctk1</id>
-      <url>http://jsdoctk-plugin.googlecode.com/svn/repo</url>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>jsdoctk2</id>
-      <url>http://jsdoctk-plugin.googlecode.com/svn/repo</url>
-    </pluginRepository>
-  </pluginRepositories>
-
   <dependencies>
 
     <dependency>
@@ -211,67 +198,8 @@
           </additionalClasspathElements>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>nl.windgazer</groupId>
-        <artifactId>jsdoctk-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <directory>${project.build.directory}/jsdoc</directory>
-          <recurse>5</recurse>
-          <!--<ext>js</ext>-->
-          <!--<allfunctions>true</allfunctions>-->
-          <!--<Allfunctions>false</Allfunctions>-->
-          <privateOption>false</privateOption>
-          <!-- If you're using the maven default setup this alternative is sometimes required
-          to make the plugin work: ${basedir}/src/main/webapp/ -->
-          <srcDir>${basedir}/src/main/resources</srcDir>
-          <exclude>
-            <param>regularexpression</param><!--Multiple param entries allowed-->
-          </exclude>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>jsdoc</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
-
-  <profiles>
-
-    <!-- Run with "mvn test -Pexample" -->
-    <profile>
-      <id>example</id>
-      <properties>
-        <skipTests>true</skipTests>
-        <example>HelloWorld</example>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>java</goal>
-                </goals>
-                <configuration>
-                  <classpathScope>test</classpathScope>
-                  <mainClass>io.vertx.lang.groovy.examples.${example}</mainClass>
-                </configuration>
-                <phase>test</phase>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
 
 </project>
