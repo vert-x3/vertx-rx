@@ -20,5 +20,5 @@ test-results
 test-tmp
 *.class
 src/gen
-src/main/java/io/vertx/java/core/**/*.java
-src/test/java/io/vertx/java/codegen/**/*.java
+src/main/java/io/vertx/core/**/*.java
+src/test/java/io/vertx/codegen/**/*.java

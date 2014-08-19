@@ -103,11 +103,45 @@
       </plugins>
     </pluginManagement>
     <plugins>
+      <!-- Configure the execution of the compiler to execute the codegen processor -->
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <encoding>${project.build.sourceEncoding}</encoding>
+        </configuration>
+        <executions>
+          <execution>
+            <id>default-compile</id>
+            <configuration>
+              <annotationProcessors>
+                <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
+              </annotationProcessors>
+              <compilerArgs>
+                <arg>-AoutputDirectory=${project.basedir}/src/main</arg>
+              </compilerArgs>
+            </configuration>
+          </execution>
+          <execution>
+            <id>default-testCompile</id>
+            <configuration>
+              <annotationProcessors>
+                <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
+              </annotationProcessors>
+              <compilerArgs>
+                <arg>-AoutputDirectory=${project.basedir}/src/test</arg>
+              </compilerArgs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <version>2.8</version>
         <executions>
-          <!-- Unpack vertx-core source code to target/sources/vertx-core -->
+          <!-- Unpack vertx-core source code to src/main/java -->
           <execution>
             <id>unpack-vertx-core</id>
             <phase>generate-sources</phase>
@@ -123,10 +157,11 @@
                   <classifier>sources</classifier>
                 </artifactItem>
               </artifactItems>
-              <outputDirectory>${project.build.directory}/sources/vertx-core</outputDirectory>
+              <includes>**/*.java</includes>
+              <outputDirectory>${basedir}/src/main/java</outputDirectory>
             </configuration>
           </execution>
-          <!-- Unpack codegen source code to target/sources/codegen -->
+          <!-- Unpack codegen source code to src/test/java -->
           <execution>
             <id>unpack-codegen</id>
             <phase>generate-test-sources</phase>
@@ -142,58 +177,11 @@
                   <classifier>sources</classifier>
                 </artifactItem>
               </artifactItems>
-              <outputDirectory>${project.build.directory}/sources/codegen</outputDirectory>
+              <includes>io/vertx/codegen/testmodel/**/*.java</includes>
+              <outputDirectory>${basedir}/src/test/java</outputDirectory>
             </configuration>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.bsc.maven</groupId>
-        <artifactId>maven-processor-plugin</artifactId>
-        <version>2.2.4</version>
-        <executions>
-          <!-- Run the annotation processor on vertx-core and generate the Groovy API -->
-          <execution>
-            <id>generate-vertx-core</id>
-            <goals>
-              <goal>process</goal>
-            </goals>
-            <phase>generate-sources</phase>
-            <configuration>
-              <processors>
-                <processor>io.vertx.codegen.CodeGenProcessor</processor>
-              </processors>
-              <optionMap>
-                <outputDirectory>${project.basedir}/src/main</outputDirectory>
-              </optionMap>
-              <sourceDirectory>${project.build.directory}/sources/vertx-core</sourceDirectory>
-            </configuration>
-          </execution>
-          <!-- Run the annotation processor on codegen and generate the codegen API -->
-          <execution>
-            <id>generate-codegen</id>
-            <goals>
-              <goal>process</goal>
-            </goals>
-            <phase>generate-test-sources</phase>
-            <configuration>
-              <processors>
-                <processor>io.vertx.codegen.CodeGenProcessor</processor>
-              </processors>
-              <optionMap>
-                <outputDirectory>${project.basedir}/src/test</outputDirectory>
-              </optionMap>
-              <sourceDirectory>${project.build.directory}/sources/codegen</sourceDirectory>
-            </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <artifactId>maven-source-plugin</artifactId>
