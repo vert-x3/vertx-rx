@@ -1,7 +1,7 @@
 {
   "name": "Java",
   "class": {
-    "nameTemplate": "@{fqn.replace('io.vertx', 'io.vertx.java')}.java",
+    "fileName": "fqn.replace('io.vertx', 'io.vertx.java') + '.java'",
     "templateFileName": "vertx-java/template/java.templ"
   }
 }
