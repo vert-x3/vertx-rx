@@ -483,7 +483,7 @@ public class ApiTest {
   @Test
   public void testMethodWithGenericParam() {
     obj.methodWithGenericParam("String", "foo");
-    obj.methodWithGenericParam("Ref", new RefedInterface1Impl().setString("foo"));
+    obj.methodWithGenericParam("Ref", new RefedInterface1Impl().setString("bar"));
     obj.methodWithGenericParam("JsonObject", new JsonObject().putString("foo", "hello").putNumber("bar", 123));
     obj.methodWithGenericParam("JsonArray", new JsonArray().add("foo").add("bar").add("wib"));
   }
@@ -491,7 +491,7 @@ public class ApiTest {
   @Test
   public void testMethodWithGenericHandler() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithGenericHandler("String", checker.expectedResult("handlerFoo"));
+    obj.methodWithGenericHandler("String", checker.expectedResult("foo"));
     obj.methodWithGenericHandler("Ref", checker.<RefedInterface1Impl>resultHandler( it -> assertEquals("bar", it.getString())));
     obj.methodWithGenericHandler("JsonObject", checker.expectedResult(new JsonObject().putString("foo", "hello").putNumber("bar", 123)));
     obj.methodWithGenericHandler("JsonArray", checker.expectedResult(new JsonArray().add("foo").add("bar").add("wib")));
@@ -501,7 +501,7 @@ public class ApiTest {
   @Test
   public void testMethodWithGenericHandlerAsyncResult() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithGenericHandlerAsyncResult("String", checker.asyncExpectedResult("asyncResultHandlerFoo"));
+    obj.methodWithGenericHandlerAsyncResult("String", checker.asyncExpectedResult("foo"));
     obj.methodWithGenericHandlerAsyncResult("Ref", checker.<RefedInterface1Impl>asyncResultHandler( it -> assertEquals("bar", it.getString())));
     obj.methodWithGenericHandlerAsyncResult("JsonObject", checker.asyncExpectedResult(new JsonObject().putString("foo", "hello").putNumber("bar", 123)));
     obj.methodWithGenericHandlerAsyncResult("JsonArray", checker.asyncExpectedResult(new JsonArray().add("foo").add("bar").add("wib")));
@@ -510,7 +510,7 @@ public class ApiTest {
 
   @Test
   public void testMethodWithGenericFuture() throws Exception {
-    assertEquals("asyncResultHandlerFoo", obj.methodWithGenericHandlerAsyncResultFuture("String").get());
+    assertEquals("foo", obj.methodWithGenericHandlerAsyncResultFuture("String").get());
     RefedInterface1Impl ref = obj.<RefedInterface1Impl>methodWithGenericHandlerAsyncResultFuture("Ref").get();
     assertEquals("bar", ref.getString());
     assertEquals(new JsonObject().putString("foo", "hello").putNumber("bar", 123), obj.methodWithGenericHandlerAsyncResultFuture("JsonObject").get());
@@ -565,12 +565,12 @@ public class ApiTest {
 
   @Test
   public void testMethodWithGenericReturn() {
-    Object ret = obj.methodWithGenericReturn(true);
+    Object ret = obj.methodWithGenericReturn("JsonObject");
     assertTrue("Was expecting " + ret + " to implement JsonObject", ret instanceof JsonObject);
-    assertEquals(new JsonObject().putString("foo", "bar"), ret);
-    ret = obj.methodWithGenericReturn(false);
+    assertEquals(new JsonObject().putString("foo", "hello").putNumber("bar", 123), ret);
+    ret = obj.methodWithGenericReturn("JsonArray");
     assertTrue("Was expecting " + ret + " to implement JsonArray", ret instanceof JsonArray);
-    assertEquals(new JsonArray().add("foo").add("bar"), ret);
+    assertEquals(new JsonArray().add("foo").add("bar").add("wib"), ret);
   }
 
   @Test
