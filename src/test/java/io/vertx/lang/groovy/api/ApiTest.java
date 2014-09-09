@@ -551,9 +551,12 @@ public class ApiTest {
     RefedInterface1 refed = new RefedInterface1(new RefedInterface1Impl());
     refed.setString("dog");
     assertEquals("meth1", obj.overloadedMethod("cat", refed));
-    assertEquals("meth2", obj.overloadedMethod("cat", refed, 12345));
     AtomicBoolean called = new AtomicBoolean(false);
-    assertEquals("meth3", obj.overloadedMethod("cat", refed, 12345, it -> { assertEquals("giraffe", it); called.set(true); }));
+    assertEquals("meth2", obj.overloadedMethod("cat", refed, 12345, it -> { assertEquals("giraffe", it); called.set(true); }));
+    assertTrue(called.getAndSet(false));
+    assertEquals("meth3", obj.overloadedMethod("cat", it -> { assertEquals("giraffe", it); called.set(true); }));
+    assertTrue(called.getAndSet(false));
+    assertEquals("meth4", obj.overloadedMethod("cat", refed, it -> { assertEquals("giraffe", it); called.set(true); }));
     assertTrue(called.get());
   }
 
