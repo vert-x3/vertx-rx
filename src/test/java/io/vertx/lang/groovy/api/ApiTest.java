@@ -131,7 +131,7 @@ public class ApiTest {
 
   @Test
   public void testOptionsParam() {
-    TestOptions options = TestOptions.options();
+    TestOptions options = new TestOptions();
     options.setFoo("hello");
     options.setBar(123);
     options.setWibble(1.23);

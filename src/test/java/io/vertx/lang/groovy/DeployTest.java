@@ -35,8 +35,8 @@ public class DeployTest {
     vertx.deployVerticle(new AbstractVerticle() {
       @Override
       public void start() throws Exception {
-        HttpServer s1 = vertx.createHttpServer(HttpServerOptions.options().setPort(8080)).requestHandler(req -> {});
-        HttpServer s2 = vertx.createHttpServer(HttpServerOptions.options().setPort(8081)).requestHandler(req -> {
+        HttpServer s1 = vertx.createHttpServer(new HttpServerOptions().setPort(8080)).requestHandler(req -> {});
+        HttpServer s2 = vertx.createHttpServer(new HttpServerOptions().setPort(8081)).requestHandler(req -> {
         });
         CompletableFuture<HttpServer> f1 =  s1.listenFuture();
         CompletableFuture<HttpServer> f2 =  s2.listenFuture();
