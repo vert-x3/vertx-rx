@@ -1,0 +1,71 @@
+	  final @{helper.getNonGenericType(ifaceFQCN)} delegate;\n
+	  public @{constructor}(@{helper.getNonGenericType(ifaceFQCN)} delegate) {\n
+	@if{concrete && concreteSuperTypes.size() > 0}
+	    super(delegate);\n
+	@end{}
+	    this.delegate = delegate;\n
+	  }\n
+
+	  public Object getDelegate() {\n
+	    return delegate;\n
+	  }\n
+
+	@foreach{method:methods}
+	@if{method.comment != null}
+	  /**\n
+	   *@{method.comment.replaceAll('\n(?!$)', '\n   *')}
+	   */\n
+	@end{}
+	  @includeNamed{'startMethodTemplate';method:method}\n
+	@if{method.fluent}
+	    @includeNamed{'invokeDelegate';method:method};\n
+			@if{method.returnType instanceof io.vertx.codegen.TypeInfo$Variable}
+	    return (@{method.returnType.name}) this;\n
+			@else{}
+	    return this;\n
+			@end{}
+	@else{method.returnType.name.equals('void')}
+	    @includeNamed{'invokeDelegate';method:method};\n
+	@else{}
+		@if{method.cacheReturn}
+		    if (cached_@{cacheDecls.size()} != null) {\n
+		      return cached_@{cacheDecls.size()};\n
+		    }\n
+		@end{}
+		@if{method.returnType.kind == CLASS_OBJECT}
+			@code{cachedType=method.returnType.simpleName}
+		    @{cachedType=method.returnType.simpleName} ret = (@{cachedType=method.returnType.simpleName}) @includeNamed{'invokeDelegate';method:method};\n
+		@else{!method.returnType.name.startsWith('io.vertx.') || method.returnType.kind.json}
+			@code{cachedType=method.returnType.name}
+		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n
+		@else{}
+			@code{cachedType=method.returnType.simpleName}
+		    @{method.returnType.simpleName} ret= @{method.returnType.raw.simpleName}.newInstance(@includeNamed{'invokeDelegate';method:method});\n
+		@end{}
+		@if{method.cacheReturn}
+		    cached_@{cacheDecls.size()} = ret;\n
+			@code{cacheDecls.add('private' + (method.staticMethod ? ' static' : '') + ' ' + cachedType + ' cached_' + cacheDecls.size())}
+		@end{}
+		    return ret;\n
+		@end{}
+	  }\n
+
+	@if{method.kind == METHOD_FUTURE}
+	@code{methodName=method.name}
+	@code{futureParams=new java.util.ArrayList(method.params)}
+	@code{futureParam=futureParams.remove(futureParams.size()-1)}
+	@code{futureType=futureParam.type.args[0].args[0]}
+	@code{futureReturnType=new io.vertx.codegen.TypeInfo$Parameterized(io.vertx.codegen.TypeInfo.create(java.util.concurrent.CompletableFuture), java.util.Collections.singletonList(futureType))}
+	@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,method.name + 'Future',method.kind,futureReturnType,method.fluent,method.cacheReturn,futureParams,method.comment,method.staticMethod,method.typeParams)}
+	  @includeNamed{'startMethodTemplate';method=futureMethod}\n
+	    CompletableFuture<@{futureType.simpleName}> @{futureParam.name} = new CompletableFuture<>();\n
+	    @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}InternalHelper.asyncResultHandler(@{futureParam.name}));\n
+	    return @{futureParam.name};\n
+	  }\n
+	@end{}
+
+	@end{}
+
+	@foreach{cacheDecl:cacheDecls}
+	  @{cacheDecl};\n
+	@end{}

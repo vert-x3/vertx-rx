@@ -7,6 +7,7 @@ import io.vertx.core.VertxException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.java.codegen.testmodel.RefedInterface1;
+import io.vertx.java.codegen.testmodel.RefedInterface2;
 import io.vertx.java.codegen.testmodel.TestInterface;
 import io.vertx.lang.groovy.AsyncResultChecker;
 import org.junit.Assert;
@@ -182,6 +183,14 @@ public class ApiTest {
   }
 
   @Test
+  public void testMethodWithHandlerListAbstractVertxGen() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerListAbstractVertxGen(checker.<List<RefedInterface2>>resultHandler(it ->
+        assertEquals(Arrays.asList("abstractfoo", "abstractbar"), it.stream().map(RefedInterface2::getString).collect(Collectors.toList()))));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
   public void testMethodWithHandlerAsyncResultListVertxGen() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerAsyncResultListVertxGen(
@@ -189,6 +198,18 @@ public class ApiTest {
           assertEquals(2, event.size());
           assertEquals("foo", event.get(0).getString());
           assertEquals("bar", event.get(1).getString());
+        }));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithHandlerAsyncResultListAbstractVertxGen() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerAsyncResultListAbstractVertxGen(
+        checker.<List<RefedInterface2>>asyncResultHandler(event -> {
+          assertEquals(2, event.size());
+          assertEquals("abstractfoo", event.get(0).getString());
+          assertEquals("abstractbar", event.get(1).getString());
         }));
     assertEquals(1, checker.count);
   }
@@ -213,6 +234,17 @@ public class ApiTest {
   }
 
   @Test
+  public void testMethodWithHandlerSetAbstractVertxGen() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerSetAbstractVertxGen(checker.<Set<RefedInterface2>>resultHandler( event -> {
+      List<String> list = event.stream().map(it -> it.getString()).collect(Collectors.toList());
+      Collections.sort(list);
+      assertEquals(Arrays.asList("abstractbar", "abstractfoo"), list);
+    }));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
   public void testMethodWithHandlerAsyncResultSetVertxGen() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerAsyncResultSetVertxGen(
@@ -220,6 +252,18 @@ public class ApiTest {
           List<String> list = event.stream().map(RefedInterface1::getString).collect(Collectors.toList());
           Collections.sort(list);
           assertEquals(Arrays.asList("bar", "foo"), list);
+        }));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithHandlerAsyncResultSetAbstractVertxGen() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerAsyncResultSetAbstractVertxGen(
+        checker.<Set<RefedInterface2>>asyncResultHandler(event -> {
+          List<String> list = event.stream().map(RefedInterface2::getString).collect(Collectors.toList());
+          Collections.sort(list);
+          assertEquals(Arrays.asList("abstractbar", "abstractfoo"), list);
         }));
     assertEquals(1, checker.count);
   }
@@ -534,6 +578,12 @@ public class ApiTest {
   public void testVertxGenReturn() {
     RefedInterface1 r = obj.methodWithVertxGenReturn();
     assertEquals("chaffinch", r.getString());
+  }
+
+  @Test
+  public void testAbstractVertxGenReturn() {
+    RefedInterface2 r = obj.methodWithAbstractVertxGenReturn();
+    assertEquals("abstractchaffinch", r.getString());
   }
 
   @Test
