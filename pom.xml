@@ -103,6 +103,29 @@
       </plugins>
     </pluginManagement>
     <plugins>
+
+      <!-- Set logging -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>properties-maven-plugin</artifactId>
+        <version>1.0-alpha-2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>set-system-properties</goal>
+            </goals>
+            <configuration>
+              <properties>
+                <property>
+                  <name>java.util.logging.SimpleFormatter.format</name>
+                  <value>%4$s: %3$s - %5$s %6$s%n</value>
+                </property>
+              </properties>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- Configure the execution of the compiler to execute the codegen processor -->
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
