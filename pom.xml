@@ -181,7 +181,7 @@
                 </artifactItem>
               </artifactItems>
               <includes>**/*.java</includes>
-              <outputDirectory>${basedir}/src/main/java</outputDirectory>
+              <outputDirectory>${project.build.directory}/src/main/java</outputDirectory>
             </configuration>
           </execution>
           <!-- Unpack codegen source code to src/test/java -->
@@ -201,7 +201,36 @@
                 </artifactItem>
               </artifactItems>
               <includes>io/vertx/codegen/testmodel/**/*.java</includes>
-              <outputDirectory>${basedir}/src/test/java</outputDirectory>
+              <outputDirectory>${project.build.directory}/src/test/java</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.9.1</version>
+        <executions>
+          <execution>
+            <id>add-source</id>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/src/main/java</source>
+              </sources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>add-test-source</id>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/src/test/java</source>
+              </sources>
             </configuration>
           </execution>
         </executions>
