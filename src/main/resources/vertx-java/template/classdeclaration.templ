@@ -1,6 +1,3 @@
-@comment{"This is where the generation starts"}
-@comment{"==================================="}
-
 /*\n
  * Copyright 2014 Red Hat, Inc.\n
  *\n
@@ -17,7 +14,7 @@
  * under the License.\n
  */\n\n
 
-package @{ifacePackageName.replace("io.vertx.", "io.vertx.java.")};\n
+package @{ifacePackageName.replace("io.vertx.", targetPkg + ".")};\n
 
 @comment{'the current index of the cache'}
 @code{cacheDecls=new java.util.ArrayList()}
@@ -134,7 +131,7 @@ import java.util.concurrent.CompletableFuture;
 @foreach{importedType:importedTypes}
 	@if{importedType.kind == CLASS_API}
 		@if{!ifacePackageName.equals(importedType.packageName)}
-			import @{importedType.toString().replace("io.vertx.", "io.vertx.java.")};\n
+			import @{importedType.toString().replace("io.vertx.", targetPkg + ".")};\n
 		@end{}
 	@else{}
 		@if{!importedType.packageName.equals("java.lang")}
@@ -168,7 +165,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 
 @if{concrete}
 
-	@includeNamed{'classbody.templ';constructor=ifaceSimpleName}
+	@includeNamed{'/vertx-java/template/classbody.templ';constructor=ifaceSimpleName}
 
 @else{}
 
@@ -189,7 +186,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 
 \n
 class @{type.raw.simpleName}Impl@if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{','}>@end{} implements @{helper.getSimpleName(ifaceFQCN)} {\n
-@includeNamed{'classbody.templ';constructor=(type.raw.simpleName + 'Impl')}
+@includeNamed{'/vertx-java/template/classbody.templ';constructor=(type.raw.simpleName + 'Impl')}
 }\n
 
 @end{}

@@ -3,6 +3,6 @@
   "generators": [ {
     "kind": "class",
     "fileName": "fqn.replace('io.vertx', 'io.vertx.java') + '.java'",
-    "templateFileName": "vertx-java/template/java.templ"
+    "templateFileName": "vertx-java/template/class.templ"
   } ]
 }
