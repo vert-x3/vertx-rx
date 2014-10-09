@@ -35,7 +35,7 @@
 		@if{method.returnType.kind == CLASS_OBJECT}
 			@code{cachedType=method.returnType.simpleName}
 		    @{cachedType=method.returnType.simpleName} ret = (@{cachedType=method.returnType.simpleName}) @includeNamed{'invokeDelegate';method:method};\n
-		@else{!method.returnType.name.startsWith('io.vertx.') || method.returnType.kind.json}
+		@else{!method.returnType.name.startsWith('io.vertx.') || method.returnType.kind.json || method.returnType.kind == CLASS_ENUM}
 			@code{cachedType=method.returnType.name}
 		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n
 		@else{}
