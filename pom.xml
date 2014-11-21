@@ -11,7 +11,7 @@
   </parent>
 
   <groupId>io.vertx</groupId>
-  <artifactId>vertx-java</artifactId>
+  <artifactId>vertx-rxjava</artifactId>
   <version>3.0.0-SNAPSHOT</version>
 
   <name>Vert.x Java 8 Lang</name>
