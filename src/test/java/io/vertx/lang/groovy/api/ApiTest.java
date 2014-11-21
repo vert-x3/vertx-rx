@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class ApiTest {
 
-  final TestInterface<?> obj = new TestInterface(new TestInterfaceImpl());
+  final TestInterface obj = new TestInterface(new TestInterfaceImpl());
 
   @Test
   public void testMethodWithBasicParams() {
@@ -126,7 +126,7 @@ public class ApiTest {
 
   @Test
   public void testObjectParam() {
-    obj.methodWithObjectParam("JsonObject", new JsonObject().putString("foo", "hello").putNumber("bar", 123));
+    obj.methodWithObjectParam("JsonObject", new JsonObject().put("foo", "hello").put("bar", 123));
     obj.methodWithObjectParam("JsonArray", new JsonArray().add("foo").add("bar").add("wib"));
   }
 
@@ -280,7 +280,7 @@ public class ApiTest {
   public void testMethodWithHandlerListJsonObject() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerListJsonObject(checker.expectedResult(
-        Arrays.asList(new JsonObject().putString("cheese", "stilton"), new JsonObject().putString("socks", "tartan"))));
+        Arrays.asList(new JsonObject().put("cheese", "stilton"), new JsonObject().put("socks", "tartan"))));
     assertEquals(1, checker.count);
   }
 
@@ -296,7 +296,7 @@ public class ApiTest {
   public void testMethodWithHandlerAsyncResultListJsonObject() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerAsyncResultListJsonObject(
-        checker.asyncExpectedResult(Arrays.asList(new JsonObject().putString("cheese", "stilton"), new JsonObject().putString("socks", "tartan")))
+        checker.asyncExpectedResult(Arrays.asList(new JsonObject().put("cheese", "stilton"), new JsonObject().put("socks", "tartan")))
     );
     assertEquals(1, checker.count);
   }
@@ -313,7 +313,7 @@ public class ApiTest {
   @Test
   public void testMethodWithFutureListJsonObject() throws Exception {
     List<JsonObject> result = obj.methodWithHandlerAsyncResultListJsonObjectFuture().get();
-    assertEquals(Arrays.asList(new JsonObject().putString("cheese", "stilton"), new JsonObject().putString("socks", "tartan")), result);
+    assertEquals(Arrays.asList(new JsonObject().put("cheese", "stilton"), new JsonObject().put("socks", "tartan")), result);
   }
 
   @Test
@@ -326,7 +326,7 @@ public class ApiTest {
   public void testMethodWithHandlerSetJsonObject() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerSetJsonObject(checker.<Set<JsonObject>>resultHandler(r -> {
-      assertEquals(Arrays.asList(new JsonObject().putString("cheese", "stilton"), new JsonObject().putString("socks", "tartan")), new ArrayList<>(r));
+      assertEquals(Arrays.asList(new JsonObject().put("cheese", "stilton"), new JsonObject().put("socks", "tartan")), new ArrayList<>(r));
     }));
     assertEquals(1, checker.count);
   }
@@ -344,7 +344,7 @@ public class ApiTest {
   public void testMethodWithHandlerAsyncResultSetJsonObject() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerAsyncResultSetJsonObject(checker.<Set<JsonObject>>asyncResultHandler(it ->
-      assertEquals(Arrays.asList(new JsonObject().putString("cheese", "stilton"), new JsonObject().putString("socks", "tartan")), new ArrayList<>(it))
+      assertEquals(Arrays.asList(new JsonObject().put("cheese", "stilton"), new JsonObject().put("socks", "tartan")), new ArrayList<>(it))
     ));
     assertEquals(1, checker.count);
   }
@@ -361,7 +361,7 @@ public class ApiTest {
   @Test
   public void testMethodWithFutureSetJsonObject() throws Exception {
     Set<JsonObject> result = obj.methodWithHandlerAsyncResultSetJsonObjectFuture().get();
-    assertEquals(Arrays.asList(new JsonObject().putString("cheese", "stilton"), new JsonObject().putString("socks", "tartan")), new ArrayList<>(result));
+    assertEquals(Arrays.asList(new JsonObject().put("cheese", "stilton"), new JsonObject().put("socks", "tartan")), new ArrayList<>(result));
   }
 
   @Test
@@ -528,7 +528,7 @@ public class ApiTest {
   public void testMethodWithGenericParam() {
     obj.methodWithGenericParam("String", "foo");
     obj.methodWithGenericParam("Ref", new RefedInterface1Impl().setString("bar"));
-    obj.methodWithGenericParam("JsonObject", new JsonObject().putString("foo", "hello").putNumber("bar", 123));
+    obj.methodWithGenericParam("JsonObject", new JsonObject().put("foo", "hello").put("bar", 123));
     obj.methodWithGenericParam("JsonArray", new JsonArray().add("foo").add("bar").add("wib"));
   }
 
@@ -537,7 +537,7 @@ public class ApiTest {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithGenericHandler("String", checker.expectedResult("foo"));
     obj.methodWithGenericHandler("Ref", checker.<RefedInterface1Impl>resultHandler( it -> assertEquals("bar", it.getString())));
-    obj.methodWithGenericHandler("JsonObject", checker.expectedResult(new JsonObject().putString("foo", "hello").putNumber("bar", 123)));
+    obj.methodWithGenericHandler("JsonObject", checker.expectedResult(new JsonObject().put("foo", "hello").put("bar", 123)));
     obj.methodWithGenericHandler("JsonArray", checker.expectedResult(new JsonArray().add("foo").add("bar").add("wib")));
     assertEquals(4, checker.count);
   }
@@ -547,7 +547,7 @@ public class ApiTest {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithGenericHandlerAsyncResult("String", checker.asyncExpectedResult("foo"));
     obj.methodWithGenericHandlerAsyncResult("Ref", checker.<RefedInterface1Impl>asyncResultHandler( it -> assertEquals("bar", it.getString())));
-    obj.methodWithGenericHandlerAsyncResult("JsonObject", checker.asyncExpectedResult(new JsonObject().putString("foo", "hello").putNumber("bar", 123)));
+    obj.methodWithGenericHandlerAsyncResult("JsonObject", checker.asyncExpectedResult(new JsonObject().put("foo", "hello").put("bar", 123)));
     obj.methodWithGenericHandlerAsyncResult("JsonArray", checker.asyncExpectedResult(new JsonArray().add("foo").add("bar").add("wib")));
     assertEquals(4, checker.count);
   }
@@ -557,7 +557,7 @@ public class ApiTest {
     assertEquals("foo", obj.methodWithGenericHandlerAsyncResultFuture("String").get());
     RefedInterface1Impl ref = obj.<RefedInterface1Impl>methodWithGenericHandlerAsyncResultFuture("Ref").get();
     assertEquals("bar", ref.getString());
-    assertEquals(new JsonObject().putString("foo", "hello").putNumber("bar", 123), obj.methodWithGenericHandlerAsyncResultFuture("JsonObject").get());
+    assertEquals(new JsonObject().put("foo", "hello").put("bar", 123), obj.methodWithGenericHandlerAsyncResultFuture("JsonObject").get());
     assertEquals(new JsonArray().add("foo").add("bar").add("wib"), obj.methodWithGenericHandlerAsyncResultFuture("JsonArray").get());
   }
 
@@ -620,7 +620,7 @@ public class ApiTest {
   public void testMethodWithGenericReturn() {
     Object ret = obj.methodWithGenericReturn("JsonObject");
     assertTrue("Was expecting " + ret + " to implement JsonObject", ret instanceof JsonObject);
-    assertEquals(new JsonObject().putString("foo", "hello").putNumber("bar", 123), ret);
+    assertEquals(new JsonObject().put("foo", "hello").put("bar", 123), ret);
     ret = obj.methodWithGenericReturn("JsonArray");
     assertTrue("Was expecting " + ret + " to implement JsonArray", ret instanceof JsonArray);
     assertEquals(new JsonArray().add("foo").add("bar").add("wib"), ret);
@@ -651,7 +651,7 @@ public class ApiTest {
   @Test
   public void testJsonReturns() {
     JsonObject ret1 = obj.methodWithJsonObjectReturn();
-    assertEquals(new JsonObject().putString("cheese", "stilton"), ret1);
+    assertEquals(new JsonObject().put("cheese", "stilton"), ret1);
     JsonArray ret2 = obj.methodWithJsonArrayReturn();
     assertEquals(new JsonArray().add("socks").add("shoes"), ret2);
   }
@@ -667,7 +667,7 @@ public class ApiTest {
   @Test
   public void testJsonParams() {
     obj.methodWithJsonParams(
-        new JsonObject().putString("cat", "lion").putString("cheese", "cheddar"),
+        new JsonObject().put("cat", "lion").put("cheese", "cheddar"),
         new JsonArray().add("house").add("spider")
     );
   }
@@ -684,7 +684,7 @@ public class ApiTest {
   public void testJsonHandlerParams() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerJson(
-        checker.<JsonObject>resultHandler(it -> assertEquals(new JsonObject().putString("cheese", "stilton"), it)),
+        checker.<JsonObject>resultHandler(it -> assertEquals(new JsonObject().put("cheese", "stilton"), it)),
         checker.<JsonArray>resultHandler(it -> assertEquals(new JsonArray().add("socks").add("shoes"), it)
     ));
     assertEquals(2, checker.count);
@@ -703,7 +703,7 @@ public class ApiTest {
   @Test
   public void testJsonHandlerAsyncResultParams() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultJsonObject(checker.<JsonObject>asyncResultHandler(it -> assertEquals(new JsonObject().putString("cheese", "stilton"), it)));
+    obj.methodWithHandlerAsyncResultJsonObject(checker.<JsonObject>asyncResultHandler(it -> assertEquals(new JsonObject().put("cheese", "stilton"), it)));
     obj.methodWithHandlerAsyncResultJsonArray(checker.<JsonArray>asyncResultHandler(it -> assertEquals(new JsonArray().add("socks").add("shoes"), it)));
     assertEquals(2, checker.count);
   }
@@ -718,7 +718,7 @@ public class ApiTest {
 
   @Test
   public void testJsonFutureParams() throws Exception {
-    assertEquals(new JsonObject().putString("cheese", "stilton"), obj.methodWithHandlerAsyncResultJsonObjectFuture().get());
+    assertEquals(new JsonObject().put("cheese", "stilton"), obj.methodWithHandlerAsyncResultJsonObjectFuture().get());
     assertEquals(new JsonArray().add("socks").add("shoes"), obj.methodWithHandlerAsyncResultJsonArrayFuture().get());
   }
 

@@ -15,6 +15,7 @@
  */
 package io.vertx.lang.java;
 
+import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 
 /**
@@ -26,8 +27,8 @@ public class AbstractVerticle extends io.vertx.core.AbstractVerticle {
   protected io.vertx.java.core.Vertx vertx;
 
   @Override
-  public void setVertx(Vertx vertx) {
-    super.setVertx(vertx);
+  public void init(Vertx vertx, Context context) {
+    super.init(vertx, context);
     this.vertx = new io.vertx.java.core.Vertx(vertx);
   }
 }
