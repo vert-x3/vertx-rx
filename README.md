@@ -3,7 +3,7 @@ vertx-rxjava
 
 Support for a Vert.x API based on RxJava.
 
-# Handler<AsyncResult<T>> support
+## Async result handler support support
 
 Methods with an `Handler<AsyncResult<T>>` have
 an `Observable<T>` counter part,:
@@ -19,7 +19,7 @@ Observable<HttpServer> futureServer = createServer().listenObservable();
 futureServer.thenAccept(server -> {});
 ~~~~
 
-# ReadStream<T> support
+## ReadStream<T> support
 
 The `ReadStream` interface has a `toObservable()` method that converts the object to an `Observable` to use instead
 of the stream:
@@ -31,9 +31,9 @@ stream.subscribe(l -> {
 });
 ```
 
-# Usage
+## Usage
 
-## Embedded
+### Embedded
 
 Wrap `io.core.vertx.Vertx`:
 
@@ -41,7 +41,7 @@ Wrap `io.core.vertx.Vertx`:
 Vertx vertx = new io.vertx.rxjava.core.Vertx(io.core.vertx.Vertx.verts());
 ~~~~
 
-## As a Verticle
+### As a Verticle
 
 Let `io.vertx.lang.rxjava.AbstractVerticle` wrap it for you:
 
@@ -53,6 +53,6 @@ public class MyVerticle extends io.vertx.lang.rxjava.AbstractVerticle {
 }
 ~~~~
 
-# Todo
+## Todo
 
 - more things...
