@@ -24,11 +24,11 @@ import io.vertx.core.Vertx;
 public class AbstractVerticle extends io.vertx.core.AbstractVerticle {
 
   // Shadows the AbstractVerticle#vertx field
-  protected io.vertx.java.core.Vertx vertx;
+  protected io.vertx.rxjava.core.Vertx vertx;
 
   @Override
   public void init(Vertx vertx, Context context) {
     super.init(vertx, context);
-    this.vertx = new io.vertx.java.core.Vertx(vertx);
+    this.vertx = new io.vertx.rxjava.core.Vertx(vertx);
   }
 }

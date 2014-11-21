@@ -124,9 +124,9 @@ this.delegate
 public @if{method.staticMethod}static @end{}@if{method.typeParams.size() > 0}<@foreach{typeParam:method.typeParams}@{typeParam.name}@end{', '}> @end{}@includeNamed{'returnTypeTemplate';type=method.returnType} @{method.name}(@foreach{param: method.params}@includeNamed{'paramTemplate';param=param}@end{', '}) {
 @end{}
 
-import java.util.Map;
-import io.vertx.lang.java.InternalHelper;
-import java.util.concurrent.CompletableFuture;
+import java.util.Map;\n
+import io.vertx.lang.java.InternalHelper;\n
+import rx.Observable;\n
 @comment{"Generate the imports"}
 @foreach{importedType:importedTypes}
 	@if{importedType.kind == CLASS_API}

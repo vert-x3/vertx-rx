@@ -2,7 +2,7 @@
   "name": "Java",
   "generators": [ {
     "kind": "class",
-    "fileName": "fqn.replace('io.vertx', 'io.vertx.java') + '.java'",
+    "fileName": "fqn.replace('io.vertx', 'io.vertx.rxjava') + '.java'",
     "templateFileName": "vertx-java/template/class.templ"
   } ]
 }

@@ -16,11 +16,11 @@
 package io.vertx.lang.groovy;
 
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.java.core.http.HttpServer;
+import io.vertx.rxjava.core.http.HttpServer;
 import io.vertx.lang.java.AbstractVerticle;
 import org.junit.Test;
+import rx.Observable;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -31,16 +31,20 @@ public class DeployTest {
   @Test
   public void testDeploy() throws Exception {
     io.vertx.core.Vertx vertx = io.vertx.core.Vertx.vertx();
-    CountDownLatch latch = new CountDownLatch(1);
+    CountDownLatch latch = new CountDownLatch(2);
     vertx.deployVerticle(new AbstractVerticle() {
       @Override
       public void start() throws Exception {
         HttpServer s1 = vertx.createHttpServer(new HttpServerOptions().setPort(8080)).requestHandler(req -> {});
-        HttpServer s2 = vertx.createHttpServer(new HttpServerOptions().setPort(8081)).requestHandler(req -> {
+        HttpServer s2 = vertx.createHttpServer(new HttpServerOptions().setPort(8081)).requestHandler(req -> {});
+        Observable<HttpServer> f1 =  s1.listenObservable();
+        Observable<HttpServer> f2 =  s2.listenObservable();
+        f1.subscribe(server -> {
+          latch.countDown();
         });
-        CompletableFuture<HttpServer> f1 =  s1.listenFuture();
-        CompletableFuture<HttpServer> f2 =  s2.listenFuture();
-        f1.runAfterBoth(f2, latch::countDown);
+        f2.subscribe(server -> {
+          latch.countDown();
+        });
       }
     });
     latch.await();
