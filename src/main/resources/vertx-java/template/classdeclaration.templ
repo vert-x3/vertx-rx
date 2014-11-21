@@ -175,6 +175,12 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 	  @if{method.staticMethod}static @end{}@if{method.typeParams.size() > 0}<@foreach{typeVar:method.typeParams}@{typeVar}@end{}> @end{}@{method.returnType.simpleName} @{method.name}(@foreach{param: method.params}@includeNamed{'paramTemplate';param=param}@end{', '});\n
 	@end{}
 
+	@if{type.raw.name == 'io.vertx.core.streams.ReadStream'}
+  default rx.Observable<@{typeParams[0].name}> toObservable() {\n
+    return io.vertx.ext.rx.java.RxHelper.<@{typeParams[0].name}>toObservable((io.vertx.core.streams.ReadStream<@{typeParams[0].name}>) getDelegate());\n
+  }\n
+	@end{}
+
 @end{}
 
   public static @if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}@{type.simpleName} newInstance(@{type.raw.name} arg) {\n
