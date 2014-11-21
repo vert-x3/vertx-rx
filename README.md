@@ -33,13 +33,17 @@ stream.subscribe(l -> {
 
 # Usage
 
-## Wrap `io.core.vertx.Vertx`
+## Embedded
+
+Wrap `io.core.vertx.Vertx`:
 
 ~~~~
 Vertx vertx = new io.vertx.rxjava.core.Vertx(io.core.vertx.Vertx.verts());
 ~~~~
 
-## Let `io.vertx.lang.rxjava.AbstractVerticle` wrap it for you
+## As a Verticle
+
+Let `io.vertx.lang.rxjava.AbstractVerticle` wrap it for you:
 
 ~~~~
 public class MyVerticle extends io.vertx.lang.rxjava.AbstractVerticle {
