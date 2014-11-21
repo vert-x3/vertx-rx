@@ -6,7 +6,7 @@ Support for a Vert.x API based on RxJava.
 ## Async result handler support support
 
 Methods with an `Handler<AsyncResult<T>>` have
-an `Observable<T>` counter part,:
+an `Observable<T>` counter part:
 
 ~~~~
 createServer().listen(server -> {});
@@ -53,6 +53,6 @@ public class MyVerticle extends io.vertx.lang.rxjava.AbstractVerticle {
 }
 ~~~~
 
-## Todo
+##   Todo
 
 - more things...
