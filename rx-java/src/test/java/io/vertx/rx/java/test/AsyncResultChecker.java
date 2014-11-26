@@ -1,4 +1,4 @@
-package io.vertx.lang.groovy;
+package io.vertx.rx.java.test;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;

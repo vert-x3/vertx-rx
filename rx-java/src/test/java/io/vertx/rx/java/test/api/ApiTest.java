@@ -1,4 +1,4 @@
-package io.vertx.lang.groovy.api;
+package io.vertx.rx.java.test.api;
 
 import io.vertx.codegen.testmodel.RefedInterface1Impl;
 import io.vertx.codegen.testmodel.TestInterfaceImpl;
@@ -9,7 +9,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava.codegen.testmodel.RefedInterface1;
 import io.vertx.rxjava.codegen.testmodel.RefedInterface2;
 import io.vertx.rxjava.codegen.testmodel.TestInterface;
-import io.vertx.lang.groovy.AsyncResultChecker;
+import io.vertx.rx.java.test.AsyncResultChecker;
 import org.junit.Assert;
 import org.junit.Test;
 import rx.Observable;

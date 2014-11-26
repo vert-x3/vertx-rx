@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package io.vertx.lang.groovy;
+package io.vertx.rx.java.test;
 
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.rxjava.core.Vertx;
