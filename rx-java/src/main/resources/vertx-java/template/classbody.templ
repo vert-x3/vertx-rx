@@ -10,6 +10,24 @@
 	    return delegate;\n
 	  }\n
 
+	@if{type.raw.readStream}
+		@code{streamType=type.raw.readStreamArg}
+  private rx.Observable<@{streamType.simpleName}> observable;\n
+
+  public synchronized rx.Observable<@{streamType.simpleName}> toObservable() {\n
+    if (observable == null) {\n
+		@if{streamType.kind == CLASS_API}
+      java.util.function.Function<@{streamType.raw.name}, @{streamType.simpleName}> conv = @{streamType.raw.simpleName}::newInstance;\n
+      io.vertx.lang.rxjava.HandlerAdapter<@{streamType.raw.name}, @{streamType.simpleName}> adapter = new io.vertx.lang.rxjava.HandlerAdapter<>(this, conv);\n
+      observable = rx.Observable.create(adapter);\n
+		@else{}
+      observable = io.vertx.rx.java.RxHelper.toObservable((io.vertx.core.streams.ReadStream<@{streamType.name}>) this.getDelegate());\n
+		@end{}
+    }\n
+    return observable;\n
+  }\n
+	@end{}
+
 	@foreach{method:methods}
 	@if{method.comment != null}
 	  /**\n

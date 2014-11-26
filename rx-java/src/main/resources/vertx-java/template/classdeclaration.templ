@@ -176,9 +176,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 	@end{}
 
 	@if{type.raw.name == 'io.vertx.core.streams.ReadStream'}
-  default rx.Observable<@{typeParams[0].name}> toObservable() {\n
-    return io.vertx.rx.java.RxHelper.<@{typeParams[0].name}>toObservable((io.vertx.core.streams.ReadStream<@{typeParams[0].name}>) getDelegate());\n
-  }\n
+  rx.Observable<@{typeParams[0].name}> toObservable();\n
 	@end{}
 
 @end{}

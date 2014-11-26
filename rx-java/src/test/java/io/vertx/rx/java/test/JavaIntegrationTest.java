@@ -1,24 +1,24 @@
 package io.vertx.rx.java.test;
 
-import io.vertx.core.Context;
-import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.eventbus.MessageConsumer;
-import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.http.HttpClientRequest;
-import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.net.NetClientOptions;
-import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
-import io.vertx.core.net.NetSocket;
-import io.vertx.core.streams.ReadStream;
+import io.vertx.rxjava.core.Context;
+import io.vertx.rxjava.core.Vertx;
+import io.vertx.rxjava.core.buffer.Buffer;
+import io.vertx.rxjava.core.eventbus.EventBus;
+import io.vertx.rxjava.core.eventbus.MessageConsumer;
+import io.vertx.rxjava.core.http.HttpClient;
+import io.vertx.rxjava.core.http.HttpClientRequest;
+import io.vertx.rxjava.core.http.HttpClientResponse;
+import io.vertx.rxjava.core.http.HttpServer;
+import io.vertx.rxjava.core.http.HttpServerRequest;
+import io.vertx.rxjava.core.http.ServerWebSocket;
+import io.vertx.rxjava.core.net.NetServer;
+import io.vertx.rxjava.core.net.NetSocket;
+import io.vertx.rxjava.core.streams.ReadStream;
 import io.vertx.rx.java.ObservableFuture;
 import io.vertx.rx.java.ObservableHandler;
 import io.vertx.rx.java.RxHelper;
@@ -40,11 +40,19 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class JavaIntegrationTest extends VertxTestBase {
 
+  private Vertx vertx;
+
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
+    vertx = new Vertx(super.vertx);
+  }
+
   @Test
   public void testConsumeBodyStream() {
     EventBus eb = vertx.eventBus();
     MessageConsumer<String> consumer = eb.<String>consumer("the-address");
-    Observable<String> obs = RxHelper.toObservable(consumer.bodyStream());
+    Observable<String> obs = consumer.bodyStream().toObservable();
     List<String> items = new ArrayList<>();
     obs.subscribe(new Subscriber<String>() {
       @Override
@@ -57,7 +65,6 @@ public class JavaIntegrationTest extends VertxTestBase {
 
       @Override
       public void onError(Throwable throwable) {
-        System.out.println("throwable = " + throwable);
         fail(throwable.getMessage());
       }
 
@@ -78,7 +85,7 @@ public class JavaIntegrationTest extends VertxTestBase {
   public void testRegisterAgain() {
     EventBus eb = vertx.eventBus();
     MessageConsumer<String> consumer = eb.<String>consumer("the-address");
-    Observable<String> obs = RxHelper.toObservable(consumer.bodyStream());
+    Observable<String> obs = consumer.bodyStream().toObservable();
     obs.subscribe(new Subscriber<String>() {
       @Override
       public void onNext(String s) {
@@ -121,7 +128,7 @@ public class JavaIntegrationTest extends VertxTestBase {
   public void testObservableUnsubscribeDuringObservation() {
     EventBus eb = vertx.eventBus();
     MessageConsumer<String> consumer = eb.<String>consumer("the-address");
-    Observable<String> obs = RxHelper.toObservable(consumer.bodyStream());
+    Observable<String> obs = consumer.bodyStream().toObservable();
     Observable<String> a = obs.take(4);
     List<String> obtained = new ArrayList<>();
     a.subscribe(new Subscriber<String>() {
@@ -160,11 +167,11 @@ public class JavaIntegrationTest extends VertxTestBase {
         error -> fail(error.getMessage())
     );
     NetServer server = vertx.createNetServer(new NetServerOptions().setPort(1234).setHost("localhost"));
-    Observable<NetSocket> socketObs = RxHelper.toObservable(server.connectStream());
+    Observable<NetSocket> socketObs = server.connectStream().toObservable();
     socketObs.subscribe(new Subscriber<NetSocket>() {
       @Override
       public void onNext(NetSocket o) {
-        Observable<Buffer> dataObs = RxHelper.toObservable(o);
+        Observable<Buffer> dataObs = o.toObservable();
         dataObs.subscribe(new Observer<Buffer>() {
 
           LinkedList<Buffer> buffers = new LinkedList<>();
@@ -213,11 +220,11 @@ public class JavaIntegrationTest extends VertxTestBase {
         error -> fail(error.getMessage())
     );
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
-    Observable<ServerWebSocket> socketObs = RxHelper.toObservable(server.websocketStream());
+    Observable<ServerWebSocket> socketObs = server.websocketStream().toObservable();
     socketObs.subscribe(new Subscriber<ServerWebSocket>() {
       @Override
       public void onNext(ServerWebSocket o) {
-        Observable<Buffer> dataObs = RxHelper.toObservable(o);
+        Observable<Buffer> dataObs = o.toObservable();
         dataObs.subscribe(new Observer<Buffer>() {
 
           LinkedList<Buffer> buffers = new LinkedList<>();
@@ -257,22 +264,12 @@ public class JavaIntegrationTest extends VertxTestBase {
 
   @Test
   public void testObservableHttpRequest() {
-    ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
-    onListen.subscribe(
-        server -> {
-          HttpClientRequest req = vertx.createHttpClient(new HttpClientOptions()).request(HttpMethod.PUT, 8080, "localhost", "/some/path", resp -> {
-          });
-          req.putHeader("Content-Length", "3");
-          req.write("foo");
-        },
-        error -> fail(error.getMessage())
-    );
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
-    Observable<HttpServerRequest> socketObs = RxHelper.toObservable(server.requestStream());
+    Observable<HttpServerRequest> socketObs = server.requestStream().toObservable();
     socketObs.subscribe(new Subscriber<HttpServerRequest>() {
       @Override
       public void onNext(HttpServerRequest o) {
-        Observable<Buffer> dataObs = RxHelper.toObservable(o);
+        Observable<Buffer> dataObs = o.toObservable();
         dataObs.subscribe(new Observer<Buffer>() {
 
           LinkedList<Buffer> buffers = new LinkedList<>();
@@ -306,14 +303,23 @@ public class JavaIntegrationTest extends VertxTestBase {
         testComplete();
       }
     });
-    server.listen(onListen.asHandler());
+    Observable<HttpServer> onListen = server.listenObservable();
+    onListen.subscribe(
+        s -> {
+          HttpClientRequest req = vertx.createHttpClient(new HttpClientOptions()).request(HttpMethod.PUT, 8080, "localhost", "/some/path", resp -> {
+          });
+          req.putHeader("Content-Length", "3");
+          req.write("foo");
+        },
+        error -> fail(error.getMessage())
+    );
     await();
   }
 
   @Test
   public void testConcatOperator() {
-    Observable<Long> o1 = RxHelper.toObservable(vertx.timerStream(100));
-    Observable<Long> o2 = RxHelper.toObservable(vertx.timerStream(100));
+    Observable<Long> o1 = vertx.timerStream(100).toObservable();
+    Observable<Long> o2 = vertx.timerStream(100).toObservable();
     Observable<Long> obs = Observable.concat(o1, o2);
     AtomicInteger count = new AtomicInteger();
     obs.subscribe(msg -> count.incrementAndGet(),
@@ -332,7 +338,7 @@ public class JavaIntegrationTest extends VertxTestBase {
       Context initCtx = Vertx.currentContext();
       Observable.timer(100, 100, TimeUnit.MILLISECONDS, RxHelper.scheduler(vertx)).take(10).subscribe(new Observer<Long>() {
         public void onNext(Long value) {
-          assertEquals(initCtx, Vertx.currentContext());
+          assertEquals(initCtx.getDelegate(), Vertx.currentContext().getDelegate());
         }
 
         public void onError(Throwable e) {
@@ -363,7 +369,7 @@ public class JavaIntegrationTest extends VertxTestBase {
 
             public void onNext(List<Long> value) {
               eventCount++;
-              assertEquals(initCtx, Vertx.currentContext());
+              assertEquals(initCtx.getDelegate(), Vertx.currentContext().getDelegate());
             }
 
             public void onError(Throwable e) {
@@ -390,7 +396,7 @@ public class JavaIntegrationTest extends VertxTestBase {
       Observer<String> observer = new Observer<String>() {
         @Override
         public void onNext(String s) {
-          assertEquals(initCtx, Vertx.currentContext());
+          assertEquals(initCtx.getDelegate(), Vertx.currentContext().getDelegate());
           assertEquals("msg1msg2msg3", s);
           testComplete();
         }
@@ -403,7 +409,7 @@ public class JavaIntegrationTest extends VertxTestBase {
           fail();
         }
       };
-      Observable<String> observable = RxHelper.toObservable(consumer);
+      Observable<String> observable = consumer.toObservable();
       observable.
           buffer(500, TimeUnit.MILLISECONDS, RxHelper.scheduler(vertx)).
           map(samples -> samples.stream().reduce("", (a, b) -> a + b)).
@@ -437,7 +443,8 @@ public class JavaIntegrationTest extends VertxTestBase {
         count.incrementAndGet();
       }
     };
-    server.listen(RxHelper.toFuture(observer));
+    Observable<HttpServer> onListen = server.listenObservable();
+    onListen.subscribe(observer);
     await();
   }
 
@@ -473,7 +480,7 @@ public class JavaIntegrationTest extends VertxTestBase {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
       client.request(HttpMethod.GET, 8080, "localhost", "/the_uri", resp -> {
         Buffer content = Buffer.buffer();
-        Observable<Buffer> observable = RxHelper.toObservable(resp);
+        Observable<Buffer> observable = resp.toObservable();
         observable.forEach(content::appendBuffer, err -> fail(), () -> {
           server.close();
           assertEquals("some_content", content.toString("UTF-8"));
@@ -495,7 +502,7 @@ public class JavaIntegrationTest extends VertxTestBase {
       ObservableHandler<HttpClientResponse> observable = RxHelper.observableHandler();
       client.request(HttpMethod.GET, 8080, "localhost", "/the_uri", observable.asHandler()).end();
       Buffer content = Buffer.buffer();
-      observable.take(1).flatMap(RxHelper::toObservable).forEach(
+      observable.take(1).flatMap(HttpClientResponse::toObservable).forEach(
           content::appendBuffer,
           err -> fail(), () -> {
         server.close();
