@@ -1,4 +1,4 @@
-package io.vertx.lang.java;
+package io.vertx.lang.rxjava;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
