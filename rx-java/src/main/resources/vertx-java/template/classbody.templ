@@ -58,7 +58,7 @@
 	@code{futureReturnType=new io.vertx.codegen.TypeInfo$Parameterized(io.vertx.codegen.TypeInfo.create(rx.Observable), java.util.Collections.singletonList(futureType))}
 	@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,method.name + 'Observable',method.kind,futureReturnType,method.fluent,method.cacheReturn,futureParams,method.comment,method.staticMethod,method.typeParams)}
 	  @includeNamed{'startMethodTemplate';method=futureMethod}\n
-	    io.vertx.ext.rx.java.ObservableFuture<@{futureType.simpleName}> @{futureParam.name} = io.vertx.ext.rx.java.RxHelper.observableFuture();\n
+	    io.vertx.rx.java.ObservableFuture<@{futureType.simpleName}> @{futureParam.name} = io.vertx.rx.java.RxHelper.observableFuture();\n
 	    @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}@{futureParam.name}.asHandler());\n
 	    return @{futureParam.name};\n
 	  }\n
