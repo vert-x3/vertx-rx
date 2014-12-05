@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
@@ -203,6 +202,69 @@ public class TestInterfaceImpl implements TestInterface {
   public void methodWithNullOptionsParam(TestOptions options) {
     assertNull(options);
   }
+
+  @Override
+  public void methodWithListParams(List<String> listString, List<Byte> listByte, List<Short> listShort, List<Integer> listInt, List<Long> listLong, List<JsonObject> listJsonObject, List<JsonArray> listJsonArray, List<RefedInterface1> listVertxGen) {
+    assertEquals("foo", listString.get(0));
+    assertEquals("bar", listString.get(1));
+    assertEquals((byte)2, listByte.get(0).byteValue());
+    assertEquals((byte)3, listByte.get(1).byteValue());
+    assertEquals((short)12, listShort.get(0).shortValue());
+    assertEquals((short)13, listShort.get(1).shortValue());
+    assertEquals((int)1234, listInt.get(0).intValue());
+    assertEquals((int)1345, listInt.get(1).intValue());
+    System.out.println("entry type is " + ((List)listLong).get(0).getClass().getName());
+    assertEquals(123l, listLong.get(0).longValue());
+    assertEquals(456l, listLong.get(1).longValue());
+    assertEquals(new JsonObject().put("foo", "bar"), listJsonObject.get(0));
+    assertEquals(new JsonObject().put("eek", "wibble"), listJsonObject.get(1));
+    assertEquals(new JsonArray().add("foo"), listJsonArray.get(0));
+    assertEquals(new JsonArray().add("blah"), listJsonArray.get(1));
+    assertEquals("foo", listVertxGen.get(0).getString());
+    assertEquals("bar", listVertxGen.get(1).getString());
+  }
+
+  @Override
+  public void methodWithSetParams(Set<String> setString, Set<Byte> setByte, Set<Short> setShort, Set<Integer> setInt, Set<Long> setLong, Set<JsonObject> setJsonObject, Set<JsonArray> setJsonArray, Set<RefedInterface1> setVertxGen) {
+    assertTrue(setString.contains("foo"));
+    assertTrue(setString.contains("bar"));
+    assertTrue(setByte.contains((byte)2));
+    assertTrue(setByte.contains((byte)3));
+    assertTrue(setShort.contains((short)12));
+    assertTrue(setShort.contains((short)13));
+    assertTrue(setInt.contains(1234));
+    assertTrue(setInt.contains(1345));
+    assertTrue(setLong.contains(123l));
+    assertTrue(setLong.contains(456l));
+    assertTrue(setJsonObject.contains(new JsonObject().put("foo", "bar")));
+    assertTrue(setJsonObject.contains(new JsonObject().put("eek", "wibble")));
+    assertTrue(setJsonArray.contains(new JsonArray().add("foo")));
+    assertTrue(setJsonArray.contains(new JsonArray().add("blah")));
+    assertTrue(setVertxGen.contains(new RefedInterface1Impl().setString("foo")));
+    assertTrue(setVertxGen.contains(new RefedInterface1Impl().setString("bar")));
+  }
+
+  @Override
+  public void methodWithMapParams(Map<String, String> mapString, Map<String, Byte> mapByte, Map<String, Short> mapShort, Map<String, Integer> mapInt, Map<String, Long> mapLong, Map<String, JsonObject> mapJsonObject,
+                                  Map<String, JsonArray> mapJsonArray, Map<String, RefedInterface1> mapVertxGen) {
+    assertEquals("bar", mapString.get("foo"));
+    assertEquals("wibble", mapString.get("eek"));
+    assertEquals((byte)2, mapByte.get("foo").byteValue());
+    assertEquals((byte)3, mapByte.get("eek").byteValue());
+    assertEquals((short)12, mapShort.get("foo").shortValue());
+    assertEquals((short)13, mapShort.get("eek").shortValue());
+    assertEquals(1234, mapInt.get("foo").intValue());
+    assertEquals(1345, mapInt.get("eek").intValue());
+    assertEquals(123L, mapLong.get("foo").longValue());
+    assertEquals(456L, mapLong.get("eek").longValue());
+    assertEquals(new JsonObject().put("foo", "bar"), mapJsonObject.get("foo"));
+    assertEquals(new JsonObject().put("eek", "wibble"), mapJsonObject.get("eek"));
+    assertEquals(new JsonArray().add("foo"), mapJsonArray.get("foo"));
+    assertEquals(new JsonArray().add("blah"), mapJsonArray.get("eek"));
+    assertEquals(new RefedInterface1Impl().setString("foo"), mapVertxGen.get("foo"));
+    assertEquals(new RefedInterface1Impl().setString("bar"), mapVertxGen.get("eek"));
+  }
+
 
   @Override
   public void methodWithHandlerListAndSet(Handler<List<String>> listStringHandler, Handler<List<Integer>> listIntHandler,
@@ -492,16 +554,6 @@ public class TestInterfaceImpl implements TestInterface {
   }
 
   @Override
-  public List<String> methodWithListStringReturn() {
-    return Arrays.asList("foo", "bar", "wibble");
-  }
-
-  @Override
-  public Set<String> methodWithSetStringReturn() {
-    return new LinkedHashSet<>( Arrays.asList("foo", "bar", "wibble"));
-  }
-
-  @Override
   public String overloadedMethod(String str, RefedInterface1 refed) {
     assertEquals("cat", str);
     assertEquals("dog", refed.getString());
@@ -710,24 +762,105 @@ public class TestInterfaceImpl implements TestInterface {
   }
 
   @Override
-  public Map<String, String> methodWithMapReturn(Handler<String> handler) {
-    return new HandlerTestMap<>(handler);
+  public List<String> methodWithListStringReturn() {
+    return Arrays.asList("foo", "bar", "wibble");
   }
 
   @Override
-  public Map<String, JsonObject> methodWithMapJsonReturn(Handler<String> handler) {
-    return new HandlerTestMap<>(handler);
+  public Set<String> methodWithSetStringReturn() {
+    return new LinkedHashSet<>( Arrays.asList("foo", "bar", "wibble"));
+  }
+
+  @Override
+  public Map<String, String> methodWithMapReturn(Handler<String> handler) {
+    Map<String, String> map = new HandlerTestMap<>(handler);
+    return map;
+  }
+
+  @Override
+  public Map<String, String> methodWithMapStringReturn(Handler<String> handler) {
+    Map<String, String> map = new HandlerTestMap<>(handler);
+    map.put("foo", "bar");
+    return map;
+  }
+
+  @Override
+  public Map<String, JsonObject> methodWithMapJsonObjectReturn(Handler<String> handler) {
+    Map<String, JsonObject> map = new HandlerTestMap<>(handler);
+    map.put("foo", new JsonObject().put("wibble", "eek"));
+    return map;
   }
 
   @Override
   public Map<String, JsonArray> methodWithMapJsonArrayReturn(Handler<String> handler) {
-    return new HandlerTestMap<>(handler);
+    Map<String, JsonArray> map = new HandlerTestMap<>(handler);
+    map.put("foo", new JsonArray().add("wibble"));
+    return map;
+  }
+
+  @Override
+  public Map<String, Long> methodWithMapLongReturn(Handler<String> handler) {
+    Map<String, Long> map = new HandlerTestMap<>(handler);
+    map.put("foo", 123l);
+    return map;
   }
 
   @Override
   public Map<String, String> methodWithNullMapReturn() {
     return null;
   }
+
+
+  @Override
+  public List<Long> methodWithListLongReturn() {
+    return Arrays.asList(123l, 456l);
+  }
+
+  @Override
+  public List<RefedInterface1> methodWithListVertxGenReturn() {
+    return Arrays.asList(new RefedInterface1Impl().setString("foo"), new RefedInterface1Impl().setString("bar"));
+  }
+
+  @Override
+  public List<JsonObject> methodWithListJsonObjectReturn() {
+    return Arrays.asList(new JsonObject().put("foo", "bar"), new JsonObject().put("blah", "eek"));
+  }
+
+  @Override
+  public List<JsonArray> methodWithListJsonArrayReturn() {
+    return Arrays.asList(new JsonArray().add("foo"), new JsonArray().add("blah"));
+  }
+
+  @Override
+  public List<String> methodWithNullListReturn() {
+    return null;
+  }
+
+  @Override
+  public Set<Long> methodWithSetLongReturn() {
+    return new LinkedHashSet<>(Arrays.asList(123l, 456l));
+  }
+
+  @Override
+  public Set<RefedInterface1> methodWithSetVertxGenReturn() {
+    return new LinkedHashSet<>(Arrays.asList(new RefedInterface1Impl().setString("foo"), new RefedInterface1Impl().setString("bar")));
+  }
+
+  @Override
+  public Set<JsonObject> methodWithSetJsonObjectReturn() {
+    return new LinkedHashSet<>(Arrays.asList(new JsonObject().put("foo", "bar"), new JsonObject().put("blah", "eek")));
+  }
+
+  @Override
+  public Set<JsonArray> methodWithSetJsonArrayReturn() {
+    return new LinkedHashSet<>(Arrays.asList(new JsonArray().add("foo"), new JsonArray().add("blah")));
+  }
+
+  @Override
+  public Set<String> methodWithNullSetReturn() {
+    return null;
+  }
+
 
   @Override
   public String methodWithEnumParam(String strVal, TestEnum weirdo) {
@@ -826,3 +959,4 @@ public class TestInterfaceImpl implements TestInterface {
     }
   }
 }
+

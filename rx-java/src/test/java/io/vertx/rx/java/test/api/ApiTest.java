@@ -17,8 +17,10 @@ import rx.Observable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -556,6 +558,40 @@ public class ApiTest {
   }
 
   @Test
+  public void testMethodListParams() {
+    RefedInterface1 refed1 = new RefedInterface1(new RefedInterface1Impl());
+    refed1.setString("foo");
+    RefedInterface1 refed2 = new RefedInterface1(new RefedInterface1Impl());
+    refed2.setString("bar");
+    obj.methodWithListParams(Arrays.asList("foo", "bar"), Arrays.asList((byte)2, (byte)3), Arrays.asList((short)12, (short)13),
+        Arrays.asList(1234, 1345), Arrays.asList(123l, 456l), Arrays.asList(new JsonObject().put("foo", "bar"), new JsonObject().put("eek", "wibble")),
+        Arrays.asList(new JsonArray().add("foo"), new JsonArray().add("blah")), Arrays.asList(refed1, refed2));
+  }
+
+  @Test
+  public void testMethodSetParams() {
+    RefedInterface1 refed1 = new RefedInterface1(new RefedInterface1Impl());
+    refed1.setString("foo");
+    RefedInterface1 refed2 = new RefedInterface1(new RefedInterface1Impl());
+    refed2.setString("bar");
+    obj.methodWithSetParams(set("foo", "bar"), set((byte)2, (byte)3), set((short)12, (short)13),
+        set(1234, 1345), set(123l, 456l), set(new JsonObject().put("foo", "bar"), new JsonObject().put("eek", "wibble")),
+        set(new JsonArray().add("foo"), new JsonArray().add("blah")), set(refed1, refed2));
+  }
+
+  @Test
+  public void testMethodMapParams() {
+    RefedInterface1 refed1 = new RefedInterface1(new RefedInterface1Impl());
+    refed1.setString("foo");
+    RefedInterface1 refed2 = new RefedInterface1(new RefedInterface1Impl());
+    refed2.setString("bar");
+    obj.methodWithMapParams(map("foo", "bar", "eek", "wibble"), map("foo", (byte)2, "eek", (byte)3),
+    map("foo", (short)12, "eek", (short)13),
+    map("foo", 1234, "eek", 1345), map("foo", 123l, "eek", 456l), map("foo", new JsonObject().put("foo", "bar"), "eek", new JsonObject().put("eek", "wibble")),
+    map("foo", new JsonArray().add("foo"), "eek", new JsonArray().add("blah")), map("foo", refed1, "eek", refed2));
+  }
+
+  @Test
   public void testMethodWithGenericObservable() throws Exception {
     assertEquals("foo", get(obj.methodWithGenericHandlerAsyncResultObservable("String")));
     RefedInterface1Impl ref = get(obj.<RefedInterface1Impl>methodWithGenericHandlerAsyncResultObservable("Ref"));
@@ -595,8 +631,109 @@ public class ApiTest {
   }
 
   @Test
+  public void testListLongReturn() {
+    assertEquals(list(123l, 456l), obj.methodWithListLongReturn());
+  }
+
+  @Test
+  public void testListJsonObjectReturn() {
+    List<JsonObject> list = obj.methodWithListJsonObjectReturn();
+    assertEquals(2, list.size());
+    JsonObject json1 = list.get(0);
+    assertEquals("bar", json1.getValue("foo"));
+    JsonObject json2 = list.get(1);
+    assertEquals("eek", json2.getValue("blah"));
+  }
+
+  @Test
+  public void testListJsonArrayReturn() {
+    List<JsonArray> list = obj.methodWithListJsonArrayReturn();
+    assertEquals(2, list.size());
+    JsonArray json1 = list.get(0);
+    assertEquals("foo", json1.getValue(0));
+    JsonArray json2 = list.get(1);
+    assertEquals("blah", json2.getValue(0));
+  }
+  @Test
+  public void testListVertxGenReturn() {
+    List<RefedInterface1> list = obj.methodWithListVertxGenReturn();
+    assertEquals(2, list.size());
+    RefedInterface1 refed1 = list.get(0);
+    RefedInterface1 refed2 = list.get(1);
+    assertEquals("foo", refed1.getString());
+    assertEquals("bar", refed2.getString());
+  }
+
+  @Test
   public void testSetStringReturn() {
     assertEquals(new HashSet<>(Arrays.asList("foo", "bar", "wibble")), obj.methodWithSetStringReturn());
+  }
+
+  @Test
+  public void testSetLongReturn() {
+    assertEquals(set(123l, 456l), obj.methodWithSetLongReturn());
+  }
+
+  @Test
+  public void testSetJsonObjectReturn() {
+    Set<JsonObject> set = obj.methodWithSetJsonObjectReturn();
+    assertEquals(2, set.size());
+    JsonObject json1 = new JsonObject();
+    json1.put("foo", "bar");
+    assertTrue(set.contains(json1));
+    JsonObject json2 = new JsonObject();
+    json2.put("blah", "eek");
+    assertTrue(set.contains(json2));
+  }
+
+  @Test
+  public void testSetJsonArrayReturn() {
+    Set<JsonArray> set = obj.methodWithSetJsonArrayReturn();
+    assertEquals(2, set.size());
+    JsonArray json1 = new JsonArray();
+    json1.add("foo");
+    assertTrue(set.contains(json1));
+    JsonArray json2 = new JsonArray();
+    json2.add("blah");
+    assertTrue(set.contains(json2));
+  }
+
+  @Test
+  public void testSetVertxGenReturn() {
+    Set<RefedInterface1> set = obj.methodWithSetVertxGenReturn();
+    assertEquals(2, set.size());
+    RefedInterface1 refed1 = new RefedInterface1(new RefedInterface1Impl());
+    refed1.setString("foo");
+    RefedInterface1 refed2 = new RefedInterface1(new RefedInterface1Impl());
+    refed2.setString("bar");
+    List<RefedInterface1> list = new ArrayList<>(set);
+    assertTrue((list.get(0).getString().equals("foo") && list.get(1).getString().equals("bar")) || (list.get(0).getString().equals("bar") && list.get(1).getString().equals("foo")));
+  }
+
+  @Test
+  public void testMapStringReturn() {
+    Map<String, String> map = obj.methodWithMapStringReturn(s -> {});
+    assertEquals("bar", map.get("foo"));
+  }
+
+  @Test
+  public void testMapLongReturn() {
+    Map<String, Long> map = obj.methodWithMapLongReturn(s -> {});
+    assertEquals(123l, (long)map.get("foo"));
+  }
+
+  @Test
+  public void testMapJsonObjectReturn() {
+    Map<String, JsonObject> map = obj.methodWithMapJsonObjectReturn(s -> {});
+    JsonObject m = map.get("foo");
+    assertEquals("eek", m.getValue("wibble"));
+  }
+
+  @Test
+  public void testMapJsonArrayReturn() {
+    Map<String, JsonArray> map = obj.methodWithMapJsonArrayReturn(s -> {});
+    JsonArray m = map.get("foo");
+    assertEquals("wibble", m.getValue(0));
   }
 
   @Test
@@ -729,5 +866,26 @@ public class ApiTest {
   public void testNullJsonFutureParams() throws Exception {
     assertEquals(null, get(obj.methodWithHandlerAsyncResultNullJsonObjectObservable()));
     assertEquals(null, get(obj.methodWithHandlerAsyncResultNullJsonArrayObservable()));
+  }
+
+  private static <V> Map<String, V> map(String key1, V value1) {
+    HashMap<String, V> map = new HashMap<>();
+    map.put(key1, value1);
+    return map;
+  }
+
+  private static <V> Map<String, V> map(String key1, V value1, String key2, V value2) {
+    HashMap<String, V> map = new HashMap<>();
+    map.put(key1, value1);
+    map.put(key2, value2);
+    return map;
+  }
+
+  private static <E> Set<E> set(E... elements) {
+    return new HashSet<>(Arrays.asList(elements));
+  }
+
+  private static <E> List<E> list(E... elements) {
+    return Arrays.asList(elements);
   }
 }

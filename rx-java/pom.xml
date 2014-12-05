@@ -19,8 +19,13 @@
 
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>codegen</artifactId>
+      <artifactId>vertx-codegen</artifactId>
       <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-docgen</artifactId>
+      <version>3.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.reactivex</groupId>
@@ -29,7 +34,7 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>codegen</artifactId>
+      <artifactId>vertx-codegen</artifactId>
       <version>1.0-SNAPSHOT</version>
       <classifier>sources</classifier>
     </dependency>
@@ -162,7 +167,7 @@
               <artifactItems>
                 <artifactItem>
                   <groupId>io.vertx</groupId>
-                  <artifactId>codegen</artifactId>
+                  <artifactId>vertx-codegen</artifactId>
                   <version>1.0-SNAPSHOT</version>
                   <classifier>sources</classifier>
                 </artifactItem>

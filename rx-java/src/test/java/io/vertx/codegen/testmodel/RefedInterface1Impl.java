@@ -24,6 +24,11 @@ public class RefedInterface1Impl implements RefedInterface1 {
   }
 
   @Override
+  public int hashCode() {
+    return str != null ? str.hashCode() : 0;
+  }
+
+  @Override
   public String toString() {
     return "TestInterface1[str=" + str + "]";
   }

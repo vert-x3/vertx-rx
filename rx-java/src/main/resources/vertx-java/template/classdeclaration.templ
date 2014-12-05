@@ -61,7 +61,7 @@ this.delegate
 		@else{eventKind == CLASS_LIST || eventKind == CLASS_SET}
 			@code{elementType=eventType.args[0]}
 			@code{elementKind=elementType.kind}
-			@if{elementKind == CLASS_PRIMITIVE || elementKind == CLASS_BOXED_PRIMITIVE || elementKind == CLASS_STRING}
+			@if{elementKind.basic}
 				@{param.name}
 			@else{elementKind == CLASS_API}
 				@code{collectionName=eventType.raw.simpleName}
@@ -89,7 +89,7 @@ this.delegate
 			@else{resultKind == CLASS_LIST || resultKind == CLASS_SET}
 				@code{elementType=resultType.args[0]}
 				@code{elementKind=elementType.kind}
-				@if{elementKind == CLASS_PRIMITIVE || elementKind == CLASS_BOXED_PRIMITIVE || elementKind == CLASS_STRING}
+				@if{elementKind.basic}
 					@{param.name}
 				@else{elementKind == CLASS_API}
 					@code{collectionName=resultType.raw.simpleName}
@@ -110,6 +110,27 @@ this.delegate
 			@end{}
 		@else{}
 			null /* Handler<@{eventType.name}> with kind @{eventKind} not yet implemented */
+		@end{}
+	@else{param.type.kind == CLASS_LIST || param.type.kind == CLASS_SET}
+		@code{elementType=param.type.args[0]}
+		@code{elementKind=elementType.kind}
+		@if{elementKind.basic || elementKind.json}
+			@{param.name}
+		@else{}
+			@if{param.type.kind == CLASS_LIST}
+				@code{collectionName='List'}
+			@else{}
+				@code{collectionName='Set'}
+			@end{}
+			@{param.name}.stream().map(element -> (@{elementType.name})element.getDelegate()).collect(java.util.stream.Collectors.to@{collectionName}())
+		@end{}
+	@else{param.type.kind == CLASS_MAP}
+		@code{elementType=param.type.args[1]}
+		@code{elementKind=elementType.kind}
+		@if{elementKind.basic || elementKind.json}
+			@{param.name}
+		@else{}
+			@{param.name}.entrySet().stream().collect(java.util.stream.Collectors.toMap(entry -> entry.getKey(), entry -> (@{elementType.name})entry.getValue().getDelegate()))
 		@end{}
 	@else{}
 		@{param.name}

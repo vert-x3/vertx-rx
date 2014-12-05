@@ -53,12 +53,27 @@
 		@if{method.returnType.kind == CLASS_OBJECT}
 			@code{cachedType=method.returnType.simpleName}
 		    @{cachedType=method.returnType.simpleName} ret = (@{cachedType=method.returnType.simpleName}) @includeNamed{'invokeDelegate';method:method};\n
-		@else{!method.returnType.name.startsWith('io.vertx.') || method.returnType.kind.json || method.returnType.kind == CLASS_ENUM}
-			@code{cachedType=method.returnType.name}
-		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n
-		@else{}
+		@else{method.returnType.kind == CLASS_LIST || method.returnType.kind == CLASS_SET}
+			@code{collectionName=method.returnType.raw.simpleName}
+			@code{elementType=method.returnType.args[0]}
+			@code{elementKind=elementType.kind}
+			@code{cachedType=method.returnType.simpleName}
+			@if{elementKind.basic || elementKind.json}
+		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n;\n
+			@else{}
+		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method}.stream().map(@{elementType.simpleName}::newInstance).collect(java.util.stream.Collectors.to@{collectionName}());\n
+			@end{}
+		@else{method.returnType.kind == CLASS_MAP}
+			@code{elementType=method.returnType.args[1]}
+			@code{elementKind=elementType.kind}
+			@code{cachedType=method.returnType.simpleName}
+		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n;\n
+		@else{method.returnType.kind == CLASS_API}
 			@code{cachedType=method.returnType.simpleName}
 		    @{method.returnType.simpleName} ret= @{method.returnType.raw.simpleName}.newInstance(@includeNamed{'invokeDelegate';method:method});\n
+		@else{}
+			@code{cachedType=method.returnType.name}
+		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n
 		@end{}
 		@if{method.cacheReturn}
 		    cached_@{cacheDecls.size()} = ret;\n
