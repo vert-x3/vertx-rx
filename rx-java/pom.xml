@@ -10,7 +10,7 @@
     <version>3.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>rx-java</artifactId>
+  <artifactId>vertx-rx-java</artifactId>
   <version>3.0.0-SNAPSHOT</version>
 
   <name>Vert.x RxJava API</name>
