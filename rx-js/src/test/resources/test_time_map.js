@@ -7,7 +7,7 @@ var eb = vertx.eventBus();
 var consumer = eb.localConsumer("the-address").bodyStream();
 var observer = Rx.Observer.create(
   function (evt) {
-    test.assertEquals(initContext._jdel(), Vertx.currentContext()._jdel());
+    test.assertEquals(initContext._jdel, Vertx.currentContext()._jdel);
     test.assertEquals("msg1msg2msg3", evt);
     test.testComplete();
   },

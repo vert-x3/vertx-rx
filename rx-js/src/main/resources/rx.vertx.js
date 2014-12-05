@@ -49,9 +49,9 @@
         readStream.endHandler(function() { observer.onCompleted(); });
         readStream.handler(function(event) { observer.onNext(event); });
         return function() {
-          readStream._jdel().endHandler(null);
-          readStream._jdel().exceptionHandler(null);
-          readStream._jdel().handler(null); // This may call the endHandler
+          readStream._jdel.endHandler(null);
+          readStream._jdel.exceptionHandler(null);
+          readStream._jdel.handler(null); // This may call the endHandler
         }
       })
     } else {
