@@ -37,7 +37,7 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-js</artifactId>
+      <artifactId>vertx-lang-js</artifactId>
       <version>3.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>

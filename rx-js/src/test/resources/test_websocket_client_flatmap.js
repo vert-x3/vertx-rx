@@ -3,30 +3,27 @@ var test = require("test");
 var Rx = require("rx.vertx");
 
 var server = vertx.createHttpServer({port: 8080});
-server.requestStream().handler(function(req) {
-  req.response().setChunked(true).end("some_content");
+server.websocketStream().handler(function(ws) {
+    ws.write(Buffer.buffer("some_content"));
+    ws.close();
 });
 
 server.listen(function(server, cause) {
   var client = vertx.createHttpClient({});
-  var req = client.request("GET", 8080, "localhost", "/the_uri");
   var content = Buffer.buffer();
-  var observable = Rx.Observable.fromReadStream(req);
-  observable.
-      flatMap(function(resp) {
-        return Rx.Observable.fromReadStream(resp);
-      }).
-      forEach(
+  var stream = client.websocket(8080, "localhost", "/the_uri");
+  var observable = Rx.Observable.fromReadStream(stream);
+  observable.flatMap(function(ws) {
+      return Rx.Observable.fromReadStream(ws);
+    }).
+    forEach(
       function(buffer) {
         content.appendBuffer(buffer);
-      },
-      function(err) {
+      }, function(err) {
         test.fail();
-      },
-      function() {
+      } , function() {
         server.close();
         test.assertEquals("some_content", content.toString("UTF-8"));
         test.testComplete();
       });
-  req.end();
 });

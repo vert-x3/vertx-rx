@@ -86,6 +86,16 @@ public class GroovyIntegrationTest extends VertxTestBase {
     runScript("src/test/groovy/testHttpClientFlatMap.groovy");
   }
 
+  @Test
+  public void testWebsocketClient() throws Exception {
+    runScript("src/test/groovy/testWebsocketClient.groovy");
+  }
+
+  @Test
+  public void testWebsocketClientFlatMap() throws Exception {
+    runScript("src/test/groovy/testWebsocketClientFlatMap.groovy");
+  }
+
   private void runScript(String script) throws Exception {
     Vertx vertx = Vertx.vertx();
     try {

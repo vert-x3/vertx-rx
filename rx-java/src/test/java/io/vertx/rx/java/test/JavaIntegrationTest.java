@@ -16,6 +16,7 @@ import io.vertx.rxjava.core.http.HttpClientResponse;
 import io.vertx.rxjava.core.http.HttpServer;
 import io.vertx.rxjava.core.http.HttpServerRequest;
 import io.vertx.rxjava.core.http.ServerWebSocket;
+import io.vertx.rxjava.core.http.WebSocket;
 import io.vertx.rxjava.core.net.NetServer;
 import io.vertx.rxjava.core.net.NetSocket;
 import io.vertx.rxjava.core.streams.ReadStream;
@@ -499,16 +500,88 @@ public class JavaIntegrationTest extends VertxTestBase {
     });
     server.listen(ar -> {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-      ObservableHandler<HttpClientResponse> observable = RxHelper.observableHandler();
-      client.request(HttpMethod.GET, 8080, "localhost", "/the_uri", observable.asHandler()).end();
+      HttpClientRequest req = client.request(HttpMethod.GET, 8080, "localhost", "/the_uri");
+      Observable<HttpClientResponse> obs =  req.toObservable();
       Buffer content = Buffer.buffer();
-      observable.take(1).flatMap(HttpClientResponse::toObservable).forEach(
+      obs.flatMap(HttpClientResponse::toObservable).forEach(
           content::appendBuffer,
           err -> fail(), () -> {
         server.close();
         assertEquals("some_content", content.toString("UTF-8"));
         testComplete();
       });
+      req.end();
+    });
+    await();
+  }
+
+  @Test
+  public void testHttpClientConnectionFailure() {
+    HttpClient client = vertx.createHttpClient(new HttpClientOptions());
+    HttpClientRequest req = client.request(HttpMethod.GET, 9998, "255.255.255.255", "/the_uri");
+    Observable<HttpClientResponse> obs = req.toObservable();
+    obs.subscribe(
+        buffer -> fail(),
+        err -> testComplete(),
+        this::fail);
+    req.end();
+    await();
+  }
+
+  @Test
+  public void testHttpClientConnectionFailureFlatMap() {
+    HttpClient client = vertx.createHttpClient(new HttpClientOptions());
+    HttpClientRequest req = client.request(HttpMethod.GET, 9998, "255.255.255.255", "/the_uri");
+    Observable<HttpClientResponse> obs = req.toObservable();
+    obs.flatMap(HttpClientResponse::toObservable).forEach(
+        buffer -> fail(),
+        err -> testComplete(),
+        this::fail);
+    req.end();
+    await();
+  }
+
+  @Test
+  public void testWebsocketClient() {
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
+    server.websocketStream().handler(ws -> {
+      ws.write(Buffer.buffer("some_content"));
+      ws.close();
+    });
+    server.listen(ar -> {
+      HttpClient client = vertx.createHttpClient(new HttpClientOptions());
+      client.connectWebsocket(8080, "localhost", "/the_uri", ws -> {
+        Buffer content = Buffer.buffer();
+        Observable<Buffer> observable = ws.toObservable();
+        observable.forEach(content::appendBuffer, err -> fail(), () -> {
+          server.close();
+          assertEquals("some_content", content.toString("UTF-8"));
+          testComplete();
+        });
+      });
+    });
+    await();
+  }
+
+  @Test
+  public void testWebsocketClientFlatMap() {
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
+    server.websocketStream().handler(ws -> {
+      ws.write(Buffer.buffer("some_content"));
+      ws.close();
+    });
+    server.listen(ar -> {
+      HttpClient client = vertx.createHttpClient(new HttpClientOptions());
+      Buffer content = Buffer.buffer();
+      client.
+          websocket(8080, "localhost", "/the_uri").
+          toObservable().
+          flatMap(WebSocket::toObservable).
+          forEach(content::appendBuffer, err -> fail(), () -> {
+            server.close();
+            assertEquals("some_content", content.toString("UTF-8"));
+            testComplete();
+          });
     });
     await();
   }

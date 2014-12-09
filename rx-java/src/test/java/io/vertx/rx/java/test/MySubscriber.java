@@ -1,5 +1,6 @@
 package io.vertx.rx.java.test;
 
+import org.junit.Assert;
 import rx.Subscriber;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -59,7 +60,17 @@ public class MySubscriber<T> extends Subscriber<T> {
     if (event == null) {
       throw new AssertionError("Was expecting at least event " + expected);
     }
-    assertEquals(expected, event);
+    if (expected == completed) {
+      Assert.assertEquals(completed, event);
+    } else if (expected instanceof Throwable) {
+      Assert.assertEquals(expected, event);
+    } else {
+      assertEquals(expected, event);
+    }
     return this;
+  }
+
+  protected void assertEquals(java.lang.Object expected, java.lang.Object actual) {
+    Assert.assertEquals(expected, actual);
   }
 }

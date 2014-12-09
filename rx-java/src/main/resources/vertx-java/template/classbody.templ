@@ -18,7 +18,7 @@
     if (observable == null) {\n
 		@if{streamType.kind == CLASS_API}
       java.util.function.Function<@{streamType.raw.name}, @{streamType.simpleName}> conv = @{streamType.raw.simpleName}::newInstance;\n
-      io.vertx.lang.rxjava.HandlerAdapter<@{streamType.raw.name}, @{streamType.simpleName}> adapter = new io.vertx.lang.rxjava.HandlerAdapter<>(this, conv);\n
+      io.vertx.lang.rxjava.ReadStreamAdapter<@{streamType.raw.name}, @{streamType.simpleName}> adapter = new io.vertx.lang.rxjava.ReadStreamAdapter<>(this, conv);\n
       observable = rx.Observable.create(adapter);\n
 		@else{}
       observable = io.vertx.rx.java.RxHelper.toObservable((io.vertx.core.streams.ReadStream<@{streamType.name}>) this.getDelegate());\n

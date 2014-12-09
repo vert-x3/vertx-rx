@@ -116,6 +116,16 @@ public class JsIntegrationTest extends VertxTestBase {
     deployTest("test_http_client_flatmap.js");
   }
 
+  @Test
+  public void testWebsocketClient() throws Throwable {
+    deployTest("test_websocket_client.js");
+  }
+
+  @Test
+  public void testWebsocketClientFlatMap() throws Throwable {
+    deployTest("test_websocket_client_flatmap.js");
+  }
+
   private void deployTest(String test) {
     vertx.deployVerticle(test, ar -> {
       if (!ar.succeeded()) {
