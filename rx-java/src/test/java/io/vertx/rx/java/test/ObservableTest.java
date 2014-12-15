@@ -18,7 +18,7 @@ package io.vertx.rx.java.test;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.rxjava.core.Vertx;
 import io.vertx.rxjava.core.http.HttpServer;
-import io.vertx.lang.rxjava.AbstractVerticle;
+import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 import rx.Observable;
