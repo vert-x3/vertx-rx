@@ -3,6 +3,7 @@ package io.vertx.rx.java;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 import rx.Observable;
 import rx.Observer;
@@ -13,8 +14,7 @@ import rx.functions.Action1;
 import rx.plugins.RxJavaSchedulersHook;
 
 /**
- * A set of helpers for RxJava {@link Observable} with Vert.x {@link ReadStream} and
- * {@link io.vertx.core.AsyncResult} handlers.
+ * A set of helpers for RxJava and Vert.x.
  *
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
@@ -169,6 +169,26 @@ public class RxHelper {
       @Override
       public Scheduler getNewThreadScheduler() {
         return scheduler(vertx);
+      }
+    };
+  }
+
+  /**
+   * Returns a json unmarshaller for the specified java type as a {@link rx.Observable.Operator} instance.
+   *
+   * The marshaller can be used with the {@link Observable#lift(rx.Observable.Operator)} method to transform
+   * a {@literal Observable<Buffer>} into a {@literal Observable<T>}.
+   *
+   * Note that the returned observable will emit at most a single object.
+   *
+   * @param mappedType the type to unmarshall
+   * @return the unmarshaller operator
+   */
+  public static <T> Observable.Operator<T, Buffer> unmarshaller(Class<T> mappedType) {
+    return new UnmarshallerOperator<T, Buffer>(mappedType) {
+      @Override
+      public Buffer unwrap(Buffer buffer) {
+        return buffer;
       }
     };
   }
