@@ -516,6 +516,31 @@ public class JavaIntegrationTest extends VertxTestBase {
   }
 
   @Test
+  public void testHttpClientFlatMapUnmarshallPojo() {
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
+    server.requestStream().handler(req -> {
+      req.response().setChunked(true).end("{\"foo\":\"bar\"}");
+    });
+    server.listen(ar -> {
+      HttpClient client = vertx.createHttpClient(new HttpClientOptions());
+      HttpClientRequest req = client.request(HttpMethod.GET, 8080, "localhost", "/the_uri");
+      Observable<HttpClientResponse> obs =  req.toObservable();
+      ArrayList<MyPojo> objects = new ArrayList<>();
+      obs.flatMap(HttpClientResponse::toObservable).
+          lift(io.vertx.rxjava.core.RxHelper.unmarshaller(MyPojo.class)).
+          forEach(
+              objects::add,
+              err -> fail(), () -> {
+                server.close();
+                assertEquals(Arrays.asList(new MyPojo("bar")), objects);
+                testComplete();
+              });;
+      req.end();
+    });
+    await();
+  }
+
+  @Test
   public void testHttpClientConnectionFailure() {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
     HttpClientRequest req = client.request(HttpMethod.GET, 9998, "255.255.255.255", "/the_uri");
