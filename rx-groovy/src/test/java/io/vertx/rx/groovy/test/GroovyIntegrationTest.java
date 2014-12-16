@@ -87,6 +87,11 @@ public class GroovyIntegrationTest extends VertxTestBase {
   }
 
   @Test
+  public void testHttpClientFlatMapUnmarshallPojo() throws Exception {
+    runScript("src/test/groovy/testHttpClientFlatMapUnmarshallPojo.groovy");
+  }
+
+  @Test
   public void testWebsocketClient() throws Exception {
     runScript("src/test/groovy/testWebsocketClient.groovy");
   }
