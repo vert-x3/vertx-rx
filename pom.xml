@@ -16,10 +16,6 @@
 
   <name>Vert.x Reactive Extensions</name>
 
-  <properties>
-    <vertx.version>3.0.0-SNAPSHOT</vertx.version>
-  </properties>
-
   <modules>
     <module>rx-java</module>
     <module>rx-groovy</module>

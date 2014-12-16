@@ -15,6 +15,10 @@
 
   <name>Vert.x RxGroovy API</name>
 
+  <properties>
+    <vertx.version>3.0.0-SNAPSHOT</vertx.version>
+  </properties>
+
   <dependencies>
 
     <dependency>
