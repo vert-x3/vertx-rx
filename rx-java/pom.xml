@@ -172,6 +172,7 @@
                 </artifactItem>
               </artifactItems>
               <includes>**/*.java</includes>
+              <excludes>examples/**</excludes>
               <outputDirectory>${basedir}/src/main/java</outputDirectory>
             </configuration>
           </execution>
