@@ -2,17 +2,17 @@
  * = Vert.x RxJava
  * :toc: right
  *
- * = Vert.x Api for RxJava
+ * = Vert.x API for RxJava
  *
  * RxJava is a popular library for composing asynchronous and event based programs using
  * observable sequences for the Java VM. Vert.x integrates naturally with RxJava, allowing to use
  * observable wherever you can use streams or asynchronous results.
  *
- * There are two ways for using the RxJava api with Vert.x:
+ * There are two ways for using the RxJava API with Vert.x:
  *
- * - via the original Vert.x api with the {@link io.vertx.rx.java.RxHelper} helper class that provides static
- * methods for converting objects between Vert.x core api and RxJava api.
- * - via the _Rxified_ Vert.x api enhancing the core Vert.x api.
+ * - via the original Vert.x API with the {@link io.vertx.rx.java.RxHelper} helper class that provides static
+ * methods for converting objects between Vert.x core API and RxJava API.
+ * - via the _Rxified_ Vert.x API enhancing the core Vert.x API.
  *
  * == Read stream support
  *
@@ -26,7 +26,7 @@
  * {@link examples.NativeExamples#readStream(io.vertx.core.Vertx)}
  * ----
  *
- * The _Rxified_ Vert.x api provides a {@link io.vertx.rxjava.core.streams.ReadStream#toObservable()}  method on
+ * The _Rxified_ Vert.x API provides a {@link io.vertx.rxjava.core.streams.ReadStream#toObservable()}  method on
  * {@link io.vertx.rxjava.core.streams.ReadStream}:
  *
  * [source,java]
@@ -44,7 +44,7 @@
  * {@link examples.NativeExamples#observableHandler(io.vertx.core.Vertx)}
  * ----
  *
- * The _Rxified_ Vert.x api does not provide a specific api for handler.
+ * The _Rxified_ Vert.x API does not provide a specific API for handler.
  *
  * == Async result support
  *
@@ -81,7 +81,7 @@
  * {@link examples.NativeExamples#actionsToHandler()}
  * ----
  *
- * The _Rxified_ Vert.x api duplicates each such method with the `Observable` suffix that returns an observable:
+ * The _Rxified_ Vert.x API duplicates each such method with the `Observable` suffix that returns an observable:
  *
  * [source,java]
  * ----
@@ -111,7 +111,7 @@
  * {@link examples.NativeExamples#schedulerHook(io.vertx.core.Vertx)}
  * ----
  *
- * The _Rxified_ Vert.x api provides also similar method on the {@link io.vertx.rxjava.core.RxHelper} class:
+ * The _Rxified_ Vert.x API provides also similar method on the {@link io.vertx.rxjava.core.RxHelper} class:
  *
  * [source,java]
  * ----
@@ -140,10 +140,10 @@
  * {@link examples.RxifiedExamples#unmarshaller(io.vertx.rxjava.core.file.FileSystem)}
  * ----
  *
- * = Rxified Api
+ * = Rxified API
  *
- * The _Rxified_ api is a code generated version of the Vert.x api, just like the _JavaScript_ or _Groovy_
- * language. The api uses the `io.vertx.rxjava` prefix, for instance the `io.vertx.core.Vertx` class is
+ * The _Rxified_ API is a code generated version of the Vert.x API, just like the _JavaScript_ or _Groovy_
+ * language. The API uses the `io.vertx.rxjava` prefix, for instance the `io.vertx.core.Vertx` class is
  * translated to the {@link io.vertx.rxjava.core.Vertx} class.
  *
  * == Embedding Rxfified Vert.x
@@ -167,7 +167,7 @@
  * Deploying an RxJava verticle is still performed by the Java deployer and does not need a specified
  * deployer.
  *
- * = Rxified Api example
+ * = Rxified API example
  *
  * Let's study now a few examples of using Vert.x with RxJava.
  *
@@ -276,7 +276,7 @@
  *
  * == Websocket client
  *
- * The {@link io.vertx.rxjava.core.http.HttpClient#websocket} ()} provides a single callback when the websocket
+ * The {@link io.vertx.rxjava.core.http.HttpClient#websocket} provides a single callback when the websocket
  * connects, otherwise a failure:
  *
  * [source,java]
