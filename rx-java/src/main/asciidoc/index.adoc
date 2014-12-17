@@ -249,7 +249,7 @@ deployer.
 
 Let's study now a few examples of using Vert.x with RxJava.
 
-=== EventBus message stream
+== EventBus message stream
 
 The event bus link:apidocs/io/vertx/rxjava/core/eventbus/MessageConsumer.html[`MessageConsumer`] provides naturally an `Observable<Message<T>>`:
 
@@ -297,7 +297,7 @@ observable.
     });
 ----
 
-=== Timers
+== Timers
 
 Timer task can be created with link:apidocs/io/vertx/rxjava/core/Vertx.html#timerStream-long-[`timerStream`]:
 
@@ -341,7 +341,7 @@ vertx.periodicStream(1000).
     });
 ----
 
-=== Http client requests
+== Http client requests
 
 link:apidocs/io/vertx/rxjava/core/http/HttpClientRequest.html#toObservable--[`toObservable`] provides a one shot callback with the
 link:apidocs/io/vertx/core/http/HttpClientResponse.html[`HttpClientResponse`] object. The observable reports a request failure.
@@ -407,7 +407,7 @@ request.toObservable().
     );
 ----
 
-=== Http server requests
+== Http server requests
 
 The link:apidocs/io/vertx/rxjava/core/http/HttpServer.html#requestStream--[`requestStream`] ()} provides a callback for each incoming
 request:
@@ -441,7 +441,7 @@ requestObservable.subscribe(request -> {
 });
 ----
 
-=== Websocket client
+== Websocket client
 
 The link:apidocs/io/vertx/rxjava/core/http/HttpClient.html#websocket-int-java.lang.String-java.lang.String-[`websocket`] ()} provides a single callback when the websocket
 connects, otherwise a failure:
@@ -474,7 +474,7 @@ socketObservable.subscribe(
 );
 ----
 
-=== Websocket server
+== Websocket server
 
 The link:apidocs/io/vertx/rxjava/core/http/HttpServer.html#websocketStream--[`websocketStream`] provides a callback for each incoming
 connection:

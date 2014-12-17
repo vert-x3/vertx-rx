@@ -171,7 +171,7 @@
  *
  * Let's study now a few examples of using Vert.x with RxJava.
  *
- * === EventBus message stream
+ * == EventBus message stream
  *
  * The event bus {@link io.vertx.rxjava.core.eventbus.MessageConsumer} provides naturally an `Observable<Message<T>>`:
  *
@@ -195,7 +195,7 @@
  * {@link examples.RxifiedExamples#eventBusMapReduce(io.vertx.rxjava.core.Vertx)}
  * ----
  *
- * === Timers
+ * == Timers
  *
  * Timer task can be created with {@link io.vertx.rxjava.core.Vertx#timerStream(long)}:
  *
@@ -218,7 +218,7 @@
  * {@link examples.RxifiedExamples#periodicUnsubscribe(io.vertx.rxjava.core.Vertx)}
  * ----
  *
- * === Http client requests
+ * == Http client requests
  *
  * {@link io.vertx.rxjava.core.http.HttpClientRequest#toObservable()} provides a one shot callback with the
  * {@link io.vertx.core.http.HttpClientResponse} object. The observable reports a request failure.
@@ -251,7 +251,7 @@
  * {@link examples.RxifiedExamples#httpClientResponseFlatMapPojo(io.vertx.rxjava.core.http.HttpClientRequest)}
  * ----
  *
- * === Http server requests
+ * == Http server requests
  *
  * The {@link io.vertx.rxjava.core.http.HttpServer#requestStream()} ()} provides a callback for each incoming
  * request:
@@ -274,7 +274,7 @@
  * {@link examples.RxifiedExamples#httpServerRequestObservablePojo(io.vertx.rxjava.core.http.HttpServer)}
  * ----
  *
- * === Websocket client
+ * == Websocket client
  *
  * The {@link io.vertx.rxjava.core.http.HttpClient#websocket} ()} provides a single callback when the websocket
  * connects, otherwise a failure:
@@ -291,7 +291,7 @@
  * {@link examples.RxifiedExamples#websocketClientBuffer(rx.Observable)}
  * ----
  *
- * === Websocket server
+ * == Websocket server
  *
  * The {@link io.vertx.rxjava.core.http.HttpServer#websocketStream()} provides a callback for each incoming
  * connection:
