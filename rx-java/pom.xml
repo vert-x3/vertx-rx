@@ -220,8 +220,63 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- Doc generation -->
+      <plugin>
+        <groupId>org.asciidoctor</groupId>
+        <artifactId>asciidoctor-maven-plugin</artifactId>
+        <version>1.5.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>process-asciidoc</goal>
+            </goals>
+            <phase>site</phase>
+            <configuration>
+              <sourceDirectory>${asciidoc.dir}</sourceDirectory>
+              <sourceDocumentName>index.adoc</sourceDocumentName>
+              <outputDirectory>${project.build.directory}/site</outputDirectory>
+              <backend>html</backend>
+              <doctype>book</doctype>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>site</phase>
+            <goals>
+              <goal>javadoc</goal>
+            </goals>
+            <configuration>
+              <sourcepath>${project.basedir}/src/main/java:${project.build.directory}/generated-sources/annotations</sourcepath>
+              <sourceFileIncludes>
+                <sourceFileInclude>io/vertx/rxjava/core/**/*.java</sourceFileInclude>
+                <sourceFileInclude>io/vertx/rx/java/**/*.java</sourceFileInclude>
+              </sourceFileIncludes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.7</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
 
 </project>
