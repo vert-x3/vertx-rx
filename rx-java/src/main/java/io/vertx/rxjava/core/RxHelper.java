@@ -1,8 +1,11 @@
 package io.vertx.rxjava.core;
 
+import io.vertx.rx.java.ContextScheduler;
 import io.vertx.rx.java.UnmarshallerOperator;
 import io.vertx.rxjava.core.buffer.Buffer;
 import rx.Observable;
+import rx.Scheduler;
+import rx.plugins.RxJavaSchedulersHook;
 
 /**
  * A set of helpers for RxJava and Vert.x.
@@ -10,6 +13,39 @@ import rx.Observable;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class RxHelper {
+
+  /**
+   * Create a scheduler hook for a {@link io.vertx.rxjava.core.Vertx} object.
+   *
+   * @param vertx the vertx object
+   * @return the scheduler hook
+   */
+  public static RxJavaSchedulersHook schedulerHook(Vertx vertx) {
+    return new RxJavaSchedulersHook() {
+      @Override
+      public Scheduler getComputationScheduler() {
+        return scheduler(vertx);
+      }
+      @Override
+      public Scheduler getIOScheduler() {
+        return scheduler(vertx);
+      }
+      @Override
+      public Scheduler getNewThreadScheduler() {
+        return scheduler(vertx);
+      }
+    };
+  }
+
+  /**
+   * Create a scheduler for a {@link io.vertx.rxjava.core.Vertx} object.
+   *
+   * @param vertx the vertx object
+   * @return the scheduler
+   */
+  public static Scheduler scheduler(Vertx vertx) {
+    return new ContextScheduler((io.vertx.core.Vertx) vertx.getDelegate());
+  }
 
   /**
    * Returns a json unmarshaller for the specified java type as a {@link rx.Observable.Operator} instance.

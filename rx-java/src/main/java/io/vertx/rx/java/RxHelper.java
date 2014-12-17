@@ -141,16 +141,6 @@ public class RxHelper {
   }
 
   /**
-   * Create a scheduler for a {@link Vertx} object.
-   *
-   * @param vertx the vertx object
-   * @return the scheduler
-   */
-  public static Scheduler scheduler(io.vertx.rxjava.core.Vertx vertx) {
-    return new ContextScheduler((Vertx) vertx.getDelegate());
-  }
-
-  /**
    * Create a scheduler hook for a {@link Vertx} object.
    *
    * @param vertx the vertx object

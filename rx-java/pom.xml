@@ -17,6 +17,7 @@
 
   <properties>
     <vertx.version>3.0.0-SNAPSHOT</vertx.version>
+    <asciidoc.dir>${project.basedir}/src/main/asciidoc</asciidoc.dir>
   </properties>
 
   <dependencies>
@@ -172,7 +173,7 @@
                 </artifactItem>
               </artifactItems>
               <includes>**/*.java</includes>
-              <excludes>examples/**</excludes>
+              <excludes>**/package-info.java,examples/**</excludes>
               <outputDirectory>${basedir}/src/main/java</outputDirectory>
             </configuration>
           </execution>
@@ -194,6 +195,27 @@
               </artifactItems>
               <includes>io/vertx/codegen/testmodel/**/*.java</includes>
               <outputDirectory>${basedir}/src/test/java</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.bsc.maven</groupId>
+        <artifactId>maven-processor-plugin</artifactId>
+        <version>2.2.4</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>process</goal>
+            </goals>
+            <phase>process-classes</phase>
+            <configuration>
+              <processors>
+                <processor>io.vertx.docgen.JavaDocGenProcessor</processor>
+              </processors>
+              <optionMap>
+                <docgen.output>${asciidoc.dir}</docgen.output>
+              </optionMap>
             </configuration>
           </execution>
         </executions>

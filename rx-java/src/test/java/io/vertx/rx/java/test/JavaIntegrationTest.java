@@ -21,7 +21,6 @@ import io.vertx.rxjava.core.net.NetServer;
 import io.vertx.rxjava.core.net.NetSocket;
 import io.vertx.rxjava.core.streams.ReadStream;
 import io.vertx.rx.java.ObservableFuture;
-import io.vertx.rx.java.ObservableHandler;
 import io.vertx.rx.java.RxHelper;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
@@ -337,7 +336,7 @@ public class JavaIntegrationTest extends VertxTestBase {
     vertx.runOnContext(v -> {
       long startTime = System.currentTimeMillis();
       Context initCtx = Vertx.currentContext();
-      Observable.timer(100, 100, TimeUnit.MILLISECONDS, RxHelper.scheduler(vertx)).take(10).subscribe(new Observer<Long>() {
+      Observable.timer(100, 100, TimeUnit.MILLISECONDS, io.vertx.rxjava.core.RxHelper.scheduler(vertx)).take(10).subscribe(new Observer<Long>() {
         public void onNext(Long value) {
           assertEquals(initCtx.getDelegate(), Vertx.currentContext().getDelegate());
         }
@@ -362,8 +361,8 @@ public class JavaIntegrationTest extends VertxTestBase {
       long startTime = System.currentTimeMillis();
       Context initCtx = Vertx.currentContext();
       Observable
-          .timer(10, 10, TimeUnit.MILLISECONDS, RxHelper.scheduler(vertx))
-          .buffer(100, TimeUnit.MILLISECONDS, RxHelper.scheduler(vertx))
+          .timer(10, 10, TimeUnit.MILLISECONDS, io.vertx.rxjava.core.RxHelper.scheduler(vertx))
+          .buffer(100, TimeUnit.MILLISECONDS, io.vertx.rxjava.core.RxHelper.scheduler(vertx))
           .take(10)
           .subscribe(new Observer<List<Long>>() {
             private int eventCount = 0;
@@ -412,7 +411,7 @@ public class JavaIntegrationTest extends VertxTestBase {
       };
       Observable<String> observable = consumer.toObservable();
       observable.
-          buffer(500, TimeUnit.MILLISECONDS, RxHelper.scheduler(vertx)).
+          buffer(500, TimeUnit.MILLISECONDS, io.vertx.rxjava.core.RxHelper.scheduler(vertx)).
           map(samples -> samples.stream().reduce("", (a, b) -> a + b)).
           subscribe(observer);
       eb.send("the-address", "msg1");
