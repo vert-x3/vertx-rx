@@ -55,6 +55,7 @@
       <artifactId>vertx-core</artifactId>
       <version>${vertx.version}</version>
       <classifier>sources</classifier>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
