@@ -16,7 +16,6 @@
   <name>Vert.x RxJava API</name>
 
   <properties>
-    <vertx.version>3.0.0-SNAPSHOT</vertx.version>
     <asciidoc.dir>${project.basedir}/src/main/asciidoc</asciidoc.dir>
   </properties>
 
@@ -25,12 +24,10 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-codegen</artifactId>
-      <version>${vertx.version}</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-docgen</artifactId>
-      <version>${vertx.version}</version>
     </dependency>
     <dependency>
       <groupId>io.reactivex</groupId>
@@ -40,20 +37,17 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-codegen</artifactId>
-      <version>${vertx.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
-      <version>${vertx.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
-      <version>${vertx.version}</version>
       <classifier>sources</classifier>
       <scope>provided</scope>
     </dependency>
@@ -81,7 +75,6 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
       <type>test-jar</type>
-      <version>${vertx.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -164,17 +157,13 @@
             <id>unpack-vertx-core</id>
             <phase>generate-sources</phase>
             <goals>
-              <goal>unpack</goal>
+              <goal>unpack-dependencies</goal>
             </goals>
             <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>io.vertx</groupId>
-                  <artifactId>vertx-core</artifactId>
-                  <version>${vertx.version}</version>
-                  <classifier>sources</classifier>
-                </artifactItem>
-              </artifactItems>
+              <includeGroupIds>io.vertx</includeGroupIds>
+              <includeArtifactIds>vertx-core</includeArtifactIds>
+              <includeTypes>jar</includeTypes>
+              <includeClassifiers>sources</includeClassifiers>
               <includes>**/*.java</includes>
               <excludes>**/package-info.java,examples/**</excludes>
               <outputDirectory>${basedir}/src/main/java</outputDirectory>
@@ -185,17 +174,13 @@
             <id>unpack-codegen</id>
             <phase>generate-test-sources</phase>
             <goals>
-              <goal>unpack</goal>
+              <goal>unpack-dependencies</goal>
             </goals>
             <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>io.vertx</groupId>
-                  <artifactId>vertx-codegen</artifactId>
-                  <version>${vertx.version}</version>
-                  <classifier>sources</classifier>
-                </artifactItem>
-              </artifactItems>
+              <includeGroupIds>io.vertx</includeGroupIds>
+              <includeArtifactIds>vertx-core</includeArtifactIds>
+              <includeTypes>jar</includeTypes>
+              <includeClassifiers>sources</includeClassifiers>
               <includes>io/vertx/codegen/testmodel/**/*.java</includes>
               <outputDirectory>${basedir}/src/test/java</outputDirectory>
             </configuration>

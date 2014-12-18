@@ -15,26 +15,19 @@
 
   <name>Vert.x RxGroovy API</name>
 
-  <properties>
-    <vertx.version>3.0.0-SNAPSHOT</vertx.version>
-  </properties>
-
   <dependencies>
 
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
-      <version>${vertx.version}</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-lang-groovy</artifactId>
-      <version>${vertx.version}</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-rx-java</artifactId>
-      <version>${vertx.version}</version>
     </dependency>
     <dependency>
       <groupId>io.reactivex</groupId>
@@ -50,7 +43,6 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
       <type>test-jar</type>
-      <version>${vertx.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
