@@ -3,6 +3,7 @@ package io.vertx.rx.java.test.api;
 import io.vertx.codegen.testmodel.RefedInterface1Impl;
 import io.vertx.codegen.testmodel.TestInterfaceImpl;
 import io.vertx.codegen.testmodel.TestOptions;
+import io.vertx.core.Handler;
 import io.vertx.core.VertxException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -147,6 +148,45 @@ public class ApiTest {
   @Test
   public void testNullOptionsParam() {
     obj.methodWithNullOptionsParam(null);
+  }
+
+  @Test
+  public void testMethodWithHandlerOptions() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    final TestOptions option = new TestOptions().setFoo("foo").setBar(123);
+
+    obj.methodWithHandlerOptions(options -> {
+      assertEquals(option.getFoo(), options.getFoo());
+      assertEquals(option.getBar(), options.getBar());
+      assertEquals(option.getWibble(), options.getWibble(), 0);
+      checker.count++;
+    });
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithHandlerAsyncResultOptions() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    final TestOptions option = new TestOptions().setFoo("foo").setBar(123);
+
+    obj.methodWithHandlerAsyncResultOptions(false, result -> {
+      assertTrue(result.succeeded());
+      assertFalse(result.failed());
+      assertNull(result.cause());
+      TestOptions options = result.result();
+      assertEquals(option.getFoo(), options.getFoo());
+      assertEquals(option.getBar(), options.getBar());
+      assertEquals(option.getWibble(), options.getWibble(), 0);
+      checker.count++;
+    });
+    obj.methodWithHandlerAsyncResultOptions(true, result -> {
+      assertFalse(result.succeeded());
+      assertTrue(result.failed());
+      assertNull(result.result());
+      assertEquals("foobar!", result.cause().getMessage());
+      checker.count++;
+    });
+    assertEquals(2, checker.count);
   }
 
   @Test
