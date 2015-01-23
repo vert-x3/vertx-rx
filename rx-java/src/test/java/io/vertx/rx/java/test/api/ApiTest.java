@@ -1,8 +1,8 @@
 package io.vertx.rx.java.test.api;
 
 import io.vertx.codegen.testmodel.RefedInterface1Impl;
+import io.vertx.codegen.testmodel.TestDataObject;
 import io.vertx.codegen.testmodel.TestInterfaceImpl;
-import io.vertx.codegen.testmodel.TestOptions;
 import io.vertx.core.VertxException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -136,17 +136,17 @@ public class ApiTest {
   }
 
   @Test
-  public void testOptionsParam() {
-    TestOptions options = new TestOptions();
+  public void testDataObjectParam() {
+    TestDataObject options = new TestDataObject();
     options.setFoo("hello");
     options.setBar(123);
     options.setWibble(1.23);
-    obj.methodWithOptionsParam(options);
+    obj.methodWithDataObjectParam(options);
   }
 
   @Test
-  public void testNullOptionsParam() {
-    obj.methodWithNullOptionsParam(null);
+  public void testNullDataObjectParam() {
+    obj.methodWithNullDataObjectParam(null);
   }
 
   @Test
