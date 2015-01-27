@@ -213,7 +213,7 @@ public class JavaIntegrationTest extends VertxTestBase {
   public void testObservableWebSocket() {
     ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
     onListen.subscribe(
-        server -> vertx.createHttpClient(new HttpClientOptions()).connectWebsocket(8080, "localhost", "/some/path", ws -> {
+        server -> vertx.createHttpClient(new HttpClientOptions()).websocket(8080, "localhost", "/some/path", ws -> {
           ws.write(Buffer.buffer("foo"));
           ws.close();
         }),
@@ -574,7 +574,7 @@ public class JavaIntegrationTest extends VertxTestBase {
     });
     server.listen(ar -> {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-      client.connectWebsocket(8080, "localhost", "/the_uri", ws -> {
+      client.websocket(8080, "localhost", "/the_uri", ws -> {
         Buffer content = Buffer.buffer();
         Observable<Buffer> observable = ws.toObservable();
         observable.forEach(content::appendBuffer, err -> fail(), () -> {
@@ -598,7 +598,7 @@ public class JavaIntegrationTest extends VertxTestBase {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
       Buffer content = Buffer.buffer();
       client.
-          websocket(8080, "localhost", "/the_uri").
+          websocketStream(8080, "localhost", "/the_uri").
           toObservable().
           flatMap(WebSocket::toObservable).
           forEach(content::appendBuffer, err -> fail(), () -> {

@@ -10,7 +10,7 @@ server.websocketStream().handler(function(ws) {
 
 server.listen(function(server, cause) {
   var client = vertx.createHttpClient({});
-  client.connectWebsocket(8080, "localhost", "/the_uri", function(ws) {
+  client.websocket(8080, "localhost", "/the_uri", function(ws) {
     var content = Buffer.buffer();
     var observable = Rx.Observable.fromReadStream(ws);
     observable.forEach(

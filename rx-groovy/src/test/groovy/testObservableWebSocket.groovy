@@ -10,7 +10,7 @@ import rx.Observable
 ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
 onListen.subscribe({
   server ->
-    vertx.createHttpClient().connectWebsocket(1234, "localhost", "/some/path", { ws ->
+    vertx.createHttpClient().websocket(1234, "localhost", "/some/path", { ws ->
       ws.write(Buffer.buffer("foo"));
       ws.close();
     })

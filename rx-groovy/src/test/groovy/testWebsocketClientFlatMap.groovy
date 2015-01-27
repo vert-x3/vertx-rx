@@ -10,7 +10,7 @@ server.websocketStream().handler({ ws ->
 server.listen({ ar ->
   HttpClient client = vertx.createHttpClient();
   def content = Buffer.buffer();
-  client.websocket(8080, "localhost", "/the_uri").
+  client.websocketStream(8080, "localhost", "/the_uri").
     toObservable().
     flatMap({socket -> socket.toObservable()}).
     forEach(content.&appendBuffer, { err -> test.fail() } , { ->

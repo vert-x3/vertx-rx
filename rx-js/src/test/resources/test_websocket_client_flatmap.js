@@ -11,7 +11,7 @@ server.websocketStream().handler(function(ws) {
 server.listen(function(server, cause) {
   var client = vertx.createHttpClient({});
   var content = Buffer.buffer();
-  var stream = client.websocket(8080, "localhost", "/the_uri");
+  var stream = client.websocketStream(8080, "localhost", "/the_uri");
   var observable = Rx.Observable.fromReadStream(stream);
   observable.flatMap(function(ws) {
       return Rx.Observable.fromReadStream(ws);

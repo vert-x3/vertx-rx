@@ -443,13 +443,13 @@ requestObservable.subscribe(request -> {
 
 == Websocket client
 
-The link:apidocs/io/vertx/rxjava/core/http/HttpClient.html#websocket-int-java.lang.String-java.lang.String-[`websocket`] provides a single callback when the websocket
+The link:apidocs/io/vertx/rxjava/core/http/HttpClient.html#websocket-int-java.lang.String-java.lang.String-io.vertx.core.Handler-[`websocket`] provides a single callback when the websocket
 connects, otherwise a failure:
 
 [source,java]
 ----
 HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-WebSocketStream stream = client.websocket(8080, "localhost", "/the_uri");
+WebSocketStream stream = client.websocketStream(8080, "localhost", "/the_uri");
 stream.toObservable().subscribe(
     ws -> {
       // Use the websocket

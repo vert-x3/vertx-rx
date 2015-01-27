@@ -150,7 +150,7 @@ public class RxifiedExamples {
 
   public void websocketClient(Vertx vertx) {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-    WebSocketStream stream = client.websocket(8080, "localhost", "/the_uri");
+    WebSocketStream stream = client.websocketStream(8080, "localhost", "/the_uri");
     stream.toObservable().subscribe(
         ws -> {
           // Use the websocket
