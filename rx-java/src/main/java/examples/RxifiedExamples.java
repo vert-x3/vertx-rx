@@ -79,13 +79,13 @@ public class RxifiedExamples {
   }
 
   public void embedded() {
-    Vertx vertx = Vertx.vertx();
+    Vertx vertx = io.vertx.rxjava.core.Vertx.vertx();
   }
 
   public void verticle() {
     class MyVerticle extends io.vertx.rxjava.core.AbstractVerticle {
       public void start() {
-        // Use wrapped Vertx here
+        // Use Rxified Vertx here
       }
     }
   }
@@ -262,7 +262,7 @@ public class RxifiedExamples {
         toObservable().
         subscribe(
             id -> {
-              System.out.println("Callback ever second");
+              System.out.println("Callback every second");
             }
         );
   }

@@ -4,7 +4,7 @@
  *
  * = Vert.x API for RxJava
  *
- * RxJava is a popular library for composing asynchronous and event based programs using
+ * https://github.com/ReactiveX/RxJava[RxJava] is a popular library for composing asynchronous and event based programs using
  * observable sequences for the Java VM. Vert.x integrates naturally with RxJava, allowing to use
  * observable wherever you can use streams or asynchronous results.
  *
@@ -167,7 +167,7 @@
  * Deploying an RxJava verticle is still performed by the Java deployer and does not need a specified
  * deployer.
  *
- * = Rxified API example
+ * = Api examples
  *
  * Let's study now a few examples of using Vert.x with RxJava.
  *
@@ -253,7 +253,7 @@
  *
  * == Http server requests
  *
- * The {@link io.vertx.rxjava.core.http.HttpServer#requestStream()} ()} provides a callback for each incoming
+ * The {@link io.vertx.rxjava.core.http.HttpServer#requestStream()} provides a callback for each incoming
  * request:
  *
  * [source,java]
@@ -276,7 +276,7 @@
  *
  * == Websocket client
  *
- * The {@link io.vertx.rxjava.core.http.HttpClient#websocket} provides a single callback when the websocket
+ * The {@link io.vertx.rxjava.core.http.HttpClient#websocketStream} provides a single callback when the websocket
  * connects, otherwise a failure:
  *
  * [source,java]
@@ -293,7 +293,7 @@
  *
  * == Websocket server
  *
- * The {@link io.vertx.rxjava.core.http.HttpServer#websocketStream()} provides a callback for each incoming
+ * The {@link io.vertx.rxjava.core.http.HttpServer#websocketStream()` provides a callback for each incoming
  * connection:
  *
  * [source,java]

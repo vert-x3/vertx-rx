@@ -1,13 +1,25 @@
 package io.vertx.rx.groovy;
 
+import io.vertx.groovy.core.Vertx;
 import io.vertx.groovy.core.buffer.Buffer;
 import io.vertx.rx.java.UnmarshallerOperator;
 import rx.Observable;
+import rx.plugins.RxJavaSchedulersHook;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class RxHelper {
+
+  /**
+   * Create a scheduler hook for a {@link io.vertx.groovy.core.Vertx} object.
+   *
+   * @param vertx the vertx object
+   * @return the scheduler hook
+   */
+  public static RxJavaSchedulersHook schedulerHook(Vertx vertx) {
+    return io.vertx.rx.java.RxHelper.schedulerHook((io.vertx.core.Vertx) vertx.getDelegate());
+  }
 
   /**
    * Returns a json unmarshaller for the specified java type as a {@link rx.Observable.Operator} instance.
