@@ -72,7 +72,11 @@
 			@code{cachedType=method.returnType.simpleName}
 		    @{method.returnType.simpleName} ret= @{method.returnType.raw.simpleName}.newInstance(@includeNamed{'invokeDelegate';method:method});\n
 		@else{}
-			@code{cachedType=method.returnType.name}
+			@if{method.returnType.kind == CLASS_PRIMITIVE}
+				@code{cachedType=method.returnType.boxed.name}
+			@else{}
+				@code{cachedType=method.returnType.name}
+			@end{}
 		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n
 		@end{}
 		@if{method.cacheReturn}

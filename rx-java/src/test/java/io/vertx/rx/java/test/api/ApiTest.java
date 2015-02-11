@@ -10,6 +10,7 @@ import io.vertx.rxjava.codegen.testmodel.RefedInterface1;
 import io.vertx.rxjava.codegen.testmodel.RefedInterface2;
 import io.vertx.rxjava.codegen.testmodel.TestInterface;
 import io.vertx.rx.java.test.AsyncResultChecker;
+import io.vertx.test.core.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import rx.Observable;
@@ -786,6 +787,13 @@ public class ApiTest {
     assertSame(ret1, ret2);
     RefedInterface1 ret3 = obj.methodWithCachedReturn("bar");
     assertSame(ret1, ret3);
+  }
+
+  @Test
+  public void testMethodWithCachedReturnPrimitive() {
+    int value = TestUtils.randomInt();
+    assertEquals(value, obj.methodWithCachedReturnPrimitive(value));
+    assertEquals(value, obj.methodWithCachedReturnPrimitive(value));
   }
 
   @Test
