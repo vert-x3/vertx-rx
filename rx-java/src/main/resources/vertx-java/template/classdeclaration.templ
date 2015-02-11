@@ -14,7 +14,7 @@
  * under the License.\n
  */\n\n
 
-package @{ifacePackageName.replace("io.vertx.", targetPkg + ".")};\n
+package @{ifacePackageName.replace("io.vertx.", targetPkg + ".")};\n\n
 
 @comment{'the current index of the cache'}
 @code{cacheDecls=new java.util.ArrayList()}
@@ -161,11 +161,15 @@ import rx.Observable;\n
 	@end{}
 @end{}
 
+\n
 @if{ifaceComment != null}
 /**\n
  *@{ifaceComment.replaceAll('\n(?!$)', '\n *')}
+ *\n
+ * NOTE: This class has been automatically generated from the original non RX-ified interface using Vert.x codegen.\n
  */\n
 @end{}
+\n
 public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN)}
 
 @if{concrete}
@@ -182,7 +186,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 	@foreach{abstractSuperType: abstractSuperTypes}
 	 @{abstractSuperType.simpleName}
 	@end{', '}
-@end{} {\n
+@end{} {\n\n
 
 @if{concrete}
 
@@ -190,18 +194,18 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 
 @else{}
 
-	  Object getDelegate();\n
+	  Object getDelegate();\n\n
 
 	@foreach{method:methods}
-	  @if{method.staticMethod}static @end{}@if{method.typeParams.size() > 0}<@foreach{typeVar:method.typeParams}@{typeVar}@end{}> @end{}@{method.returnType.simpleName} @{method.name}(@foreach{param: method.params}@includeNamed{'paramTemplate';param=param}@end{', '});\n
+	  @if{method.staticMethod}static @end{}@if{method.typeParams.size() > 0}<@foreach{typeVar:method.typeParams}@{typeVar}@end{}> @end{}@{method.returnType.simpleName} @{method.name}(@foreach{param: method.params}@includeNamed{'paramTemplate';param=param}@end{', '});\n\n
 	@end{}
 
 	@if{type.raw.name == 'io.vertx.core.streams.ReadStream'}
-  rx.Observable<@{typeParams[0].name}> toObservable();\n
+  rx.Observable<@{typeParams[0].name}> toObservable();\n\n
 	@end{}
 
 @end{}
-
+\n
   public static @if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}@{type.simpleName} newInstance(@{type.raw.name} arg) {\n
     return new @{type.raw.simpleName + (concrete ? '' : 'Impl')}@if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}(arg);\n
   }\n

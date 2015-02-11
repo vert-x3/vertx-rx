@@ -1,18 +1,18 @@
-	  final @{helper.getNonGenericType(ifaceFQCN)} delegate;\n
+	  final @{helper.getNonGenericType(ifaceFQCN)} delegate;\n\n
 	  public @{constructor}(@{helper.getNonGenericType(ifaceFQCN)} delegate) {\n
 	@if{concrete && concreteSuperTypes.size() > 0}
 	    super(delegate);\n
 	@end{}
 	    this.delegate = delegate;\n
-	  }\n
+	  }\n\n
 
 	  public Object getDelegate() {\n
 	    return delegate;\n
-	  }\n
+	  }\n\n
 
 	@if{type.raw.readStream}
 		@code{streamType=type.raw.readStreamArg}
-  private rx.Observable<@{streamType.simpleName}> observable;\n
+  private rx.Observable<@{streamType.simpleName}> observable;\n\n
 
   public synchronized rx.Observable<@{streamType.simpleName}> toObservable() {\n
     if (observable == null) {\n
@@ -25,7 +25,7 @@
 		@end{}
     }\n
     return observable;\n
-  }\n
+  }\n\n
 	@end{}
 
 	@foreach{method:methods}
@@ -81,7 +81,7 @@
 		@end{}
 		    return ret;\n
 		@end{}
-	  }\n
+	  }\n\n
 
 	@if{method.kind == METHOD_FUTURE}
 	@code{methodName=method.name}
@@ -94,7 +94,7 @@
 	    io.vertx.rx.java.ObservableFuture<@{futureType.simpleName}> @{futureParam.name} = io.vertx.rx.java.RxHelper.observableFuture();\n
 	    @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}@{futureParam.name}.asHandler());\n
 	    return @{futureParam.name};\n
-	  }\n
+	  }\n\n
 	@end{}
 
 	@end{}
