@@ -39,6 +39,51 @@
   </dependencyManagement>
 
   <build>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.asciidoctor</groupId>
+          <artifactId>asciidoctor-maven-plugin</artifactId>
+          <version>1.5.2</version>
+          <executions>
+            <execution>
+              <id>process-asciidoc</id>
+              <goals>
+                <goal>process-asciidoc</goal>
+              </goals>
+              <phase>package</phase>
+              <configuration>
+                <sourceDirectory>${asciidoc.dir}</sourceDirectory>
+                <outputDirectory>${project.build.directory}/docs</outputDirectory>
+                <backend>html</backend>
+                <doctype>book</doctype>
+                <preserveDirectories>true</preserveDirectories>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>package-docs</id>
+              <phase>package</phase>
+              <goals>
+                <goal>single</goal>
+              </goals>
+              <configuration>
+                <attach>true</attach>
+                <descriptors>
+                  <descriptor>${basedir}/../assembly/docs.xml</descriptor>
+                </descriptors>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
 
       <!-- Set logging -->
@@ -62,6 +107,7 @@
           </execution>
         </executions>
       </plugin>
+
     </plugins>
   </build>
 

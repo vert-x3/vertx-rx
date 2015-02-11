@@ -1,6 +1,6 @@
 /**
  * = Vert.x RxJava
- * :toc: right
+ * :toc: left
  *
  * = Vert.x API for RxJava
  *
