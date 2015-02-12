@@ -2,7 +2,7 @@
  * = Vert.x RxJava
  * :toc: left
  *
- * = Vert.x API for RxJava
+ * == Vert.x API for RxJava
  *
  * https://github.com/ReactiveX/RxJava[RxJava] is a popular library for composing asynchronous and event based programs using
  * observable sequences for the Java VM. Vert.x integrates naturally with RxJava, allowing to use
@@ -14,7 +14,7 @@
  * methods for converting objects between Vert.x core API and RxJava API.
  * - via the _Rxified_ Vert.x API enhancing the core Vert.x API.
  *
- * == Read stream support
+ * === Read stream support
  *
  * RxJava observable is a perfect match for Vert.x `ReadStream` class : both provides provides a flow of items.
  *
@@ -34,7 +34,7 @@
  * {@link examples.RxifiedExamples#readStream(io.vertx.rxjava.core.Vertx)}
  * ----
  *
- * == Handler support
+ * === Handler support
  *
  * The {@link io.vertx.rx.java.RxHelper} can create an {@link io.vertx.rx.java.ObservableHandler}: an `Observable` with a
  * {@link io.vertx.rx.java.ObservableHandler#asHandler()} method returning an `Handler<T>` implementation:
@@ -46,7 +46,7 @@
  *
  * The _Rxified_ Vert.x API does not provide a specific API for handler.
  *
- * == Async result support
+ * === Async result support
  *
  * The Vert.x `Handler<AsyncResult<T>>` construct occuring as last parameter of an asynchronous methods can
  * be mapped to an observable of a single element:
@@ -88,7 +88,7 @@
  * {@link examples.RxifiedExamples#observableFuture(io.vertx.rxjava.core.Vertx)}
  * ----
  *
- * == Scheduler support
+ * === Scheduler support
  *
  * The reactive extension sometimes needs to schedule actions, for instance `Observable#timer` creates and returns
  * a timer that emit periodic events. By default, scheduled actions are managed by RxJava, it means that the
@@ -123,7 +123,7 @@
  * {@link examples.RxifiedExamples#schedulerHook(io.vertx.rxjava.core.Vertx)}
  * ----
  *
- * == Json unmashalling
+ * === Json unmashalling
  *
  * The {@link io.vertx.rxjava.core.RxHelper#unmarshaller(java.lang.Class)} creates an `rx.Observable.Operator` that
  * transforms an `Observable<Buffer>` in json format into an object observable:
@@ -146,7 +146,7 @@
  * language. The API uses the `io.vertx.rxjava` prefix, for instance the `io.vertx.core.Vertx` class is
  * translated to the {@link io.vertx.rxjava.core.Vertx} class.
  *
- * == Embedding Rxfified Vert.x
+ * === Embedding Rxfified Vert.x
  *
  * Just use the {@link io.vertx.rxjava.core.Vertx#vertx()} methods:
  *
@@ -155,7 +155,7 @@
  * {@link examples.RxifiedExamples#embedded()}
  * ----
  *
- * == As a Verticle
+ * === As a Verticle
  *
  * Extend the {@link io.vertx.rxjava.core.AbstractVerticle} class, it will wrap it for you:
  *
@@ -167,11 +167,11 @@
  * Deploying an RxJava verticle is still performed by the Java deployer and does not need a specified
  * deployer.
  *
- * = Api examples
+ * == Api examples
  *
  * Let's study now a few examples of using Vert.x with RxJava.
  *
- * == EventBus message stream
+ * === EventBus message stream
  *
  * The event bus {@link io.vertx.rxjava.core.eventbus.MessageConsumer} provides naturally an `Observable<Message<T>>`:
  *
@@ -195,7 +195,7 @@
  * {@link examples.RxifiedExamples#eventBusMapReduce(io.vertx.rxjava.core.Vertx)}
  * ----
  *
- * == Timers
+ * === Timers
  *
  * Timer task can be created with {@link io.vertx.rxjava.core.Vertx#timerStream(long)}:
  *
@@ -218,7 +218,7 @@
  * {@link examples.RxifiedExamples#periodicUnsubscribe(io.vertx.rxjava.core.Vertx)}
  * ----
  *
- * == Http client requests
+ * === Http client requests
  *
  * {@link io.vertx.rxjava.core.http.HttpClientRequest#toObservable()} provides a one shot callback with the
  * {@link io.vertx.core.http.HttpClientResponse} object. The observable reports a request failure.
@@ -251,7 +251,7 @@
  * {@link examples.RxifiedExamples#httpClientResponseFlatMapUnmarshall(io.vertx.rxjava.core.http.HttpClientRequest)}
  * ----
  *
- * == Http server requests
+ * === Http server requests
  *
  * The {@link io.vertx.rxjava.core.http.HttpServer#requestStream()} provides a callback for each incoming
  * request:
@@ -274,7 +274,7 @@
  * {@link examples.RxifiedExamples#httpServerRequestObservableUnmarshall(io.vertx.rxjava.core.http.HttpServer)}
  * ----
  *
- * == Websocket client
+ * === Websocket client
  *
  * The {@link io.vertx.rxjava.core.http.HttpClient#websocketStream} provides a single callback when the websocket
  * connects, otherwise a failure:
@@ -291,7 +291,7 @@
  * {@link examples.RxifiedExamples#websocketClientBuffer(rx.Observable)}
  * ----
  *
- * == Websocket server
+ * === Websocket server
  *
  * The {@link io.vertx.rxjava.core.http.HttpServer#websocketStream()` provides a callback for each incoming
  * connection:
