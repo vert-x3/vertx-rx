@@ -248,7 +248,7 @@
  *
  * [source,java]
  * ----
- * {@link examples.RxifiedExamples#httpClientResponseFlatMapPojo(io.vertx.rxjava.core.http.HttpClientRequest)}
+ * {@link examples.RxifiedExamples#httpClientResponseFlatMapUnmarshall(io.vertx.rxjava.core.http.HttpClientRequest)}
  * ----
  *
  * == Http server requests
@@ -271,7 +271,7 @@
  * a json request to an object:
  *
  * ----
- * {@link examples.RxifiedExamples#httpServerRequestObservablePojo(io.vertx.rxjava.core.http.HttpServer)}
+ * {@link examples.RxifiedExamples#httpServerRequestObservableUnmarshall(io.vertx.rxjava.core.http.HttpServer)}
  * ----
  *
  * == Websocket client

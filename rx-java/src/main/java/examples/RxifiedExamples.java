@@ -213,7 +213,7 @@ public class RxifiedExamples {
   private class MyPojo {
   }
 
-  public void httpClientResponseFlatMapPojo(HttpClientRequest request) {
+  public void httpClientResponseFlatMapUnmarshall(HttpClientRequest request) {
     request.toObservable().
         flatMap(HttpClientResponse::toObservable).
         lift(io.vertx.rxjava.core.RxHelper.unmarshaller(MyPojo.class)).
@@ -238,7 +238,7 @@ public class RxifiedExamples {
     });
   }
 
-  public void httpServerRequestObservablePojo(HttpServer server) {
+  public void httpServerRequestObservableUnmarshall(HttpServer server) {
     Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
     requestObservable.subscribe(request -> {
       Observable<MyPojo> observable = request.
