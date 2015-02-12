@@ -1,1 +1,69 @@
+= Vert.x for RxJS
+:toc: left
+
+https://github.com/Reactive-Extensions/RxJS[RxJS] is a popular library for composing asynchronous and event
+based programs using observable sequences for the JavaScript.
+
+Vert.x integrates naturally with RxJS, allowing to use observable wherever you can use streams or asynchronous results.
+
+Vert.x for RxJS comes as an extension for RxJS:
+
+[source,js]
+----
+var Rx = require("rx.vertx");
+----
+
+It provides the `Rx` object we need for creating `Observable`, or other kind of Rx objects.
+
+== Read stream support
+
+RxJS observable is a perfect match for Vert.x read streams : both provides provides a flow of items.
+A read stream can be adapted to an observable with the `Rx.Observable.fromReadStream` function:
+
+[source,js]
+----
+include::readStream.js[tags=example]
+----
+
+== Handler support
+
+The `rx.vertx` module provides an `observableHandler` function:
+
+[source,js]
+----
+include::handler.js[tags=example]
+----
+
+Rx can also turn an existing Observer into an handler:
+
+[source,js]
+----
+include::observerToHandler.js[tags=example]
+----
+
+== Future support
+
+In Vert.x future objects are modelled as async result handlers and occur as last parameter of asynchronous methods.
+
+The `rx.vertx` module provides an `observableFuture` function:
+
+[source,js]
+----
+include::future.js[tags=example]
+----
+
+Rx can also turn an existing Observer into an future:
+
+[source,js]
+----
+include::observerToFuture.js[tags=example]
+----
+
+== Scheduler support
+
+RxJS relies on the default context method _timeout_ and _interval_ functions to schedule operations. The
+vertx-js integration implements such functions providing an out of the box scheduler support.
+
+== Examples
+
 todo
