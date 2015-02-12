@@ -16,5 +16,5 @@ observable.subscribe(
 );
 
 var server = vertx.createHttpServer({ "port":1234, "host":"localhost" });
-server.listen(observable.asHandler());
+server.listen(observable.toHandler());
 // end::example[]

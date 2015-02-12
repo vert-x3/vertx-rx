@@ -1,8 +1,6 @@
 package io.vertx.rx.java.test;
 
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.rx.java.ObservableFuture;
 import io.vertx.rx.java.ObservableHandler;
 import io.vertx.rx.java.RxHelper;
 import org.junit.Test;
@@ -18,7 +16,7 @@ public class HandlerTest {
   @Test
   public void testNotifyBeforeSubscribe() {
     ObservableHandler<String> o = RxHelper.observableHandler();
-    o.asHandler().handle("abc");
+    o.toHandler().handle("abc");
     MySubscriber<String> subscriber = new MySubscriber<>();
     o.subscribe(subscriber);
     subscriber.assertEmpty();
@@ -30,7 +28,7 @@ public class HandlerTest {
     MySubscriber<String> subscriber = new MySubscriber<>();
     o.subscribe(subscriber);
     subscriber.assertEmpty();
-    o.asHandler().handle("abc");
+    o.toHandler().handle("abc");
     subscriber.assertItem("abc").assertEmpty();
   }
 
@@ -42,7 +40,7 @@ public class HandlerTest {
     sub.unsubscribe();
     assertTrue(sub.isUnsubscribed());
     subscriber.assertCompleted().assertEmpty();
-    o.asHandler().handle("abc");
+    o.toHandler().handle("abc");
     subscriber.assertEmpty();
   }
 
@@ -51,8 +49,8 @@ public class HandlerTest {
     ObservableHandler<String> o = RxHelper.observableHandler();
     MySubscriber<String> subscriber = new MySubscriber<>();
     o.subscribe(subscriber);
-    o.asHandler().handle("abc");
-    o.asHandler().handle("def");
+    o.toHandler().handle("abc");
+    o.toHandler().handle("def");
     subscriber.assertItem("abc").assertItem("def").assertEmpty();
   }
 

@@ -21,7 +21,6 @@ import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.rxjava.core.metrics.Measured;
-import java.util.Map;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -115,7 +114,7 @@ public class EventBus implements Measured {
 
   public <T> Observable<Message<T>> sendObservable(String address, Object message) {
     io.vertx.rx.java.ObservableFuture<Message<T>> replyHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    send(address, message, replyHandler.asHandler());
+    send(address, message, replyHandler.toHandler());
     return replyHandler;
   }
 
@@ -159,7 +158,7 @@ public class EventBus implements Measured {
 
   public <T> Observable<Message<T>> sendObservable(String address, Object message, DeliveryOptions options) {
     io.vertx.rx.java.ObservableFuture<Message<T>> replyHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    send(address, message, options, replyHandler.asHandler());
+    send(address, message, options, replyHandler.toHandler());
     return replyHandler;
   }
 
@@ -316,7 +315,7 @@ public class EventBus implements Measured {
 
   public Observable<Void> closeObservable() {
     io.vertx.rx.java.ObservableFuture<Void> completionHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    close(completionHandler.asHandler());
+    close(completionHandler.toHandler());
     return completionHandler;
   }
 

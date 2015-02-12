@@ -16,8 +16,6 @@
 
 package io.vertx.rxjava.core.shareddata;
 
-import java.util.Map;
-import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -56,7 +54,7 @@ public class AsyncMap<K,V> {
 
   public Observable<V> getObservable(K k) {
     io.vertx.rx.java.ObservableFuture<V> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    get(k, resultHandler.asHandler());
+    get(k, resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -73,7 +71,7 @@ public class AsyncMap<K,V> {
 
   public Observable<Void> putObservable(K k, V v) {
     io.vertx.rx.java.ObservableFuture<Void> completionHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    put(k, v, completionHandler.asHandler());
+    put(k, v, completionHandler.toHandler());
     return completionHandler;
   }
 
@@ -92,7 +90,7 @@ public class AsyncMap<K,V> {
 
   public Observable<Void> putObservable(K k, V v, long timeout) {
     io.vertx.rx.java.ObservableFuture<Void> completionHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    put(k, v, timeout, completionHandler.asHandler());
+    put(k, v, timeout, completionHandler.toHandler());
     return completionHandler;
   }
 
@@ -110,7 +108,7 @@ public class AsyncMap<K,V> {
 
   public Observable<V> putIfAbsentObservable(K k, V v) {
     io.vertx.rx.java.ObservableFuture<V> completionHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    putIfAbsent(k, v, completionHandler.asHandler());
+    putIfAbsent(k, v, completionHandler.toHandler());
     return completionHandler;
   }
 
@@ -129,7 +127,7 @@ public class AsyncMap<K,V> {
 
   public Observable<V> putIfAbsentObservable(K k, V v, long timeout) {
     io.vertx.rx.java.ObservableFuture<V> completionHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    putIfAbsent(k, v, timeout, completionHandler.asHandler());
+    putIfAbsent(k, v, timeout, completionHandler.toHandler());
     return completionHandler;
   }
 
@@ -145,7 +143,7 @@ public class AsyncMap<K,V> {
 
   public Observable<V> removeObservable(K k) {
     io.vertx.rx.java.ObservableFuture<V> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    remove(k, resultHandler.asHandler());
+    remove(k, resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -162,7 +160,7 @@ public class AsyncMap<K,V> {
 
   public Observable<Boolean> removeIfPresentObservable(K k, V v) {
     io.vertx.rx.java.ObservableFuture<Boolean> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    removeIfPresent(k, v, resultHandler.asHandler());
+    removeIfPresent(k, v, resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -179,7 +177,7 @@ public class AsyncMap<K,V> {
 
   public Observable<V> replaceObservable(K k, V v) {
     io.vertx.rx.java.ObservableFuture<V> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    replace(k, v, resultHandler.asHandler());
+    replace(k, v, resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -197,7 +195,7 @@ public class AsyncMap<K,V> {
 
   public Observable<Boolean> replaceIfPresentObservable(K k, V oldValue, V newValue) {
     io.vertx.rx.java.ObservableFuture<Boolean> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    replaceIfPresent(k, oldValue, newValue, resultHandler.asHandler());
+    replaceIfPresent(k, oldValue, newValue, resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -212,7 +210,7 @@ public class AsyncMap<K,V> {
 
   public Observable<Void> clearObservable() {
     io.vertx.rx.java.ObservableFuture<Void> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    clear(resultHandler.asHandler());
+    clear(resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -227,7 +225,7 @@ public class AsyncMap<K,V> {
 
   public Observable<Integer> sizeObservable() {
     io.vertx.rx.java.ObservableFuture<Integer> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    size(resultHandler.asHandler());
+    size(resultHandler.toHandler());
     return resultHandler;
   }
 

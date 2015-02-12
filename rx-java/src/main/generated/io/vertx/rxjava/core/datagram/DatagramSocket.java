@@ -21,7 +21,6 @@ import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import io.vertx.rxjava.core.buffer.Buffer;
 import io.vertx.rxjava.core.metrics.Measured;
-import java.util.Map;
 import io.vertx.rxjava.core.streams.ReadStream;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.AsyncResult;
@@ -117,7 +116,7 @@ public class DatagramSocket implements ReadStream<DatagramPacket>,  Measured {
 
   public Observable<DatagramSocket> sendObservable(Buffer packet, int port, String host) {
     io.vertx.rx.java.ObservableFuture<DatagramSocket> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    send(packet, port, host, handler.asHandler());
+    send(packet, port, host, handler.toHandler());
     return handler;
   }
 
@@ -161,7 +160,7 @@ public class DatagramSocket implements ReadStream<DatagramPacket>,  Measured {
 
   public Observable<DatagramSocket> sendObservable(String str, int port, String host) {
     io.vertx.rx.java.ObservableFuture<DatagramSocket> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    send(str, port, host, handler.asHandler());
+    send(str, port, host, handler.toHandler());
     return handler;
   }
 
@@ -193,7 +192,7 @@ public class DatagramSocket implements ReadStream<DatagramPacket>,  Measured {
 
   public Observable<DatagramSocket> sendObservable(String str, String enc, int port, String host) {
     io.vertx.rx.java.ObservableFuture<DatagramSocket> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    send(str, enc, port, host, handler.asHandler());
+    send(str, enc, port, host, handler.toHandler());
     return handler;
   }
 
@@ -209,7 +208,7 @@ public class DatagramSocket implements ReadStream<DatagramPacket>,  Measured {
 
   public Observable<Void> closeObservable() {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    close(handler.asHandler());
+    close(handler.toHandler());
     return handler;
   }
 
@@ -260,7 +259,7 @@ public class DatagramSocket implements ReadStream<DatagramPacket>,  Measured {
 
   public Observable<DatagramSocket> listenMulticastGroupObservable(String multicastAddress) {
     io.vertx.rx.java.ObservableFuture<DatagramSocket> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    listenMulticastGroup(multicastAddress, handler.asHandler());
+    listenMulticastGroup(multicastAddress, handler.toHandler());
     return handler;
   }
 
@@ -291,7 +290,7 @@ public class DatagramSocket implements ReadStream<DatagramPacket>,  Measured {
 
   public Observable<DatagramSocket> listenMulticastGroupObservable(String multicastAddress, String networkInterface, String source) {
     io.vertx.rx.java.ObservableFuture<DatagramSocket> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    listenMulticastGroup(multicastAddress, networkInterface, source, handler.asHandler());
+    listenMulticastGroup(multicastAddress, networkInterface, source, handler.toHandler());
     return handler;
   }
 
@@ -320,7 +319,7 @@ public class DatagramSocket implements ReadStream<DatagramPacket>,  Measured {
 
   public Observable<DatagramSocket> unlistenMulticastGroupObservable(String multicastAddress) {
     io.vertx.rx.java.ObservableFuture<DatagramSocket> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    unlistenMulticastGroup(multicastAddress, handler.asHandler());
+    unlistenMulticastGroup(multicastAddress, handler.toHandler());
     return handler;
   }
 
@@ -351,7 +350,7 @@ public class DatagramSocket implements ReadStream<DatagramPacket>,  Measured {
 
   public Observable<DatagramSocket> unlistenMulticastGroupObservable(String multicastAddress, String networkInterface, String source) {
     io.vertx.rx.java.ObservableFuture<DatagramSocket> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    unlistenMulticastGroup(multicastAddress, networkInterface, source, handler.asHandler());
+    unlistenMulticastGroup(multicastAddress, networkInterface, source, handler.toHandler());
     return handler;
   }
 
@@ -382,7 +381,7 @@ public class DatagramSocket implements ReadStream<DatagramPacket>,  Measured {
 
   public Observable<DatagramSocket> blockMulticastGroupObservable(String multicastAddress, String sourceToBlock) {
     io.vertx.rx.java.ObservableFuture<DatagramSocket> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    blockMulticastGroup(multicastAddress, sourceToBlock, handler.asHandler());
+    blockMulticastGroup(multicastAddress, sourceToBlock, handler.toHandler());
     return handler;
   }
 
@@ -414,7 +413,7 @@ public class DatagramSocket implements ReadStream<DatagramPacket>,  Measured {
 
   public Observable<DatagramSocket> blockMulticastGroupObservable(String multicastAddress, String networkInterface, String sourceToBlock) {
     io.vertx.rx.java.ObservableFuture<DatagramSocket> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    blockMulticastGroup(multicastAddress, networkInterface, sourceToBlock, handler.asHandler());
+    blockMulticastGroup(multicastAddress, networkInterface, sourceToBlock, handler.toHandler());
     return handler;
   }
 
@@ -443,7 +442,7 @@ public class DatagramSocket implements ReadStream<DatagramPacket>,  Measured {
 
   public Observable<DatagramSocket> listenObservable(int port, String host) {
     io.vertx.rx.java.ObservableFuture<DatagramSocket> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    listen(port, host, handler.asHandler());
+    listen(port, host, handler.toHandler());
     return handler;
   }
 

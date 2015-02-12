@@ -9,5 +9,5 @@ observable.subscribe(
         // Got event
     }
 );
-vertx.setTimer(1000, observable.asHandler());
+vertx.setTimer(1000, observable.toHandler());
 // end::example[]

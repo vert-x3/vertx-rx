@@ -17,4 +17,4 @@ observable.subscribe(
     test.testComplete();
   }
 );
-eb.send("the_address", {}, {}, observable.asHandler());
+eb.send("the_address", {}, {}, observable.toHandler());

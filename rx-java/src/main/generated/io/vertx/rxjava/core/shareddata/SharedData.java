@@ -16,7 +16,6 @@
 
 package io.vertx.rxjava.core.shareddata;
 
-import java.util.Map;
 import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import io.vertx.core.AsyncResult;
@@ -75,7 +74,7 @@ public class SharedData {
 
   public <K, V> Observable<AsyncMap<K,V>> getClusterWideMapObservable(String name) {
     io.vertx.rx.java.ObservableFuture<AsyncMap<K,V>> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    getClusterWideMap(name, resultHandler.asHandler());
+    getClusterWideMap(name, resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -101,7 +100,7 @@ public class SharedData {
 
   public Observable<Lock> getLockObservable(String name) {
     io.vertx.rx.java.ObservableFuture<Lock> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    getLock(name, resultHandler.asHandler());
+    getLock(name, resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -128,7 +127,7 @@ public class SharedData {
 
   public Observable<Lock> getLockWithTimeoutObservable(String name, long timeout) {
     io.vertx.rx.java.ObservableFuture<Lock> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    getLockWithTimeout(name, timeout, resultHandler.asHandler());
+    getLockWithTimeout(name, timeout, resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -154,7 +153,7 @@ public class SharedData {
 
   public Observable<Counter> getCounterObservable(String name) {
     io.vertx.rx.java.ObservableFuture<Counter> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    getCounter(name, resultHandler.asHandler());
+    getCounter(name, resultHandler.toHandler());
     return resultHandler;
   }
 

@@ -23,7 +23,6 @@ import io.vertx.rxjava.core.datagram.DatagramSocket;
 import io.vertx.rxjava.core.http.HttpServer;
 import io.vertx.rxjava.core.shareddata.SharedData;
 import io.vertx.rxjava.core.eventbus.EventBus;
-import java.util.Map;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.http.HttpClientOptions;
@@ -149,7 +148,7 @@ public class Vertx implements Measured {
 
   public static Observable<Vertx> clusteredVertxObservable(VertxOptions options) {
     io.vertx.rx.java.ObservableFuture<Vertx> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    clusteredVertx(options, resultHandler.asHandler());
+    clusteredVertx(options, resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -426,7 +425,7 @@ public class Vertx implements Measured {
 
   public Observable<Void> closeObservable() {
     io.vertx.rx.java.ObservableFuture<Void> completionHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    close(completionHandler.asHandler());
+    close(completionHandler.toHandler());
     return completionHandler;
   }
 
@@ -460,7 +459,7 @@ public class Vertx implements Measured {
 
   public Observable<String> deployVerticleObservable(String name) {
     io.vertx.rx.java.ObservableFuture<String> completionHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    deployVerticle(name, completionHandler.asHandler());
+    deployVerticle(name, completionHandler.toHandler());
     return completionHandler;
   }
 
@@ -498,7 +497,7 @@ public class Vertx implements Measured {
 
   public Observable<Void> undeployObservable(String deploymentID) {
     io.vertx.rx.java.ObservableFuture<Void> completionHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    undeploy(deploymentID, completionHandler.asHandler());
+    undeploy(deploymentID, completionHandler.toHandler());
     return completionHandler;
   }
 
@@ -539,7 +538,7 @@ public class Vertx implements Measured {
 
   public <T> Observable<T> executeBlockingObservable(Handler<Future<T>> blockingCodeHandler) {
     io.vertx.rx.java.ObservableFuture<T> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    executeBlocking(blockingCodeHandler, resultHandler.asHandler());
+    executeBlocking(blockingCodeHandler, resultHandler.toHandler());
     return resultHandler;
   }
 

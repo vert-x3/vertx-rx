@@ -16,8 +16,6 @@
 
 package io.vertx.rxjava.core;
 
-import java.util.Map;
-import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -116,7 +114,7 @@ public class Future<T> {
 
   public Observable<T> setHandlerObservable() {
     io.vertx.rx.java.ObservableFuture<T> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    setHandler(handler.asHandler());
+    setHandler(handler.toHandler());
     return handler;
   }
 

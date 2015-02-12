@@ -20,7 +20,6 @@ import java.util.Map;
 import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import io.vertx.rxjava.core.metrics.Measured;
-import java.util.Map;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -99,7 +98,7 @@ public class NetClient implements Measured {
 
   public Observable<NetSocket> connectObservable(int port, String host) {
     io.vertx.rx.java.ObservableFuture<NetSocket> connectHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    connect(port, host, connectHandler.asHandler());
+    connect(port, host, connectHandler.toHandler());
     return connectHandler;
   }
 

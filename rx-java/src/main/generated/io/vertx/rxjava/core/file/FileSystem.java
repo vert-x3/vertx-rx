@@ -16,7 +16,6 @@
 
 package io.vertx.rxjava.core.file;
 
-import java.util.Map;
 import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import java.util.List;
@@ -74,7 +73,7 @@ public class FileSystem {
 
   public Observable<Void> copyObservable(String from, String to) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    copy(from, to, handler.asHandler());
+    copy(from, to, handler.toHandler());
     return handler;
   }
 
@@ -107,7 +106,7 @@ public class FileSystem {
 
   public Observable<Void> copyRecursiveObservable(String from, String to, boolean recursive) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    copyRecursive(from, to, recursive, handler.asHandler());
+    copyRecursive(from, to, recursive, handler.toHandler());
     return handler;
   }
 
@@ -136,7 +135,7 @@ public class FileSystem {
 
   public Observable<Void> moveObservable(String from, String to) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    move(from, to, handler.asHandler());
+    move(from, to, handler.toHandler());
     return handler;
   }
 
@@ -165,7 +164,7 @@ public class FileSystem {
 
   public Observable<Void> truncateObservable(String path, long len) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    truncate(path, len, handler.asHandler());
+    truncate(path, len, handler.toHandler());
     return handler;
   }
 
@@ -195,7 +194,7 @@ public class FileSystem {
 
   public Observable<Void> chmodObservable(String path, String perms) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    chmod(path, perms, handler.asHandler());
+    chmod(path, perms, handler.toHandler());
     return handler;
   }
 
@@ -228,7 +227,7 @@ public class FileSystem {
 
   public Observable<Void> chmodRecursiveObservable(String path, String perms, String dirPerms) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    chmodRecursive(path, perms, dirPerms, handler.asHandler());
+    chmodRecursive(path, perms, dirPerms, handler.toHandler());
     return handler;
   }
 
@@ -256,7 +255,7 @@ public class FileSystem {
 
   public Observable<Void> chownObservable(String path, String user, String group) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    chown(path, user, group, handler.asHandler());
+    chown(path, user, group, handler.toHandler());
     return handler;
   }
 
@@ -295,7 +294,7 @@ public class FileSystem {
 
   public Observable<FileProps> propsObservable(String path) {
     io.vertx.rx.java.ObservableFuture<FileProps> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    props(path, handler.asHandler());
+    props(path, handler.toHandler());
     return handler;
   }
 
@@ -333,7 +332,7 @@ public class FileSystem {
 
   public Observable<FileProps> lpropsObservable(String path) {
     io.vertx.rx.java.ObservableFuture<FileProps> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    lprops(path, handler.asHandler());
+    lprops(path, handler.toHandler());
     return handler;
   }
 
@@ -360,7 +359,7 @@ public class FileSystem {
 
   public Observable<Void> linkObservable(String link, String existing) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    link(link, existing, handler.asHandler());
+    link(link, existing, handler.toHandler());
     return handler;
   }
 
@@ -387,7 +386,7 @@ public class FileSystem {
 
   public Observable<Void> symlinkObservable(String link, String existing) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    symlink(link, existing, handler.asHandler());
+    symlink(link, existing, handler.toHandler());
     return handler;
   }
 
@@ -413,7 +412,7 @@ public class FileSystem {
 
   public Observable<Void> unlinkObservable(String link) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    unlink(link, handler.asHandler());
+    unlink(link, handler.toHandler());
     return handler;
   }
 
@@ -439,7 +438,7 @@ public class FileSystem {
 
   public Observable<String> readSymlinkObservable(String link) {
     io.vertx.rx.java.ObservableFuture<String> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    readSymlink(link, handler.asHandler());
+    readSymlink(link, handler.toHandler());
     return handler;
   }
 
@@ -465,7 +464,7 @@ public class FileSystem {
 
   public Observable<Void> deleteObservable(String path) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    delete(path, handler.asHandler());
+    delete(path, handler.toHandler());
     return handler;
   }
 
@@ -495,7 +494,7 @@ public class FileSystem {
 
   public Observable<Void> deleteRecursiveObservable(String path, boolean recursive) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    deleteRecursive(path, recursive, handler.asHandler());
+    deleteRecursive(path, recursive, handler.toHandler());
     return handler;
   }
 
@@ -523,7 +522,7 @@ public class FileSystem {
 
   public Observable<Void> mkdirObservable(String path) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    mkdir(path, handler.asHandler());
+    mkdir(path, handler.toHandler());
     return handler;
   }
 
@@ -557,7 +556,7 @@ public class FileSystem {
 
   public Observable<Void> mkdirObservable(String path, String perms) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    mkdir(path, perms, handler.asHandler());
+    mkdir(path, perms, handler.toHandler());
     return handler;
   }
 
@@ -585,7 +584,7 @@ public class FileSystem {
 
   public Observable<Void> mkdirsObservable(String path) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    mkdirs(path, handler.asHandler());
+    mkdirs(path, handler.toHandler());
     return handler;
   }
 
@@ -619,7 +618,7 @@ public class FileSystem {
 
   public Observable<Void> mkdirsObservable(String path, String perms) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    mkdirs(path, perms, handler.asHandler());
+    mkdirs(path, perms, handler.toHandler());
     return handler;
   }
 
@@ -647,7 +646,7 @@ public class FileSystem {
 
   public Observable<List<String>> readDirObservable(String path) {
     io.vertx.rx.java.ObservableFuture<List<String>> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    readDir(path, handler.asHandler());
+    readDir(path, handler.toHandler());
     return handler;
   }
 
@@ -680,7 +679,7 @@ public class FileSystem {
 
   public Observable<List<String>> readDirObservable(String path, String filter) {
     io.vertx.rx.java.ObservableFuture<List<String>> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    readDir(path, filter, handler.asHandler());
+    readDir(path, filter, handler.toHandler());
     return handler;
   }
 
@@ -719,7 +718,7 @@ public class FileSystem {
 
   public Observable<Buffer> readFileObservable(String path) {
     io.vertx.rx.java.ObservableFuture<Buffer> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    readFile(path, handler.asHandler());
+    readFile(path, handler.toHandler());
     return handler;
   }
 
@@ -746,7 +745,7 @@ public class FileSystem {
 
   public Observable<Void> writeFileObservable(String path, Buffer data) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    writeFile(path, data, handler.asHandler());
+    writeFile(path, data, handler.toHandler());
     return handler;
   }
 
@@ -785,7 +784,7 @@ public class FileSystem {
 
   public Observable<AsyncFile> openObservable(String path, OpenOptions options) {
     io.vertx.rx.java.ObservableFuture<AsyncFile> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    open(path, options, handler.asHandler());
+    open(path, options, handler.toHandler());
     return handler;
   }
 
@@ -811,7 +810,7 @@ public class FileSystem {
 
   public Observable<Void> createFileObservable(String path) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    createFile(path, handler.asHandler());
+    createFile(path, handler.toHandler());
     return handler;
   }
 
@@ -838,7 +837,7 @@ public class FileSystem {
 
   public Observable<Void> createFileObservable(String path, String perms) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    createFile(path, perms, handler.asHandler());
+    createFile(path, perms, handler.toHandler());
     return handler;
   }
 
@@ -864,7 +863,7 @@ public class FileSystem {
 
   public Observable<Boolean> existsObservable(String path) {
     io.vertx.rx.java.ObservableFuture<Boolean> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    exists(path, handler.asHandler());
+    exists(path, handler.toHandler());
     return handler;
   }
 
@@ -900,7 +899,7 @@ public class FileSystem {
 
   public Observable<FileSystemProps> fsPropsObservable(String path) {
     io.vertx.rx.java.ObservableFuture<FileSystemProps> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    fsProps(path, handler.asHandler());
+    fsProps(path, handler.toHandler());
     return handler;
   }
 

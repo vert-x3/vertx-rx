@@ -34,5 +34,5 @@ socketObs.subscribe({ socket ->
       }
   )
 }, { err -> err.printStackTrace(); test.fail(err.message) }, { test.testComplete() });
-server.listen(onListen.asHandler());
+server.listen(onListen.toHandler());
 test.await();

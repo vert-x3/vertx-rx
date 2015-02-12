@@ -37,7 +37,7 @@
  * === Handler support
  *
  * The {@link io.vertx.rx.java.RxHelper} can create an {@link io.vertx.rx.java.ObservableHandler}: an `Observable` with a
- * {@link io.vertx.rx.java.ObservableHandler#asHandler()} method returning an `Handler<T>` implementation:
+ * {@link io.vertx.rx.java.ObservableHandler#toHandler()} method returning an `Handler<T>` implementation:
  *
  * [source,java]
  * ----
@@ -56,7 +56,7 @@
  * - when the callback is a failure, the observer `onError` method is called
  *
  * The {@link io.vertx.rx.java.RxHelper#observableFuture()} method creates an {@link io.vertx.rx.java.ObservableFuture}:
- * an `Observable` with a {@link io.vertx.rx.java.ObservableFuture#asHandler()} method returning a `Handler<AsyncResult<T>>`
+ * an `Observable` with a {@link io.vertx.rx.java.ObservableFuture#toHandler()} method returning a `Handler<AsyncResult<T>>`
  * implementation:
  *
  * [source,java]

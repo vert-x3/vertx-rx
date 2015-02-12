@@ -16,8 +16,6 @@
 
 package io.vertx.rxjava.core.net;
 
-import java.util.Map;
-import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import io.vertx.rxjava.core.buffer.Buffer;
 import io.vertx.rxjava.core.streams.WriteStream;
@@ -184,7 +182,7 @@ public class NetSocket implements ReadStream<Buffer>,  WriteStream<Buffer> {
 
   public Observable<Void> sendFileObservable(String filename) {
     io.vertx.rx.java.ObservableFuture<Void> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    sendFile(filename, resultHandler.asHandler());
+    sendFile(filename, resultHandler.toHandler());
     return resultHandler;
   }
 

@@ -10,4 +10,4 @@ observable.subscribe(
     test.fail();
   }
 );
-vertx.setTimer(1, observable.asHandler());
+vertx.setTimer(1, observable.toHandler());

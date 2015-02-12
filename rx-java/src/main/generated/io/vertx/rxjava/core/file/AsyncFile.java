@@ -16,7 +16,6 @@
 
 package io.vertx.rxjava.core.file;
 
-import java.util.Map;
 import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import io.vertx.rxjava.core.buffer.Buffer;
@@ -135,7 +134,7 @@ public class AsyncFile implements ReadStream<Buffer>,  WriteStream<Buffer> {
 
   public Observable<Void> closeObservable() {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    close(handler.asHandler());
+    close(handler.toHandler());
     return handler;
   }
 
@@ -162,7 +161,7 @@ public class AsyncFile implements ReadStream<Buffer>,  WriteStream<Buffer> {
 
   public Observable<Void> writeObservable(Buffer buffer, long position) {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    write(buffer, position, handler.asHandler());
+    write(buffer, position, handler.toHandler());
     return handler;
   }
 
@@ -200,7 +199,7 @@ public class AsyncFile implements ReadStream<Buffer>,  WriteStream<Buffer> {
 
   public Observable<Buffer> readObservable(Buffer buffer, int offset, long position, int length) {
     io.vertx.rx.java.ObservableFuture<Buffer> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    read(buffer, offset, position, length, handler.asHandler());
+    read(buffer, offset, position, length, handler.toHandler());
     return handler;
   }
 
@@ -228,7 +227,7 @@ public class AsyncFile implements ReadStream<Buffer>,  WriteStream<Buffer> {
 
   public Observable<Void> flushObservable() {
     io.vertx.rx.java.ObservableFuture<Void> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    flush(handler.asHandler());
+    flush(handler.toHandler());
     return handler;
   }
 

@@ -205,7 +205,7 @@ public class JavaIntegrationTest extends VertxTestBase {
         testComplete();
       }
     });
-    server.listen(onListen.asHandler());
+    server.listen(onListen.toHandler());
     await();
   }
 
@@ -258,7 +258,7 @@ public class JavaIntegrationTest extends VertxTestBase {
         testComplete();
       }
     });
-    server.listen(onListen.asHandler());
+    server.listen(onListen.toHandler());
     await();
   }
 

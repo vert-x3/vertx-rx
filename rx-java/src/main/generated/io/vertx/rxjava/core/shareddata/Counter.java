@@ -16,8 +16,6 @@
 
 package io.vertx.rxjava.core.shareddata;
 
-import java.util.Map;
-import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -55,7 +53,7 @@ public class Counter {
 
   public Observable<Long> getObservable() {
     io.vertx.rx.java.ObservableFuture<Long> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    get(resultHandler.asHandler());
+    get(resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -70,7 +68,7 @@ public class Counter {
 
   public Observable<Long> incrementAndGetObservable() {
     io.vertx.rx.java.ObservableFuture<Long> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    incrementAndGet(resultHandler.asHandler());
+    incrementAndGet(resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -85,7 +83,7 @@ public class Counter {
 
   public Observable<Long> getAndIncrementObservable() {
     io.vertx.rx.java.ObservableFuture<Long> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    getAndIncrement(resultHandler.asHandler());
+    getAndIncrement(resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -100,7 +98,7 @@ public class Counter {
 
   public Observable<Long> decrementAndGetObservable() {
     io.vertx.rx.java.ObservableFuture<Long> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    decrementAndGet(resultHandler.asHandler());
+    decrementAndGet(resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -116,7 +114,7 @@ public class Counter {
 
   public Observable<Long> addAndGetObservable(long value) {
     io.vertx.rx.java.ObservableFuture<Long> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    addAndGet(value, resultHandler.asHandler());
+    addAndGet(value, resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -132,7 +130,7 @@ public class Counter {
 
   public Observable<Long> getAndAddObservable(long value) {
     io.vertx.rx.java.ObservableFuture<Long> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    getAndAdd(value, resultHandler.asHandler());
+    getAndAdd(value, resultHandler.toHandler());
     return resultHandler;
   }
 
@@ -150,7 +148,7 @@ public class Counter {
 
   public Observable<Boolean> compareAndSetObservable(long expected, long value) {
     io.vertx.rx.java.ObservableFuture<Boolean> resultHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    compareAndSet(expected, value, resultHandler.asHandler());
+    compareAndSet(expected, value, resultHandler.toHandler());
     return resultHandler;
   }
 

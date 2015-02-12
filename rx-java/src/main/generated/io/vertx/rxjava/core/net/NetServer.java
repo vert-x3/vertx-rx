@@ -20,7 +20,6 @@ import java.util.Map;
 import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import io.vertx.rxjava.core.metrics.Measured;
-import java.util.Map;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -131,7 +130,7 @@ public class NetServer implements Measured {
 
   public Observable<NetServer> listenObservable() {
     io.vertx.rx.java.ObservableFuture<NetServer> listenHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    listen(listenHandler.asHandler());
+    listen(listenHandler.toHandler());
     return listenHandler;
   }
 
@@ -177,7 +176,7 @@ public class NetServer implements Measured {
 
   public Observable<NetServer> listenObservable(int port, String host) {
     io.vertx.rx.java.ObservableFuture<NetServer> listenHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    listen(port, host, listenHandler.asHandler());
+    listen(port, host, listenHandler.toHandler());
     return listenHandler;
   }
 
@@ -220,7 +219,7 @@ public class NetServer implements Measured {
 
   public Observable<NetServer> listenObservable(int port) {
     io.vertx.rx.java.ObservableFuture<NetServer> listenHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    listen(port, listenHandler.asHandler());
+    listen(port, listenHandler.toHandler());
     return listenHandler;
   }
 
@@ -243,7 +242,7 @@ public class NetServer implements Measured {
 
   public Observable<Void> closeObservable() {
     io.vertx.rx.java.ObservableFuture<Void> completionHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    close(completionHandler.asHandler());
+    close(completionHandler.toHandler());
     return completionHandler;
   }
 

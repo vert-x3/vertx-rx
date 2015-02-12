@@ -48,7 +48,7 @@ public class ObservableHandler<T> extends Observable<T> {
     this.adapter = adapter;
   }
 
-  public Handler<T> asHandler() {
+  public Handler<T> toHandler() {
     return adapter;
   }
 }

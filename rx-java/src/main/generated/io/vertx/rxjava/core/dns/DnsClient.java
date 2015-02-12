@@ -16,7 +16,6 @@
 
 package io.vertx.rxjava.core.dns;
 
-import java.util.Map;
 import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import java.util.List;
@@ -61,7 +60,7 @@ public class DnsClient {
 
   public Observable<String> lookupObservable(String name) {
     io.vertx.rx.java.ObservableFuture<String> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    lookup(name, handler.asHandler());
+    lookup(name, handler.toHandler());
     return handler;
   }
 
@@ -81,7 +80,7 @@ public class DnsClient {
 
   public Observable<String> lookup4Observable(String name) {
     io.vertx.rx.java.ObservableFuture<String> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    lookup4(name, handler.asHandler());
+    lookup4(name, handler.toHandler());
     return handler;
   }
 
@@ -101,7 +100,7 @@ public class DnsClient {
 
   public Observable<String> lookup6Observable(String name) {
     io.vertx.rx.java.ObservableFuture<String> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    lookup6(name, handler.asHandler());
+    lookup6(name, handler.toHandler());
     return handler;
   }
 
@@ -122,7 +121,7 @@ public class DnsClient {
 
   public Observable<List<String>> resolveAObservable(String name) {
     io.vertx.rx.java.ObservableFuture<List<String>> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    resolveA(name, handler.asHandler());
+    resolveA(name, handler.toHandler());
     return handler;
   }
 
@@ -143,7 +142,7 @@ public class DnsClient {
 
   public Observable<List<String>> resolveAAAAObservable(String name) {
     io.vertx.rx.java.ObservableFuture<List<String>> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    resolveAAAA(name, handler.asHandler());
+    resolveAAAA(name, handler.toHandler());
     return handler;
   }
 
@@ -163,7 +162,7 @@ public class DnsClient {
 
   public Observable<List<String>> resolveCNAMEObservable(String name) {
     io.vertx.rx.java.ObservableFuture<List<String>> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    resolveCNAME(name, handler.asHandler());
+    resolveCNAME(name, handler.toHandler());
     return handler;
   }
 
@@ -194,7 +193,7 @@ public class DnsClient {
 
   public Observable<List<MxRecord>> resolveMXObservable(String name) {
     io.vertx.rx.java.ObservableFuture<List<MxRecord>> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    resolveMX(name, handler.asHandler());
+    resolveMX(name, handler.toHandler());
     return handler;
   }
 
@@ -214,7 +213,7 @@ public class DnsClient {
 
   public Observable<List<String>> resolveTXTObservable(String name) {
     io.vertx.rx.java.ObservableFuture<List<String>> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    resolveTXT(name, handler.asHandler());
+    resolveTXT(name, handler.toHandler());
     return handler;
   }
 
@@ -234,7 +233,7 @@ public class DnsClient {
 
   public Observable<String> resolvePTRObservable(String name) {
     io.vertx.rx.java.ObservableFuture<String> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    resolvePTR(name, handler.asHandler());
+    resolvePTR(name, handler.toHandler());
     return handler;
   }
 
@@ -254,7 +253,7 @@ public class DnsClient {
 
   public Observable<List<String>> resolveNSObservable(String name) {
     io.vertx.rx.java.ObservableFuture<List<String>> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    resolveNS(name, handler.asHandler());
+    resolveNS(name, handler.toHandler());
     return handler;
   }
 
@@ -284,7 +283,7 @@ public class DnsClient {
 
   public Observable<List<SrvRecord>> resolveSRVObservable(String name) {
     io.vertx.rx.java.ObservableFuture<List<SrvRecord>> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    resolveSRV(name, handler.asHandler());
+    resolveSRV(name, handler.toHandler());
     return handler;
   }
 
@@ -305,7 +304,7 @@ public class DnsClient {
 
   public Observable<String> reverseLookupObservable(String ipaddress) {
     io.vertx.rx.java.ObservableFuture<String> handler = io.vertx.rx.java.RxHelper.observableFuture();
-    reverseLookup(ipaddress, handler.asHandler());
+    reverseLookup(ipaddress, handler.toHandler());
     return handler;
   }
 

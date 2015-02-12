@@ -40,7 +40,7 @@ public class NativeExamples {
     observable.subscribe(id -> {
       // Fired
     });
-    vertx.setTimer(1000, observable.asHandler());
+    vertx.setTimer(1000, observable.toHandler());
   }
 
   public void observableFuture(Vertx vertx) {
@@ -56,7 +56,7 @@ public class NativeExamples {
     vertx.createHttpServer(new HttpServerOptions().
         setPort(1234).
         setHost("localhost")
-    ).listen(observable.asHandler());
+    ).listen(observable.toHandler());
   }
 
   public void observableToHandler() {

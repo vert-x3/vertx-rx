@@ -16,7 +16,6 @@
 
 package io.vertx.rxjava.core.eventbus;
 
-import java.util.Map;
 import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import io.vertx.core.eventbus.DeliveryOptions;
@@ -129,7 +128,7 @@ public class Message<T> {
 
   public <R> Observable<Message<R>> replyObservable(Object message) {
     io.vertx.rx.java.ObservableFuture<Message<R>> replyHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    reply(message, replyHandler.asHandler());
+    reply(message, replyHandler.toHandler());
     return replyHandler;
   }
 
@@ -167,7 +166,7 @@ public class Message<T> {
 
   public <R> Observable<Message<R>> replyObservable(Object message, DeliveryOptions options) {
     io.vertx.rx.java.ObservableFuture<Message<R>> replyHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    reply(message, options, replyHandler.asHandler());
+    reply(message, options, replyHandler.toHandler());
     return replyHandler;
   }
 

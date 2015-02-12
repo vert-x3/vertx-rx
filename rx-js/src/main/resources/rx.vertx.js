@@ -76,7 +76,7 @@
 
   Rx.observableFuture = function() {
     var subject = new Rx.Subject();
-    subject.asHandler = function() {
+    subject.toHandler = function() {
       return toFuture(subject);
     };
     return subject;
@@ -94,7 +94,7 @@
 
   Rx.observableHandler = function() {
     var subject = new Rx.Subject();
-    subject.asHandler = function() {
+    subject.toHandler = function() {
       return toHandler(subject);
     };
     return subject;

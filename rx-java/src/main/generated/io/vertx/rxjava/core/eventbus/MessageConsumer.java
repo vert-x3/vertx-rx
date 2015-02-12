@@ -16,8 +16,6 @@
 
 package io.vertx.rxjava.core.eventbus;
 
-import java.util.Map;
-import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import io.vertx.rxjava.core.streams.ReadStream;
 import io.vertx.core.AsyncResult;
@@ -147,7 +145,7 @@ public class MessageConsumer<T> implements ReadStream<Message<T>> {
 
   public Observable<Void> completionHandlerObservable() {
     io.vertx.rx.java.ObservableFuture<Void> completionHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    completionHandler(completionHandler.asHandler());
+    completionHandler(completionHandler.toHandler());
     return completionHandler;
   }
 
@@ -170,7 +168,7 @@ public class MessageConsumer<T> implements ReadStream<Message<T>> {
 
   public Observable<Void> unregisterObservable() {
     io.vertx.rx.java.ObservableFuture<Void> completionHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    unregister(completionHandler.asHandler());
+    unregister(completionHandler.toHandler());
     return completionHandler;
   }
 

@@ -55,5 +55,5 @@ socketObs.subscribe(new Subscriber<ServerWebSocket>() {
     test.testComplete();
   }
 });
-server.listen(onListen.asHandler());
+server.listen(onListen.toHandler());
 test.await();
