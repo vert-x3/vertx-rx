@@ -17,7 +17,7 @@
 
   <properties>
     <asciidoc.dir>${project.basedir}/src/main/asciidoc</asciidoc.dir>
-    <apidocs>jsdoc</apidocs>
+    <lang>js</lang>
   </properties>
 
   <dependencies>
@@ -71,7 +71,7 @@
               <directoryRoots>
                 <directoryRoot>${basedir}/src/main/resources</directoryRoot>
               </directoryRoots>
-              <outputDirectory>${project.build.directory}/docs/jsdoc</outputDirectory>
+              <outputDirectory>${project.build.directory}/docs/vertx-rx/js/jsdoc</outputDirectory>
             </configuration>
           </execution>
         </executions>

@@ -1,0 +1,18 @@
+== TestDataObject
+
+++++
+ @author <a href="http://tfox.org">Tim Fox</a>
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+
+|`foo`
+|`String`
+|-
+|`bar`
+|`Number`
+|-|===

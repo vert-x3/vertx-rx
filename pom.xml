@@ -7,7 +7,7 @@
   <parent>
     <groupId>io.vertx</groupId>
     <artifactId>vertx-parent</artifactId>
-    <version>2</version>
+    <version>5</version>
   </parent>
 
   <artifactId>vertx-rx</artifactId>
@@ -55,7 +55,7 @@
               <phase>package</phase>
               <configuration>
                 <sourceDirectory>${asciidoc.dir}</sourceDirectory>
-                <outputDirectory>${project.build.directory}/docs</outputDirectory>
+                <outputDirectory>${project.build.directory}/docs/vertx-rx/</outputDirectory>
                 <backend>html</backend>
                 <doctype>book</doctype>
                 <preserveDirectories>true</preserveDirectories>

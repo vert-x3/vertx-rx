@@ -1,0 +1,135 @@
+== HttpServerOptions
+
+++++
+ Represents options used by an link instance
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+
+|`sendBufferSize`
+|`Number`
+|+++
+Set the TCP send buffer size+++
+
+|`receiveBufferSize`
+|`Number`
+|+++
+Set the TCP receive buffer size+++
+
+|`reuseAddress`
+|`Boolean`
+|+++
+Set the value of reuse address+++
+
+|`trafficClass`
+|`Number`
+|+++
+Set the value of traffic class+++
+
+|`tcpNoDelay`
+|`Boolean`
+|+++
+Set whether TCP no delay is enabled+++
+
+|`tcpKeepAlive`
+|`Boolean`
+|+++
+Set whether TCP keep alive is enabled+++
+
+|`soLinger`
+|`Number`
+|+++
+Set whether SO_linger keep alive is enabled+++
+
+|`usePooledBuffers`
+|`Boolean`
+|+++
+Set whether Netty pooled buffers are enabled+++
+
+|`idleTimeout`
+|`Number`
+|-
+|`ssl`
+|`Boolean`
+|+++
+Set whether SSL/TLS is enabled+++
+
+|`keyStoreOptions`
+|`link:JksOptions.html[JksOptions]`
+|+++
+Set the key/cert options in jks format, aka Java keystore.+++
+
+|`pfxKeyCertOptions`
+|`link:PfxOptions.html[PfxOptions]`
+|+++
+Set the key/cert options in pfx format.+++
+
+|`pemKeyCertOptions`
+|`link:PemKeyCertOptions.html[PemKeyCertOptions]`
+|+++
+Set the key/cert store options in pem format.+++
+
+|`trustStoreOptions`
+|`link:JksOptions.html[JksOptions]`
+|+++
+Set the trust options in jks format, aka Java trustore+++
+
+|`pemTrustOptions`
+|`link:PemTrustOptions.html[PemTrustOptions]`
+|+++
+Set the trust options in pem format+++
+
+|`pfxTrustOptions`
+|`link:PfxOptions.html[PfxOptions]`
+|+++
+Set the trust options in pfx format+++
+
+|`enabledCipherSuites`
+|`Array of String`
+|+++
+Add an enabled cipher suite+++
+
+|`crlPaths`
+|`Array of String`
+|+++
+Add a CRL path+++
+
+|`acceptBacklog`
+|`Number`
+|+++
+Set the accept back log+++
+
+|`port`
+|`Number`
+|+++
+Set the port+++
+
+|`host`
+|`String`
+|+++
+Set the host+++
+
+|`compressionSupported`
+|`Boolean`
+|+++
+Set whether the server supports compression+++
+
+|`maxWebsocketFrameSize`
+|`Number`
+|+++
+Set the maximum websocket frames size+++
+
+|`websocketSubProtocol`
+|`String`
+|+++
+Set the websocket subprotocols supported by the server.+++
+
+|`clientAuthRequired`
+|`Boolean`
+|+++
+Set whether client auth is required+++
+|===

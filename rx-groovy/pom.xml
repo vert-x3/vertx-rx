@@ -15,7 +15,7 @@
 
   <properties>
     <asciidoc.dir>${project.basedir}/src/main/asciidoc</asciidoc.dir>
-    <apidocs>groovydoc</apidocs>
+    <lang>groovy</lang>
   </properties>
 
   <name>Vert.x RxGroovy API</name>
@@ -83,7 +83,7 @@
               <goal>generate</goal>
             </goals>
             <configuration>
-              <destinationDirectory>${project.build.directory}/docs/groovydoc</destinationDirectory>
+              <destinationDirectory>${project.build.directory}/docs/vertx-rx/groovy/groovydoc</destinationDirectory>
               <scope>public</scope>
               <skipJavadoc>true</skipJavadoc>
             </configuration>

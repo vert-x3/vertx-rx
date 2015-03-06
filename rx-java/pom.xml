@@ -17,7 +17,7 @@
 
   <properties>
     <asciidoc.dir>${project.basedir}/src/main/asciidoc</asciidoc.dir>
-    <apidocs>apidocs</apidocs>
+    <lang>java</lang>
   </properties>
 
   <dependencies>
@@ -202,7 +202,7 @@
                 <processor>io.vertx.docgen.JavaDocGenProcessor</processor>
               </processors>
               <optionMap>
-                <docgen.output>${asciidoc.dir}</docgen.output>
+                <docgen.output>${asciidoc.dir}/java</docgen.output>
               </optionMap>
             </configuration>
           </execution>

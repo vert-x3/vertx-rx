@@ -9,11 +9,15 @@
   <fileSets>
     <fileSet>
       <directory>${asciidoc.dir}</directory>
-      <outputDirectory>/asciidoc</outputDirectory>
+      <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>${project.build.directory}/docs/${apidocs}</directory>
-      <outputDirectory>/${apidocs}</outputDirectory>
+      <directory>${project.build.directory}/docs/vertx-rx/</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>groovy/groovydoc/**</include>
+        <include>js/jsdoc/**</include>
+      </includes>
     </fileSet>
   </fileSets>
 </assembly>
