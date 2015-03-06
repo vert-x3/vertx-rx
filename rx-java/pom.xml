@@ -18,6 +18,9 @@
   <properties>
     <asciidoc.dir>${project.basedir}/src/main/asciidoc</asciidoc.dir>
     <lang>java</lang>
+    <!-- There is an issue with source plugin because we don't get the generated sources
+         because of BSC plugin -->
+    <source.skip>true</source.skip>
   </properties>
 
   <dependencies>
