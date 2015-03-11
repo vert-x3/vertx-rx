@@ -481,14 +481,14 @@ public class ApiTest {
   @Test
   public void testMethodWithConcreteHandlerUserTypesSubtype() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithConcreteHandlerUserTypesSubtype(ConcreteHandlerUserType.create(checker.<RefedInterface1>resultHandler(it -> assertEquals("echidnas", it.getString()))));
+    obj.methodWithConcreteHandlerUserTypesSubtype(ConcreteHandlerUserType.createConcrete(checker.<RefedInterface1>resultHandler(it -> assertEquals("echidnas", it.getString()))));
     assertEquals(1, checker.count);
   }
 
   @Test
   public void testMethodWithAbstractHandlerUserTypesSubtype() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithAbstractHandlerUserTypesSubtype(AbstractHandlerUserType.create(checker.<RefedInterface1>resultHandler(it -> assertEquals("echidnas", it.getString()))));
+    obj.methodWithAbstractHandlerUserTypesSubtype(ConcreteHandlerUserType.createAbstract(checker.<RefedInterface1>resultHandler(it -> assertEquals("echidnas", it.getString()))));
     assertEquals(1, checker.count);
   }
 

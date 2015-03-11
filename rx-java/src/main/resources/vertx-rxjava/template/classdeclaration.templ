@@ -80,11 +80,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 	  Object getDelegate();\n\n
 
 	@foreach{method:methods}
-		@if{method.staticMethod}
-			@includeNamed{'genMethod'}
-		@else{}
-@includeNamed{'startMethodTemplate'};\n\n
-		@end{}
+		@includeNamed{'startMethodTemplate'};\n\n
 	@end{}
 
 	@if{type.raw.name == 'io.vertx.core.streams.ReadStream'}
