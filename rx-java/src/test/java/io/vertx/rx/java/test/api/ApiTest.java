@@ -6,6 +6,9 @@ import io.vertx.codegen.testmodel.TestInterfaceImpl;
 import io.vertx.core.VertxException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.rxjava.codegen.testmodel.AbstractHandlerUserType;
+import io.vertx.rxjava.codegen.testmodel.ConcreteHandlerUserType;
+import io.vertx.rxjava.codegen.testmodel.HandlerUserType;
 import io.vertx.rxjava.codegen.testmodel.RefedInterface1;
 import io.vertx.rxjava.codegen.testmodel.RefedInterface2;
 import io.vertx.rxjava.codegen.testmodel.TestInterface;
@@ -472,6 +475,20 @@ public class ApiTest {
   public void testMethodWithHandlerUserTypes() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerUserTypes(checker.<RefedInterface1>resultHandler( it -> assertEquals("echidnas", it.getString())));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithConcreteHandlerUserTypesSubtype() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithConcreteHandlerUserTypesSubtype(ConcreteHandlerUserType.create(checker.<RefedInterface1>resultHandler(it -> assertEquals("echidnas", it.getString()))));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithAbstractHandlerUserTypesSubtype() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithAbstractHandlerUserTypesSubtype(AbstractHandlerUserType.create(checker.<RefedInterface1>resultHandler(it -> assertEquals("echidnas", it.getString()))));
     assertEquals(1, checker.count);
   }
 

@@ -1,0 +1,198 @@
+@declare{'startMethodTemplate'}
+@if{method.comment != null}
+  /**\n
+   *@{method.comment.replaceAll('\n(?!$)', '\n   *')}
+   */\n
+@end{}
+  public @if{method.staticMethod}static @end{}@if{method.typeParams.size() > 0}<@foreach{typeParam:method.typeParams}@{typeParam.name}@end{', '}> @end{}@includeNamed{'returnTypeTemplate';type=method.returnType} @{method.name}(@foreach{param: method.params}@includeNamed{'paramTemplate';param=param}@end{', '})
+@end{}
+
+@declare{'invokeDelegate'}
+@if{method.staticMethod}@{helper.getNonGenericType(ifaceFQCN)}@else{}@includeNamed{'rewriteDelegate';method=method}@end{}.@{method.name}(@foreach{param: method.params}@includeNamed{'paramArgument';param=param}@end{', '})
+@end{}
+
+@declare{'rewriteDelegate'}
+@if{method.ownerTypes.size() > 1}
+( /* Work around for https://jira.codehaus.org/browse/GROOVY-6970 */ (@{method.ownerTypes.iterator().next().name}) delegate)
+@else{}
+this.delegate
+@end{}
+@end{}
+
+@declare{'paramTemplate'}
+	@{param.type.simpleName} @{param.name}
+@end{}
+
+@declare{'resultHandlerTemplate'}
+	new Handler<AsyncResult<@{eventJavaType}>>() {\n
+	      public void handle(AsyncResult<@{eventJavaType}> event) {\n
+	        AsyncResult<@{eventGroovyType}> f;\n
+	        if (event.succeeded()) {\n
+	          f = InternalHelper.<@{eventGroovyType}>result(@{callbackObject});\n
+	        } else {\n
+	          f = InternalHelper.<@{eventGroovyType}>failure(event.cause());\n
+	        }\n
+	        @{callbackName}.handle(f);\n
+	      }\n
+	    }
+@end{}
+
+@declare{'paramArgument'}
+	@if{param.type.kind == CLASS_API}
+		(@{param.type.name}) @{param.name}.getDelegate()
+	@else{param.type.kind == CLASS_HANDLER}
+		@code{eventType=param.type.args[0]}
+		@code{eventKind=eventType.kind}
+		@if{eventKind == CLASS_OTHER || eventKind.basic || eventKind == CLASS_VOID || eventKind == CLASS_OBJECT || eventKind.json || eventKind == CLASS_THROWABLE}
+			@{param.name}
+		@else{eventKind == CLASS_LIST || eventKind == CLASS_SET}
+			@code{elementType=eventType.args[0]}
+			@code{elementKind=elementType.kind}
+			@if{elementKind.basic}
+				@{param.name}
+			@else{elementKind == CLASS_API}
+				@code{collectionName=eventType.raw.simpleName}
+				@code{toGroovyElement= elementType.simpleName + '::newInstance'}
+				@code{elementJavaType=elementType.name}
+				new Handler<@{collectionName}<@{elementJavaType}>>() {\n
+				      public void handle(@{collectionName}<@{elementJavaType}> event) {\n
+				        @{param.name}.handle(event.stream().map(@{toGroovyElement}).collect(java.util.stream.Collectors.to@{collectionName}()));\n
+				      }\n
+				    }
+			@else{}
+				@{param.name}
+			@end{}
+		@else{eventKind == CLASS_API}
+			new Handler<@{eventType.name}>() {\n
+			      public void handle(@{eventType.name} event) {\n
+			        @{param.name}.handle(new @{eventType.simpleName}(event));\n
+			      }\n
+			    }
+		@else{eventKind == CLASS_ASYNC_RESULT}
+			@code{resultType=eventType.args[0]}
+			@code{resultKind=resultType.kind}
+			@if{resultKind == CLASS_OTHER || resultKind.basic || resultKind == CLASS_VOID || resultKind == CLASS_OBJECT || resultKind.json}
+				@{param.name}
+			@else{resultKind == CLASS_LIST || resultKind == CLASS_SET}
+				@code{elementType=resultType.args[0]}
+				@code{elementKind=elementType.kind}
+				@if{elementKind.basic}
+					@{param.name}
+				@else{elementKind == CLASS_API}
+					@code{collectionName=resultType.raw.simpleName}
+					@code{toGroovyElement=elementType.simpleName + '::newInstance'}
+					@code{elementJavaType=elementType.name}
+					@code{elementGroovyType=elementType.simpleName}
+					@code{eventJavaType=collectionName + '<' + elementJavaType + '>'}
+					@code{eventGroovyType=collectionName + '<' + elementGroovyType + '>'}
+					@code{callbackObject='event.result().stream().map(' + toGroovyElement + ').collect(java.util.stream.Collectors.to' + collectionName + '())'}
+					@includeNamed{'resultHandlerTemplate';eventJavaType=eventJavaType;eventGroovyType=eventGroovyType;callbackObject=callbackObject;callbackName=param.name}
+				@else{}
+					@{param.name}
+				@end{}
+			@else{resultKind == CLASS_API}
+				@includeNamed{'resultHandlerTemplate';eventJavaType=resultType.name;eventGroovyType=resultType.simpleName;callbackObject='new ' + resultType.simpleName + '(event.result())';callbackName=param.name}
+			@else{}
+				null /* Handler<AsyncResult<@{resultType.name}>> with kind @{resultKind} not yet implemented */
+			@end{}
+		@else{}
+			null /* Handler<@{eventType.name}> with kind @{eventKind} not yet implemented */
+		@end{}
+	@else{param.type.kind == CLASS_LIST || param.type.kind == CLASS_SET}
+		@code{elementType=param.type.args[0]}
+		@code{elementKind=elementType.kind}
+		@if{elementKind.basic || elementKind.json}
+			@{param.name}
+		@else{}
+			@if{param.type.kind == CLASS_LIST}
+				@code{collectionName='List'}
+			@else{}
+				@code{collectionName='Set'}
+			@end{}
+			@{param.name}.stream().map(element -> (@{elementType.name})element.getDelegate()).collect(java.util.stream.Collectors.to@{collectionName}())
+		@end{}
+	@else{param.type.kind == CLASS_MAP}
+		@code{elementType=param.type.args[1]}
+		@code{elementKind=elementType.kind}
+		@if{elementKind.basic || elementKind.json}
+			@{param.name}
+		@else{}
+			@{param.name}.entrySet().stream().collect(java.util.stream.Collectors.toMap(entry -> entry.getKey(), entry -> (@{elementType.name})entry.getValue().getDelegate()))
+		@end{}
+	@else{}
+		@{param.name}
+	@end{}
+@end{}
+
+@declare{'returnTypeTemplate'}
+	@{type.simpleName}
+@end{}
+
+@declare{'genMethod'}
+	@includeNamed{'startMethodTemplate';method:method} { \n
+	@if{method.fluent}
+	    @includeNamed{'invokeDelegate';method:method};\n
+			@if{method.returnType instanceof io.vertx.codegen.TypeInfo$Variable}
+	    return (@{method.returnType.name}) this;\n
+			@else{}
+	    return this;\n
+			@end{}
+	@else{method.returnType.name.equals('void')}
+	    @includeNamed{'invokeDelegate';method:method};\n
+	@else{}
+		@if{method.cacheReturn}
+		    if (cached_@{cacheDecls.size()} != null) {\n
+		      return cached_@{cacheDecls.size()};\n
+		    }\n
+		@end{}
+		@if{method.returnType.kind == CLASS_OBJECT}
+			@code{cachedType=method.returnType.simpleName}
+		    @{cachedType=method.returnType.simpleName} ret = (@{cachedType=method.returnType.simpleName}) @includeNamed{'invokeDelegate';method:method};\n
+		@else{method.returnType.kind == CLASS_LIST || method.returnType.kind == CLASS_SET}
+			@code{collectionName=method.returnType.raw.simpleName}
+			@code{elementType=method.returnType.args[0]}
+			@code{elementKind=elementType.kind}
+			@code{cachedType=method.returnType.simpleName}
+			@if{elementKind.basic || elementKind.json}
+		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n;\n
+			@else{}
+		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method}.stream().map(@{elementType.simpleName}::newInstance).collect(java.util.stream.Collectors.to@{collectionName}());\n
+			@end{}
+		@else{method.returnType.kind == CLASS_MAP}
+			@code{elementType=method.returnType.args[1]}
+			@code{elementKind=elementType.kind}
+			@code{cachedType=method.returnType.simpleName}
+		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n;\n
+		@else{method.returnType.kind == CLASS_API}
+			@code{cachedType=method.returnType.simpleName}
+		    @{method.returnType.simpleName} ret= @{method.returnType.raw.simpleName}.newInstance(@includeNamed{'invokeDelegate';method:method});\n
+		@else{}
+			@if{method.returnType.kind == CLASS_PRIMITIVE}
+				@code{cachedType=method.returnType.boxed.name}
+			@else{}
+				@code{cachedType=method.returnType.name}
+			@end{}
+		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n
+		@end{}
+		@if{method.cacheReturn}
+		    cached_@{cacheDecls.size()} = ret;\n
+			@code{cacheDecls.add('private' + (method.staticMethod ? ' static' : '') + ' ' + cachedType + ' cached_' + cacheDecls.size())}
+		@end{}
+		    return ret;\n
+		@end{}
+	  }\n\n
+
+	@if{method.kind == METHOD_FUTURE}
+	@code{methodName=method.name}
+	@code{futureParams=new java.util.ArrayList(method.params)}
+	@code{futureParam=futureParams.remove(futureParams.size()-1)}
+	@code{futureType=futureParam.type.args[0].args[0]}
+	@code{futureReturnType=new io.vertx.codegen.TypeInfo$Parameterized(io.vertx.codegen.TypeInfo.create(rx.Observable), java.util.Collections.singletonList(futureType))}
+	@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,method.name + 'Observable',method.kind,futureReturnType,null,method.fluent,method.cacheReturn,futureParams,method.comment,method.doc,method.staticMethod,method.typeParams)}
+	@includeNamed{'startMethodTemplate';method=futureMethod} { \n
+	    io.vertx.rx.java.ObservableFuture<@{futureType.simpleName}> @{futureParam.name} = io.vertx.rx.java.RxHelper.observableFuture();\n
+	    @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}@{futureParam.name}.toHandler());\n
+	    return @{futureParam.name};\n
+	  }\n\n
+	@end{}
+@end{}
