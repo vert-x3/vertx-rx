@@ -64,7 +64,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 	@end{', '}
 @end{}
 
-@if{type instanceof io.vertx.codegen.TypeInfo$Class$Api && type.handler}
+@if{handlerSuperType != null}
 	@if{abstractSuperTypes.empty}
 		 @if{concrete}implements @else{}extends @end{}
 	@else{}, @end{}

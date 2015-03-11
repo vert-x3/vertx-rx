@@ -6,9 +6,7 @@ import io.vertx.codegen.testmodel.TestInterfaceImpl;
 import io.vertx.core.VertxException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.rxjava.codegen.testmodel.AbstractHandlerUserType;
-import io.vertx.rxjava.codegen.testmodel.ConcreteHandlerUserType;
-import io.vertx.rxjava.codegen.testmodel.HandlerUserType;
+import io.vertx.rxjava.codegen.testmodel.Factory;
 import io.vertx.rxjava.codegen.testmodel.RefedInterface1;
 import io.vertx.rxjava.codegen.testmodel.RefedInterface2;
 import io.vertx.rxjava.codegen.testmodel.TestInterface;
@@ -479,16 +477,23 @@ public class ApiTest {
   }
 
   @Test
-  public void testMethodWithConcreteHandlerUserTypesSubtype() {
+  public void testMethodWithConcreteHandlerUserTypeSubtype() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithConcreteHandlerUserTypesSubtype(ConcreteHandlerUserType.createConcrete(checker.<RefedInterface1>resultHandler(it -> assertEquals("echidnas", it.getString()))));
+    obj.methodWithConcreteHandlerUserTypeSubtype(Factory.createConcreteHandlerUserType(checker.<RefedInterface1>resultHandler(it -> assertEquals("echidnas", it.getString()))));
     assertEquals(1, checker.count);
   }
 
   @Test
-  public void testMethodWithAbstractHandlerUserTypesSubtype() {
+  public void testMethodWithAbstractHandlerUserTypeSubtype() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithAbstractHandlerUserTypesSubtype(ConcreteHandlerUserType.createAbstract(checker.<RefedInterface1>resultHandler(it -> assertEquals("echidnas", it.getString()))));
+    obj.methodWithAbstractHandlerUserTypeSubtype(Factory.createAbstractHandlerUserType(checker.<RefedInterface1>resultHandler(it -> assertEquals("echidnas", it.getString()))));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithAbstractHandlerUserTypeSubtypeExtension() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithConcreteHandlerUserTypeSubtypeExtension(Factory.createConcreteHandlerUserTypeExtension(checker.<RefedInterface1>resultHandler(it -> assertEquals("echidnas", it.getString()))));
     assertEquals(1, checker.count);
   }
 
