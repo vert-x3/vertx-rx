@@ -1,9 +1,35 @@
+@includeNamed{'/vertx-java/template/common-lib.templ'}
+@code{
+
+  /**
+   * Render a tag link to an html link, this function is used as parameter of the
+   * renderDocToHtml function when it needs to render tag links.
+   */
+  def renderLinkToHtml(link) {
+    var rawType = link.targetType.raw;
+    if (rawType.module != null) {
+      if (rawType.kind == CLASS_DATA_OBJECT) {
+        return "{@link " + link.value + "}";
+      } else {
+        return "{@link " + link.value.replace("io.vertx.", "io.vertx.rxjava.") + "}";
+      }
+    }
+    return null;
+  }
+}
+
 @declare{'startMethodTemplate'}
-@if{method.comment != null}
-  /**\n
-   *@{method.comment.replaceAll('\n(?!$)', '\n   *')}
-   */\n
-@end{}
+	@if{method.doc != null}
+	  /**\n
+	@{renderDocToHtml("   *", method.doc, renderLinkToHtml)}
+	@foreach{param: method.params}
+	   * @param @{param.name} @if{param.description != null}@{param.description}@end{}\n
+	@end{}
+	@if{!method.returnType.name.equals("void")}
+	   * @return @if{method.returnDescription != null}@{method.returnDescription}@end{}\n
+	@end{}
+	   */\n
+	@end{}
   public @if{method.staticMethod}static @end{}@if{method.typeParams.size() > 0}<@foreach{typeParam:method.typeParams}@{typeParam.name}@end{', '}> @end{}@includeNamed{'returnTypeTemplate';type=method.returnType} @{method.name}(@foreach{param: method.params}@includeNamed{'paramTemplate';param=param}@end{', '})
 @end{}
 
