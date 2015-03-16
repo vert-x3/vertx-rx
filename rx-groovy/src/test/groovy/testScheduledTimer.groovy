@@ -16,7 +16,7 @@ vertx.runOnContext({
     }
     public void onCompleted() {
       long timeTaken = System.currentTimeMillis() - startTime;
-      test.assertTrue(Math.abs(timeTaken - 1000) < 100);
+      test.assertTrue("Was expecting to have time taken | $timeTaken -  1000 | < 200", Math.abs(timeTaken - 1000) < 200);
       test.testComplete();
     }
   });

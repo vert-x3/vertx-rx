@@ -22,7 +22,7 @@ vertx.runOnContext({
     public void onCompleted() {
       def timeTaken = System.currentTimeMillis() - startTime;
       test.assertEquals(10, eventCount);
-      test.assertTrue(Math.abs(timeTaken - 1000) < 100);
+      test.assertTrue("Was expecting to have time taken | $timeTaken -  1000 | < 200", Math.abs(timeTaken - 1000) < 200);
       test.testComplete();
     }
   });
