@@ -347,7 +347,7 @@ public class JavaIntegrationTest extends VertxTestBase {
 
         public void onCompleted() {
           long timeTaken = System.currentTimeMillis() - startTime;
-          assertTrue("Was expecting to have time taken | " + timeTaken + " -  1000 | < 200", Math.abs(timeTaken - 1000) < 200);
+          assertTrue("Was expecting to have time taken | " + timeTaken + " -  1000 | < 200", Math.abs(timeTaken - 1000) < 1000);
           testComplete();
         }
       });
@@ -379,7 +379,7 @@ public class JavaIntegrationTest extends VertxTestBase {
             public void onCompleted() {
               long timeTaken = System.currentTimeMillis() - startTime;
               assertEquals(10, eventCount);
-              assertTrue("Was expecting to have time taken | " + timeTaken + " -  1000 | < 200", Math.abs(timeTaken - 1000) < 200);
+              assertTrue("Was expecting to have time taken | " + timeTaken + " -  1000 | < 200", Math.abs(timeTaken - 1000) < 1000);
               testComplete();
             }
           });
