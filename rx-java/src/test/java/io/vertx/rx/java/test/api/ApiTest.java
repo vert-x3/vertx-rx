@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -149,6 +151,40 @@ public class ApiTest {
   @Test
   public void testNullDataObjectParam() {
     obj.methodWithNullDataObjectParam(null);
+  }
+
+  @Test
+  public void testMethodWithHandlerDataObject() {
+    TestDataObject dataObject = new TestDataObject();
+    dataObject.setFoo("foo");
+    dataObject.setBar(123);
+    AtomicInteger count = new AtomicInteger();
+    obj.methodWithHandlerDataObject(it -> {
+        assertEquals(dataObject.getFoo(), it.getFoo());
+        assertEquals(dataObject.getBar(), it.getBar());
+        count.incrementAndGet();
+    });
+    assertEquals(1, count.get());
+  }
+
+  @Test
+  public void testMethodWithHandlerAsyncResultDataObject() {
+    TestDataObject dataObject = new TestDataObject();
+    dataObject.setFoo("foo");
+    dataObject.setBar(123);
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerAsyncResultDataObject(false, result -> {
+      assertTrue(result.succeeded());
+        assertFalse(result.failed());
+        TestDataObject res = result.result();
+        assertEquals(dataObject.getFoo(), res.getFoo());
+        assertNull(result.cause());
+        checker.count++;
+    });
+    obj.methodWithHandlerAsyncResultDataObject(true, result -> {
+      checker.assertAsyncFailure("foobar!", result);
+    });
+    assertEquals(2, checker.count);
   }
 
   @Test

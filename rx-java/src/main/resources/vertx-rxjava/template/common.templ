@@ -69,7 +69,7 @@ this.delegate
 	@else{param.type.kind == CLASS_HANDLER}
 		@code{eventType=param.type.args[0]}
 		@code{eventKind=eventType.kind}
-		@if{eventKind == CLASS_OTHER || eventKind.basic || eventKind == CLASS_VOID || eventKind == CLASS_OBJECT || eventKind.json || eventKind == CLASS_THROWABLE}
+		@if{eventKind == CLASS_OTHER || eventKind.basic || eventKind == CLASS_VOID || eventKind == CLASS_OBJECT || eventKind.json || eventKind == CLASS_THROWABLE || eventKind == CLASS_DATA_OBJECT }
 			@{param.name}
 		@else{eventKind == CLASS_LIST || eventKind == CLASS_SET}
 			@code{elementType=eventType.args[0]}
@@ -97,7 +97,7 @@ this.delegate
 		@else{eventKind == CLASS_ASYNC_RESULT}
 			@code{resultType=eventType.args[0]}
 			@code{resultKind=resultType.kind}
-			@if{resultKind == CLASS_OTHER || resultKind.basic || resultKind == CLASS_VOID || resultKind == CLASS_OBJECT || resultKind.json}
+			@if{resultKind == CLASS_OTHER || resultKind.basic || resultKind == CLASS_VOID || resultKind == CLASS_OBJECT || resultKind.json || resultKind == CLASS_DATA_OBJECT }
 				@{param.name}
 			@else{resultKind == CLASS_LIST || resultKind == CLASS_SET}
 				@code{elementType=resultType.args[0]}
