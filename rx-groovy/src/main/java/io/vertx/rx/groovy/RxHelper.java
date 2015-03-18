@@ -22,10 +22,12 @@ public class RxHelper {
   }
 
   /**
-   * Returns a json unmarshaller for the specified java type as a {@link rx.Observable.Operator} instance.
+   * Returns a json unmarshaller for the specified java type as a {@link rx.Observable.Operator} instance.<p/>
    *
    * The marshaller can be used with the {@link rx.Observable#lift(rx.Observable.Operator)} method to transform
-   * a {@literal Observable<Buffer>} into a {@literal Observable<T>}.
+   * a {@literal Observable<Buffer>} into a {@literal Observable<T>}.<p/>
+   *
+   * The unmarshaller buffers the content until <i>onComplete</i> is called, then unmarshalling happens.<p/>
    *
    * Note that the returned observable will emit at most a single object.
    *
