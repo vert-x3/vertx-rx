@@ -31,4 +31,8 @@ public class RxGroovyMethods {
   public static Scheduler scheduler(Vertx vertx) {
     return RxHelper.scheduler((io.vertx.core.Vertx) vertx.getDelegate());
   }
+
+  public static Scheduler blockingScheduler(Vertx vertx) {
+    return RxHelper.blockingScheduler((io.vertx.core.Vertx) vertx.getDelegate());
+  }
 }

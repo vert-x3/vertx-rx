@@ -12,8 +12,8 @@ import rx.plugins.RxJavaSchedulersHook;
 public class RxHelper {
 
   /**
-   * Create a scheduler hook for a {@link io.vertx.groovy.core.Vertx} object.
-   *
+   * Create a scheduler hook for a {@link io.vertx.groovy.core.Vertx} object
+
    * @param vertx the vertx object
    * @return the scheduler hook
    */

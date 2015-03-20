@@ -158,8 +158,18 @@ Scheduler scheduler = RxHelper.scheduler(vertx);
 Observable<Long> timer = Observable.timer(100, 100, TimeUnit.MILLISECONDS, scheduler);
 ----
 
+For blocking scheduled actions, a scheduler can be created with the `link:../../apidocs/io/vertx/rx/java/RxHelper.html#blockingScheduler-io.vertx.core.Vertx-[RxHelper.blockingScheduler]`
+method:
+
+[source,java]
+----
+Scheduler scheduler = RxHelper.blockingScheduler(vertx);
+Observable<Integer> obs = blockingObservable.observeOn(scheduler);
+----
+
 RxJava can also be reconfigured to use the Vert.x scheduler, thanks to the scheduler hook created with
-`link:../../apidocs/io/vertx/rx/java/RxHelper.html#schedulerHook-io.vertx.core.Vertx-[RxHelper.schedulerHook]`:
+`link:../../apidocs/io/vertx/rx/java/RxHelper.html#schedulerHook-io.vertx.core.Vertx-[RxHelper.schedulerHook]`, the returned scheduler hook
+uses a blocking scheduler for IO actions:
 
 [source,java]
 ----

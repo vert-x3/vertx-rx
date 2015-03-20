@@ -103,8 +103,17 @@
  * {@link examples.NativeExamples#scheduler(io.vertx.core.Vertx)}
  * ----
  *
+ * For blocking scheduled actions, a scheduler can be created with the {@link io.vertx.rx.java.RxHelper#blockingScheduler}
+ * method:
+ *
+ * [source,java]
+ * ----
+ * {@link examples.NativeExamples#blockingScheduler}
+ * ----
+ *
  * RxJava can also be reconfigured to use the Vert.x scheduler, thanks to the scheduler hook created with
- * {@link io.vertx.rx.java.RxHelper#schedulerHook(io.vertx.core.Vertx)}:
+ * {@link io.vertx.rx.java.RxHelper#schedulerHook(io.vertx.core.Vertx)}, the returned scheduler hook
+ * uses a blocking scheduler for IO actions:
  *
  * [source,java]
  * ----

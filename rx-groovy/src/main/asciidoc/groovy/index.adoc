@@ -58,7 +58,15 @@ the RxGroovy extension module adds to the `Vertx` class the `scheduler()` method
 include::scheduler.groovy[tags=example]
 ----
 
-It is also possible to configure RxJava to use a scheduler by default, it can be used in your application:
+For blocking scheduled actions, a scheduler can be created with the `blockingScheduler` method:
+
+[source,groovy]
+----
+include::blockingScheduler.groovy[tags=example]
+----
+
+RxJava can also be configured to use a scheduler by default, the returned scheduler hook uses a blocking
+scheduler for IO actions:
 
 [source,groovy]
 ----

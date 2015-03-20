@@ -2,13 +2,14 @@ package io.vertx.rx.java;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Action0;
-import rx.subscriptions.BooleanSubscription;
 
-import java.util.ArrayDeque;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -16,94 +17,118 @@ import java.util.concurrent.TimeUnit;
 public class ContextScheduler extends Scheduler {
 
   private final Vertx vertx;
+  private final boolean blocking;
 
-  /** Create new ContextScheduler */
-  public ContextScheduler(Vertx vertx) {
-    this.vertx=vertx;
+  public ContextScheduler(Vertx vertx, boolean blocking) {
+    this.vertx = vertx;
+    this.blocking = blocking;
   }
 
   @Override
   public Worker createWorker() {
-    return new ContextWorker();
+    return new WorkerImpl();
   }
 
-  private class ContextWorker extends Worker {
+  private static final Object DUMB = new JsonObject();
 
-    protected ArrayDeque<Long> timers = new ArrayDeque<>();
+  private class WorkerImpl extends Worker {
 
-    protected Action0 cancelAll= () -> {
-      while (!timers.isEmpty())
-        vertx.cancelTimer(timers.poll());
-    };
-
-    protected BooleanSubscription innerSubscription = BooleanSubscription.create(cancelAll);
+    private final ConcurrentHashMap<TimedAction, Object> actions = new ConcurrentHashMap<>();
+    private final AtomicBoolean cancelled = new AtomicBoolean();
 
     @Override
-    public Subscription schedule(final Action0 action) {
-      Vertx.currentContext().runOnContext(event -> {
-        if (innerSubscription.isUnsubscribed())
-          return;
-        action.call();
-      });
-      return this.innerSubscription;
+    public Subscription schedule(Action0 action) {
+      return schedule(action, 0, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public Subscription schedule(final Action0 action, long delayTime, TimeUnit unit) {
-      timers.add(vertx.setTimer(unit.toMillis(delayTime),new Handler<Long>() {
-        public void handle(Long id) {
-          if (innerSubscription.isUnsubscribed())
-            return;
-          action.call();
-          timers.remove(id);
-        }
-      }));
-      return this.innerSubscription;
+    public Subscription schedule(Action0 action, long delayTime, TimeUnit unit) {
+      TimedAction timed = new TimedAction(action, unit.toMillis(delayTime), 0);
+      actions.put(timed, DUMB);
+      return timed;
     }
 
     @Override
-    public Subscription schedulePeriodically(final Action0 action, long initialDelay, final long delayTime, final TimeUnit unit) {
-
-      // Use a bootstrap handler to start the periodic timer after initialDelay
-      Handler bootstrap= id -> {
-
-        action.call();
-
-        // Ensure still active
-        if (innerSubscription.isUnsubscribed())
-          return;
-
-        // Start the repeating timer
-        timers.add(vertx.setPeriodic(unit.toMillis(delayTime),new Handler<Long>() {
-          public void handle(Long nestedId) {
-            if (innerSubscription.isUnsubscribed())
-              return;
-            action.call();
-          }
-        }));
-      };
-
-      long bootDelay=unit.toMillis(initialDelay);
-
-      // If initialDelay is 0 then fire bootstrap immediately
-      if (bootDelay<1) {
-        vertx.runOnContext(bootstrap);
-      }
-      else {
-        timers.add(vertx.setTimer(bootDelay,bootstrap));
-      }
-
-      return this.innerSubscription;
+    public Subscription schedulePeriodically(Action0 action, long initialDelay, long period, TimeUnit unit) {
+      TimedAction timed = new TimedAction(action, unit.toMillis(initialDelay), unit.toMillis(period));
+      actions.put(timed, DUMB);
+      return timed;
     }
 
     @Override
     public void unsubscribe() {
-      innerSubscription.unsubscribe();
+      if (cancelled.compareAndSet(false, true)) {
+        actions.keySet().forEach(TimedAction::unsubscribe);
+      }
     }
 
     @Override
     public boolean isUnsubscribed() {
-      return innerSubscription.isUnsubscribed();
+      return cancelled.get();
+    }
+
+    class TimedAction implements Subscription, Handler<Long>, Runnable {
+
+      private long id;
+      private final Action0 action;
+      private final long periodMillis;
+      private boolean cancelled;
+
+      public TimedAction(Action0 action, long delayMillis, long periodMillis) {
+        this.cancelled = false;
+        this.action = action;
+        this.periodMillis = periodMillis;
+        if (delayMillis > 0) {
+          id = vertx.setTimer(delayMillis, this);
+        } else {
+          id = -1;
+          if (blocking) {
+            vertx.executeBlocking(future -> run(), result -> {});
+          } else {
+            vertx.runOnContext(v -> run());
+          }
+        }
+      }
+
+      @Override
+      public void run() {
+        synchronized (TimedAction.this) {
+          if (cancelled) {
+            return;
+          }
+        }
+        action.call();
+        synchronized (TimedAction.this) {
+          if (periodMillis > 0) {
+            this.id = vertx.setTimer(periodMillis, this);
+          }
+        }
+      }
+
+      @Override
+      public void handle(Long id) {
+        if (blocking) {
+          vertx.executeBlocking(future -> run(), result -> {});
+        } else {
+          run();
+        }
+      }
+
+      @Override
+      public synchronized void unsubscribe() {
+        if (!cancelled) {
+          actions.remove(this);
+          if (id > 0) {
+            vertx.cancelTimer(id);
+          }
+          cancelled = true;
+        }
+      }
+
+      @Override
+      public synchronized boolean isUnsubscribed() {
+        return cancelled;
+      }
     }
   }
 }

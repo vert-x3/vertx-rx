@@ -21,30 +21,28 @@ public class RxHelper {
    * @return the scheduler hook
    */
   public static RxJavaSchedulersHook schedulerHook(Vertx vertx) {
-    return new RxJavaSchedulersHook() {
-      @Override
-      public Scheduler getComputationScheduler() {
-        return scheduler(vertx);
-      }
-      @Override
-      public Scheduler getIOScheduler() {
-        return scheduler(vertx);
-      }
-      @Override
-      public Scheduler getNewThreadScheduler() {
-        return scheduler(vertx);
-      }
-    };
+    return io.vertx.rx.java.RxHelper.schedulerHook(vertx.delegate);
   }
 
   /**
-   * Create a scheduler for a {@link io.vertx.rxjava.core.Vertx} object.
+   * Create a scheduler for a {@link Vertx} object, actions are executed on the event loop.
    *
    * @param vertx the vertx object
    * @return the scheduler
    */
   public static Scheduler scheduler(Vertx vertx) {
-    return new ContextScheduler((io.vertx.core.Vertx) vertx.getDelegate());
+    return new ContextScheduler(vertx.delegate, false);
+  }
+
+  /**
+   * Create a scheduler for a {@link Vertx} object, actions can be blocking, they are not executed
+   * on Vertx event loop.
+   *
+   * @param vertx the vertx object
+   * @return the scheduler
+   */
+  public static Scheduler blockingScheduler(Vertx vertx) {
+    return new ContextScheduler(vertx.delegate, true);
   }
 
   /**

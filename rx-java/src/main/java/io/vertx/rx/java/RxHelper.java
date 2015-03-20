@@ -131,17 +131,29 @@ public class RxHelper {
   }
 
   /**
-   * Create a scheduler for a {@link Vertx} object.
+   * Create a scheduler for a {@link Vertx} object, actions are executed on the event loop.
    *
    * @param vertx the vertx object
    * @return the scheduler
    */
   public static Scheduler scheduler(Vertx vertx) {
-    return new ContextScheduler(vertx);
+    return new ContextScheduler(vertx, false);
   }
 
   /**
-   * Create a scheduler hook for a {@link Vertx} object.
+   * Create a scheduler for a {@link Vertx} object, actions can be blocking, they are not executed
+   * on Vertx event loop.
+   *
+   * @param vertx the vertx object
+   * @return the scheduler
+   */
+  public static Scheduler blockingScheduler(Vertx vertx) {
+    return new ContextScheduler(vertx, true);
+  }
+
+  /**
+   * Create a scheduler hook for a {@link Vertx} object, the {@link rx.plugins.RxJavaSchedulersHook#getIOScheduler()}
+   * uses a blocking scheduler.
    *
    * @param vertx the vertx object
    * @return the scheduler hook
@@ -154,7 +166,7 @@ public class RxHelper {
       }
       @Override
       public Scheduler getIOScheduler() {
-        return scheduler(vertx);
+        return blockingScheduler(vertx);
       }
       @Override
       public Scheduler getNewThreadScheduler() {

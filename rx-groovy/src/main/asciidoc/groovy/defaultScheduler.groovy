@@ -3,8 +3,6 @@ import io.vertx.rx.groovy.RxHelper
 import rx.plugins.RxJavaPlugins
 import rx.plugins.RxJavaSchedulersHook
 
-import java.util.concurrent.TimeUnit;
-
 def vertx = Vertx.vertx()
 
 // tag::example[]

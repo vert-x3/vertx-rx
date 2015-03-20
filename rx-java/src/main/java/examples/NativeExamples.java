@@ -89,6 +89,11 @@ public class NativeExamples {
     Observable<Long> timer = Observable.timer(100, 100, TimeUnit.MILLISECONDS, scheduler);
   }
 
+  public void blockingScheduler(Vertx vertx, Observable<Integer> blockingObservable) {
+    Scheduler scheduler = RxHelper.blockingScheduler(vertx);
+    Observable<Integer> obs = blockingObservable.observeOn(scheduler);
+  }
+
   public void schedulerHook(Vertx vertx) {
     RxJavaSchedulersHook hook = RxHelper.schedulerHook(vertx);
     rx.plugins.RxJavaPlugins.getInstance().registerSchedulersHook(hook);
