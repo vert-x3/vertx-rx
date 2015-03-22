@@ -10,6 +10,8 @@ import io.vertx.rxjava.codegen.testmodel.Factory;
 import io.vertx.rxjava.codegen.testmodel.RefedInterface1;
 import io.vertx.rxjava.codegen.testmodel.RefedInterface2;
 import io.vertx.rxjava.codegen.testmodel.TestInterface;
+import com.acme.rxjava.pkg.MyInterface;
+import com.acme.rxjava.pkg.sub.SubInterface;
 import io.vertx.rx.java.test.AsyncResultChecker;
 import io.vertx.test.core.TestUtils;
 import org.junit.Assert;
@@ -932,6 +934,15 @@ public class ApiTest {
   public void testNullJsonFutureParams() throws Exception {
     assertEquals(null, get(obj.methodWithHandlerAsyncResultNullJsonObjectObservable()));
     assertEquals(null, get(obj.methodWithHandlerAsyncResultNullJsonArrayObservable()));
+  }
+
+  @Test
+  public void testCustomModule() {
+    MyInterface my = MyInterface.create();
+    TestInterface testInterface = my.method();
+    testInterface.methodWithBasicParams((byte) 123, (short) 12345, 1234567, 1265615234l, 12.345f, 12.34566d, true, 'X', "foobar");
+    SubInterface sub = my.sub();
+    assertEquals("olleh", sub.reverse("hello"));
   }
 
   private static <V> Map<String, V> map(String key1, V value1) {

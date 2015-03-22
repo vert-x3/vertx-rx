@@ -11,6 +11,7 @@
       if (rawType.kind == CLASS_DATA_OBJECT) {
         return "{@link " + link.value + "}";
       } else {
+        /* Todo use translate name */
         return "{@link " + link.value.replace("io.vertx.", "io.vertx.rxjava.") + "}";
       }
     }

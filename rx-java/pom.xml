@@ -178,6 +178,7 @@
               <includeTypes>jar</includeTypes>
               <includeClassifiers>sources</includeClassifiers>
               <includes>io/vertx/codegen/testmodel/**/*.java</includes>
+              <includes>com/acme/**/*.java</includes>
               <outputDirectory>${basedir}/src/test/java</outputDirectory>
             </configuration>
           </execution>

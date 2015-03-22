@@ -23,3 +23,4 @@ test-tmp
 src/gen
 rx-java/src/main/java/io/vertx/core/**
 rx-java/src/test/java/io/vertx/codegen/**
+rx-java/src/test/java/com/acme/**
