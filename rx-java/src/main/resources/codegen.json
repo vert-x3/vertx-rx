@@ -2,7 +2,7 @@
   "name": "Java",
   "generators": [ {
     "kind": "class",
-    "fileName": "module.translateQualifiedName(fqn, 'rxjva') + '.java'",
+    "fileName": "module.translateQualifiedName(fqn, 'rxjava') + '.java'",
     "templateFileName": "vertx-rxjava/template/class.templ"
   } ]
 }
