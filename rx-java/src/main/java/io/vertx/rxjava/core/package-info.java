@@ -34,6 +34,8 @@
  * {@link examples.RxifiedExamples#readStream(io.vertx.rxjava.core.Vertx)}
  * ----
  *
+ * Such observables are *hot* observables, i.e they will produce notifications regardless of subscriptions.
+ *
  * === Handler support
  *
  * The {@link io.vertx.rx.java.RxHelper} can create an {@link io.vertx.rx.java.ObservableHandler}: an `Observable` with a
@@ -87,6 +89,8 @@
  * ----
  * {@link examples.RxifiedExamples#observableFuture(io.vertx.rxjava.core.Vertx)}
  * ----
+ *
+ * Such observables are *cold* observables, i.e they will produce notifications on request.
  *
  * === Scheduler support
  *

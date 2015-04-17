@@ -9,6 +9,7 @@ import io.vertx.rxjava.core.Context;
 import io.vertx.rxjava.core.Vertx;
 import io.vertx.rxjava.core.buffer.Buffer;
 import io.vertx.rxjava.core.eventbus.EventBus;
+import io.vertx.rxjava.core.eventbus.Message;
 import io.vertx.rxjava.core.eventbus.MessageConsumer;
 import io.vertx.rxjava.core.http.HttpClient;
 import io.vertx.rxjava.core.http.HttpClientRequest;
@@ -34,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -151,6 +153,29 @@ public class JavaIntegrationTest extends VertxTestBase {
     for (int i = 0; i < 7; i++) {
       eb.send("the-address", "msg" + i);
     }
+    await();
+  }
+
+  @Test
+  public void testConcatReplies() {
+    EventBus eb = vertx.eventBus();
+    eb.<String>consumer("the-address", msg -> {
+      msg.reply(msg.body());
+    });
+    Observable<Message<String>> obs1 = eb.sendObservable("the-address", "msg1");
+    Observable<Message<String>> obs2 = eb.sendObservable("the-address", "msg2");
+    eb.send("the-address", "done", reply -> {
+      Observable<Message<String>> all = Observable.concat(obs1, obs2);
+      LinkedList<String> values = new LinkedList<String>();
+      all.subscribe(next -> {
+        values.add(next.body());
+      }, err -> {
+        fail();
+      }, () -> {
+        assertEquals(Arrays.asList("msg1", "msg2"), values);
+        testComplete();
+      });
+    });
     await();
   }
 

@@ -45,6 +45,8 @@ fs.open("/data.txt", new OpenOptions(), result -> {
 });
 ----
 
+Such observables are *hot* observables, i.e they will produce notifications regardless of subscriptions.
+
 === Handler support
 
 The `link:../../apidocs/io/vertx/rx/java/RxHelper.html[RxHelper]` can create an `link:../../apidocs/io/vertx/rx/java/ObservableHandler.html[ObservableHandler]`: an `Observable` with a
@@ -141,6 +143,8 @@ vertx.createHttpServer(
         }
     );
 ----
+
+Such observables are *cold* observables, i.e they will produce notifications on request.
 
 === Scheduler support
 
