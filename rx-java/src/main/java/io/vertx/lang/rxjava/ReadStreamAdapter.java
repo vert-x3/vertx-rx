@@ -12,6 +12,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 /**
+ * todo:
+ * - implement correctly the requested == Long_MAX_VALUE semantic of Producer#request
+ * - provide a max size for the pending buffer
+ *
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
