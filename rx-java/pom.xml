@@ -22,6 +22,7 @@
          because of BSC plugin, also the source is messy because we keep a version of vert.x core
          so better use the assembly plugin instead -->
     <source.skip>true</source.skip>
+    <!--<surefireArgLine></surefireArgLine>-->
   </properties>
 
   <dependencies>
@@ -109,6 +110,21 @@
                 <excludes>
                   <exclude>io/vertx/core/**</exclude>
                 </excludes>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>default-test</id>
+              <phase>test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <argLine>${surefireArgLine}</argLine>
               </configuration>
             </execution>
           </executions>
@@ -256,5 +272,55 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>jacoco</id>
+      <activation>
+        <property>
+          <name>!maven.surefire.debug</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.7.2.201409121644</version>
+            <executions>
+              <!-- pre-unit-test execution helps setting up some maven property,
+                which will be used later by JaCoCo -->
+              <execution>
+                <id>pre-unit-test</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+                <configuration>
+                  <destFile>${project.build.directory}/jacoco.exec</destFile>
+                  <!-- passing property which will contains settings for JaCoCo agent.
+                    If not specified, then "argLine" would be used for "jar" packaging -->
+                  <propertyName>surefireArgLine</propertyName>
+                </configuration>
+              </execution>
+              <!-- report phase setup -->
+              <execution>
+                <id>post-unit-test</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+                <configuration>
+                  <!-- output file with report data. -->
+                  <dataFile>${project.build.directory}/jacoco.exec</dataFile>
+                  <!-- output directory for the reports. -->
+                  <outputDirectory>${project.build.directory}/jacoco</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>

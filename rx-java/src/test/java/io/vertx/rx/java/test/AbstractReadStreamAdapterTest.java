@@ -15,6 +15,7 @@ import rx.Subscription;
  */
 public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
 
+  
   protected abstract Observable<B> toObservable(BufferReadStreamImpl stream);
   protected abstract B buffer(String s);
   protected abstract String string(B buffer);
@@ -47,6 +48,9 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
   public void testConcat() {
     BufferReadStreamImpl stream1 = new BufferReadStreamImpl();
     BufferReadStreamImpl stream2 = new BufferReadStreamImpl();
+    Observable<B> observable1 = toObservable(stream1);
+    Observable<B> observable2 = toObservable(stream2);
+    Observable<B> observable = Observable.concat(observable1, observable2);
     Observer<B> observer = new Subscriber<B>() {
       @Override
       public void onNext(B next) {
@@ -58,7 +62,7 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
             stream2.handler.handle(Buffer.buffer("item2"));
             break;
           case "item2":
-            assertNotNull(stream1.handler);
+            assertNull(stream1.handler);
             assertNotNull(stream2.handler);
             stream2.endHandler.handle(null);
             break;
@@ -72,12 +76,11 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
       }
       @Override
       public void onCompleted() {
+        assertNull(stream1.handler);
+        assertNull(stream2.handler);
         testComplete();
       }
     };
-    Observable<B> observable1 = toObservable(stream1);
-    Observable<B> observable2 = toObservable(stream2);
-    Observable<B> observable = Observable.concat(observable1, observable2);
     observable.subscribe(observer);
     stream1.handler.handle(Buffer.buffer("item1"));
     await();
@@ -114,6 +117,23 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
       }
     };
     Observable<B> observable = toObservable(stream);
-    observable.subscribe(s -> {}, err -> {}, () -> {});
+    observable.subscribe(s -> {
+    }, err -> {
+    }, () -> {
+    });
+  }
+
+  @Test
+  public void testHandlers() {
+    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    Observable<B> observable = toObservable(stream);
+    Subscription subscription = observable.subscribe(s -> {}, err -> {}, () -> {});
+    assertNotNull(stream.handler);
+    assertNotNull(stream.exceptionHandler);
+    assertNotNull(stream.endHandler);
+    subscription.unsubscribe();
+    assertNull(stream.handler);
+    assertNull(stream.exceptionHandler);
+    assertNull(stream.endHandler);
   }
 }
