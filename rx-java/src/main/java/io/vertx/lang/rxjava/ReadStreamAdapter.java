@@ -95,12 +95,12 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
             expected--;
           }
           subscriber.onNext(adapter.apply(event));
-        } else {
-          pending.add(event);
-          if (status != Status.PAUSED) {
+          if (expected == 0 && status != Status.PAUSED) {
             status = Status.PAUSED;
             stream.pause();
           }
+        } else {
+          pending.add(event);
         }
       }
     }
