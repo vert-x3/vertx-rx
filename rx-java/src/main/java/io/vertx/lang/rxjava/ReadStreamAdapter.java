@@ -13,7 +13,6 @@ import java.util.function.Function;
 
 /**
  * todo:
- * - implement correctly the requested == Long_MAX_VALUE semantic of Producer#request
  * - provide a max size for the pending buffer
  *
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -42,100 +41,102 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
     if (!this.subRef.compareAndSet(null, producer)) {
       throw new IllegalStateException("Cannot have multiple subscriptions");
     }
-    subscriber.setProducer(producer);
-    subscriber.add(producer);
     stream.exceptionHandler(producer::handleException);
     stream.endHandler(producer::handleEnd);
     stream.handler(producer::handleData);
-    if (producer.expected == 0) {
+    subscriber.setProducer(producer);
+    subscriber.add(producer);
+    if (producer.expected == 0 && producer.status == Status.ACTIVE) {
       producer.status = Status.PAUSED;
       stream.pause();
     }
   }
 
   enum Status {
-    ACTIVE, PAUSED, COMPLETED
+    ACTIVE, PAUSED, ENDED
   }
 
   class ProducerImpl implements Subscription, Producer {
 
     private final Subscriber<? super R> subscriber;
-    private final Deque<J> pending = new ArrayDeque<>();
-    private long expected;
     private Status status = Status.ACTIVE;
-    private boolean ended;
+    private boolean completed; // completed => (expected == 0 && buffer.isEmpty())
+    private final Deque<J> buffer = new ArrayDeque<>();
+    private long expected;
 
     ProducerImpl(Subscriber<? super R> subscriber) {
       this.subscriber = subscriber;
     }
 
-    public void unsubscribe() {
-      if (status != Status.COMPLETED) {
-        status = Status.COMPLETED;
+    private void complete(Throwable exception) {
+      if (!completed) {
+        completed = true;
         subRef.set(null);
+        expected = 0;
+        buffer.clear();
         try {
           stream.exceptionHandler(null);
           stream.endHandler(null);
           stream.handler(null);
         } catch (Exception ignore) {
         }
-        subscriber.onCompleted();
+        if (exception != null) {
+          subscriber.onError(exception);
+        } else {
+          subscriber.onCompleted();
+        }
       }
     }
 
+    public void unsubscribe() {
+      complete(null);
+    }
+
     public boolean isUnsubscribed() {
-      return status == Status.COMPLETED;
+      return completed;
     }
 
     public void handleData(J event) {
       checkPending();
-      if (status != Status.COMPLETED) {
+      if (!completed) {
         if (expected > 0) {
+          // (expected > 0) => buffer.isEmpty()
           if (expected < Long.MAX_VALUE) {
             expected--;
           }
           subscriber.onNext(adapter.apply(event));
-          if (expected == 0 && status != Status.PAUSED) {
+          if (expected == 0 && status == Status.ACTIVE) {
             status = Status.PAUSED;
             stream.pause();
           }
         } else {
-          pending.add(event);
+          buffer.add(event);
         }
       }
     }
 
     public void handleException(Throwable exception) {
-//      if (!ended) {
-//        ended = true;
-//        pending.clear();
-//      }
-      if (status != Status.COMPLETED) {
-        status = Status.COMPLETED;
-        subRef.set(null);
-        try {
-          stream.exceptionHandler(null);
-          stream.endHandler(null);
-          stream.handler(null);
-        } catch (Exception ignore) {
-        }
-        subscriber.onError(exception);
+      if (status != Status.ENDED) {
+        status = Status.ENDED;
+        complete(exception);
       }
     }
 
     public void handleEnd(Void end) {
-      if (!ended) {
-        ended = true;
-        if (pending.size() == 0 && status != Status.COMPLETED) {
-          unsubscribe();
+      if (status != Status.ENDED) {
+        status = Status.ENDED;
+        if (buffer.isEmpty()) {
+          complete(null);
         }
       }
     }
 
     private void checkPending() {
       J event;
-      while (status == Status.ACTIVE && expected > 0 && (event = pending.poll()) != null) {
-        expected--;
+      while (expected > 0 && (event = buffer.poll()) != null) {
+        if (expected < Long.MAX_VALUE) {
+          expected--;
+        }
         subscriber.onNext(adapter.apply(event));
       }
     }
@@ -145,7 +146,7 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
       if (n < 0) {
         throw new IllegalArgumentException("No negative request accepted: " + n);
       }
-      if (status != Status.COMPLETED) {
+      if (!completed) {
         if (expected < Long.MAX_VALUE) {
           if (n == Long.MAX_VALUE) {
             expected = Long.MAX_VALUE;
@@ -157,27 +158,20 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
             }
           }
         }
-        if (expected > 0) {
-          boolean paused = status == Status.PAUSED;
-          status = Status.ACTIVE;
-          checkPending();
-          if (status != Status.COMPLETED) {
-            if (ended) {
-              if (pending.size() == 0) {
-                status = Status.COMPLETED;
-                subscriber.onCompleted();
-              }
-            } else {
-              if (expected > 0) {
-                if (paused) {
-                  stream.resume();
-                }
-              } else {
-                if (!paused) {
-                  status = Status.PAUSED;
-                }
-              }
-            }
+        checkPending();
+        if (status == Status.ENDED) {
+          if (buffer.isEmpty()) {
+            complete(null);
+          }
+        } else if (status == Status.PAUSED) {
+          if (expected > 0) {
+            status = Status.ACTIVE;
+            stream.resume();
+          }
+        } else if (status == Status.ACTIVE) {
+          if (expected == 0) {
+            status = Status.PAUSED;
+            stream.pause();
           }
         }
       }
