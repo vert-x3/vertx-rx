@@ -29,6 +29,14 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
     this.adapter = adapter;
   }
 
+  /**
+   * @return the number of expected events for the current subscriber or -1 is there is no subscriber
+   */
+  public long getExpected() {
+    ProducerImpl producer = subRef.get();
+    return producer != null ? producer.expected : -1;
+  }
+
   public void call(Subscriber<? super R> subscriber) {
     ProducerImpl producer = new ProducerImpl(subscriber);
     if (!this.subRef.compareAndSet(null, producer)) {
@@ -39,7 +47,7 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
     stream.exceptionHandler(producer::handleException);
     stream.endHandler(producer::handleEnd);
     stream.handler(producer::handleData);
-    if (producer.want == 0) {
+    if (producer.expected == 0) {
       producer.status = Status.PAUSED;
       stream.pause();
     }
@@ -53,7 +61,7 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
 
     private final Subscriber<? super R> subscriber;
     private final Deque<J> pending = new ArrayDeque<>();
-    private long want;
+    private long expected;
     private Status status = Status.ACTIVE;
     private boolean ended;
 
@@ -82,8 +90,10 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
     public void handleData(J event) {
       checkPending();
       if (status != Status.COMPLETED) {
-        if (want > 0) {
-          want--;
+        if (expected > 0) {
+          if (expected < Long.MAX_VALUE) {
+            expected--;
+          }
           subscriber.onNext(adapter.apply(event));
         } else {
           pending.add(event);
@@ -124,17 +134,30 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
 
     private void checkPending() {
       J event;
-      while (status == Status.ACTIVE && want > 0 && (event = pending.poll()) != null) {
-        want--;
+      while (status == Status.ACTIVE && expected > 0 && (event = pending.poll()) != null) {
+        expected--;
         subscriber.onNext(adapter.apply(event));
       }
     }
 
     @Override
     public void request(long n) {
+      if (n < 0) {
+        throw new IllegalArgumentException("No negative request accepted: " + n);
+      }
       if (status != Status.COMPLETED) {
-        want += n;
-        if (want > 0) {
+        if (expected < Long.MAX_VALUE) {
+          if (n == Long.MAX_VALUE) {
+            expected = Long.MAX_VALUE;
+          } else {
+            try {
+              expected = Math.addExact(expected, n);
+            } catch (ArithmeticException e) {
+              expected = Long.MAX_VALUE;
+            }
+          }
+        }
+        if (expected > 0) {
           boolean paused = status == Status.PAUSED;
           status = Status.ACTIVE;
           checkPending();
@@ -145,7 +168,7 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
                 subscriber.onCompleted();
               }
             } else {
-              if (want > 0) {
+              if (expected > 0) {
                 if (paused) {
                   stream.resume();
                 }

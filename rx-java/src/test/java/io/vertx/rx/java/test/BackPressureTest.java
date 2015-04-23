@@ -186,4 +186,15 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
     subscriber.assertCompleted().assertEmpty();
   }
 
+  @Test
+  public void testDisableBackPressure() {
+    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    ReadStreamAdapter<Buffer> adapter = new ReadStreamAdapter<>(stream);
+    Observable<Buffer> observable = Observable.create(adapter);
+    MySubscriber<Buffer> subscriber = new MySubscriber<>();
+    observable.subscribe(subscriber);
+    assertEquals(Long.MAX_VALUE, adapter.getExpected());
+    stream.handler.handle(buffer("0"));
+    assertEquals(Long.MAX_VALUE, adapter.getExpected());
+  }
 }
