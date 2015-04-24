@@ -39,7 +39,7 @@ public class HandlerTest {
     Subscription sub = o.subscribe(subscriber);
     sub.unsubscribe();
     assertTrue(sub.isUnsubscribed());
-    subscriber.assertCompleted().assertEmpty();
+    subscriber.assertEmpty();
     o.toHandler().handle("abc");
     subscriber.assertEmpty();
   }

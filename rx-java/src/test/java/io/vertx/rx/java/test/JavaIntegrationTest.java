@@ -62,6 +62,9 @@ public class JavaIntegrationTest extends VertxTestBase {
         items.add(s);
         if (items.size() == 3) {
           unsubscribe();
+          assertEquals(Arrays.asList("msg1", "msg2", "msg3"), items);
+          assertFalse(consumer.isRegistered());
+          testComplete();
         }
       }
 
@@ -72,9 +75,7 @@ public class JavaIntegrationTest extends VertxTestBase {
 
       @Override
       public void onCompleted() {
-        assertEquals(Arrays.asList("msg1", "msg2", "msg3"), items);
-        assertFalse(consumer.isRegistered());
-        testComplete();
+        fail();
       }
     });
     eb.send("the-address", "msg1");
@@ -91,22 +92,16 @@ public class JavaIntegrationTest extends VertxTestBase {
     obs.subscribe(new Subscriber<String>() {
       @Override
       public void onNext(String s) {
-        fail("Was not expecting item " + s);
-      }
-
-      @Override
-      public void onError(Throwable throwable) {
-        fail("Was not esxpecting error " + throwable.getMessage());
-      }
-
-      @Override
-      public void onCompleted() {
+        assertEquals("msg1", s);
         unsubscribe();
+        assertFalse(consumer.isRegistered());
         obs.subscribe(new Subscriber<String>() {
           @Override
           public void onNext(String s) {
-            assertEquals("msg1", s);
+            assertEquals("msg2", s);
             unsubscribe();
+            assertFalse(consumer.isRegistered());
+            testComplete();
           }
 
           @Override
@@ -116,13 +111,23 @@ public class JavaIntegrationTest extends VertxTestBase {
 
           @Override
           public void onCompleted() {
-            assertFalse(consumer.isRegistered());
-            testComplete();
+            fail();
           }
         });
-        eb.send("the-address", "msg1");
+        eb.send("the-address", "msg2");
       }
-    }).unsubscribe();
+
+      @Override
+      public void onError(Throwable throwable) {
+        fail("Was not esxpecting error " + throwable.getMessage());
+      }
+
+      @Override
+      public void onCompleted() {
+        fail();
+      }
+    });
+    eb.send("the-address", "msg1");
     await();
   }
 
