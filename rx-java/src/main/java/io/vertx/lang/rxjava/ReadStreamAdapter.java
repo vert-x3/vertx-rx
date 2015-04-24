@@ -60,7 +60,7 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
 
     private final Subscriber<? super R> subscriber;
     private Status status = Status.ACTIVE;
-    private boolean completed; // completed => (expected == 0 && buffer.isEmpty())
+    private boolean unregistered; // unregistered => (expected == 0 && buffer.isEmpty())
     private final Deque<J> buffer = new ArrayDeque<>();
     private long expected;
 
@@ -69,8 +69,8 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
     }
 
     public void unsubscribe() {
-      if (!completed) {
-        completed = true;
+      if (!unregistered) {
+        unregistered = true;
         subRef.set(null);
         expected = 0;
         buffer.clear();
@@ -84,19 +84,19 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
     }
 
     public boolean isUnsubscribed() {
-      return completed;
+      return unregistered;
     }
 
     public void handleData(J event) {
       checkPending();
-      if (!completed) {
+      if (!unregistered) {
         if (expected > 0) {
           // (expected > 0) => buffer.isEmpty()
           if (expected < Long.MAX_VALUE) {
             expected--;
           }
           subscriber.onNext(adapter.apply(event));
-          if (expected == 0 && status == Status.ACTIVE) {
+          if (expected == 0 && status == Status.ACTIVE && !isUnsubscribed()) {
             status = Status.PAUSED;
             stream.pause();
           }
@@ -139,7 +139,7 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
       if (n < 0) {
         throw new IllegalArgumentException("No negative request accepted: " + n);
       }
-      if (!completed) {
+      if (!unregistered) {
         if (expected < Long.MAX_VALUE) {
           if (n == Long.MAX_VALUE) {
             expected = Long.MAX_VALUE;
