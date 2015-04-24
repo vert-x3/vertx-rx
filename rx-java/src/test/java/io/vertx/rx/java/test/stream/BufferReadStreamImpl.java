@@ -2,35 +2,120 @@ package io.vertx.rx.java.test.stream;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.rx.java.test.SimpleReadStream;
+
+import java.util.Deque;
+import java.util.LinkedList;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class BufferReadStreamImpl extends SimpleReadStream<Buffer> implements BufferReadStream {
+public class BufferReadStreamImpl implements BufferReadStream {
+
+  private final Deque<Buffer> events = new LinkedList<>();
+  private Handler<Buffer> dataHandler;
+  private Handler<Throwable> exceptionHandler;
+  private Handler<Void> endHandler;
+  private boolean paused;
+
+  public synchronized boolean isPaused() {
+    return paused;
+  }
+
+  public synchronized Handler<Void> getEndHandler() {
+    return endHandler;
+  }
+
+  public synchronized Handler<Throwable> getExceptionHandler() {
+    return exceptionHandler;
+  }
+
+  public synchronized Handler<Buffer> getDataHandler() {
+    return dataHandler;
+  }
+
+  public void write(Buffer buffer) {
+    synchronized (this) {
+      events.addLast(buffer);
+    }
+    checkPending();
+  }
 
   @Override
-  public BufferReadStreamImpl exceptionHandler(Handler<Throwable> handler) {
-    return (BufferReadStreamImpl) super.exceptionHandler(handler);
+  public synchronized BufferReadStreamImpl exceptionHandler(Handler<Throwable> handler) {
+    exceptionHandler = handler;
+    return this;
   }
 
   @Override
   public BufferReadStreamImpl handler(Handler<Buffer> handler) {
-    return (BufferReadStreamImpl) super.handler(handler);
+    synchronized (this) {
+      dataHandler = handler;
+    }
+    checkPending();
+    return this;
   }
 
   @Override
-  public BufferReadStreamImpl pause() {
-    return (BufferReadStreamImpl) super.pause();
+  public synchronized BufferReadStreamImpl pause() {
+    paused = true;
+    return this;
+  }
+
+  private void checkPending() {
+    while (true) {
+      Runnable task;
+      synchronized (this) {
+        if (events.size() > 0) {
+          Buffer event = events.peekFirst();
+          if (event != null) {
+            if (dataHandler != null) {
+              events.removeFirst();
+              task = () -> {
+                dataHandler.handle(event);
+              };
+            } else {
+              break;
+            }
+          } else {
+            if (endHandler != null) {
+              events.removeFirst();
+              task = () -> {
+                endHandler.handle(null);
+              };
+            } else {
+              break;
+            }
+          }
+        } else {
+          break;
+        }
+      }
+      task.run();
+    }
   }
 
   @Override
   public BufferReadStreamImpl resume() {
-    return (BufferReadStreamImpl) super.resume();
+    synchronized (this) {
+      paused = false;
+    }
+    checkPending();
+    return this;
   }
 
   @Override
-  public BufferReadStreamImpl endHandler(Handler<Void> endHandler) {
-    return (BufferReadStreamImpl) super.endHandler(endHandler);
+  public BufferReadStreamImpl endHandler(Handler<Void> handler) {
+    synchronized (this) {
+      endHandler = handler;
+    }
+    checkPending();
+    return this;
+  }
+
+  public void end() {
+    synchronized (this) {
+      events.addLast(null);
+    }
+    checkPending();
   }
 }

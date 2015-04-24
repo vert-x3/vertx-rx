@@ -31,6 +31,15 @@
       <artifactId>rxjava</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.reactivex</groupId>
+      <artifactId>rxjava-reactive-streams</artifactId>
+      <version>0.6.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-reactive-streams</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
     </dependency>
@@ -273,6 +282,7 @@
     </plugins>
   </build>
 
+<!--
   <profiles>
     <profile>
       <id>jacoco</id>
@@ -288,8 +298,8 @@
             <artifactId>jacoco-maven-plugin</artifactId>
             <version>0.7.2.201409121644</version>
             <executions>
-              <!-- pre-unit-test execution helps setting up some maven property,
-                which will be used later by JaCoCo -->
+              &lt;!&ndash; pre-unit-test execution helps setting up some maven property,
+                which will be used later by JaCoCo &ndash;&gt;
               <execution>
                 <id>pre-unit-test</id>
                 <goals>
@@ -297,12 +307,12 @@
                 </goals>
                 <configuration>
                   <destFile>${project.build.directory}/jacoco.exec</destFile>
-                  <!-- passing property which will contains settings for JaCoCo agent.
-                    If not specified, then "argLine" would be used for "jar" packaging -->
+                  &lt;!&ndash; passing property which will contains settings for JaCoCo agent.
+                    If not specified, then "argLine" would be used for "jar" packaging &ndash;&gt;
                   <propertyName>surefireArgLine</propertyName>
                 </configuration>
               </execution>
-              <!-- report phase setup -->
+              &lt;!&ndash; report phase setup &ndash;&gt;
               <execution>
                 <id>post-unit-test</id>
                 <phase>test</phase>
@@ -310,9 +320,9 @@
                   <goal>report</goal>
                 </goals>
                 <configuration>
-                  <!-- output file with report data. -->
+                  &lt;!&ndash; output file with report data. &ndash;&gt;
                   <dataFile>${project.build.directory}/jacoco.exec</dataFile>
-                  <!-- output directory for the reports. -->
+                  &lt;!&ndash; output directory for the reports. &ndash;&gt;
                   <outputDirectory>${project.build.directory}/jacoco</outputDirectory>
                 </configuration>
               </execution>
@@ -322,5 +332,6 @@
       </build>
     </profile>
   </profiles>
+-->
 
 </project>
