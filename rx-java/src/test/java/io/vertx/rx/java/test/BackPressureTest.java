@@ -122,7 +122,7 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
       stream.handler.handle(buffer("0"));
       stream.handler.handle(buffer("1"));
       subscriber.getProducer().request(i);
-      subscriber.assertItem(Buffer.buffer("0")).assertCompleted().assertEmpty();
+      subscriber.assertItem(Buffer.buffer("0")).assertEmpty();
     }
   }
 

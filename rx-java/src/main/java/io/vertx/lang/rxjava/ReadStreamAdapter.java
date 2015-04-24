@@ -68,7 +68,7 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
       this.subscriber = subscriber;
     }
 
-    private void complete(Throwable exception) {
+    public void unsubscribe() {
       if (!completed) {
         completed = true;
         subRef.set(null);
@@ -80,16 +80,7 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
           stream.handler(null);
         } catch (Exception ignore) {
         }
-        if (exception != null) {
-          subscriber.onError(exception);
-        } else {
-          subscriber.onCompleted();
-        }
       }
-    }
-
-    public void unsubscribe() {
-      complete(null);
     }
 
     public boolean isUnsubscribed() {
@@ -118,7 +109,8 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
     public void handleException(Throwable exception) {
       if (status != Status.ENDED) {
         status = Status.ENDED;
-        complete(exception);
+        unsubscribe();
+        subscriber.onError(exception);
       }
     }
 
@@ -126,7 +118,8 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
       if (status != Status.ENDED) {
         status = Status.ENDED;
         if (buffer.isEmpty()) {
-          complete(null);
+          unsubscribe();
+          subscriber.onCompleted();
         }
       }
     }
@@ -161,7 +154,8 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
         checkPending();
         if (status == Status.ENDED) {
           if (buffer.isEmpty()) {
-            complete(null);
+            unsubscribe();
+            subscriber.onCompleted();
           }
         } else if (status == Status.PAUSED) {
           if (expected > 0) {
