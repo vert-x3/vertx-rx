@@ -12,22 +12,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
-
+public class AdapterBackPressureTest extends AbstractBackPressureTest {
 
   @Override
   protected Observable<Buffer> toObservable(BufferReadStreamImpl stream) {
     return Observable.create(new ReadStreamAdapter<>(stream));
-  }
-
-  @Override
-  protected Buffer buffer(String s) {
-    return Buffer.buffer(s);
-  }
-
-  @Override
-  protected String string(Buffer buffer) {
-    return buffer.toString("UTF-8");
   }
 
   @Test
@@ -55,7 +44,7 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
     observable.subscribe(subscriber);
     subscriber.assertEmpty();
     assertEquals(1, paused.get());
-    stream.handler.handle(buffer("0"));
+    stream.write(buffer("0"));
     assertEquals(1, paused.get());
     subscriber.assertEmpty();
     subscriber.getProducer().request(1);
@@ -69,6 +58,7 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
     BufferReadStreamImpl stream = new BufferReadStreamImpl() {
       @Override
       public BufferReadStreamImpl pause() {
+        super.pause();
         pauses.incrementAndGet();
         return this;
       }
@@ -86,10 +76,10 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
     };
     Observable<Buffer> observable = toObservable(stream);
     observable.subscribe(subscriber);
-    stream.handler.handle(buffer("0"));
-    stream.handler.handle(buffer("1"));
-    stream.handler.handle(buffer("2"));
-    stream.endHandler.handle(null);
+    stream.write(buffer("0"));
+    stream.write(buffer("1"));
+    stream.write(buffer("2"));
+    stream.end();
     assertEquals(0, pauses.get());
   }
 
@@ -119,8 +109,8 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
       };
       Observable<Buffer> observable = toObservable(stream);
       observable.subscribe(subscriber);
-      stream.handler.handle(buffer("0"));
-      stream.handler.handle(buffer("1"));
+      stream.write(buffer("0"));
+      stream.write(buffer("1"));
       subscriber.getProducer().request(i);
       subscriber.assertItem(Buffer.buffer("0")).assertEmpty();
     }
@@ -148,7 +138,7 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
     };
     Observable<Buffer> observable = toObservable(stream);
     observable.subscribe(subscriber);
-    stream.handler.handle(buffer("0"));
+    stream.write(buffer("0"));
     subscriber.getProducer().request(1);
     assertEquals(false, resumed.get());
   }
@@ -162,7 +152,7 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
       }
       @Override
       public BufferReadStreamImpl resume() {
-        endHandler.handle(null);
+        end();
         return this;
       }
     };
@@ -186,7 +176,7 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
     MySubscriber<Buffer> subscriber = new MySubscriber<>();
     observable.subscribe(subscriber);
     assertEquals(Long.MAX_VALUE, adapter.getExpected());
-    stream.handler.handle(buffer("0"));
+    stream.write(buffer("0"));
     assertEquals(Long.MAX_VALUE, adapter.getExpected());
   }
 
@@ -208,7 +198,7 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
     };
     observable.subscribe(subscriber);
     assertEquals(Long.MAX_VALUE - 1, adapter.getExpected());
-    stream.handler.handle(buffer("0"));
+    stream.write(buffer("0"));
     assertEquals(Long.MAX_VALUE, adapter.getExpected());
   }
 
@@ -228,8 +218,8 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
     };
     Observable<Buffer> observable = toObservable(stream);
     observable.subscribe(subscriber);
-    stream.handler.handle(buffer("0")); // We send an event even though we are paused
-    stream.endHandler.handle(null);
+    stream.write(buffer("0")); // We send an event even though we are paused
+    stream.end();
     subscriber.getProducer().request(1);
     subscriber.assertItem(buffer("0")).assertCompleted().assertEmpty();
   }
@@ -250,7 +240,7 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
     };
     Observable<Buffer> observable = toObservable(stream);
     observable.subscribe(subscriber);
-    stream.endHandler.handle(null);
+    stream.end();
     subscriber.assertCompleted().assertEmpty();
   }
 
@@ -270,13 +260,13 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
     };
     Observable<Buffer> observable = toObservable(stream);
     observable.subscribe(subscriber);
-    stream.handler.handle(buffer("0"));
+    stream.write(buffer("0"));
     subscriber.assertItem(buffer("0")).assertEmpty();
-    stream.handler.handle(buffer("1"));
+    stream.write(buffer("1"));
     subscriber.assertItem(buffer("1")).assertEmpty();
-    stream.handler.handle(buffer("2"));
+    stream.write(buffer("2"));
     subscriber.assertItem(buffer("2")).assertEmpty();
-    stream.endHandler.handle(null);
+    stream.end();
     subscriber.assertCompleted().assertEmpty();
   }
 
@@ -295,7 +285,7 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
       }
       @Override
       public BufferReadStreamImpl resume() {
-        handler.handle(buffer("0"));
+        write(buffer("0"));
         return this;
       }
     };
@@ -320,7 +310,7 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
       }
       @Override
       public BufferReadStreamImpl resume() {
-        endHandler.handle(null);
+        end();
         return this;
       }
     };
@@ -348,9 +338,9 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
       @Override
       public BufferReadStreamImpl resume() {
         assertEquals(1, pauses.get());
-        handler.handle(buffer("0"));
+        write(buffer("0"));
         assertEquals(2, pauses.get());
-        handler.handle(buffer("1"));
+        write(buffer("1"));
         return this;
       }
     };
@@ -378,15 +368,16 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
     };
     Observable<Buffer> observable = toObservable(stream);
     observable.subscribe(subscriber);
-    stream.handler.handle(buffer("0"));
-    stream.endHandler.handle(null);
+    stream.write(buffer("0"));
     subscriber.getProducer().request(1);
-    subscriber.assertItem(buffer("0")).assertCompleted().assertEmpty();
+    subscriber.assertItem(buffer("0")).assertEmpty();
+    stream.end();
+    subscriber.assertCompleted().assertEmpty();
     assertEquals(1, pauses.get());
   }
 
   @Test
-  public void testBar() {
+  public void testEndWhenPausedDropsPending() {
     MySubscriber<Buffer> subscriber = new MySubscriber<Buffer>() {
       @Override
       public void onStart() {
@@ -403,12 +394,13 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
     };
     Observable<Buffer> observable = toObservable(stream);
     observable.subscribe(subscriber);
-    stream.handler.handle(buffer("0"));
-    stream.handler.handle(buffer("1"));
-    stream.endHandler.handle(null);
+    stream.write(buffer("0"));
+    stream.write(buffer("1"));
     subscriber.getProducer().request(1);
     assertEquals(1, pauses.get());
     subscriber.assertItem(buffer("0")).assertEmpty();
+    stream.end();
+    subscriber.assertCompleted().assertEmpty();
   }
 
   @Test
@@ -423,6 +415,6 @@ public class BackPressureTest extends AbstractReadStreamAdapterTest<Buffer> {
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
     Observable<Buffer> observable = toObservable(stream);
     observable.subscribe(subscriber);
-    stream.handler.handle(buffer("0"));
+    stream.write(buffer("0"));
   }
 }

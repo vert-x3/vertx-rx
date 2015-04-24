@@ -68,7 +68,7 @@ public class MySubscriber<T> extends Subscriber<T> {
   private MySubscriber<T> assertEvent(Object expected) {
     Object event;
     try {
-      event = events.poll(1, TimeUnit.SECONDS);
+      event = events.poll(1000, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       throw new AssertionError(e);
     }

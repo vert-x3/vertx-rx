@@ -123,12 +123,19 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
     }
 
     public synchronized void handleEnd(Void end) {
-      if (status != Status.ENDED) {
-        status = Status.ENDED;
-        if (buffer.isEmpty()) {
-          unsubscribe();
-          subscriber.onCompleted();
-        }
+      switch (status) {
+        case ACTIVE:
+          if (buffer.isEmpty()) {
+            unsubscribe();
+            subscriber.onCompleted();
+          }
+          break;
+        case PAUSED:
+          if (buffer.isEmpty() || expected == 0) {
+            unsubscribe();
+            subscriber.onCompleted();
+          }
+          break;
       }
     }
 

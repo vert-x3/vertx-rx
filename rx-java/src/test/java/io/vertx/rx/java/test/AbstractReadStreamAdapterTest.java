@@ -31,14 +31,14 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
       }
     };
     Subscription subscription = observable.subscribe(subscriber);
-    assertNotNull(stream.endHandler);
-    assertNotNull(stream.endHandler);
-    assertNotNull(stream.handler);
-    stream.handler.handle(Buffer.buffer("foo"));
+//      assertNotNull(stream.endHandler);
+//      assertNotNull(stream.endHandler);
+//      assertNotNull(stream.handler);
+    stream.write(Buffer.buffer("foo"));
     subscriber.assertItem(buffer("foo")).assertEmpty();
-    stream.handler.handle(Buffer.buffer("bar"));
+    stream.write(Buffer.buffer("bar"));
     subscriber.assertItem(buffer("bar")).assertEmpty();
-    stream.endHandler.handle(null);
+    stream.end();
     subscriber.assertCompleted().assertEmpty();
     assertTrue(subscription.isUnsubscribed());
     testComplete();
@@ -46,43 +46,46 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
 
   @Test
   public void testConcat() {
-    BufferReadStreamImpl stream1 = new BufferReadStreamImpl();
-    BufferReadStreamImpl stream2 = new BufferReadStreamImpl();
-    Observable<B> observable1 = toObservable(stream1);
-    Observable<B> observable2 = toObservable(stream2);
-    Observable<B> observable = Observable.concat(observable1, observable2);
-    Observer<B> observer = new Subscriber<B>() {
-      @Override
-      public void onNext(B next) {
-        switch (string(next)) {
-          case "item1":
-            assertNotNull(stream1.handler);
-            assertNull(stream2.handler);
-            stream1.endHandler.handle(null);
-            stream2.handler.handle(Buffer.buffer("item2"));
-            break;
-          case "item2":
-            assertNull(stream1.handler);
-            assertNotNull(stream2.handler);
-            stream2.endHandler.handle(null);
-            break;
-          default:
-            fail();
+    vertx.runOnContext(v -> {
+      BufferReadStreamImpl stream1 = new BufferReadStreamImpl();
+      BufferReadStreamImpl stream2 = new BufferReadStreamImpl();
+      Observable<B> observable1 = toObservable(stream1);
+      Observable<B> observable2 = toObservable(stream2);
+      Observable<B> observable = Observable.concat(observable1, observable2);
+      Observer<B> observer = new Subscriber<B>() {
+        @Override
+        public void onNext(B next) {
+          switch (string(next)) {
+            case "item1":
+              assertNotNull(stream1.getDataHandler());
+              assertNull(stream2.getDataHandler());
+              stream1.end();
+              stream2.write(Buffer.buffer("item2"));
+              break;
+            case "item2":
+              assertNull(stream1.getDataHandler());
+              assertNotNull(stream2.getDataHandler());
+              stream2.end();
+              break;
+            default:
+              fail();
+          }
         }
-      }
-      @Override
-      public void onError(Throwable e) {
-        fail();
-      }
-      @Override
-      public void onCompleted() {
-        assertNull(stream1.handler);
-        assertNull(stream2.handler);
-        testComplete();
-      }
-    };
-    observable.subscribe(observer);
-    stream1.handler.handle(Buffer.buffer("item1"));
+        @Override
+        public void onError(Throwable e) {
+          e.printStackTrace();
+          fail();
+        }
+        @Override
+        public void onCompleted() {
+          assertNull(stream1.getDataHandler());
+          assertNull(stream2.getDataHandler());
+          testComplete();
+        }
+      };
+      observable.subscribe(observer);
+      stream1.write(Buffer.buffer("item1"));
+    });
     await();
   }
 
@@ -92,11 +95,11 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
       @Override
       public BufferReadStreamImpl handler(Handler<Buffer> handler) {
         if (handler == null) {
-          assertNull(exceptionHandler);
-          assertNull(endHandler);
+          assertNull(getExceptionHandler());
+          assertNull(getEndHandler());
         } else {
-          assertNotNull(exceptionHandler);
-          assertNotNull(endHandler);
+          assertNotNull(getExceptionHandler());
+          assertNotNull(getEndHandler());
         }
         return super.handler(handler);
       }
@@ -111,8 +114,8 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
     BufferReadStreamImpl stream = new BufferReadStreamImpl() {
       @Override
       public BufferReadStreamImpl handler(Handler<Buffer> handler) {
-        assertNotNull(endHandler);
-        assertNotNull(exceptionHandler);
+        assertNotNull(getEndHandler());
+        assertNotNull(getExceptionHandler());
         return super.handler(handler);
       }
     };
@@ -128,12 +131,12 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
     Observable<B> observable = toObservable(stream);
     Subscription subscription = observable.subscribe(s -> {}, err -> {}, () -> {});
-    assertNotNull(stream.handler);
-    assertNotNull(stream.exceptionHandler);
-    assertNotNull(stream.endHandler);
+    assertNotNull(stream.getDataHandler());
+    assertNotNull(stream.getExceptionHandler());
+    assertNotNull(stream.getEndHandler());
     subscription.unsubscribe();
-    assertNull(stream.handler);
-    assertNull(stream.exceptionHandler);
-    assertNull(stream.endHandler);
+    assertNull(stream.getDataHandler());
+    assertNull(stream.getExceptionHandler());
+    assertNull(stream.getEndHandler());
   }
 }
