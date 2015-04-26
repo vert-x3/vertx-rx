@@ -32,8 +32,14 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
    * @return the number of expected events for the current subscriber or -1 is there is no subscriber
    */
   public long getExpected() {
+    // Use for testing
     ProducerImpl producer = subRef.get();
-    return producer != null ? producer.expected : -1;
+    if (producer != null) {
+      synchronized (producer) {
+        return producer.expected;
+      }
+    }
+    return -1;
   }
 
   public void call(Subscriber<? super R> subscriber) {
@@ -46,9 +52,11 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
     stream.handler(producer::handleData);
     subscriber.setProducer(producer);
     subscriber.add(producer);
-    if (producer.expected == 0 && producer.status == Status.ACTIVE) {
-      producer.status = Status.PAUSED;
-      stream.pause();
+    synchronized (producer) {
+      if (producer.expected == 0 && producer.status == Status.ACTIVE) {
+        producer.status = Status.PAUSED;
+        stream.pause();
+      }
     }
   }
 
@@ -68,7 +76,7 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
       this.subscriber = subscriber;
     }
 
-    public void unsubscribe() {
+    public synchronized void unsubscribe() {
       if (!unregistered) {
         unregistered = true;
         subRef.set(null);
@@ -83,11 +91,11 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
       }
     }
 
-    public boolean isUnsubscribed() {
+    public synchronized boolean isUnsubscribed() {
       return unregistered;
     }
 
-    public void handleData(J event) {
+    public synchronized void handleData(J event) {
       checkPending();
       if (!unregistered) {
         if (expected > 0) {
@@ -106,7 +114,7 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
       }
     }
 
-    public void handleException(Throwable exception) {
+    public synchronized void handleException(Throwable exception) {
       if (status != Status.ENDED) {
         status = Status.ENDED;
         unsubscribe();
@@ -114,7 +122,7 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
       }
     }
 
-    public void handleEnd(Void end) {
+    public synchronized void handleEnd(Void end) {
       if (status != Status.ENDED) {
         status = Status.ENDED;
         if (buffer.isEmpty()) {
@@ -135,7 +143,7 @@ public class ReadStreamAdapter<J, R> implements Observable.OnSubscribe<R> {
     }
 
     @Override
-    public void request(long n) {
+    public synchronized void request(long n) {
       if (n < 0) {
         throw new IllegalArgumentException("No negative request accepted: " + n);
       }
