@@ -18,7 +18,7 @@
  *
  * RxJava observable is a perfect match for Vert.x `ReadStream` class : both provides provides a flow of items.
  *
- * The {@link io.vertx.rx.java.RxHelper#toObservable(io.vertx.core.streams.ReadStream)} static methods converts
+ * The {@link io.vertx.rx.java.RxHelper#toObservable(io.vertx.core.streams.ReadStream, io.vertx.core.Vertx)} static methods converts
  * a Vert.x read stream to an `rx.Observable`:
  *
  * [source,java]
@@ -143,7 +143,7 @@
  *
  * [source,java]
  * ----
- * {@link examples.NativeExamples#unmarshaller(io.vertx.core.file.FileSystem)}
+ * {@link examples.NativeExamples#unmarshaller}
  * ----
  *
  * The same can be done with the _Rxified_ helper:

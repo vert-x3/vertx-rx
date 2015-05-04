@@ -12,7 +12,7 @@ public class ReadStreamAdapterTest extends AbstractReadStreamAdapterTest<Buffer>
 
   @Override
   protected Observable toObservable(BufferReadStreamImpl stream) {
-    return RxHelper.toObservable(stream);
+    return RxHelper.toObservable(stream, null);
   }
 
   @Override
