@@ -52,112 +52,126 @@ public class JavaIntegrationTest extends VertxTestBase {
 
   @Test
   public void testConsumeBodyStream() {
-    EventBus eb = vertx.eventBus();
-    MessageConsumer<String> consumer = eb.<String>consumer("the-address");
-    Observable<String> obs = consumer.bodyStream().toObservable();
-    List<String> items = new ArrayList<>();
-    obs.subscribe(new Subscriber<String>() {
-      @Override
-      public void onNext(String s) {
-        items.add(s);
-        if (items.size() == 3) {
-          unsubscribe();
-          assertEquals(Arrays.asList("msg1", "msg2", "msg3"), items);
-          assertFalse(consumer.isRegistered());
-          testComplete();
+    vertx.runOnContext(v -> {
+      EventBus eb = vertx.eventBus();
+      MessageConsumer<String> consumer = eb.<String>consumer("the-address");
+      Observable<String> obs = consumer.bodyStream().toObservable();
+      List<String> items = new ArrayList<>();
+      obs.subscribe(new Subscriber<String>() {
+
+        @Override
+        public void onNext(String s) {
+          items.add(s);
+          if (items.size() == 3) {
+            unsubscribe();
+            assertEquals(Arrays.asList("msg1", "msg2", "msg3"), items);
+            assertFalse(consumer.isRegistered());
+            testComplete();
+          }
         }
-      }
 
-      @Override
-      public void onError(Throwable throwable) {
-        fail(throwable.getMessage());
-      }
+        @Override
+        public void onError(Throwable throwable) {
+          fail(throwable.getMessage());
+        }
 
-      @Override
-      public void onCompleted() {
-        fail();
-      }
+        @Override
+        public void onCompleted() {
+          fail();
+        }
+      });
+      vertx.runOnContext(v2 -> {
+        eb.send("the-address", "msg1");
+        eb.send("the-address", "msg2");
+        eb.send("the-address", "msg3");
+      });
     });
-    eb.send("the-address", "msg1");
-    eb.send("the-address", "msg2");
-    eb.send("the-address", "msg3");
     await();
   }
 
   @Test
   public void testRegisterAgain() {
-    EventBus eb = vertx.eventBus();
-    MessageConsumer<String> consumer = eb.<String>consumer("the-address");
-    Observable<String> obs = consumer.bodyStream().toObservable();
-    obs.subscribe(new Subscriber<String>() {
-      @Override
-      public void onNext(String s) {
-        assertEquals("msg1", s);
-        unsubscribe();
-        assertFalse(consumer.isRegistered());
-        obs.subscribe(new Subscriber<String>() {
-          @Override
-          public void onNext(String s) {
-            assertEquals("msg2", s);
-            unsubscribe();
-            assertFalse(consumer.isRegistered());
-            testComplete();
-          }
+    vertx.runOnContext(v -> {
+      EventBus eb = vertx.eventBus();
+      MessageConsumer<String> consumer = eb.<String>consumer("the-address");
+      Observable<String> obs = consumer.bodyStream().toObservable();
+      obs.subscribe(new Subscriber<String>() {
+        @Override
+        public void onNext(String s) {
+          assertEquals("msg1", s);
+          unsubscribe();
+          assertFalse(consumer.isRegistered());
+          obs.subscribe(new Subscriber<String>() {
+            @Override
+            public void onNext(String s) {
+              assertEquals("msg2", s);
+              unsubscribe();
+              assertFalse(consumer.isRegistered());
+              testComplete();
+            }
 
-          @Override
-          public void onError(Throwable throwable) {
-            fail("Was not esxpecting error " + throwable.getMessage());
-          }
+            @Override
+            public void onError(Throwable throwable) {
+              fail("Was not esxpecting error " + throwable.getMessage());
+            }
 
-          @Override
-          public void onCompleted() {
-            fail();
-          }
-        });
-        eb.send("the-address", "msg2");
-      }
+            @Override
+            public void onCompleted() {
+              fail();
+            }
+          });
+          vertx.runOnContext(v2 -> {
+            eb.send("the-address", "msg2");
+          });
+        }
 
-      @Override
-      public void onError(Throwable throwable) {
-        fail("Was not esxpecting error " + throwable.getMessage());
-      }
+        @Override
+        public void onError(Throwable throwable) {
+          fail("Was not esxpecting error " + throwable.getMessage());
+        }
 
-      @Override
-      public void onCompleted() {
-        fail();
-      }
+        @Override
+        public void onCompleted() {
+          fail();
+        }
+      });
+      vertx.runOnContext(v2 -> {
+        eb.send("the-address", "msg1");
+      });
     });
-    eb.send("the-address", "msg1");
     await();
   }
 
   @Test
   public void testObservableUnsubscribeDuringObservation() {
-    EventBus eb = vertx.eventBus();
-    MessageConsumer<String> consumer = eb.<String>consumer("the-address");
-    Observable<String> obs = consumer.bodyStream().toObservable();
-    Observable<String> a = obs.take(4);
-    List<String> obtained = new ArrayList<>();
-    a.subscribe(new Subscriber<String>() {
-      @Override
-      public void onCompleted() {
-        assertEquals(Arrays.asList("msg0", "msg1", "msg2", "msg3"), obtained);
-        testComplete();
-      }
-
-      @Override
-      public void onError(Throwable e) {
-        fail(e.getMessage());
-      }
-
-      @Override
-      public void onNext(String str) {
-        obtained.add(str);
+    vertx.runOnContext(v -> {
+      EventBus eb = vertx.eventBus();
+      MessageConsumer<String> consumer = eb.<String>consumer("the-address");
+      Observable<String> obs = consumer.bodyStream().toObservable();
+      Observable<String> a = obs.take(4);
+      List<String> obtained = new ArrayList<>();
+      a.subscribe(new Subscriber<String>() {
+        @Override
+        public void onCompleted() {
+          assertEquals(Arrays.asList("msg0", "msg1", "msg2", "msg3"), obtained);
+          testComplete();
+        }
+        @Override
+        public void onError(Throwable e) {
+          fail(e.getMessage());
+        }
+        @Override
+        public void onNext(String str) {
+          obtained.add(str);
+        }
+      });
+      for (int i = 0; i < 7; i++) {
+        int id = i;
+        vertx.runOnContext(v2 -> {
+          eb.send("the-address", "msg" + id);
+        });
       }
     });
-    for (int i = 0; i < 7; i++) {
-      eb.send("the-address", "msg" + i);
-    }
     await();
   }
 
@@ -171,7 +185,7 @@ public class JavaIntegrationTest extends VertxTestBase {
     Observable<Message<String>> obs2 = eb.sendObservable("the-address", "msg2");
     eb.send("the-address", "done", reply -> {
       Observable<Message<String>> all = Observable.concat(obs1, obs2);
-      LinkedList<String> values = new LinkedList<String>();
+      LinkedList<String> values = new LinkedList<>();
       all.subscribe(next -> {
         values.add(next.body());
       }, err -> {
@@ -352,7 +366,9 @@ public class JavaIntegrationTest extends VertxTestBase {
     Observable<Long> o2 = vertx.timerStream(100).toObservable();
     Observable<Long> obs = Observable.concat(o1, o2);
     AtomicInteger count = new AtomicInteger();
-    obs.subscribe(msg -> count.incrementAndGet(),
+    obs.subscribe(id -> {
+          count.incrementAndGet();
+        },
         err -> fail(),
         () -> {
           assertEquals(2, count.get());
@@ -447,9 +463,11 @@ public class JavaIntegrationTest extends VertxTestBase {
           buffer(500, TimeUnit.MILLISECONDS, io.vertx.rxjava.core.RxHelper.scheduler(vertx)).
           map(samples -> samples.stream().reduce("", (a, b) -> a + b)).
           subscribe(observer);
-      eb.send("the-address", "msg1");
-      eb.send("the-address", "msg2");
-      eb.send("the-address", "msg3");
+      vertx.runOnContext(v2 -> {
+        eb.send("the-address", "msg1");
+        eb.send("the-address", "msg2");
+        eb.send("the-address", "msg3");
+      });
     });
     await();
   }
