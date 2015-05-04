@@ -90,8 +90,12 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 
 @end{}
 \n
-  public static @if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}@{type.simpleName} newInstance(@{type.raw.name} arg) {\n
-    return new @{type.raw.simpleName + (concrete ? '' : 'Impl')}@if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}(arg);\n
+  public static @if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}@{type.simpleName} newInstance(@{type.raw.name} delegate) {\n
+    return new @{type.raw.simpleName + (concrete ? '' : 'Impl')}@if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}(delegate);\n
+  }\n
+\n
+  public static @if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}@{type.simpleName} newInstance(@{type.raw.name} delegate, io.vertx.core.Vertx vertx) {\n
+    return new @{type.raw.simpleName + (concrete ? '' : 'Impl')}@if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}(delegate, vertx);\n
   }\n
 }\n
 

@@ -29,7 +29,7 @@ public class RxHelper {
    * @param stream the stream to adapt
    * @return the adapted observable
    */
-  public static <T> Observable<T> toObservable(ReadStream<T> stream) {
+  public static <T> Observable<T> toObservable(ReadStream<T> stream, Vertx vertx) {
     return Observable.create(new ReadStreamAdapter<>(stream));
   }
 

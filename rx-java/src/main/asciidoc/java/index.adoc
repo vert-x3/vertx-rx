@@ -19,7 +19,7 @@ methods for converting objects between Vert.x core API and RxJava API.
 
 RxJava observable is a perfect match for Vert.x `ReadStream` class : both provides provides a flow of items.
 
-The `link:../../apidocs/io/vertx/rx/java/RxHelper.html#toObservable-io.vertx.core.streams.ReadStream-[RxHelper.toObservable]` static methods converts
+The `link:../../apidocs/io/vertx/rx/java/RxHelper.html#toObservable-io.vertx.core.streams.ReadStream-io.vertx.core.Vertx-[RxHelper.toObservable]` static methods converts
 a Vert.x read stream to an `rx.Observable`:
 
 [source,java]
@@ -27,7 +27,7 @@ a Vert.x read stream to an `rx.Observable`:
 FileSystem fileSystem = vertx.fileSystem();
 fileSystem.open("/data.txt", new OpenOptions(), result -> {
   AsyncFile file = result.result();
-  Observable<Buffer> observable = RxHelper.toObservable(file);
+  Observable<Buffer> observable = RxHelper.toObservable(file, vertx);
   observable.forEach(data -> System.out.println("Read data: " + data.toString("UTF-8")));
 });
 ----
@@ -204,7 +204,7 @@ transforms an `Observable<Buffer>` in json format into an object observable:
 ----
 fileSystem.open("/data.txt", new OpenOptions(), result -> {
   AsyncFile file = result.result();
-  Observable<Buffer> observable = RxHelper.toObservable(file);
+  Observable<Buffer> observable = RxHelper.toObservable(file, vertx);
   observable.lift(RxHelper.unmarshaller(MyPojo.class)).subscribe(
       mypojo -> {
         // Process the object

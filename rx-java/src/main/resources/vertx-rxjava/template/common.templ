@@ -192,7 +192,7 @@ this.delegate
 		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n;\n
 		@else{method.returnType.kind == CLASS_API}
 			@code{cachedType=method.returnType.simpleName}
-		    @{method.returnType.simpleName} ret= @{method.returnType.raw.simpleName}.newInstance(@includeNamed{'invokeDelegate';method:method});\n
+		    @{method.returnType.simpleName} ret= @{method.returnType.raw.simpleName}.newInstance(@includeNamed{'invokeDelegate';method:method}@if{!method.staticMethod}, vertx@end{});\n
 		@else{}
 			@if{method.returnType.kind == CLASS_PRIMITIVE}
 				@code{cachedType=method.returnType.boxed.name}
