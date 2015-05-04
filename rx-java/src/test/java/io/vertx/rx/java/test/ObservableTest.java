@@ -68,7 +68,7 @@ public class ObservableTest extends VertxTestBase {
       }
       @Override
       public void onCompleted() {
-        fail();
+//        fail();
       }
       @Override
       public void onError(Throwable e) {
