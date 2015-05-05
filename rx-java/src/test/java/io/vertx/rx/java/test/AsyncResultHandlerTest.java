@@ -63,7 +63,7 @@ import static org.junit.Assert.*;
     Subscription sub = o.subscribe(subscriber);
     sub.unsubscribe();
     assertTrue(sub.isUnsubscribed());
-    subscriber.assertCompleted().assertEmpty();
+    subscriber.assertEmpty();
   }
 
   @Test

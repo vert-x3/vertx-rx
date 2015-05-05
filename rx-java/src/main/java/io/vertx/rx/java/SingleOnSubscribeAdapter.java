@@ -110,7 +110,6 @@ public class SingleOnSubscribeAdapter<T> implements Observable.OnSubscribe<T> {
       }
       if (subRef.compareAndSet(this, null)) {
         onUnsubscribed();
-        subscriber.onCompleted();
       }
     }
 

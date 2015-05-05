@@ -1,6 +1,7 @@
 package io.vertx.rx.java.test;
 
 import org.junit.Assert;
+import rx.Producer;
 import rx.Subscriber;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -13,6 +14,7 @@ import static org.junit.Assert.assertEquals;
 */
 public class MySubscriber<T> extends Subscriber<T> {
 
+  private Producer producer;
   private final Object completed = new Object() {
     @Override
     public String toString() {
@@ -26,7 +28,20 @@ public class MySubscriber<T> extends Subscriber<T> {
   public void onCompleted() { events.add(completed); }
 
   @Override
-  public void onError(Throwable e) { events.add(e); }
+  public void setProducer(Producer producer) {
+    super.setProducer(producer);
+    this.producer = producer;
+  }
+
+  public Producer getProducer() {
+    return producer;
+  }
+
+  @Override
+  public void onError(Throwable e) {
+    e.printStackTrace();
+    events.add(e);
+  }
 
   @Override
   public void onNext(T t) { events.add(t); }
@@ -53,7 +68,7 @@ public class MySubscriber<T> extends Subscriber<T> {
   private MySubscriber<T> assertEvent(Object expected) {
     Object event;
     try {
-      event = events.poll(1, TimeUnit.SECONDS);
+      event = events.poll(1000, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       throw new AssertionError(e);
     }

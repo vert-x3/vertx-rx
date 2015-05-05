@@ -64,10 +64,11 @@ public class ObservableTest extends VertxTestBase {
       @Override
       public void onNext(Long aLong) {
         unsubscribe();
+        testComplete();
       }
       @Override
       public void onCompleted() {
-        testComplete();
+//        fail();
       }
       @Override
       public void onError(Throwable e) {

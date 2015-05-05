@@ -22,12 +22,22 @@
          because of BSC plugin, also the source is messy because we keep a version of vert.x core
          so better use the assembly plugin instead -->
     <source.skip>true</source.skip>
+    <!--<surefireArgLine></surefireArgLine>-->
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>io.reactivex</groupId>
       <artifactId>rxjava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.reactivex</groupId>
+      <artifactId>rxjava-reactive-streams</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-reactive-streams</artifactId>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -109,6 +119,21 @@
                 <excludes>
                   <exclude>io/vertx/core/**</exclude>
                 </excludes>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>default-test</id>
+              <phase>test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <argLine>${surefireArgLine}</argLine>
               </configuration>
             </execution>
           </executions>
@@ -256,5 +281,57 @@
       </plugin>
     </plugins>
   </build>
+
+<!--
+  <profiles>
+    <profile>
+      <id>jacoco</id>
+      <activation>
+        <property>
+          <name>!maven.surefire.debug</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.7.2.201409121644</version>
+            <executions>
+              &lt;!&ndash; pre-unit-test execution helps setting up some maven property,
+                which will be used later by JaCoCo &ndash;&gt;
+              <execution>
+                <id>pre-unit-test</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+                <configuration>
+                  <destFile>${project.build.directory}/jacoco.exec</destFile>
+                  &lt;!&ndash; passing property which will contains settings for JaCoCo agent.
+                    If not specified, then "argLine" would be used for "jar" packaging &ndash;&gt;
+                  <propertyName>surefireArgLine</propertyName>
+                </configuration>
+              </execution>
+              &lt;!&ndash; report phase setup &ndash;&gt;
+              <execution>
+                <id>post-unit-test</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+                <configuration>
+                  &lt;!&ndash; output file with report data. &ndash;&gt;
+                  <dataFile>${project.build.directory}/jacoco.exec</dataFile>
+                  &lt;!&ndash; output directory for the reports. &ndash;&gt;
+                  <outputDirectory>${project.build.directory}/jacoco</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+-->
 
 </project>

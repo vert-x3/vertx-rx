@@ -30,7 +30,7 @@ public class NativeExamples {
     FileSystem fileSystem = vertx.fileSystem();
     fileSystem.open("/data.txt", new OpenOptions(), result -> {
       AsyncFile file = result.result();
-      Observable<Buffer> observable = RxHelper.toObservable(file);
+      Observable<Buffer> observable = RxHelper.toObservable(file, vertx);
       observable.forEach(data -> System.out.println("Read data: " + data.toString("UTF-8")));
     });
   }
@@ -102,10 +102,10 @@ public class NativeExamples {
   private class MyPojo {
   }
 
-  public void unmarshaller(FileSystem fileSystem) {
+  public void unmarshaller(Vertx vertx, FileSystem fileSystem) {
     fileSystem.open("/data.txt", new OpenOptions(), result -> {
       AsyncFile file = result.result();
-      Observable<Buffer> observable = RxHelper.toObservable(file);
+      Observable<Buffer> observable = RxHelper.toObservable(file, vertx);
       observable.lift(RxHelper.unmarshaller(MyPojo.class)).subscribe(
           mypojo -> {
             // Process the object
