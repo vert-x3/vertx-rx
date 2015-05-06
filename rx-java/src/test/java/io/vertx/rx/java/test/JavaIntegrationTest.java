@@ -423,12 +423,16 @@ public class JavaIntegrationTest extends VertxTestBase {
       Context initCtx = Vertx.currentContext();
       EventBus eb = vertx.eventBus();
       ReadStream<String> consumer = eb.<String>localConsumer("the-address").bodyStream();
-      Observer<String> observer = new Observer<String>() {
+      Observer<String> observer = new Subscriber<String>() {
+        boolean first = true;
         @Override
         public void onNext(String s) {
-          assertEquals(initCtx.getDelegate(), Vertx.currentContext().getDelegate());
-          assertEquals("msg1msg2msg3", s);
-          testComplete();
+          if (first) {
+            first = false;
+            assertEquals(initCtx.getDelegate(), Vertx.currentContext().getDelegate());
+            assertEquals("msg1msg2msg3", s);
+            testComplete();
+          }
         }
         @Override
         public void onError(Throwable e) {
@@ -436,7 +440,6 @@ public class JavaIntegrationTest extends VertxTestBase {
         }
         @Override
         public void onCompleted() {
-          fail();
         }
       };
       Observable<String> observable = consumer.toObservable();

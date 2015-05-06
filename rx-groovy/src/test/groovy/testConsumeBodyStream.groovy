@@ -12,16 +12,14 @@ def s = obs.subscribe(
     { arg ->
       items << arg;
       if (items.size() == 3) {
-        sub.get().unsubscribe();
+        test.assertEquals(Arrays.asList("msg1", "msg2", "msg3"), items);
+        test.testComplete();
       }
     },
     { err ->
       test.fail(err.message)
     },
     {
-      test.assertEquals(Arrays.asList("msg1", "msg2", "msg3"), items);
-      test.assertFalse(consumer.isRegistered());
-      test.testComplete();
     }
 );
 sub.set(s);

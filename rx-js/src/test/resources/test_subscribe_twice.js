@@ -4,13 +4,12 @@ var eb = vertx.eventBus();
 var consumer = eb.localConsumer("the-address");
 var observer1 = Rx.Observer.create(
   function (evt) {
-    test.fail();
+    test.fail("onNext called");
   },
   function (err) {
     test.fail(err);
   },
   function () {
-    test.fail();
   }
 );
 var observer2 = Rx.Observer.create(

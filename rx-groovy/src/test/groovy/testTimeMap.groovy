@@ -1,6 +1,6 @@
 import io.vertx.groovy.core.Vertx
 
-import rx.Observer
+import rx.Subscriber
 
 import java.util.concurrent.TimeUnit
 
@@ -8,12 +8,17 @@ vertx.runOnContext({ v ->
   def initCtx = Vertx.currentContext();
   def eb = vertx.eventBus();
   def consumer = eb.<String>localConsumer("the-address").bodyStream();
-  Observer<String> observer = new Observer<String>() {
+  Subscriber<String> observer = new Subscriber<String>() {
+    boolean first = true;
     @Override
     public void onNext(String s) {
-      test.assertEquals(initCtx.delegate, Vertx.currentContext().delegate);
-      test.assertEquals("msg1msg2msg3", s);
-      test.testComplete();
+      if (first) {
+        first = false;
+        test.assertEquals(initCtx.delegate, Vertx.currentContext().delegate);
+        test.assertEquals("msg1msg2msg3", s);
+        unsubscribe()
+        test.testComplete();
+      }
     }
     @Override
     public void onError(Throwable e) {
@@ -21,7 +26,6 @@ vertx.runOnContext({ v ->
     }
     @Override
     public void onCompleted() {
-      test.fail();
     }
   };
   def observable = consumer.toObservable();
