@@ -4,19 +4,17 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
-import io.vertx.ext.reactivestreams.ReactiveWriteStream;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscription;
+import io.vertx.lang.rxjava.InternalHelper;
 import rx.Observable;
 import rx.Observer;
-import rx.RxReactiveStreams;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.plugins.RxJavaSchedulersHook;
+
+import java.util.function.BiFunction;
 
 /**
  * A set of helpers for RxJava and Vert.x.
@@ -25,6 +23,7 @@ import rx.plugins.RxJavaSchedulersHook;
  */
 public class RxHelper {
 
+  private static final BiFunction IDENTITY = (obj, vertx) -> obj;
 
   /**
    * Adapts a Vert.x {@link io.vertx.core.streams.ReadStream<T>} to an RxJava {@link Observable<T>}. After
@@ -35,55 +34,7 @@ public class RxHelper {
    * @return the adapted observable
    */
   public static <T> Observable<T> toObservable(ReadStream<T> stream, Vertx vertx) {
-    ReactiveWriteStream<T> ws = ReactiveWriteStream.writeStream(vertx);
-    Observable<T> obs = RxReactiveStreams.toObservable(new Publisher<T>() {
-      @Override
-      public void subscribe(org.reactivestreams.Subscriber<? super T> subscriber) {
-        org.reactivestreams.Subscriber<T> subscriberProxy = new org.reactivestreams.Subscriber<T>() {
-          Pump pump = Pump.pump(stream, ws);
-          @Override
-          public void onSubscribe(Subscription subscription) {
-            Subscription subscriptionProxy = new Subscription() {
-              @Override
-              public void request(long n) {
-                subscription.request(n);
-              }
-              @Override
-              public void cancel() {
-                pump.stop();
-                subscription.cancel();
-              }
-            };
-            stream.endHandler(done -> {
-              vertx.runOnContext(abc -> {
-                subscriptionProxy.cancel();
-                subscriber.onComplete();
-              });
-            });
-            stream.exceptionHandler(this::onError);
-            pump.start();
-            subscriber.onSubscribe(subscriptionProxy);
-          }
-
-          @Override
-          public void onNext(T event) {
-            subscriber.onNext(event);
-          }
-
-          @Override
-          public void onError(Throwable t) {
-            subscriber.onError(t);
-          }
-
-          @Override
-          public void onComplete() {
-            subscriber.onComplete();
-          }
-        };
-        ws.subscribe(subscriberProxy);
-      }
-    });
-    return obs;
+    return InternalHelper.toObservable(stream, vertx, IDENTITY);
   }
 
   /**

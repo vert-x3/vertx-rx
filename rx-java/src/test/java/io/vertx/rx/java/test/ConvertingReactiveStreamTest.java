@@ -7,11 +7,11 @@ import rx.Observable;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class ConvertingReadStreamAdapterTest extends AbstractReadStreamAdapterTest<Buffer> {
+public class ConvertingReactiveStreamTest extends AbstractReadStreamTest<Buffer> {
 
   @Override
   protected Observable<Buffer> toObservable(BufferReadStreamImpl stream) {
-    return new io.vertx.rxjava.rx.java.test.stream.BufferReadStream(stream).toObservable();
+    return new io.vertx.rxjava.rx.java.test.stream.BufferReadStream(stream, vertx).toObservable();
   }
 
   @Override

@@ -29,6 +29,6 @@ public class AbstractVerticle extends io.vertx.core.AbstractVerticle {
   @Override
   public void init(Vertx vertx, Context context) {
     super.init(vertx, context);
-    this.vertx = new io.vertx.rxjava.core.Vertx(vertx);
+    this.vertx = new io.vertx.rxjava.core.Vertx(vertx, null);
   }
 }

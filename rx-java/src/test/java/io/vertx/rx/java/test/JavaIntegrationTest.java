@@ -1,5 +1,6 @@
 package io.vertx.rx.java.test;
 
+import io.vertx.core.Handler;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
@@ -23,6 +24,7 @@ import io.vertx.rxjava.core.net.NetSocket;
 import io.vertx.rxjava.core.streams.ReadStream;
 import io.vertx.rx.java.ObservableFuture;
 import io.vertx.rx.java.RxHelper;
+import io.vertx.rxjava.core.streams.WriteStream;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 import rx.Observable;
@@ -35,7 +37,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -65,7 +66,7 @@ public class JavaIntegrationTest extends VertxTestBase {
           if (items.size() == 3) {
             unsubscribe();
             assertEquals(Arrays.asList("msg1", "msg2", "msg3"), items);
-            assertFalse(consumer.isRegistered());
+            assertTrue(consumer.isRegistered());
             testComplete();
           }
         }
@@ -100,13 +101,13 @@ public class JavaIntegrationTest extends VertxTestBase {
         public void onNext(String s) {
           assertEquals("msg1", s);
           unsubscribe();
-          assertFalse(consumer.isRegistered());
+          assertTrue(consumer.isRegistered());
           obs.subscribe(new Subscriber<String>() {
             @Override
             public void onNext(String s) {
               assertEquals("msg2", s);
               unsubscribe();
-              assertFalse(consumer.isRegistered());
+              assertTrue(consumer.isRegistered());
               testComplete();
             }
 
@@ -308,55 +309,57 @@ public class JavaIntegrationTest extends VertxTestBase {
 
   @Test
   public void testObservableHttpRequest() {
-    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
-    Observable<HttpServerRequest> socketObs = server.requestStream().toObservable();
-    socketObs.subscribe(new Subscriber<HttpServerRequest>() {
-      @Override
-      public void onNext(HttpServerRequest o) {
-        Observable<Buffer> dataObs = o.toObservable();
-        dataObs.subscribe(new Observer<Buffer>() {
+    vertx.runOnContext(v -> {
+      HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
+      Observable<HttpServerRequest> socketObs = server.requestStream().toObservable();
+      socketObs.subscribe(new Subscriber<HttpServerRequest>() {
+        @Override
+        public void onNext(HttpServerRequest o) {
+          Observable<Buffer> dataObs = o.toObservable();
+          dataObs.subscribe(new Observer<Buffer>() {
 
-          LinkedList<Buffer> buffers = new LinkedList<>();
+            LinkedList<Buffer> buffers = new LinkedList<>();
 
-          @Override
-          public void onNext(Buffer buffer) {
-            buffers.add(buffer);
-          }
+            @Override
+            public void onNext(Buffer buffer) {
+              buffers.add(buffer);
+            }
 
-          @Override
-          public void onError(Throwable e) {
-            fail(e.getMessage());
-          }
+            @Override
+            public void onError(Throwable e) {
+              fail(e.getMessage());
+            }
 
-          @Override
-          public void onCompleted() {
-            assertEquals(1, buffers.size());
-            assertEquals("foo", buffers.get(0).toString("UTF-8"));
-            server.close();
-          }
-        });
-      }
-
-      @Override
-      public void onError(Throwable e) {
-        fail(e.getMessage());
-      }
-
-      @Override
-      public void onCompleted() {
-        testComplete();
-      }
-    });
-    Observable<HttpServer> onListen = server.listenObservable();
-    onListen.subscribe(
-        s -> {
-          HttpClientRequest req = vertx.createHttpClient(new HttpClientOptions()).request(HttpMethod.PUT, 8080, "localhost", "/some/path", resp -> {
+            @Override
+            public void onCompleted() {
+              assertEquals(1, buffers.size());
+              assertEquals("foo", buffers.get(0).toString("UTF-8"));
+              server.close();
+            }
           });
-          req.putHeader("Content-Length", "3");
-          req.write("foo");
-        },
-        error -> fail(error.getMessage())
-    );
+        }
+
+        @Override
+        public void onError(Throwable e) {
+          fail(e.getMessage());
+        }
+
+        @Override
+        public void onCompleted() {
+          testComplete();
+        }
+      });
+      Observable<HttpServer> onListen = server.listenObservable();
+      onListen.subscribe(
+          s -> {
+            HttpClientRequest req = vertx.createHttpClient(new HttpClientOptions()).request(HttpMethod.PUT, 8080, "localhost", "/some/path", resp -> {
+            });
+            req.putHeader("Content-Length", "3");
+            req.write("foo");
+          },
+          error -> fail(error.getMessage())
+      );
+    });
     await();
   }
 
@@ -657,6 +660,70 @@ public class JavaIntegrationTest extends VertxTestBase {
             assertEquals("some_content", content.toString("UTF-8"));
             testComplete();
           });
+    });
+    await();
+  }
+
+  void sendUntilFull(Buffer concat, WriteStream<Buffer> ws, Handler<Void> fullHandler) {
+    if (ws.writeQueueFull()) {
+      vertx.runOnContext(fullHandler);
+    } else {
+      Buffer buff = Buffer.buffer("abcdefgh");
+      concat.appendBuffer(buff);
+      ws.write(buff);
+      vertx.runOnContext(v -> {
+        sendUntilFull(concat, ws, fullHandler);
+      });
+    }
+  }
+
+  @Test
+  public void testHttpServerRequestFlowControl() {
+    Buffer sent = Buffer.buffer();
+    HttpServer server = vertx.createHttpServer();
+    class Receiver extends Subscriber<Buffer> {
+      Buffer received = Buffer.buffer();
+      void resume() {
+        assertTrue(received.length() == 0);
+        request(Long.MAX_VALUE);
+      }
+      @Override
+      public void onStart() {
+        request(0);
+      }
+      @Override
+      public void onCompleted() {
+      }
+      @Override
+      public void onError(Throwable e) {
+      }
+      @Override
+      public void onNext(Buffer buffer) {
+        received.appendBuffer(buffer);
+      }
+    }
+    Receiver receiver = new Receiver();
+    server.requestHandler(req -> {
+      req.toObservable().subscribe(receiver);
+      req.endHandler(v -> {
+        assertEquals(sent.getDelegate(), receiver.received.getDelegate());
+        req.response().end();
+        testComplete();
+      });
+    });
+    server.listen(8080, "localhost", ar -> {
+      assertTrue(ar.succeeded());
+      HttpClient client = vertx.createHttpClient();
+      HttpClientRequest req = client.request(HttpMethod.PUT, 8080, "localhost", "/", resp -> {
+      });
+      req.setWriteQueueMaxSize(100);
+      req.setChunked(true);
+      sendUntilFull(sent, req, v -> {
+        receiver.resume();
+        req.drainHandler(v2 -> {
+          req.end();
+        });
+      });
     });
     await();
   }

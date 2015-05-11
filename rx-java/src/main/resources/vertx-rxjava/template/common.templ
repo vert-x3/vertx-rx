@@ -65,6 +65,7 @@ this.delegate
 @end{}
 
 @declare{'paramArgument'}
+	@code{vertxArg=method.staticMethod ? "" : ", vertx"}
 	@if{param.type.kind == CLASS_API}
 		(@{param.type.name}) @{param.name}.getDelegate()
 	@else{param.type.kind == CLASS_HANDLER}
@@ -92,7 +93,7 @@ this.delegate
 		@else{eventKind == CLASS_API}
 			new Handler<@{eventType.name}>() {\n
 			      public void handle(@{eventType.name} event) {\n
-			        @{param.name}.handle(new @{eventType.simpleName}(event));\n
+			        @{param.name}.handle(new @{eventType.simpleName}(event@{vertxArg}));\n
 			      }\n
 			    }
 		@else{eventKind == CLASS_ASYNC_RESULT}
@@ -118,7 +119,7 @@ this.delegate
 					@{param.name}
 				@end{}
 			@else{resultKind == CLASS_API}
-				@includeNamed{'resultHandlerTemplate';eventJavaType=resultType.name;eventGroovyType=resultType.simpleName;callbackObject='new ' + resultType.simpleName + '(event.result())';callbackName=param.name}
+				@includeNamed{'resultHandlerTemplate';eventJavaType=resultType.name;eventGroovyType=resultType.simpleName;callbackObject='new ' + resultType.simpleName + '(event.result()' + vertxArg + ')';callbackName=param.name}
 			@else{}
 				null /* Handler<AsyncResult<@{resultType.name}>> with kind @{resultKind} not yet implemented */
 			@end{}
