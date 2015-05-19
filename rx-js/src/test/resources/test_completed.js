@@ -1,10 +1,8 @@
 var test = require("test");
 var Rx = require("rx.vertx");
-var eb = vertx.eventBus();
-var consumer = eb.localConsumer("the-address");
+var consumer = vertx.timerStream(100);
 var observer = Rx.Observer.create(
   function (evt) {
-    test.fail(err);
   },
   function (err) {
     test.fail(err);
@@ -15,4 +13,3 @@ var observer = Rx.Observer.create(
 );
 var observable = Rx.Observable.fromReadStream(consumer);
 observable.subscribe(observer);
-consumer.unregister();
