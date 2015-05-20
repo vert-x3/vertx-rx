@@ -507,6 +507,81 @@ public class ApiTest {
     assertEquals(Collections.singletonList(null), new ArrayList<>(result));
   }
 
+  
+  @Test
+  public void testMethodWithHandlerAsyncResultListDataObject() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerAsyncResultListDataObject(checker.asyncResultHandler(result -> {
+      assertEquals("String 1", result.get(0).getFoo());
+      assertEquals(1, result.get(0).getBar());
+      assertEquals(1.1, result.get(0).getWibble(), 0);
+      assertEquals("String 2", result.get(1).getFoo());
+      assertEquals(2, result.get(1).getBar());
+      assertEquals(2.2, result.get(1).getWibble(), 0);
+    }));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithHandlerAsyncResultListNullDataObject() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerAsyncResultListNullDataObject(checker.asyncExpectedResult(
+        Collections.singletonList(null)));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithFutureListDataObject() throws Exception {
+    List<TestDataObject> result = get(obj.methodWithHandlerAsyncResultListDataObjectObservable());
+    assertEquals("String 1", result.get(0).getFoo());
+    assertEquals(1, result.get(0).getBar());
+    assertEquals(1.1, result.get(0).getWibble(), 0);
+    assertEquals("String 2", result.get(1).getFoo());
+    assertEquals(2, result.get(1).getBar());
+    assertEquals(2.2, result.get(1).getWibble(), 0);
+  }
+
+  @Test
+  public void testMethodWithFutureListNullDataObject() throws Exception {
+    List<TestDataObject> result = get(obj.methodWithHandlerAsyncResultListNullDataObjectObservable());
+    assertEquals(result, Collections.<TestDataObject>singletonList(null));
+  }
+
+  @Test
+  public void testMethodWithHandlerAsyncResultSetDataObject() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerAsyncResultSetDataObject(checker.asyncResultHandler(result -> {
+      Set<JsonObject> resultJson = result.stream().map(d -> d.toJson()).collect(Collectors.toSet());
+      assertEquals(2, resultJson.size());
+      assertTrue(resultJson.contains(new JsonObject().put("foo", "String 1").put("bar", 1).put("wibble", 1.1d)));
+      assertTrue(resultJson.contains(new JsonObject().put("foo", "String 2").put("bar", 2).put("wibble", 2.2d)));
+    }));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithHandlerAsyncResultSetNullDataObject() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerAsyncResultSetNullDataObject(checker.asyncExpectedResult(
+        Collections.singleton(null)));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithFutureSetDataObject() throws Exception {
+    Set<TestDataObject> result = get(obj.methodWithHandlerAsyncResultSetDataObjectObservable());
+    Set<JsonObject> resultJson = result.stream().map(d -> d.toJson()).collect(Collectors.toSet());
+    assertEquals(2, resultJson.size());
+    assertTrue(resultJson.contains(new JsonObject().put("foo", "String 1").put("bar", 1).put("wibble", 1.1d)));
+    assertTrue(resultJson.contains(new JsonObject().put("foo", "String 2").put("bar", 2).put("wibble", 2.2d)));
+  }
+
+  @Test
+  public void testMethodWithFutureSetNullDataObject() throws Exception {
+    Set<TestDataObject> result = get(obj.methodWithHandlerAsyncResultSetNullDataObjectObservable());
+    assertEquals(result, Collections.<TestDataObject>singleton(null));
+  }
+
   @Test
   public void testMethodWithHandlerUserTypes() {
     AsyncResultChecker checker = new AsyncResultChecker();
@@ -626,7 +701,8 @@ public class ApiTest {
     refed2.setString("bar");
     obj.methodWithListParams(Arrays.asList("foo", "bar"), Arrays.asList((byte)2, (byte)3), Arrays.asList((short)12, (short)13),
         Arrays.asList(1234, 1345), Arrays.asList(123l, 456l), Arrays.asList(new JsonObject().put("foo", "bar"), new JsonObject().put("eek", "wibble")),
-        Arrays.asList(new JsonArray().add("foo"), new JsonArray().add("blah")), Arrays.asList(refed1, refed2));
+        Arrays.asList(new JsonArray().add("foo"), new JsonArray().add("blah")), Arrays.asList(refed1, refed2),
+        list(new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1), new TestDataObject().setFoo("String 2").setBar(2).setWibble(2.2)));
   }
 
   @Test
@@ -637,7 +713,8 @@ public class ApiTest {
     refed2.setString("bar");
     obj.methodWithSetParams(set("foo", "bar"), set((byte)2, (byte)3), set((short)12, (short)13),
         set(1234, 1345), set(123l, 456l), set(new JsonObject().put("foo", "bar"), new JsonObject().put("eek", "wibble")),
-        set(new JsonArray().add("foo"), new JsonArray().add("blah")), set(refed1, refed2));
+        set(new JsonArray().add("foo"), new JsonArray().add("blah")), set(refed1, refed2),
+        set(new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1), new TestDataObject().setFoo("String 2").setBar(2).setWibble(2.2)));
   }
 
   @Test
