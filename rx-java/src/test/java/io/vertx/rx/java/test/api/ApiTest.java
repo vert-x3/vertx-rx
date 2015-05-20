@@ -626,7 +626,8 @@ public class ApiTest {
     refed2.setString("bar");
     obj.methodWithListParams(Arrays.asList("foo", "bar"), Arrays.asList((byte)2, (byte)3), Arrays.asList((short)12, (short)13),
         Arrays.asList(1234, 1345), Arrays.asList(123l, 456l), Arrays.asList(new JsonObject().put("foo", "bar"), new JsonObject().put("eek", "wibble")),
-        Arrays.asList(new JsonArray().add("foo"), new JsonArray().add("blah")), Arrays.asList(refed1, refed2));
+        Arrays.asList(new JsonArray().add("foo"), new JsonArray().add("blah")), Arrays.asList(refed1, refed2),
+        Arrays.asList(new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1), new TestDataObject().setFoo("String 2").setBar(2).setWibble(2.2)));
   }
 
   @Test
@@ -637,7 +638,8 @@ public class ApiTest {
     refed2.setString("bar");
     obj.methodWithSetParams(set("foo", "bar"), set((byte)2, (byte)3), set((short)12, (short)13),
         set(1234, 1345), set(123l, 456l), set(new JsonObject().put("foo", "bar"), new JsonObject().put("eek", "wibble")),
-        set(new JsonArray().add("foo"), new JsonArray().add("blah")), set(refed1, refed2));
+        set(new JsonArray().add("foo"), new JsonArray().add("blah")), set(refed1, refed2),
+        set(new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1), new TestDataObject().setFoo("String 2").setBar(2).setWibble(2.2)));
   }
 
   @Test

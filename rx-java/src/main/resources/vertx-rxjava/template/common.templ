@@ -128,7 +128,7 @@ this.delegate
 	@else{param.type.kind == CLASS_LIST || param.type.kind == CLASS_SET}
 		@code{elementType=param.type.args[0]}
 		@code{elementKind=elementType.kind}
-		@if{elementKind.basic || elementKind.json}
+		@if{elementKind.basic || elementKind.json || elementKind == CLASS_DATA_OBJECT}
 			@{param.name}
 		@else{}
 			@if{param.type.kind == CLASS_LIST}
