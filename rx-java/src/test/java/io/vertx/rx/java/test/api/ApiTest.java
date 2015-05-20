@@ -508,6 +508,58 @@ public class ApiTest {
   }
 
   @Test
+  public void testMethodWithHandlerListDataObject() throws Exception {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerListDataObject(checker.<List<TestDataObject>>resultHandler(list -> {
+      assertEquals(2, list.size());
+      assertEquals("String 1", list.get(0).getFoo());
+      assertEquals(1, list.get(0).getBar());
+      assertEquals(1.1, list.get(0).getWibble(), 0);
+      assertEquals("String 2", list.get(1).getFoo());
+      assertEquals(2, list.get(1).getBar());
+      assertEquals(2.2, list.get(1).getWibble(), 0);
+    }));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithHandlerNullListDataObject() throws Exception {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerListNullDataObject(checker.<List<TestDataObject>>resultHandler(list -> {
+      assertEquals(1, list.size());
+      assertNull(list.get(0));
+    }));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithHandlerSetDataObject() throws Exception {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerSetDataObject(checker.<Set<TestDataObject>>resultHandler(set -> {
+      List<TestDataObject> list = new ArrayList<>(set);
+      Collections.sort(list, (c1, c2) -> ((Integer) c1.getBar()).compareTo(c2.getBar()));
+      assertEquals("String 1", list.get(0).getFoo());
+      assertEquals(1, list.get(0).getBar());
+      assertEquals(1.1, list.get(0).getWibble(), 0);
+      assertEquals("String 2", list.get(1).getFoo());
+      assertEquals(2, list.get(1).getBar());
+      assertEquals(2.2, list.get(1).getWibble(), 0);
+    }));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithHandlerNullSetDataObject() throws Exception {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerSetNullDataObject(checker.<Set<TestDataObject>>resultHandler(set -> {
+      assertEquals(1, set.size());
+      List<TestDataObject> list = new ArrayList<>(set);
+      assertNull(list.get(0));
+    }));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
   public void testMethodWithHandlerAsyncResultListDataObject() throws Exception {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerAsyncResultListDataObject(checker.<List<TestDataObject>>asyncResultHandler(list -> {
