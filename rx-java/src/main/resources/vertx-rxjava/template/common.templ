@@ -24,10 +24,10 @@
 	  /**\n
 	@{renderDocToHtml("   *", method.doc, renderLinkToHtml)}
 	@foreach{param: method.params}
-	   * @param @{param.name} @if{param.description != null}@{param.description}@end{}\n
+	   * @param @{param.name} @if{param.description != null}@{renderTokensToHtml("", param.description.tokens, renderLinkToHtml, "")}@end{}\n
 	@end{}
 	@if{!method.returnType.name.equals("void")}
-	   * @return @if{method.returnDescription != null}@{method.returnDescription}@end{}\n
+	   * @return @if{method.returnDescription != null}@{renderTokensToHtml("", method.returnDescription.tokens, renderLinkToHtml, "")}@end{}\n
 	@end{}
 	   */\n
 	@end{}
