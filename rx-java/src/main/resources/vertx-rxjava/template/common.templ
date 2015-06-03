@@ -9,13 +9,12 @@
     var rawType = link.targetType.raw;
     if (rawType.module != null) {
       if (rawType.kind == CLASS_DATA_OBJECT) {
-        return "{@link " + link.value + "}";
+        return "{@link " + rawType.name + "}";
       } else {
-        /* Todo use translate name */
-        return "{@link " + link.value.replace("io.vertx.", "io.vertx.rxjava.") + "}";
+        return "{@link " + rawType.translateName("rxjava") + "}";
       }
     }
-    return null;
+    return link.toString();
   }
 }
 
