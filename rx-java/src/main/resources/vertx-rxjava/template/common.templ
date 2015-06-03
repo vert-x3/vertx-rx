@@ -8,13 +8,27 @@
   def renderLinkToHtml(link) {
     var rawType = link.targetType.raw;
     if (rawType.module != null) {
+      var label = link.label.trim();
       if (rawType.kind == CLASS_DATA_OBJECT) {
         return "{@link " + rawType.name + "}";
       } else {
-        return "{@link " + rawType.translateName("rxjava") + "}";
+        if (type.kind == CLASS_API) {
+          var elt = link.targetElement;
+          var eltKind = elt.getKind().name();
+          var ret = "{@link " + rawType.translateName("rxjava");
+          if (eltKind == "METHOD") {
+            /* todo find a way for translating the complete signature */
+            ret += "#" + elt.getSimpleName().toString();
+          }
+          if (label.length() > 0) {
+            ret += " " + label;
+          }
+          ret += "}";
+          return ret;
+        }
       }
     }
-    return link.toString();
+    return "{@link " + rawType.name + "}";
   }
 }
 
