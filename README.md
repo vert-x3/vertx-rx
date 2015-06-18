@@ -8,12 +8,12 @@ This module provides helpers for adapting Vert.x stream and future constructs to
 
 ## RxJava
 
-See https://github.com/vert-x3/vertx-rx/tree/master/rx-java/src/main/asciidoc/index.adoc
+See https://github.com/vert-x3/vertx-rx/tree/master/rx-java/src/main/asciidoc/java/index.adoc
 
 ## RxJS
 
-See https://github.com/vert-x3/vertx-rx/tree/master/rx-js/src/main/asciidoc/index.adoc
+See https://github.com/vert-x3/vertx-rx/tree/master/rx-js/src/main/asciidoc/js/index.adoc
 
 ## RxGroovy
 
-See https://github.com/vert-x3/vertx-rx/tree/master/rx-groovy/src/main/asciidoc/index.adoc
+See https://github.com/vert-x3/vertx-rx/tree/master/rx-groovy/src/main/asciidoc/groovy/index.adoc
