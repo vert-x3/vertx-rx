@@ -71,6 +71,11 @@
                 <doctype>book</doctype>
                 <preserveDirectories>true</preserveDirectories>
                 <sourceHighlighter>prettify</sourceHighlighter>
+                <attributes>
+                  <maven-groupId>${project.groupId}</maven-groupId>
+                  <maven-artifactId>${project.artifactId}</maven-artifactId>
+                  <maven-version>${project.version}</maven-version>
+                </attributes>
               </configuration>
             </execution>
           </executions>
