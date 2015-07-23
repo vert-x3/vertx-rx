@@ -10,9 +10,9 @@
 |===
 ^|Name | Type ^| Description
 
-|[[foo]]`foo`
-|`String`
-|-
 |[[bar]]`bar`
 |`Number`
+|-
+|[[foo]]`foo`
+|`String`
 |-|===

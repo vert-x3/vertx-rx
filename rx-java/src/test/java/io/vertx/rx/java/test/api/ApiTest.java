@@ -1057,6 +1057,11 @@ public class ApiTest {
     assertEquals("olleh", sub.reverse("hello"));
   }
 
+  @Test
+  public void testThrowableParam() {
+    assertEquals("throwable_message", obj.methodWithThrowableParam(new Exception("throwable_message")));
+  }
+
   private static <V> Map<String, V> map(String key1, V value1) {
     HashMap<String, V> map = new HashMap<>();
     map.put(key1, value1);
