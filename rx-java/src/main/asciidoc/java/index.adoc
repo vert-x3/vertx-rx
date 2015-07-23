@@ -15,6 +15,26 @@ There are two ways for using the RxJava API with Vert.x:
 methods for converting objects between Vert.x core API and RxJava API.
 - via the _Rxified_ Vert.x API enhancing the core Vert.x API.
 
+To use vert.x API for RxJava, add the following dependency to the _dependencies_ section of your build descriptor:
+
+* Maven (in your `pom.xml`):
+
+[source,xml,subs="+attributes"]
+----
+<dependency>
+  <groupId>{maven-groupId}</groupId>
+  <artifactId>{maven-artifactId}</artifactId>
+  <version>{maven-version}</version>
+</dependency>
+----
+
+* Gradle (in your `build.gradle` file):
+
+[source,groovy,subs="+attributes"]
+----
+compile {maven-groupId}:{maven-artifactId}:{maven-version}
+----
+
 === Read stream support
 
 RxJava observable is a perfect match for Vert.x `ReadStream` class : both provides provides a flow of items.
