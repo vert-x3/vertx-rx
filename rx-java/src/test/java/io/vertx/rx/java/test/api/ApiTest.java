@@ -799,6 +799,19 @@ public class ApiTest {
   }
 
   @Test
+  public void testDataObjectReturn() {
+    TestDataObject r = obj.methodWithDataObjectReturn();
+    assertEquals("foo", r.getFoo());
+    assertEquals(123, r.getBar());
+  }
+
+  @Test
+  public void testDataObjectNullReturn() {
+    TestDataObject r = obj.methodWithDataObjectNullReturn();
+    assertNull(r);
+  }
+
+  @Test
   public void testListStringReturn() {
     assertEquals(Arrays.asList("foo", "bar", "wibble"), obj.methodWithListStringReturn());
   }
