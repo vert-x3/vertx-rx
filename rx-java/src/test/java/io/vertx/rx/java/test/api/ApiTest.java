@@ -827,6 +827,7 @@ public class ApiTest {
     JsonArray json2 = list.get(1);
     assertEquals("blah", json2.getValue(0));
   }
+
   @Test
   public void testListVertxGenReturn() {
     List<RefedInterface1> list = obj.methodWithListVertxGenReturn();
@@ -835,6 +836,18 @@ public class ApiTest {
     RefedInterface1 refed2 = list.get(1);
     assertEquals("foo", refed1.getString());
     assertEquals("bar", refed2.getString());
+  }
+
+  @Test
+  public void testListDataObjectReturn() {
+    List<TestDataObject> list = obj.methodWithListDataObjectReturn();
+    assertEquals(2, list.size());
+    assertEquals("String 1", list.get(0).getFoo());
+    assertEquals(1, list.get(0).getBar());
+    assertEquals(1.1, list.get(0).getWibble(), 0);
+    assertEquals("String 2", list.get(1).getFoo());
+    assertEquals(2, list.get(1).getBar());
+    assertEquals(2.2, list.get(1).getWibble(), 0);
   }
 
   @Test
@@ -881,6 +894,19 @@ public class ApiTest {
     refed2.setString("bar");
     List<RefedInterface1> list = new ArrayList<>(set);
     assertTrue((list.get(0).getString().equals("foo") && list.get(1).getString().equals("bar")) || (list.get(0).getString().equals("bar") && list.get(1).getString().equals("foo")));
+  }
+
+  @Test
+  public void testSetDataObjectReturn() {
+    Set<TestDataObject> set = obj.methodWithSetDataObjectReturn();
+    List<TestDataObject> list = new ArrayList<>(set);
+    Collections.sort(list, (c1, c2) -> ((Integer) c1.getBar()).compareTo(c2.getBar()));
+    assertEquals("String 1", list.get(0).getFoo());
+    assertEquals(1, list.get(0).getBar());
+    assertEquals(1.1, list.get(0).getWibble(), 0);
+    assertEquals("String 2", list.get(1).getFoo());
+    assertEquals(2, list.get(1).getBar());
+    assertEquals(2.2, list.get(1).getWibble(), 0);
   }
 
   @Test

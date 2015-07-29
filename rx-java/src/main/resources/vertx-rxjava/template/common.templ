@@ -193,7 +193,7 @@ this.delegate
 			@code{elementType=method.returnType.args[0]}
 			@code{elementKind=elementType.kind}
 			@code{cachedType=method.returnType.simpleName}
-			@if{elementKind.basic || elementKind.json}
+			@if{elementKind.basic || elementKind.json || elementKind == CLASS_DATA_OBJECT}
 		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n;\n
 			@else{}
 		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method}.stream().map(@{elementType.simpleName}::newInstance).collect(java.util.stream.Collectors.to@{collectionName}());\n
