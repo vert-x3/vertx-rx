@@ -1,7 +1,7 @@
 package io.vertx.rx.java;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.Json;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -30,7 +30,7 @@ public abstract class UnmarshallerOperator<T, B> implements Observable.Operator<
       @Override
       public void onCompleted() {
         try {
-          T obj = new ObjectMapper().readValue(buffer.getBytes(), mappedType);
+          T obj = Json.mapper.readValue(buffer.getBytes(), mappedType);
           subscriber.onNext(obj);
           subscriber.onCompleted();
         } catch (IOException e) {
