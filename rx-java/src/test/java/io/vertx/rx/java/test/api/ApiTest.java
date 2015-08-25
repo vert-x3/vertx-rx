@@ -151,6 +151,38 @@ public class ApiTest {
   }
 
   @Test
+  public void testListOfDataObjectsParam() {
+    List<TestDataObject> list = new ArrayList<>();
+    TestDataObject object1 = new TestDataObject();
+    object1.setFoo("hello");
+    object1.setBar(123);
+    object1.setWibble(1.23);
+    list.add(object1);
+    TestDataObject object2 = new TestDataObject();
+    object2.setFoo("world");
+    object2.setBar(123);
+    object2.setWibble(1.23);
+    list.add(object2);
+    obj.methodWithListOfDataObjectsParam(list);
+  }
+
+  @Test
+  public void testSetOfDataObjectsParam() {
+    Set<TestDataObject> set = new HashSet<>();
+    TestDataObject object1 = new TestDataObject();
+    object1.setFoo("hello");
+    object1.setBar(123);
+    object1.setWibble(1.23);
+    set.add(object1);
+    TestDataObject object2 = new TestDataObject();
+    object2.setFoo("world");
+    object2.setBar(123);
+    object2.setWibble(1.23);
+    set.add(object2);
+    obj.methodWithSetOfDataObjectsParam(set);
+  }
+
+  @Test
   public void testNullDataObjectParam() {
     obj.methodWithNullDataObjectParam(null);
   }
