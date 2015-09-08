@@ -15,7 +15,7 @@ public class ObservableFuture<T> extends Observable<T> {
     private boolean subscribed;
 
     @Override
-    public void execute() {
+    public void onSubscribed() {
       AsyncResult<T> result = buffered;
       if (result != null) {
         buffered = null;

@@ -22,7 +22,7 @@ class HandlerAdapter<T> extends SingleOnSubscribeAdapter<T> implements Handler<T
   }
 
   @Override
-  public void execute() {
+  public void onSubscribed() {
     stream.exceptionHandler(this::fireError);
     stream.endHandler(v -> fireComplete());
     stream.handler(this);

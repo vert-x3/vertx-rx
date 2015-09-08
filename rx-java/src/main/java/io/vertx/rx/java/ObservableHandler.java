@@ -13,7 +13,7 @@ public class ObservableHandler<T> extends Observable<T> {
     private boolean subscribed;
 
     @Override
-    public void execute() {
+    public void onSubscribed() {
       subscribed = true;
     }
 

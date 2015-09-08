@@ -25,7 +25,7 @@ public class SingleOnSubscribeAdapter<T> implements Observable.OnSubscribe<T> {
     }
     sub.add(singleSub);
     try {
-      execute();
+      onSubscribed();
     }
     // If the execution fails then assume then handle() will never be called and
     // emit an error
@@ -36,7 +36,7 @@ public class SingleOnSubscribeAdapter<T> implements Observable.OnSubscribe<T> {
 
   // Hooks
 
-  protected void execute() {
+  protected void onSubscribed() {
   }
 
   protected void onUnsubscribed() {
