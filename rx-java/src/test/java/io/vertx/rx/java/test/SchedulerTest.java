@@ -2,10 +2,15 @@ package io.vertx.rx.java.test;
 
 import io.vertx.rx.java.ContextScheduler;
 import io.vertx.test.core.VertxTestBase;
+import org.junit.After;
 import org.junit.Test;
 import rx.Scheduler;
 import rx.Subscription;
+import rx.functions.Action0;
+import rx.plugins.RxJavaPlugins;
+import rx.plugins.RxJavaSchedulersHook;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,6 +22,15 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class SchedulerTest extends VertxTestBase {
+
+  @After
+  public void after() throws Exception {
+    // Cleanup  any RxJavaPlugins installed
+    // Needs to hack a bit since we are not in the same package
+    Method meth = RxJavaPlugins.class.getDeclaredMethod("reset");
+    meth.setAccessible(true);
+    meth.invoke(RxJavaPlugins.getInstance());
+  }
 
   private void assertEventLoopThread() {
     String name = Thread.currentThread().getName();
@@ -225,5 +239,45 @@ public class SchedulerTest extends VertxTestBase {
         testComplete();
       }
     }, 20, 20, TimeUnit.MILLISECONDS);
+  }
+
+  @Test
+  public void testSchedulerHook() throws Exception {
+    testSchedulerHook(false);
+  }
+
+  @Test
+  public void testSchedulerHookBlocking() throws Exception {
+    testSchedulerHook(true);
+  }
+
+  private void testSchedulerHook(boolean blocking) throws Exception {
+    RxJavaPlugins plugins = RxJavaPlugins.getInstance();
+    AtomicInteger scheduled = new AtomicInteger();
+    AtomicInteger called = new AtomicInteger();
+    plugins.registerSchedulersHook(new RxJavaSchedulersHook() {
+      @Override
+      public Action0 onSchedule(Action0 action) {
+        scheduled.incrementAndGet();
+        return () -> {
+          action.call();
+          called.getAndIncrement();
+        };
+      }
+    });
+
+    ContextScheduler scheduler = new ContextScheduler(vertx, blocking);
+    Scheduler.Worker worker = scheduler.createWorker();
+    assertEquals(0, scheduled.get());
+    assertEquals(0, called.get());
+    CountDownLatch latch = new CountDownLatch(1);
+    worker.schedule(() -> {
+      latch.countDown();
+      assertEquals(1, scheduled.get());
+      assertEquals(0, called.get());
+    }, 0, TimeUnit.SECONDS);
+    awaitLatch(latch);
+    assertEquals(1, scheduled.get());
+    assertEquals(1, called.get());
   }
 }

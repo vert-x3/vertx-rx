@@ -6,6 +6,8 @@ import io.vertx.core.json.JsonObject;
 import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Action0;
+import rx.plugins.RxJavaPlugins;
+import rx.plugins.RxJavaSchedulersHook;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +20,7 @@ public class ContextScheduler extends Scheduler {
 
   private final Vertx vertx;
   private final boolean blocking;
+  private final RxJavaSchedulersHook schedulersHook = RxJavaPlugins.getInstance().getSchedulersHook();;
 
   public ContextScheduler(Vertx vertx, boolean blocking) {
     this.vertx = vertx;
@@ -43,6 +46,7 @@ public class ContextScheduler extends Scheduler {
 
     @Override
     public Subscription schedule(Action0 action, long delayTime, TimeUnit unit) {
+      action = schedulersHook.onSchedule(action);
       TimedAction timed = new TimedAction(action, unit.toMillis(delayTime), 0);
       actions.put(timed, DUMB);
       return timed;
@@ -50,6 +54,7 @@ public class ContextScheduler extends Scheduler {
 
     @Override
     public Subscription schedulePeriodically(Action0 action, long initialDelay, long period, TimeUnit unit) {
+      action = schedulersHook.onSchedule(action);
       TimedAction timed = new TimedAction(action, unit.toMillis(initialDelay), unit.toMillis(period));
       actions.put(timed, DUMB);
       return timed;
