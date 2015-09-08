@@ -52,7 +52,21 @@ public class RxHelper {
    * @return the observable future.
    */
   public static <T> ObservableHandler<T> observableHandler() {
-    return new ObservableHandler<>();
+    return observableHandler(false);
+  }
+
+  /**
+   * Create a new {@code ObservableHandler<T>} object: an {@link rx.Observable} implementation
+   * implementing {@code Handler<T>}.<p/>
+   *
+   * When {@literal} parameter is false and the event handler completes, the observable
+   * will produce the event and complete immediatly after, as a single event is expected.
+   *
+   * @param multi true if the handler can emit multiple events
+   * @return the observable future.
+   */
+  public static <T> ObservableHandler<T> observableHandler(boolean multi) {
+    return new ObservableHandler<>(multi);
   }
 
   /**
@@ -68,13 +82,30 @@ public class RxHelper {
   }
 
   /**
-   * Adapt a {@link Subscriber} as a {@code Handler<T>;}.
+   * Adapt a {@link Subscriber} as a {@code Handler<T>;}.<p/>
+   *
+   * When the event handler completes, the observer
+   * will complete immediatly after the event is received, as a single event is expected.
    *
    * @param observer the subscriber to adapt
    * @return a {@code Handler<T>}
    */
   public static <T> Handler<T> toHandler(Observer<T> observer) {
-    ObservableHandler<T> observable = RxHelper.<T>observableHandler();
+    return toHandler(observer, false);
+  }
+
+  /**
+   * Adapt a {@link Subscriber} as a {@code Handler<T>;}.<p/>
+   *
+   * When {@literal} parameter is false and the event handler completes, the observer
+   * will complete immediatly after the event is received, as a single event is expected.
+   *
+   * @param observer the subscriber to adapt
+   * @param multi true if the handler can emit multiple events
+   * @return a {@code Handler<T>}
+   */
+  public static <T> Handler<T> toHandler(Observer<T> observer, boolean multi) {
+    ObservableHandler<T> observable = RxHelper.<T>observableHandler(multi);
     observable.subscribe(observer);
     return observable.toHandler();
   }
@@ -98,7 +129,7 @@ public class RxHelper {
    * @return a {@code Handler<T>}
    */
   public static <T> Handler<T> toHandler(Action1<T> onNext) {
-    ObservableHandler<T> observable = RxHelper.<T>observableHandler();
+    ObservableHandler<T> observable = RxHelper.<T>observableHandler(true);
     observable.subscribe(onNext);
     return observable.toHandler();
   }

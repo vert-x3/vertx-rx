@@ -10,17 +10,37 @@ public class ObservableHandler<T> extends Observable<T> {
 
   private abstract static class HandlerAdapter<T> extends SingleOnSubscribeAdapter<T> implements Handler<T> {
 
+    private static final int STATUS_MULTI = 0;
+    private static final int STATUS_SINGLE = 1;
+    private static final int STATUS_DISPATCHED = 2;
+
     private boolean subscribed;
+    private int status;
+
+    private HandlerAdapter(boolean multi) {
+      status = multi ? STATUS_MULTI : STATUS_SINGLE;
+    }
 
     @Override
     public void onSubscribed() {
       subscribed = true;
+      if (status == STATUS_DISPATCHED) {
+        fireComplete();
+      }
     }
 
     @Override
     public void handle(T event) {
-      if (subscribed) {
-        dispatch(event);
+      if (status == STATUS_MULTI) {
+        if (subscribed) {
+          dispatch(event);
+        }
+      } else if (status == STATUS_SINGLE) {
+        if (subscribed) {
+          dispatch(event);
+          fireComplete();
+        }
+        status = STATUS_DISPATCHED;
       }
     }
 
@@ -33,7 +53,11 @@ public class ObservableHandler<T> extends Observable<T> {
   }
 
   public ObservableHandler() {
-    this(new HandlerAdapter<T>() {
+    this(true);
+  }
+
+  public ObservableHandler(boolean multi) {
+    this(new HandlerAdapter<T>(multi) {
       @Override
       protected void dispatch(T event) {
         this.fireNext(event);
