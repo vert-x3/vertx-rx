@@ -160,8 +160,7 @@
               <includeArtifactIds>vertx-core</includeArtifactIds>
               <includeTypes>jar</includeTypes>
               <includeClassifiers>sources</includeClassifiers>
-              <includes>**/*.java</includes>
-              <excludes>**/package-info.java,examples/**</excludes>
+              <includes>io/vertx/core/**/*.java</includes>
               <outputDirectory>${basedir}/src/main/java</outputDirectory>
             </configuration>
           </execution>
@@ -196,6 +195,10 @@
               <processors>
                 <processor>io.vertx.docgen.JavaDocGenProcessor</processor>
               </processors>
+              <includes>
+                <include>io/vertx/rxjava/core/**/*.java</include>
+                <include>examples/**/*.java</include>
+              </includes>
               <optionMap>
                 <docgen.output>${asciidoc.dir}/java</docgen.output>
               </optionMap>
