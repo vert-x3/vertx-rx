@@ -1,0 +1,20 @@
+= Enums
+
+[[TestGenEnum]]
+== TestGenEnum
+
+++++
+ @author <a href="http://tfox.org">Tim Fox</a>
+++++
+'''
+
+[cols=">25%,75%"]
+[frame="topbot"]
+|===
+^|Name | Description
+|[[LAURA]]`LAURA`|-
+|[[BOB]]`BOB`|-
+|[[MIKE]]`MIKE`|-
+|[[LELAND]]`LELAND`|-
+|===
+
