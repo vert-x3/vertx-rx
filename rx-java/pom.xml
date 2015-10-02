@@ -129,6 +129,9 @@
               </annotationProcessors>
               <compilerArgs>
                 <arg>-AoutputDirectory=${project.basedir}/src/main</arg>
+                <arg>-Amaven.groupId=${project.groupId}</arg>
+                <arg>-Amaven.artifactId=${project.artifactId}</arg>
+                <arg>-Amaven.version=${project.version}</arg>
               </compilerArgs>
             </configuration>
           </execution>
