@@ -1,9 +1,13 @@
-import rx.Observer;
+import rx.Observer
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+def count = new AtomicInteger()
 Observer<Long> observer = new Observer<Long>() {
   @Override
   void onCompleted() {
-    test.fail();
+    test.assertEquals(1, count.get());
+    test.testComplete();
   }
 
   @Override
@@ -13,7 +17,7 @@ Observer<Long> observer = new Observer<Long>() {
 
   @Override
   void onNext(Long l) {
-    test.testComplete();
+    count.incrementAndGet();
   }
 }
 vertx.setTimer(1, observer.toHandler());

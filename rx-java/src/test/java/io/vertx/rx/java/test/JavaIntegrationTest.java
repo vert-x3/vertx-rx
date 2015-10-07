@@ -483,10 +483,12 @@ public class JavaIntegrationTest extends VertxTestBase {
 
   @Test
   public void testObserverToHandler() throws Exception {
+    AtomicInteger count = new AtomicInteger();
     Observer<Long> observer = new Observer<Long>() {
       @Override
       public void onCompleted() {
-        fail();
+        assertEquals(1, count.get());
+        testComplete();
       }
 
       @Override
@@ -496,7 +498,7 @@ public class JavaIntegrationTest extends VertxTestBase {
 
       @Override
       public void onNext(Long l) {
-        testComplete();
+        count.incrementAndGet();
       }
     };
     vertx.setTimer(1, RxHelper.toHandler(observer));
