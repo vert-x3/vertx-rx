@@ -255,6 +255,7 @@ public class SchedulerTest extends VertxTestBase {
     RxJavaPlugins plugins = RxJavaPlugins.getInstance();
     AtomicInteger scheduled = new AtomicInteger();
     AtomicInteger called = new AtomicInteger();
+    CountDownLatch latchCalled = new CountDownLatch(1);
     plugins.registerSchedulersHook(new RxJavaSchedulersHook() {
       @Override
       public Action0 onSchedule(Action0 action) {
@@ -262,6 +263,7 @@ public class SchedulerTest extends VertxTestBase {
         return () -> {
           action.call();
           called.getAndIncrement();
+          latchCalled.countDown();
         };
       }
     });
@@ -277,6 +279,7 @@ public class SchedulerTest extends VertxTestBase {
       assertEquals(0, called.get());
     }, 0, TimeUnit.SECONDS);
     awaitLatch(latch);
+    awaitLatch(latchCalled);
     assertEquals(1, scheduled.get());
     assertEquals(1, called.get());
   }
