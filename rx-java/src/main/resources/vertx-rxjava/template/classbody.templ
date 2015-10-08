@@ -1,6 +1,6 @@
 	  final @{helper.getNonGenericType(ifaceFQCN)} delegate;\n\n
 	  public @{constructor}(@{helper.getNonGenericType(ifaceFQCN)} delegate) {\n
-	@if{concrete && concreteSuperTypes.size() > 0}
+	@if{concrete && concreteSuperType != null}
 	    super(delegate);\n
 	@end{}
 	    this.delegate = delegate;\n
