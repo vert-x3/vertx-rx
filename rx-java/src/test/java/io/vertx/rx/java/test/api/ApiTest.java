@@ -2,6 +2,7 @@ package io.vertx.rx.java.test.api;
 
 import io.vertx.codegen.testmodel.RefedInterface1Impl;
 import io.vertx.codegen.testmodel.TestDataObject;
+import io.vertx.codegen.testmodel.TestEnum;
 import io.vertx.codegen.testmodel.TestInterfaceImpl;
 import io.vertx.core.VertxException;
 import io.vertx.core.json.JsonArray;
@@ -194,9 +195,9 @@ public class ApiTest {
     dataObject.setBar(123);
     AtomicInteger count = new AtomicInteger();
     obj.methodWithHandlerDataObject(it -> {
-        assertEquals(dataObject.getFoo(), it.getFoo());
-        assertEquals(dataObject.getBar(), it.getBar());
-        count.incrementAndGet();
+      assertEquals(dataObject.getFoo(), it.getFoo());
+      assertEquals(dataObject.getBar(), it.getBar());
+      count.incrementAndGet();
     });
     assertEquals(1, count.get());
   }
@@ -755,6 +756,34 @@ public class ApiTest {
   }
 
   @Test
+  public void testMethodWithHandlerListEnum() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerListEnum(checker.expectedResult(Arrays.asList(TestEnum.TIM, TestEnum.JULIEN)));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithHandlerSetEnum() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerSetEnum(checker.expectedResult(set(TestEnum.TIM, TestEnum.JULIEN)));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithHandlerListAsyncResultEnum() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerAsyncResultListEnum(checker.asyncExpectedResult(Arrays.asList(TestEnum.TIM, TestEnum.JULIEN)));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
+  public void testMethodWithHandlerAsyncResultSetEnum() {
+    AsyncResultChecker checker = new AsyncResultChecker();
+    obj.methodWithHandlerAsyncResultSetEnum(checker.asyncExpectedResult(set(TestEnum.TIM, TestEnum.JULIEN)));
+    assertEquals(1, checker.count);
+  }
+
+  @Test
   public void testMethodListParams() {
     RefedInterface1 refed1 = new RefedInterface1(new RefedInterface1Impl());
     refed1.setString("foo");
@@ -763,7 +792,8 @@ public class ApiTest {
     obj.methodWithListParams(Arrays.asList("foo", "bar"), Arrays.asList((byte) 2, (byte) 3), Arrays.asList((short) 12, (short) 13),
         Arrays.asList(1234, 1345), Arrays.asList(123l, 456l), Arrays.asList(new JsonObject().put("foo", "bar"), new JsonObject().put("eek", "wibble")),
         Arrays.asList(new JsonArray().add("foo"), new JsonArray().add("blah")), Arrays.asList(refed1, refed2),
-        Arrays.asList(new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1), new TestDataObject().setFoo("String 2").setBar(2).setWibble(2.2)));
+        Arrays.asList(new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1), new TestDataObject().setFoo("String 2").setBar(2).setWibble(2.2)),
+        Arrays.asList(TestEnum.JULIEN, TestEnum.TIM));
   }
 
   @Test
@@ -775,7 +805,8 @@ public class ApiTest {
     obj.methodWithSetParams(set("foo", "bar"), set((byte) 2, (byte) 3), set((short) 12, (short) 13),
         set(1234, 1345), set(123l, 456l), set(new JsonObject().put("foo", "bar"), new JsonObject().put("eek", "wibble")),
         set(new JsonArray().add("foo"), new JsonArray().add("blah")), set(refed1, refed2),
-        set(new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1), new TestDataObject().setFoo("String 2").setBar(2).setWibble(2.2)));
+        set(new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1), new TestDataObject().setFoo("String 2").setBar(2).setWibble(2.2)),
+        set(TestEnum.TIM, TestEnum.JULIEN));
   }
 
   @Test
@@ -1068,6 +1099,16 @@ public class ApiTest {
     assertEquals(null, ret1);
     JsonArray ret2 = obj.methodWithNullJsonArrayReturn();
     assertEquals(null, ret2);
+  }
+
+  @Test
+  public void testListEnumReturn() {
+    assertEquals(Arrays.asList(TestEnum.JULIEN, TestEnum.TIM), obj.methodWithListEnumReturn());
+  }
+
+  @Test
+  public void testsetEnumReturn() {
+    assertEquals(set(TestEnum.JULIEN, TestEnum.TIM), obj.methodWithSetEnumReturn());
   }
 
   @Test

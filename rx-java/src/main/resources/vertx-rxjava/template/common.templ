@@ -141,7 +141,7 @@ this.delegate
 	@else{param.type.kind == CLASS_LIST || param.type.kind == CLASS_SET}
 		@code{elementType=param.type.args[0]}
 		@code{elementKind=elementType.kind}
-		@if{elementKind.basic || elementKind.json || elementKind == CLASS_DATA_OBJECT}
+		@if{elementKind.basic || elementKind.json || elementKind == CLASS_DATA_OBJECT || elementKind == CLASS_ENUM}
 			@{param.name}
 		@else{}
 			@if{param.type.kind == CLASS_LIST}
@@ -193,7 +193,7 @@ this.delegate
 			@code{elementType=method.returnType.args[0]}
 			@code{elementKind=elementType.kind}
 			@code{cachedType=method.returnType.simpleName}
-			@if{elementKind.basic || elementKind.json || elementKind == CLASS_DATA_OBJECT}
+			@if{elementKind.basic || elementKind.json || elementKind == CLASS_DATA_OBJECT || elementKind == CLASS_ENUM}
 		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n;\n
 			@else{}
 		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method}.stream().map(@{elementType.simpleName}::newInstance).collect(java.util.stream.Collectors.to@{collectionName}());\n
