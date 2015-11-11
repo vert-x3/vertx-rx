@@ -172,7 +172,7 @@ this.delegate
 	@includeNamed{'startMethodTemplate';method:method} { \n
 	@if{method.fluent}
 	    @includeNamed{'invokeDelegate';method:method};\n
-			@if{method.returnType instanceof io.vertx.codegen.TypeInfo$Variable}
+			@if{method.returnType.variable}
 	    return (@{method.returnType.name}) this;\n
 			@else{}
 	    return this;\n
@@ -227,7 +227,7 @@ this.delegate
 	@code{futureParams=new java.util.ArrayList(method.params)}
 	@code{futureParam=futureParams.remove(futureParams.size()-1)}
 	@code{futureType=futureParam.type.args[0].args[0]}
-	@code{futureReturnType=new io.vertx.codegen.TypeInfo$Parameterized(io.vertx.codegen.TypeInfo.create(rx.Observable), false, java.util.Collections.singletonList(futureType))}
+	@code{futureReturnType=new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(rx.Observable), false, java.util.Collections.singletonList(futureType))}
 	@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,method.name + 'Observable',method.kind,futureReturnType,null,method.fluent,method.cacheReturn,futureParams,method.comment,method.doc,method.staticMethod,method.defaultMethod,method.typeParams)}
 	@includeNamed{'startMethodTemplate';method=futureMethod} { \n
 	    io.vertx.rx.java.ObservableFuture<@{futureType.simpleName}> @{futureParam.name} = io.vertx.rx.java.RxHelper.observableFuture();\n
