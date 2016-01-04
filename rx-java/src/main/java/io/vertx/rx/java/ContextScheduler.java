@@ -1,5 +1,7 @@
 package io.vertx.rx.java;
 
+import io.vertx.core.Context;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -21,9 +23,11 @@ public class ContextScheduler extends Scheduler {
   private final Vertx vertx;
   private final boolean blocking;
   private final RxJavaSchedulersHook schedulersHook = RxJavaPlugins.getInstance().getSchedulersHook();;
+  private final Context context;
 
   public ContextScheduler(Vertx vertx, boolean blocking) {
     this.vertx = vertx;
+    this.context = vertx.getOrCreateContext();
     this.blocking = blocking;
   }
 
@@ -88,11 +92,20 @@ public class ContextScheduler extends Scheduler {
         } else {
           id = -1;
           if (blocking) {
-            vertx.executeBlocking(future -> run(), result -> {});
+            vertx.executeBlocking(this::run, result -> {});
           } else {
-            vertx.runOnContext(v -> run());
+            context.runOnContext(this::run);
           }
         }
+      }
+
+      //Wrappers to avoid extra object creation for lambdas
+      private <T> void run(Future<T> tFuture) {
+        run();
+      }
+
+      private void run(Void aVoid) {
+        run();
       }
 
       @Override

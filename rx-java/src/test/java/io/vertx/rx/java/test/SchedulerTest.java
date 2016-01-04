@@ -1,18 +1,21 @@
 package io.vertx.rx.java.test;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import io.vertx.rx.java.ContextScheduler;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.After;
 import org.junit.Test;
+import rx.Observable;
 import rx.Scheduler;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Action0;
 import rx.plugins.RxJavaPlugins;
 import rx.plugins.RxJavaSchedulersHook;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -64,6 +67,58 @@ public class SchedulerTest extends VertxTestBase {
       testComplete();
     }, 0, TimeUnit.MILLISECONDS);
     await();
+  }
+
+  @Test
+  public void testScheduleObserveOnReturnsOnTheCorrectThread() {
+
+    AtomicReference<String> vertxThread = new AtomicReference<>();
+    AtomicReference<String> scheduleThread = new AtomicReference<>();
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    vertx.deployVerticle(new AbstractVerticle() {
+      @Override
+      public void start(Future<Void> startFuture) throws Exception {
+        Scheduler scheduler = new ContextScheduler(this.getVertx(), false);
+        vertxThread.set(Thread.currentThread()
+                              .getName());
+        OffLoader offLoader = new OffLoader(executor);
+        offLoader.callback(vertxThread.get())
+                 .observeOn(scheduler)
+                 .doOnNext(o -> scheduleThread.set(Thread.currentThread()
+                                                         .getName()))
+                 .subscribe(o -> startFuture.complete(), o -> startFuture.fail(o));
+      }
+    }, future -> {
+      if (future.succeeded()) {
+        assertEquals("Expected the thread callback on the correct Vertx Thread.", vertxThread.get(), scheduleThread.get());
+        vertx.undeploy(future.result(),o->{executor.shutdown();testComplete();});
+      } else {
+        fail("Oops");
+        testComplete();
+      }
+    });
+    await();
+  }
+
+
+  private class OffLoader {
+   private final Executor executor;
+
+    private OffLoader(Executor executor) {this.executor = executor;}
+
+
+    public Observable<String> callback(String name) {
+      return Observable.create(new Observable.OnSubscribe<String>() {
+        @Override
+        public void call(Subscriber<? super String> subscriber) {
+          executor.execute(() -> {
+            subscriber.onNext(name);
+            subscriber.onCompleted();
+          });
+        }
+      });
+    }
   }
 
   @Test
