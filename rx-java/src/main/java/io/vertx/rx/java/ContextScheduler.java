@@ -94,24 +94,31 @@ public class ContextScheduler extends Scheduler {
         this.action = action;
         this.periodMillis = periodMillis;
         if (delayMillis > 0) {
-          id = vertx.setTimer(delayMillis, this);
+          schedule(delayMillis);
         } else {
           id = -1;
-          if (blocking) {
-            vertx.executeBlocking(this::run, result -> {});
-          } else {
-            context.runOnContext(this::run);
-          }
+          bilto(null);
         }
       }
 
-      //Wrappers to avoid extra object creation for lambdas
-      private <T> void run(Future<T> tFuture) {
+      private void schedule(long delay) {
+        this.id = vertx.setTimer(delay, this::bilto);
+      }
+
+      private <T> void run(Future<T> arg) {
         run();
       }
 
-      private void run(Void aVoid) {
+      private void run(Void arg) {
         run();
+      }
+
+      private void bilto(Object o) {
+        if (blocking) {
+          vertx.executeBlocking(this::run, result -> {});
+        } else {
+          context.runOnContext(this::run);
+        }
       }
 
       @Override
@@ -124,7 +131,7 @@ public class ContextScheduler extends Scheduler {
         action.call();
         synchronized (TimedAction.this) {
           if (periodMillis > 0) {
-            this.id = vertx.setTimer(periodMillis, this);
+            schedule(periodMillis);
           }
         }
       }

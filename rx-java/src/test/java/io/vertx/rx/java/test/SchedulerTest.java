@@ -94,6 +94,28 @@ public class SchedulerTest extends VertxTestBase {
     await();
   }
 
+  @Test
+  public void testScheduleWithDelayObserveOnReturnsOnTheCorrectThread() {
+    Context testContext = vertx.getOrCreateContext();
+    testContext.runOnContext(v -> {
+      Scheduler scheduler = new ContextScheduler(vertx, false);
+      Observable<String> observable = Observable.create(new Observable.OnSubscribe<String>() {
+        @Override
+        public void call(Subscriber<? super String> subscriber) {
+          assertFalse(Context.isOnVertxThread());
+          subscriber.onNext("expected");
+          subscriber.onCompleted();
+        }
+      }).delay(10, TimeUnit.MILLISECONDS, scheduler).doOnNext(o -> assertEquals(Vertx.currentContext(), testContext));
+      new Thread(() -> {
+        observable.subscribe(
+            item -> assertEquals("expected", item),
+            this::fail,
+            this::testComplete);
+      }).start();
+    });
+    await();
+  }
 
   @Test
   public void testScheduleDelayed() {
