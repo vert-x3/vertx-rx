@@ -25,6 +25,16 @@ public class RxHelper {
   }
 
   /**
+   * Create a scheduler hook for a {@link io.vertx.rxjava.core.Context} object.
+   *
+   * @param context the context object
+   * @return the scheduler hook
+   */
+  public static RxJavaSchedulersHook schedulerHook(Context context) {
+    return io.vertx.rx.java.RxHelper.schedulerHook(context.delegate);
+  }
+
+  /**
    * Create a scheduler for a {@link Vertx} object, actions are executed on the event loop of the current context.
    *
    * @param vertx the vertx object
