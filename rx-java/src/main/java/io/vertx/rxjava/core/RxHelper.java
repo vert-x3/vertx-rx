@@ -25,13 +25,23 @@ public class RxHelper {
   }
 
   /**
-   * Create a scheduler for a {@link Vertx} object, actions are executed on the event loop.
+   * Create a scheduler for a {@link Vertx} object, actions are executed on the event loop of the current context.
    *
    * @param vertx the vertx object
    * @return the scheduler
    */
   public static Scheduler scheduler(Vertx vertx) {
     return new ContextScheduler(vertx.delegate, false);
+  }
+
+  /**
+   * Create a scheduler for a {@link Context}, actions are executed on the event loop of this context.
+   *
+   * @param context the context object
+   * @return the scheduler
+   */
+  public static Scheduler scheduler(Context context) {
+    return new ContextScheduler(context.delegate, false);
   }
 
   /**
@@ -42,7 +52,7 @@ public class RxHelper {
    * @return the scheduler
    */
   public static Scheduler blockingScheduler(Vertx vertx) {
-    return new ContextScheduler(vertx.delegate, true);
+    return new ContextScheduler(vertx.delegate.getOrCreateContext(), true);
   }
 
   /**

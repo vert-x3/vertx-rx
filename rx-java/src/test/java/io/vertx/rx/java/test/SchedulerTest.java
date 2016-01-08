@@ -1,7 +1,9 @@
 package io.vertx.rx.java.test;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Context;
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 import io.vertx.rx.java.ContextScheduler;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.After;
@@ -71,55 +73,27 @@ public class SchedulerTest extends VertxTestBase {
 
   @Test
   public void testScheduleObserveOnReturnsOnTheCorrectThread() {
-
-    AtomicReference<String> vertxThread = new AtomicReference<>();
-    AtomicReference<String> scheduleThread = new AtomicReference<>();
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    vertx.deployVerticle(new AbstractVerticle() {
-      @Override
-      public void start(Future<Void> startFuture) throws Exception {
-        Scheduler scheduler = new ContextScheduler(this.getVertx(), false);
-        vertxThread.set(Thread.currentThread()
-                              .getName());
-        OffLoader offLoader = new OffLoader(executor);
-        offLoader.callback(vertxThread.get())
-                 .observeOn(scheduler)
-                 .doOnNext(o -> scheduleThread.set(Thread.currentThread()
-                                                         .getName()))
-                 .subscribe(o -> startFuture.complete(), o -> startFuture.fail(o));
-      }
-    }, future -> {
-      if (future.succeeded()) {
-        assertEquals("Expected the thread callback on the correct Vertx Thread.", vertxThread.get(), scheduleThread.get());
-        vertx.undeploy(future.result(),o->{executor.shutdown();testComplete();});
-      } else {
-        fail("Oops");
-        testComplete();
-      }
+    Context testContext = vertx.getOrCreateContext();
+    testContext.runOnContext(v -> {
+      Scheduler scheduler = new ContextScheduler(vertx, false);
+      Observable<String> observable = Observable.create(new Observable.OnSubscribe<String>() {
+        @Override
+        public void call(Subscriber<? super String> subscriber) {
+          assertFalse(Context.isOnVertxThread());
+          subscriber.onNext("expected");
+          subscriber.onCompleted();
+        }
+      }).observeOn(scheduler).doOnNext(o -> assertEquals(Vertx.currentContext(), testContext));
+      new Thread(() -> {
+        observable.subscribe(
+            item -> assertEquals("expected", item),
+            this::fail,
+            this::testComplete);
+      }).start();
     });
     await();
   }
 
-
-  private class OffLoader {
-   private final Executor executor;
-
-    private OffLoader(Executor executor) {this.executor = executor;}
-
-
-    public Observable<String> callback(String name) {
-      return Observable.create(new Observable.OnSubscribe<String>() {
-        @Override
-        public void call(Subscriber<? super String> subscriber) {
-          executor.execute(() -> {
-            subscriber.onNext(name);
-            subscriber.onCompleted();
-          });
-        }
-      });
-    }
-  }
 
   @Test
   public void testScheduleDelayed() {

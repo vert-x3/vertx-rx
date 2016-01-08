@@ -25,6 +25,12 @@ public class ContextScheduler extends Scheduler {
   private final RxJavaSchedulersHook schedulersHook = RxJavaPlugins.getInstance().getSchedulersHook();;
   private final Context context;
 
+  public ContextScheduler(Context context, boolean blocking) {
+    this.vertx = context.owner();
+    this.context = context;
+    this.blocking = blocking;
+  }
+
   public ContextScheduler(Vertx vertx, boolean blocking) {
     this.vertx = vertx;
     this.context = vertx.getOrCreateContext();
