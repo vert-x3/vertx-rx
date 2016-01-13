@@ -1,5 +1,6 @@
 package io.vertx.rx.java;
 
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -19,6 +20,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class ContextScheduler extends Scheduler {
+
+  private static final Handler<AsyncResult<Object>> NOOP = result -> {};
 
   private final Vertx vertx;
   private final boolean blocking;
@@ -115,7 +118,7 @@ public class ContextScheduler extends Scheduler {
 
       private void bilto(Object o) {
         if (blocking) {
-          vertx.executeBlocking(this::run, result -> {});
+          vertx.executeBlocking(this::run, NOOP);
         } else {
           context.runOnContext(this::run);
         }
