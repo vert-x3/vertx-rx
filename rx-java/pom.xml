@@ -109,6 +109,9 @@
                 <excludes>
                   <exclude>io/vertx/core/**</exclude>
                 </excludes>
+                <archive>
+                  <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                </archive>
               </configuration>
             </execution>
           </executions>
@@ -258,6 +261,19 @@
               </descriptors>
             </configuration>
           </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>biz.aQute.bnd</groupId>
+        <artifactId>bnd-maven-plugin</artifactId>
+        <version>3.0.0</version>
+
+        <executions>
+            <execution>
+                <goals>
+                    <goal>bnd-process</goal>
+                </goals>
+            </execution>
         </executions>
       </plugin>
     </plugins>
