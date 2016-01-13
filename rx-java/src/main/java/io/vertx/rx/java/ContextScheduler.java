@@ -85,7 +85,7 @@ public class ContextScheduler extends Scheduler {
       return cancelled.get();
     }
 
-    class TimedAction implements Subscription, Handler<Long>, Runnable {
+    class TimedAction implements Subscription, Runnable {
 
       private long id;
       private final Action0 action;
@@ -100,28 +100,24 @@ public class ContextScheduler extends Scheduler {
           schedule(delayMillis);
         } else {
           id = -1;
-          bilto(null);
+          execute(null);
         }
       }
 
       private void schedule(long delay) {
-        this.id = vertx.setTimer(delay, this::bilto);
+        this.id = vertx.setTimer(delay, this::execute);
       }
 
-      private <T> void run(Future<T> arg) {
-        run();
-      }
-
-      private void run(Void arg) {
-        run();
-      }
-
-      private void bilto(Object o) {
+      private void execute(Object o) {
         if (blocking) {
           vertx.executeBlocking(this::run, NOOP);
         } else {
           context.runOnContext(this::run);
         }
+      }
+
+      private void run(Object arg) {
+        run();
       }
 
       @Override
@@ -136,15 +132,6 @@ public class ContextScheduler extends Scheduler {
           if (periodMillis > 0) {
             schedule(periodMillis);
           }
-        }
-      }
-
-      @Override
-      public void handle(Long id) {
-        if (blocking) {
-          vertx.executeBlocking(future -> run(), result -> {});
-        } else {
-          run();
         }
       }
 
