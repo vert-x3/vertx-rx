@@ -306,7 +306,7 @@
  *
  * === Websocket server
  *
- * The {@link io.vertx.rxjava.core.http.HttpServer#websocketStream()` provides a callback for each incoming
+ * The {@link io.vertx.rxjava.core.http.HttpServer#websocketStream()} provides a callback for each incoming
  * connection:
  *
  * [source,java]
