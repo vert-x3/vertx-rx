@@ -4,6 +4,9 @@ import io.vertx.codegen.testmodel.RefedInterface1Impl;
 import io.vertx.codegen.testmodel.TestDataObject;
 import io.vertx.codegen.testmodel.TestEnum;
 import io.vertx.codegen.testmodel.TestInterfaceImpl;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.VertxException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -220,6 +223,62 @@ public class ApiTest {
       checker.assertAsyncFailure("foobar!", result);
     });
     assertEquals(2, checker.count);
+  }
+
+  @Test
+  public void testMethodWithHandlerStringReturn() {
+    Handler<String> handler = obj.methodWithHandlerStringReturn("the-result");
+    handler.handle("the-result");
+    boolean failed = false;
+    try {
+      handler.handle("not-expected");
+    }  catch (Throwable ignore) {
+      failed = true;
+    }
+    assertTrue(failed);
+  }
+
+  @Test
+  public void testMethodWithHandlerGenericReturn() {
+    AtomicReference<Object> result = new AtomicReference<>();
+    obj.<String>methodWithHandlerGenericReturn(result::set).handle("the-result");
+    assertEquals("the-result", result.get());
+    obj.<TestInterface>methodWithHandlerGenericReturn(result::set).handle(obj);
+    assertEquals(obj, result.get());
+  }
+
+  @Test
+  public void testMethodWithHandlerAsyncResultStringReturn() {
+    Handler<AsyncResult<String>> succeedingHandler = obj.methodWithHandlerAsyncResultStringReturn("the-result", false);
+    succeedingHandler.handle(Future.succeededFuture("the-result"));
+    boolean failed = false;
+    try {
+      succeedingHandler.handle(Future.succeededFuture("not-expected"));
+    }  catch (Throwable ignore) {
+      failed = true;
+    }
+    assertTrue(failed);
+    Handler<AsyncResult<String>> failingHandler = obj.methodWithHandlerAsyncResultStringReturn("an-error", true);
+    failingHandler.handle(Future.failedFuture("an-error"));
+    failed = false;
+    try {
+      failingHandler.handle(Future.succeededFuture("whatever"));
+    } catch (Throwable ignore) {
+      failed = true;
+    }
+    assertTrue(failed);
+  }
+
+  @Test
+  public void testMethodWithHandlerAsyncResultGenericReturn() {
+    AtomicReference<Object> result = new AtomicReference<>();
+    Handler<AsyncResult<Object>> succeedingHandler = obj.methodWithHandlerAsyncResultGenericReturn(ar -> {
+        result.set(ar.succeeded() ? ar.result() : ar.cause());
+    });
+    succeedingHandler.handle(Future.succeededFuture("the-result"));
+    assertEquals("the-result", result.get());
+    succeedingHandler.handle(Future.succeededFuture(obj));
+    assertEquals(obj, result.get());
   }
 
   @Test
