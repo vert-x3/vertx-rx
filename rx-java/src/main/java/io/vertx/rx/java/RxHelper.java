@@ -1,6 +1,7 @@
 package io.vertx.rx.java;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -172,6 +173,16 @@ public class RxHelper {
   }
 
   /**
+   * Create a scheduler for a {@link Context}, actions are executed on the event loop of this context.
+   *
+   * @param context the context object
+   * @return the scheduler
+   */
+  public static Scheduler scheduler(Context context) {
+    return new ContextScheduler(context, false);
+  }
+
+  /**
    * Create a scheduler for a {@link Vertx} object, actions can be blocking, they are not executed
    * on Vertx event loop.
    *
@@ -180,6 +191,30 @@ public class RxHelper {
    */
   public static Scheduler blockingScheduler(Vertx vertx) {
     return new ContextScheduler(vertx, true);
+  }
+
+  /**
+   * Create a scheduler hook for a {@link Context} object, the {@link rx.plugins.RxJavaSchedulersHook#getIOScheduler()}
+   * uses a blocking scheduler.
+   *
+   * @param context the context object
+   * @return the scheduler hook
+   */
+  public static RxJavaSchedulersHook schedulerHook(Context context) {
+    return new RxJavaSchedulersHook() {
+      @Override
+      public Scheduler getComputationScheduler() {
+        return scheduler(context);
+      }
+      @Override
+      public Scheduler getIOScheduler() {
+        return blockingScheduler(context.owner());
+      }
+      @Override
+      public Scheduler getNewThreadScheduler() {
+        return scheduler(context);
+      }
+    };
   }
 
   /**

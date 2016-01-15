@@ -1,18 +1,23 @@
 package io.vertx.rx.java.test;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Context;
+import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 import io.vertx.rx.java.ContextScheduler;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.After;
 import org.junit.Test;
+import rx.Observable;
 import rx.Scheduler;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Action0;
 import rx.plugins.RxJavaPlugins;
 import rx.plugins.RxJavaSchedulersHook;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -63,6 +68,52 @@ public class SchedulerTest extends VertxTestBase {
       }
       testComplete();
     }, 0, TimeUnit.MILLISECONDS);
+    await();
+  }
+
+  @Test
+  public void testScheduleObserveOnReturnsOnTheCorrectThread() {
+    Context testContext = vertx.getOrCreateContext();
+    testContext.runOnContext(v -> {
+      Scheduler scheduler = new ContextScheduler(vertx, false);
+      Observable<String> observable = Observable.create(new Observable.OnSubscribe<String>() {
+        @Override
+        public void call(Subscriber<? super String> subscriber) {
+          assertFalse(Context.isOnVertxThread());
+          subscriber.onNext("expected");
+          subscriber.onCompleted();
+        }
+      }).observeOn(scheduler).doOnNext(o -> assertEquals(Vertx.currentContext(), testContext));
+      new Thread(() -> {
+        observable.subscribe(
+            item -> assertEquals("expected", item),
+            this::fail,
+            this::testComplete);
+      }).start();
+    });
+    await();
+  }
+
+  @Test
+  public void testScheduleWithDelayObserveOnReturnsOnTheCorrectThread() {
+    Context testContext = vertx.getOrCreateContext();
+    testContext.runOnContext(v -> {
+      Scheduler scheduler = new ContextScheduler(vertx, false);
+      Observable<String> observable = Observable.create(new Observable.OnSubscribe<String>() {
+        @Override
+        public void call(Subscriber<? super String> subscriber) {
+          assertFalse(Context.isOnVertxThread());
+          subscriber.onNext("expected");
+          subscriber.onCompleted();
+        }
+      }).delay(10, TimeUnit.MILLISECONDS, scheduler).doOnNext(o -> assertEquals(Vertx.currentContext(), testContext));
+      new Thread(() -> {
+        observable.subscribe(
+            item -> assertEquals("expected", item),
+            this::fail,
+            this::testComplete);
+      }).start();
+    });
     await();
   }
 

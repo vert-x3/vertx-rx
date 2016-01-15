@@ -1,5 +1,6 @@
 package io.vertx.rx.groovy;
 
+import io.vertx.groovy.core.Context;
 import io.vertx.groovy.core.Vertx;
 import io.vertx.groovy.core.buffer.Buffer;
 import io.vertx.rx.java.UnmarshallerOperator;
@@ -19,6 +20,16 @@ public class RxHelper {
    */
   public static RxJavaSchedulersHook schedulerHook(Vertx vertx) {
     return io.vertx.rx.java.RxHelper.schedulerHook((io.vertx.core.Vertx) vertx.getDelegate());
+  }
+
+  /**
+   * Create a scheduler hook for a {@link io.vertx.groovy.core.Vertx} object
+
+   * @param context the vertx object
+   * @return the scheduler hook
+   */
+  public static RxJavaSchedulersHook schedulerHook(Context context) {
+    return io.vertx.rx.java.RxHelper.schedulerHook((io.vertx.core.Context) context.getDelegate());
   }
 
   /**

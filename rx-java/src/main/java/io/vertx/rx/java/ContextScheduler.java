@@ -1,5 +1,8 @@
 package io.vertx.rx.java;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Context;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -18,12 +21,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class ContextScheduler extends Scheduler {
 
+  private static final Handler<AsyncResult<Object>> NOOP = result -> {};
+
   private final Vertx vertx;
   private final boolean blocking;
   private final RxJavaSchedulersHook schedulersHook = RxJavaPlugins.getInstance().getSchedulersHook();;
+  private final Context context;
+
+  public ContextScheduler(Context context, boolean blocking) {
+    this.vertx = context.owner();
+    this.context = context;
+    this.blocking = blocking;
+  }
 
   public ContextScheduler(Vertx vertx, boolean blocking) {
     this.vertx = vertx;
+    this.context = vertx.getOrCreateContext();
     this.blocking = blocking;
   }
 
@@ -72,7 +85,7 @@ public class ContextScheduler extends Scheduler {
       return cancelled.get();
     }
 
-    class TimedAction implements Subscription, Handler<Long>, Runnable {
+    class TimedAction implements Subscription, Runnable {
 
       private long id;
       private final Action0 action;
@@ -84,15 +97,27 @@ public class ContextScheduler extends Scheduler {
         this.action = action;
         this.periodMillis = periodMillis;
         if (delayMillis > 0) {
-          id = vertx.setTimer(delayMillis, this);
+          schedule(delayMillis);
         } else {
           id = -1;
-          if (blocking) {
-            vertx.executeBlocking(future -> run(), result -> {});
-          } else {
-            vertx.runOnContext(v -> run());
-          }
+          execute(null);
         }
+      }
+
+      private void schedule(long delay) {
+        this.id = vertx.setTimer(delay, this::execute);
+      }
+
+      private void execute(Object o) {
+        if (blocking) {
+          vertx.executeBlocking(this::run, NOOP);
+        } else {
+          context.runOnContext(this::run);
+        }
+      }
+
+      private void run(Object arg) {
+        run();
       }
 
       @Override
@@ -105,17 +130,8 @@ public class ContextScheduler extends Scheduler {
         action.call();
         synchronized (TimedAction.this) {
           if (periodMillis > 0) {
-            this.id = vertx.setTimer(periodMillis, this);
+            schedule(periodMillis);
           }
-        }
-      }
-
-      @Override
-      public void handle(Long id) {
-        if (blocking) {
-          vertx.executeBlocking(future -> run(), result -> {});
-        } else {
-          run();
         }
       }
 
