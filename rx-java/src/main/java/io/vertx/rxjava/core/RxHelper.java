@@ -1,8 +1,12 @@
 package io.vertx.rxjava.core;
 
+import io.vertx.core.http.HttpMethod;
 import io.vertx.rx.java.ContextScheduler;
 import io.vertx.rx.java.UnmarshallerOperator;
 import io.vertx.rxjava.core.buffer.Buffer;
+import io.vertx.rxjava.core.http.HttpClient;
+import io.vertx.rxjava.core.http.HttpClientRequest;
+import io.vertx.rxjava.core.http.HttpClientResponse;
 import rx.Observable;
 import rx.Scheduler;
 import rx.plugins.RxJavaSchedulersHook;
@@ -85,5 +89,65 @@ public class RxHelper {
         return ((io.vertx.core.buffer.Buffer) buffer.getDelegate());
       }
     };
+  }
+
+  /**
+   * @see #get(HttpClient, int, String, String, MultiMap)
+   */
+  public static Observable<HttpClientResponse> get(HttpClient client, String requestURI) {
+    return Observable.create(subscriber -> {
+      HttpClientRequest req = client.get(requestURI);
+      Observable<HttpClientResponse> resp = req.toObservable();
+      resp.subscribe(subscriber);
+      req.end();
+    });
+  }
+
+  /**
+   * @see #get(HttpClient, int, String, String, MultiMap)
+   */
+  public static Observable<HttpClientResponse> get(HttpClient client, String host, String requestURI) {
+    return Observable.create(subscriber -> {
+      HttpClientRequest req = client.get(host, requestURI);
+      Observable<HttpClientResponse> resp = req.toObservable();
+      resp.subscribe(subscriber);
+      req.end();
+    });
+  }
+
+  /**
+   * @see #get(HttpClient, int, String, String, MultiMap)
+   */
+  public static Observable<HttpClientResponse> get(HttpClient client, int port, String host, String requestURI) {
+    return Observable.create(subscriber -> {
+      HttpClientRequest req = client.get(port, host, requestURI);
+      Observable<HttpClientResponse> resp = req.toObservable();
+      resp.subscribe(subscriber);
+      req.end();
+    });
+  }
+
+  /**
+   * Returns an {@code Observable<HttpClientResponse>} that performs a <i>get</i> request each time it is subscribed. The
+   * returned observable can be used to consume the response.<p>
+   *
+   * This is different from the {@link HttpClientRequest#toObservable()} that should be subscribed before the request is ended
+   * and should be consumed immediatly and once.
+   *
+   * @param client the http client
+   * @param port the remote port
+   * @param host the remote host
+   * @param requestURI the request URI
+   * @param headers the request headers
+   * @return the response observable
+   */
+  public static Observable<HttpClientResponse> get(HttpClient client, int port, String host, String requestURI, MultiMap headers) {
+    return Observable.create(subscriber -> {
+      HttpClientRequest req = client.get(port, host, requestURI);
+      req.headers().addAll(headers);
+      Observable<HttpClientResponse> resp = req.toObservable();
+      resp.subscribe(subscriber);
+      req.end();
+    });
   }
 }

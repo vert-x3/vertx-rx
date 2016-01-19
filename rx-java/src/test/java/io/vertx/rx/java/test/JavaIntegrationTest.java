@@ -31,11 +31,14 @@ import rx.Subscriber;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -642,6 +645,34 @@ public class JavaIntegrationTest extends VertxTestBase {
             testComplete();
           });
     });
+    await();
+  }
+
+  @Test
+  public void testGetHelper() throws Exception {
+    CountDownLatch listenLatch = new CountDownLatch(1);
+    HttpServer server = vertx.createHttpServer();
+    AtomicInteger count = new AtomicInteger();
+    server.requestHandler(req -> {
+      req.response().end(Buffer.buffer("request=" + count.getAndIncrement()));
+    }).listen(8080, onSuccess(s -> {
+      listenLatch.countDown();
+    }));
+    awaitLatch(listenLatch);
+    HttpClient client = vertx.createHttpClient();
+    Observable<HttpClientResponse> obs = io.vertx.rxjava.core.RxHelper.get(client, 8080, "localhost", "/foo");
+    List<Buffer> bodies = Collections.synchronizedList(new ArrayList<>());
+    CountDownLatch reqLatch = new CountDownLatch(1);
+    obs.subscribe(resp -> {
+      resp.toObservable().subscribe(bodies::add, this::fail, reqLatch::countDown);
+    }, this::fail);
+    awaitLatch(reqLatch);
+    obs.subscribe(resp -> {
+      resp.toObservable().subscribe(bodies::add, this::fail, () -> {
+        assertEquals(Arrays.asList("request=0", "request=1"), bodies.stream().map(Buffer::toString).collect(Collectors.toList()));
+        testComplete();
+      });
+    }, this::fail);
     await();
   }
 }
