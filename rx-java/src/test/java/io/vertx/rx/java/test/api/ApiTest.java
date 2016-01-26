@@ -248,6 +248,11 @@ public class ApiTest {
   }
 
   @Test
+  public void testMethodWithHandlerVertxGenReturn() {
+    obj.<String>methodWithHandlerVertxGenReturn("the-gen-result").handle(new RefedInterface1(new RefedInterface1Impl().setString("the-gen-result")));
+  }
+
+  @Test
   public void testMethodWithHandlerAsyncResultStringReturn() {
     Handler<AsyncResult<String>> succeedingHandler = obj.methodWithHandlerAsyncResultStringReturn("the-result", false);
     succeedingHandler.handle(Future.succeededFuture("the-result"));
@@ -279,6 +284,12 @@ public class ApiTest {
     assertEquals("the-result", result.get());
     succeedingHandler.handle(Future.succeededFuture(obj));
     assertEquals(obj, result.get());
+  }
+
+  @Test
+  public void testMethodWithHandlerAsyncResultVertxGenReturn() {
+    obj.<String>methodWithHandlerAsyncResultVertxGenReturn("the-gen-result", false).handle(Future.succeededFuture(new RefedInterface1(new RefedInterface1Impl().setString("the-gen-result"))));
+    obj.<String>methodWithHandlerAsyncResultVertxGenReturn("it-failed-dude", true).handle(Future.failedFuture(new Exception("it-failed-dude")));
   }
 
   @Test

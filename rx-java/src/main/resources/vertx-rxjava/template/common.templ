@@ -206,6 +206,24 @@ this.delegate
 		@else{method.returnType.kind == CLASS_API}
 			@code{cachedType=method.returnType.simpleName}
 		    @{method.returnType.simpleName} ret= @{method.returnType.raw.simpleName}.newInstance(@includeNamed{'invokeDelegate';method:method});\n
+		@else{method.returnType.kind == CLASS_HANDLER}
+			@if{method.returnType.args[0].kind == CLASS_ASYNC_RESULT}
+				@code{cachedType=method.returnType.simpleName}
+		    @{method.returnType.name} handlerDelegate = @includeNamed{'invokeDelegate';method:method};\n
+		    @{method.returnType.simpleName} ret = ar -> {\n
+		      if (ar.succeeded()) {\n
+		        handlerDelegate.handle(InternalHelper.result(@includeNamed{'paramArgument';param=new io.vertx.codegen.ParamInfo(0, 'ar.result()', null, method.returnType.args[0].args[0])}));\n
+		      } else {\n
+		        handlerDelegate.handle(InternalHelper.failure(ar.cause()));\n
+		      }\n
+		    };\n
+			@else{}
+				@code{cachedType=method.returnType.simpleName}
+		    @{method.returnType.name} handlerDelegate = @includeNamed{'invokeDelegate';method:method};\n
+		    @{method.returnType.simpleName} ret = event -> {\n
+		      handlerDelegate.handle(@includeNamed{'paramArgument';param=new io.vertx.codegen.ParamInfo(0, 'event', null, method.returnType.args[0])});\n
+		    };\n
+			@end{}
 		@else{}
 			@if{method.returnType.kind == CLASS_PRIMITIVE}
 				@code{cachedType=method.returnType.boxed.name}
