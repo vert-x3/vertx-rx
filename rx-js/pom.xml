@@ -39,7 +39,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.12</version>
       <scope>test</scope>
     </dependency>
 
@@ -59,7 +59,7 @@
       <plugin>
         <groupId>com.phasebash.jsdoc</groupId>
         <artifactId>jsdoc3-maven-plugin</artifactId>
-        <version>1.1.0</version>
+        <version>1.2.0</version>
         <executions>
           <execution>
             <phase>package</phase>

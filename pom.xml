@@ -7,7 +7,7 @@
   <parent>
     <groupId>io.vertx</groupId>
     <artifactId>vertx-parent</artifactId>
-    <version>8</version>
+    <version>9</version>
   </parent>
 
   <artifactId>vertx-rx</artifactId>
@@ -32,12 +32,12 @@
       <dependency>
         <groupId>io.reactivex</groupId>
         <artifactId>rxjava</artifactId>
-        <version>1.0.14</version>
+        <version>1.1.1</version>
       </dependency>
       <dependency>
         <groupId>io.reactivex</groupId>
         <artifactId>rxgroovy</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.3</version>
       </dependency>
       <dependency>
         <groupId>io.vertx</groupId>
@@ -56,7 +56,6 @@
         <plugin>
           <groupId>org.asciidoctor</groupId>
           <artifactId>asciidoctor-maven-plugin</artifactId>
-          <version>1.5.2</version>
           <executions>
             <execution>
               <id>process-asciidoc</id>
@@ -64,14 +63,6 @@
                 <goal>process-asciidoc</goal>
               </goals>
               <phase>package</phase>
-              <configuration>
-                <sourceDirectory>${asciidoc.dir}</sourceDirectory>
-                <outputDirectory>${project.build.directory}/docs/vertx-rx/</outputDirectory>
-                <backend>html</backend>
-                <doctype>book</doctype>
-                <preserveDirectories>true</preserveDirectories>
-                <sourceHighlighter>prettify</sourceHighlighter>                
-              </configuration>
             </execution>
           </executions>
         </plugin>
@@ -102,7 +93,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>properties-maven-plugin</artifactId>
-        <version>1.0-alpha-2</version>
+        <version>1.0.0</version>
         <executions>
           <execution>
             <goals>
