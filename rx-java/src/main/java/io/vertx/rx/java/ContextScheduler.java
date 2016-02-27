@@ -25,6 +25,7 @@ public class ContextScheduler extends Scheduler {
 
   private final Vertx vertx;
   private final boolean blocking;
+  private final boolean ordered;
   private final RxJavaSchedulersHook schedulersHook = RxJavaPlugins.getInstance().getSchedulersHook();;
   private final Context context;
 
@@ -40,6 +41,13 @@ public class ContextScheduler extends Scheduler {
     this.blocking = blocking;
   }
 
+  public ContextScheduler(Vertx vertx, boolean blocking, boolean ordered) {
+    this.vertx = vertx;
+    this.context = vertx.getOrCreateContext();
+    this.blocking = blocking;
+    this.ordered = ordered;
+  }
+  
   @Override
   public Worker createWorker() {
     return new WorkerImpl();
@@ -110,7 +118,7 @@ public class ContextScheduler extends Scheduler {
 
       private void execute(Object o) {
         if (blocking) {
-          vertx.executeBlocking(this::run, NOOP);
+          vertx.executeBlocking(this::run, ordered, NOOP);
         } else {
           context.runOnContext(this::run);
         }
