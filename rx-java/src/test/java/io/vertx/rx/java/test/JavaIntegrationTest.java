@@ -5,6 +5,7 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServerOptions;
+import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.rxjava.core.Context;
 import io.vertx.rxjava.core.Vertx;
 import io.vertx.rxjava.core.buffer.Buffer;
@@ -674,5 +675,21 @@ public class JavaIntegrationTest extends VertxTestBase {
       });
     }, this::fail);
     await();
+  }
+
+  @Test
+  public void testDeployVerticle() throws Exception {
+    CountDownLatch deployLatch = new CountDownLatch(2);
+    io.vertx.rxjava.core.RxHelper.deployVerticle(vertx, new AbstractVerticle() {
+      @Override
+      public void start() {
+        System.out.println("HEY");
+        deployLatch.countDown();
+      }
+    }).subscribe(resp -> {
+      System.out.println("HEYHEY");
+      deployLatch.countDown();
+    });
+    awaitLatch(deployLatch);
   }
 }
