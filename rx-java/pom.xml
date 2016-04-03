@@ -105,6 +105,59 @@
     </pluginManagement>
     <plugins>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <useDefaultManifestFile>true</useDefaultManifestFile>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>biz.aQute.bnd</groupId>
+        <artifactId>bnd-maven-plugin</artifactId>
+        <version>3.2.0-SNAPSHOT</version>
+
+        <executions>
+          <execution>
+            <id>default-bnd-process</id>
+            <goals>
+              <goal>bnd-process</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <bnd><![CDATA[
+          Import-Package: \
+              io.vertx.codegen.annotations;resolution:=optional,\
+              io.vertx.core,\
+              io.vertx.core.buffer,\
+              io.vertx.core.cli,\
+              io.vertx.core.cli.annotations,\
+              io.vertx.core.cli.converters,\
+              io.vertx.core.datagram,\
+              io.vertx.core.dns,\
+              io.vertx.core.eventbus,\
+              io.vertx.core.file,\
+              io.vertx.core.http,\
+              io.vertx.core.json,\
+              io.vertx.core.logging,\
+              io.vertx.core.metrics,\
+              io.vertx.core.net,\
+              io.vertx.core.parsetools,\
+              io.vertx.core.shareddata,\
+              io.vertx.core.spi,\
+              io.vertx.core.spi.cluster,\
+              io.vertx.core.spi.launcher,\
+              io.vertx.core.spi.logging,\
+              io.vertx.core.spi.metrics,\
+              io.vertx.core.streams,\
+              *
+           -exportcontents: !*impl,!examples,!io.vertx.core.*, *
+          ]]></bnd>
+        </configuration>
+      </plugin>
+
       <!-- Configure the execution of the compiler to execute the codegen processor -->
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
