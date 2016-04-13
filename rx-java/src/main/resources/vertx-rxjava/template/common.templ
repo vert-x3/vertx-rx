@@ -30,6 +30,114 @@
     }
     return "{@link " + rawType.name + "}";
   }
+
+  function genInvokeDelegate(method) {
+    var ret = '';
+    if (method.staticMethod) {
+      ret = helper.getNonGenericType(ifaceFQCN);
+    } else {
+      if (method.ownerTypes.size() > 1) {
+        /* Work around for https://jira.codehaus.org/browse/GROOVY-6970 */
+        ret = '((' + method.ownerTypes.iterator().next().name + ') delegate)';
+      } else {
+        ret = 'delegate';
+      }
+    }
+    ret += '.' + method.name + '(';
+    var index = 0;
+    for (param : method.params) {
+      if (index > 0) {
+        ret += ', ';
+      }
+      ret += genConvParam(param.type, param.name);
+      index = index + 1;
+    }
+    ret += ')';
+    return ret;
+  }
+
+  function isSameType(type) {
+    var kind = type.kind;
+    if (kind.basic || kind.json || kind == CLASS_OBJECT || kind == CLASS_DATA_OBJECT || kind == CLASS_ENUM || kind == CLASS_OTHER || kind == CLASS_THROWABLE) {
+      return true;
+    } else if (kind == CLASS_LIST || kind == CLASS_SET) {
+      return isSameType(type.args[0]);
+    } else if (kind == CLASS_MAP) {
+      return isSameType(type.args[1]);
+    }
+    return false;
+  }
+
+  function genConvParam(type, expr) {
+    var kind = type.kind;
+    if (isSameType(type)) {
+      return expr;
+    } else if (kind == CLASS_HANDLER) {
+      var eventType = type.args[0];
+      if (isSameType(eventType)) {
+        return expr;
+      }
+      var eventKind = eventType.kind;
+      if (eventKind == CLASS_ASYNC_RESULT) {
+        var resultType = eventType.args[0];
+        return 'new Handler<AsyncResult<' + resultType.name + '>>() {\n' +
+               '      public void handle(AsyncResult<' + resultType.name + '> ar) {\n' +
+               '        if (ar.succeeded()) {\n' +
+               '          ' + expr + '.handle(io.vertx.core.Future.succeededFuture(' + genConvReturn(resultType, 'ar.result()') + '));\n' +
+               '        } else {\n' +
+               '          ' + expr + '.handle(io.vertx.core.Future.failedFuture(ar.cause()));\n' +
+               '        }\n' +
+               '      }\n' +
+               '    }';
+      } else {
+        return 'new Handler<' + eventType.name + '>() {\n' +
+               '      public void handle(' + eventType.name + ' event) {\n' +
+               '        ' + expr + '.handle(' + genConvReturn(eventType, 'event') + ');\n' +
+               '      }\n' +
+               '    }';
+      }
+    } else if (kind == CLASS_API) {
+      return '(' + type.name + ')' + expr + '.getDelegate()';
+    } else if (kind == CLASS_LIST || kind == CLASS_SET) {
+      return expr + '.stream().map(elt -> ' + genConvParam(type.args[0], 'elt') + ').collect(java.util.stream.Collectors.to' + type.raw.simpleName + '())';
+    } else if (kind == CLASS_MAP) {
+      return expr + '.entrySet().stream().collect(java.util.stream.Collectors.toMap(e -> e.getKey(), e -> ' + genConvParam(type.args[1], 'e.getValue()') + '))';
+    }
+    return 'null';
+  }
+
+  function genConvReturn(type, expr) {
+    if (type.kind == CLASS_OBJECT) {
+      return '(' + type.simpleName + ') ' + expr;
+    } else if (isSameType(type)) {
+      return expr;
+    } else if (type.kind == CLASS_API) {
+      return type.raw.simpleName + '.newInstance(' + expr + ')';
+    } else if (type.kind == CLASS_HANDLER) {
+      var abc = type.args[0];
+      if (abc.kind == CLASS_ASYNC_RESULT) {
+        var tutu = abc.args[0];
+        return 'new Handler<AsyncResult<' + tutu.simpleName + '>>() {\n' +
+               '      public void handle(AsyncResult<' + tutu.simpleName + '> ar) {\n' +
+               '        if (ar.succeeded()) {\n' +
+               '          ' + expr + '.handle(io.vertx.core.Future.succeededFuture(' + genConvParam(tutu, 'ar.result()') + '));\n' +
+               '        } else {\n' +
+               '          ' + expr + '.handle(io.vertx.core.Future.failedFuture(ar.cause()));\n' +
+               '        }\n' +
+               '      }\n' +
+               '    }';
+      } else {
+        return 'new Handler<' + abc.simpleName + '>() {\n' +
+               '      public void handle(' + abc.simpleName + ' event) {\n' +
+               '          ' + expr + '.handle(' + genConvParam(abc, 'event') + ');\n' +
+               '      }\n' +
+               '    }';
+      }
+    } else if (type.kind == CLASS_LIST || type.kind == CLASS_SET) {
+      return expr + '.stream().map(elt -> ' + genConvReturn(type.args[0], 'elt') + ').collect(java.util.stream.Collectors.to' + type.raw.simpleName + '())';
+    }
+    return expr;
+  }
 }
 
 @declare{'startMethodTemplate'}
@@ -44,194 +152,32 @@
 	@end{}
 	   */\n
 	@end{}
-  public @if{method.staticMethod}static @end{}@if{method.typeParams.size() > 0}<@foreach{typeParam:method.typeParams}@{typeParam.name}@end{', '}> @end{}@includeNamed{'returnTypeTemplate';type=method.returnType} @{method.name}(@foreach{param: method.params}@includeNamed{'paramTemplate';param=param}@end{', '})
-@end{}
-
-@declare{'invokeDelegate'}
-@if{method.staticMethod}@{helper.getNonGenericType(ifaceFQCN)}@else{}@includeNamed{'rewriteDelegate';method=method}@end{}.@{method.name}(@foreach{param: method.params}@includeNamed{'paramArgument';param=param}@end{', '})
-@end{}
-
-@declare{'rewriteDelegate'}
-@if{method.ownerTypes.size() > 1}
-( /* Work around for https://jira.codehaus.org/browse/GROOVY-6970 */ (@{method.ownerTypes.iterator().next().name}) delegate)
-@else{}
-this.delegate
-@end{}
-@end{}
-
-@declare{'paramTemplate'}
-	@{param.type.simpleName} @{param.name}
-@end{}
-
-@declare{'resultHandlerTemplate'}
-	new Handler<AsyncResult<@{eventJavaType}>>() {\n
-	      public void handle(AsyncResult<@{eventJavaType}> event) {\n
-	        AsyncResult<@{eventGroovyType}> f;\n
-	        if (event.succeeded()) {\n
-	          f = InternalHelper.<@{eventGroovyType}>result(@{callbackObject});\n
-	        } else {\n
-	          f = InternalHelper.<@{eventGroovyType}>failure(event.cause());\n
-	        }\n
-	        @{callbackName}.handle(f);\n
-	      }\n
-	    }
-@end{}
-
-@declare{'paramArgument'}
-	@if{param.type.kind == CLASS_API}
-		(@{param.type.name}) @{param.name}.getDelegate()
-	@else{param.type.kind == CLASS_HANDLER}
-		@code{eventType=param.type.args[0]}
-		@code{eventKind=eventType.kind}
-		@if{eventKind == CLASS_OTHER || eventKind.basic || eventKind == CLASS_VOID || eventKind == CLASS_OBJECT || eventKind.json || eventKind == CLASS_THROWABLE || eventKind == CLASS_DATA_OBJECT }
-			@{param.name}
-		@else{eventKind == CLASS_LIST || eventKind == CLASS_SET}
-			@code{elementType=eventType.args[0]}
-			@code{elementKind=elementType.kind}
-			@if{elementKind.basic}
-				@{param.name}
-			@else{elementKind == CLASS_API}
-				@code{collectionName=eventType.raw.simpleName}
-				@code{toGroovyElement= elementType.simpleName + '::newInstance'}
-				@code{elementJavaType=elementType.name}
-				new Handler<@{collectionName}<@{elementJavaType}>>() {\n
-				      public void handle(@{collectionName}<@{elementJavaType}> event) {\n
-				        @{param.name}.handle(event.stream().map(@{toGroovyElement}).collect(java.util.stream.Collectors.to@{collectionName}()));\n
-				      }\n
-				    }
-			@else{}
-				@{param.name}
-			@end{}
-		@else{eventKind == CLASS_API}
-			new Handler<@{eventType.name}>() {\n
-			      public void handle(@{eventType.name} event) {\n
-			        @{param.name}.handle(new @{eventType.simpleName}(event));\n
-			      }\n
-			    }
-		@else{eventKind == CLASS_ASYNC_RESULT}
-			@code{resultType=eventType.args[0]}
-			@code{resultKind=resultType.kind}
-			@if{resultKind == CLASS_OTHER || resultKind.basic || resultKind == CLASS_VOID || resultKind == CLASS_OBJECT || resultKind.json || resultKind == CLASS_DATA_OBJECT }
-				@{param.name}
-			@else{resultKind == CLASS_LIST || resultKind == CLASS_SET}
-				@code{elementType=resultType.args[0]}
-				@code{elementKind=elementType.kind}
-				@if{elementKind.basic}
-					@{param.name}
-				@else{elementKind == CLASS_API}
-					@code{collectionName=resultType.raw.simpleName}
-					@code{toGroovyElement=elementType.simpleName + '::newInstance'}
-					@code{elementJavaType=elementType.name}
-					@code{elementGroovyType=elementType.simpleName}
-					@code{eventJavaType=collectionName + '<' + elementJavaType + '>'}
-					@code{eventGroovyType=collectionName + '<' + elementGroovyType + '>'}
-					@code{callbackObject='event.result().stream().map(' + toGroovyElement + ').collect(java.util.stream.Collectors.to' + collectionName + '())'}
-					@includeNamed{'resultHandlerTemplate';eventJavaType=eventJavaType;eventGroovyType=eventGroovyType;callbackObject=callbackObject;callbackName=param.name}
-				@else{}
-					@{param.name}
-				@end{}
-			@else{resultKind == CLASS_API}
-				@includeNamed{'resultHandlerTemplate';eventJavaType=resultType.name;eventGroovyType=resultType.simpleName;callbackObject='new ' + resultType.simpleName + '(event.result())';callbackName=param.name}
-			@else{}
-				null /* Handler<AsyncResult<@{resultType.name}>> with kind @{resultKind} not yet implemented */
-			@end{}
-		@else{}
-			null /* Handler<@{eventType.name}> with kind @{eventKind} not yet implemented */
-		@end{}
-	@else{param.type.kind == CLASS_LIST || param.type.kind == CLASS_SET}
-		@code{elementType=param.type.args[0]}
-		@code{elementKind=elementType.kind}
-		@if{elementKind.basic || elementKind.json || elementKind == CLASS_DATA_OBJECT || elementKind == CLASS_ENUM}
-			@{param.name}
-		@else{}
-			@if{param.type.kind == CLASS_LIST}
-				@code{collectionName='List'}
-			@else{}
-				@code{collectionName='Set'}
-			@end{}
-			@{param.name}.stream().map(element -> (@{elementType.name})element.getDelegate()).collect(java.util.stream.Collectors.to@{collectionName}())
-		@end{}
-	@else{param.type.kind == CLASS_MAP}
-		@code{elementType=param.type.args[1]}
-		@code{elementKind=elementType.kind}
-		@if{elementKind.basic || elementKind.json}
-			@{param.name}
-		@else{}
-			@{param.name}.entrySet().stream().collect(java.util.stream.Collectors.toMap(entry -> entry.getKey(), entry -> (@{elementType.name})entry.getValue().getDelegate()))
-		@end{}
-	@else{}
-		@{param.name}
-	@end{}
-@end{}
-
-@declare{'returnTypeTemplate'}
-	@{type.simpleName}
+  public @if{method.staticMethod}static @end{}@if{method.typeParams.size() > 0}<@foreach{typeParam:method.typeParams}@{typeParam.name}@end{', '}> @end{}@{method.returnType.simpleName} @{method.name}(@foreach{param: method.params}@{param.type.simpleName} @{param.name}@end{', '})
 @end{}
 
 @declare{'genMethod'}
 	@includeNamed{'startMethodTemplate';method:method} { \n
 	@if{method.fluent}
-	    @includeNamed{'invokeDelegate';method:method};\n
+	    @{genInvokeDelegate(method)};\n
 			@if{method.returnType.variable}
 	    return (@{method.returnType.name}) this;\n
 			@else{}
 	    return this;\n
 			@end{}
 	@else{method.returnType.name.equals('void')}
-	    @includeNamed{'invokeDelegate';method:method};\n
+	    @{genInvokeDelegate(method)};\n
 	@else{}
 		@if{method.cacheReturn}
 		    if (cached_@{cacheDecls.size()} != null) {\n
 		      return cached_@{cacheDecls.size()};\n
 		    }\n
 		@end{}
-		@if{method.returnType.kind == CLASS_OBJECT}
-			@code{cachedType=method.returnType.simpleName}
-		    @{cachedType=method.returnType.simpleName} ret = (@{cachedType=method.returnType.simpleName}) @includeNamed{'invokeDelegate';method:method};\n
-		@else{method.returnType.kind == CLASS_LIST || method.returnType.kind == CLASS_SET}
-			@code{collectionName=method.returnType.raw.simpleName}
-			@code{elementType=method.returnType.args[0]}
-			@code{elementKind=elementType.kind}
-			@code{cachedType=method.returnType.simpleName}
-			@if{elementKind.basic || elementKind.json || elementKind == CLASS_DATA_OBJECT || elementKind == CLASS_ENUM}
-		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n;\n
-			@else{}
-		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method}.stream().map(@{elementType.simpleName}::newInstance).collect(java.util.stream.Collectors.to@{collectionName}());\n
-			@end{}
-		@else{method.returnType.kind == CLASS_MAP}
-			@code{elementType=method.returnType.args[1]}
-			@code{elementKind=elementType.kind}
-			@code{cachedType=method.returnType.simpleName}
-		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n;\n
-		@else{method.returnType.kind == CLASS_API}
-			@code{cachedType=method.returnType.simpleName}
-		    @{method.returnType.simpleName} ret= @{method.returnType.raw.simpleName}.newInstance(@includeNamed{'invokeDelegate';method:method});\n
-		@else{method.returnType.kind == CLASS_HANDLER}
-			@if{method.returnType.args[0].kind == CLASS_ASYNC_RESULT}
-				@code{cachedType=method.returnType.simpleName}
-		    @{method.returnType.name} handlerDelegate = @includeNamed{'invokeDelegate';method:method};\n
-		    @{method.returnType.simpleName} ret = ar -> {\n
-		      if (ar.succeeded()) {\n
-		        handlerDelegate.handle(InternalHelper.result(@includeNamed{'paramArgument';param=new io.vertx.codegen.ParamInfo(0, 'ar.result()', null, method.returnType.args[0].args[0])}));\n
-		      } else {\n
-		        handlerDelegate.handle(InternalHelper.failure(ar.cause()));\n
-		      }\n
-		    };\n
-			@else{}
-				@code{cachedType=method.returnType.simpleName}
-		    @{method.returnType.name} handlerDelegate = @includeNamed{'invokeDelegate';method:method};\n
-		    @{method.returnType.simpleName} ret = event -> {\n
-		      handlerDelegate.handle(@includeNamed{'paramArgument';param=new io.vertx.codegen.ParamInfo(0, 'event', null, method.returnType.args[0])});\n
-		    };\n
-			@end{}
+		@if{method.returnType.kind == CLASS_PRIMITIVE}
+			@code{cachedType=method.returnType.boxed.name}
 		@else{}
-			@if{method.returnType.kind == CLASS_PRIMITIVE}
-				@code{cachedType=method.returnType.boxed.name}
-			@else{}
-				@code{cachedType=method.returnType.name}
-			@end{}
-		    @{method.returnType.simpleName} ret = @includeNamed{'invokeDelegate';method:method};\n
+			@code{cachedType=method.returnType.simpleName}
 		@end{}
+		    @{method.returnType.simpleName} ret = @{genConvReturn(method.returnType, genInvokeDelegate(method))};\n
 		@if{method.cacheReturn}
 		    cached_@{cacheDecls.size()} = ret;\n
 			@code{cacheDecls.add('private' + (method.staticMethod ? ' static' : '') + ' ' + cachedType + ' cached_' + cacheDecls.size())}

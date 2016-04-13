@@ -19,7 +19,10 @@ import com.acme.rxjava.pkg.sub.SubInterface;
 import io.vertx.rx.java.test.AsyncResultChecker;
 import io.vertx.test.core.TestUtils;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import rx.Observable;
 
 import java.util.ArrayList;
@@ -44,6 +47,14 @@ import static org.junit.Assert.assertEquals;
 public class ApiTest {
 
   final TestInterface obj = new TestInterface(new TestInterfaceImpl());
+
+  @Rule
+  public final TestName name = new TestName();
+
+  @Before
+  public void setup() {
+    System.out.println("running " + name.getMethodName());
+  }
 
   @Test
   public void testMethodWithBasicParams() {
