@@ -1,31 +1,5 @@
 = Cheatsheets
 
-[[DataObjectWithMaps]]
-== DataObjectWithMaps
-
-++++
- @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
-++++
-'''
-
-[cols=">25%,^25%,50%"]
-[frame="topbot"]
-|===
-^|Name | Type ^| Description
-|[[booleanValues]]`booleanValues`|`Boolean`|-
-|[[dataObjectValues]]`dataObjectValues`|`link:dataobjects.html#TestDataObject[TestDataObject]`|-
-|[[doubleValues]]`doubleValues`|`Number (Double)`|-
-|[[enumValues]]`enumValues`|`link:enums.html#TestEnum[TestEnum]`|-
-|[[floatValues]]`floatValues`|`Number (Float)`|-
-|[[genEnumValues]]`genEnumValues`|`link:enums.html#TestGenEnum[TestGenEnum]`|-
-|[[integerValues]]`integerValues`|`Number (Integer)`|-
-|[[jsonArrayValues]]`jsonArrayValues`|`Json array`|-
-|[[jsonObjectValues]]`jsonObjectValues`|`Json object`|-
-|[[longValues]]`longValues`|`Number (Long)`|-
-|[[shortValues]]`shortValues`|`Number (Short)`|-
-|[[stringValues]]`stringValues`|`String`|-
-|===
-
 [[DataObjectWithLists]]
 == DataObjectWithLists
 
@@ -52,11 +26,11 @@
 |[[stringValues]]`stringValues`|`Array of String`|-
 |===
 
-[[TestDataObject]]
-== TestDataObject
+[[DataObjectWithMaps]]
+== DataObjectWithMaps
 
 ++++
- @author <a href="http://tfox.org">Tim Fox</a>
+ @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
 ++++
 '''
 
@@ -64,9 +38,18 @@
 [frame="topbot"]
 |===
 ^|Name | Type ^| Description
-|[[bar]]`bar`|`Number (int)`|-
-|[[foo]]`foo`|`String`|-
-|[[wibble]]`wibble`|`Number (double)`|-
+|[[booleanValues]]`booleanValues`|`Boolean`|-
+|[[dataObjectValues]]`dataObjectValues`|`link:dataobjects.html#TestDataObject[TestDataObject]`|-
+|[[doubleValues]]`doubleValues`|`Number (Double)`|-
+|[[enumValues]]`enumValues`|`link:enums.html#TestEnum[TestEnum]`|-
+|[[floatValues]]`floatValues`|`Number (Float)`|-
+|[[genEnumValues]]`genEnumValues`|`link:enums.html#TestGenEnum[TestGenEnum]`|-
+|[[integerValues]]`integerValues`|`Number (Integer)`|-
+|[[jsonArrayValues]]`jsonArrayValues`|`Json array`|-
+|[[jsonObjectValues]]`jsonObjectValues`|`Json object`|-
+|[[longValues]]`longValues`|`Number (Long)`|-
+|[[shortValues]]`shortValues`|`Number (Short)`|-
+|[[stringValues]]`stringValues`|`String`|-
 |===
 
 [[DataObjectWithValues]]
@@ -99,5 +82,22 @@
 |[[longValue]]`longValue`|`Number (long)`|-
 |[[shortValue]]`shortValue`|`Number (short)`|-
 |[[stringValue]]`stringValue`|`String`|-
+|===
+
+[[TestDataObject]]
+== TestDataObject
+
+++++
+ @author <a href="http://tfox.org">Tim Fox</a>
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[bar]]`bar`|`Number (int)`|-
+|[[foo]]`foo`|`String`|-
+|[[wibble]]`wibble`|`Number (double)`|-
 |===
 
