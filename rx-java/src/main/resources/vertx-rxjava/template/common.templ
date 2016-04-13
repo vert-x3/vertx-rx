@@ -96,6 +96,15 @@
                '      }\n' +
                '    }';
       }
+    } else if (kind == CLASS_FUNCTION) {
+      var argType = type.args[0];
+      var retType = type.args[1];
+      return 'new java.util.function.Function<' + argType.name + ',' + retType.name + '>() {\n' +
+             '      public ' + retType.name + ' apply(' + argType.name + ' arg) {\n' +
+             '        ' + retType.simpleName + ' ret = ' + expr + '.apply(' + genConvReturn(argType, 'arg') + ');\n' +
+             '        return ' + genConvParam(retType, 'ret') + ';\n' +
+             '      }\n' +
+             '    }';
     } else if (kind == CLASS_API) {
       return '(' + type.name + ')' + expr + '.getDelegate()';
     } else if (kind == CLASS_LIST || kind == CLASS_SET) {
