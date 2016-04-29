@@ -52,6 +52,21 @@
 |[[stringValues]]`stringValues`|`String`|-
 |===
 
+[[DataObjectWithOnlyJsonObjectConstructor]]
+== DataObjectWithOnlyJsonObjectConstructor
+
+++++
+ @author <a href="mailto:oreilldf@gmail.com">Dan O'Reilly</a>
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[foo]]`foo`|`String`|-
+|===
+
 [[DataObjectWithValues]]
 == DataObjectWithValues
 
