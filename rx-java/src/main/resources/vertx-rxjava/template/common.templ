@@ -60,7 +60,7 @@
     var kind = type.kind;
     if (kind.basic || kind.json || kind == CLASS_OBJECT || kind == CLASS_DATA_OBJECT || kind == CLASS_ENUM || kind == CLASS_OTHER || kind == CLASS_THROWABLE) {
       return true;
-    } else if (kind == CLASS_LIST || kind == CLASS_SET) {
+    } else if (kind == CLASS_LIST || kind == CLASS_SET || kind == CLASS_ASYNC_RESULT) {
       return isSameType(type.args[0]);
     } else if (kind == CLASS_MAP) {
       return isSameType(type.args[1]);
