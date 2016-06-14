@@ -58,7 +58,7 @@
 
   function isSameType(type) {
     var kind = type.kind;
-    if (kind.basic || kind.json || kind == CLASS_OBJECT || kind == CLASS_DATA_OBJECT || kind == CLASS_ENUM || kind == CLASS_OTHER || kind == CLASS_THROWABLE) {
+    if (kind.basic || kind.json || kind == CLASS_OBJECT || kind == CLASS_DATA_OBJECT || kind == CLASS_ENUM || kind == CLASS_OTHER || kind == CLASS_THROWABLE || kind == CLASS_VOID) {
       return true;
     } else if (kind == CLASS_LIST || kind == CLASS_SET || kind == CLASS_ASYNC_RESULT) {
       return isSameType(type.args[0]);
