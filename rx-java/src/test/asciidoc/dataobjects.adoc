@@ -1,5 +1,20 @@
 = Cheatsheets
 
+[[DataObjectWithBuffer]]
+== DataObjectWithBuffer
+
+++++
+ @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[buffer]]`buffer`|`Buffer`|-
+|===
+
 [[DataObjectWithLists]]
 == DataObjectWithLists
 
@@ -50,6 +65,23 @@
 |[[longValues]]`longValues`|`Number (Long)`|-
 |[[shortValues]]`shortValues`|`Number (Short)`|-
 |[[stringValues]]`stringValues`|`String`|-
+|===
+
+[[DataObjectWithNestedBuffer]]
+== DataObjectWithNestedBuffer
+
+++++
+ @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[buffer]]`buffer`|`Buffer`|-
+|[[buffers]]`buffers`|`Array of Buffer`|-
+|[[nested]]`nested`|`link:dataobjects.html#DataObjectWithBuffer[DataObjectWithBuffer]`|-
 |===
 
 [[DataObjectWithOnlyJsonObjectConstructor]]

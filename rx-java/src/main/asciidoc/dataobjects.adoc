@@ -149,6 +149,7 @@ Add an enabled SSL/TLS protocols
 Set the idle timeout, in seconds. zero means don't timeout.
  This determines if a connection will timeout and be closed if no data is received within the timeout.
 +++
+|[[jdkSslEngineOptions]]`jdkSslEngineOptions`|`link:dataobjects.html#JdkSSLEngineOptions[JdkSSLEngineOptions]`|-
 |[[keyStoreOptions]]`keyStoreOptions`|`link:dataobjects.html#JksOptions[JksOptions]`|
 +++
 Set the key/cert options in jks format, aka Java keystore.
@@ -162,6 +163,7 @@ Set to true to enabled network activity logging: Netty's pipeline is configured 
 Set the metrics name identifying the reported metrics, useful for grouping metrics
  with the same name.
 +++
+|[[openSslEngineOptions]]`openSslEngineOptions`|`link:dataobjects.html#OpenSSLEngineOptions[OpenSSLEngineOptions]`|-
 |[[pemKeyCertOptions]]`pemKeyCertOptions`|`link:dataobjects.html#PemKeyCertOptions[PemKeyCertOptions]`|
 +++
 Set the key/cert store options in pem format.
@@ -201,10 +203,6 @@ Set whether SO_linger keep alive is enabled
 |[[ssl]]`ssl`|`Boolean`|
 +++
 Set whether SSL/TLS is enabled
-+++
-|[[sslEngine]]`sslEngine`|`link:enums.html#SSLEngine[SSLEngine]`|
-+++
-Set to use SSL engine implementation to use.
 +++
 |[[tcpKeepAlive]]`tcpKeepAlive`|`Boolean`|
 +++
@@ -308,6 +306,13 @@ Set the value of traffic class
 |[[codecName]]`codecName`|`String`|
 +++
 Set the codec name.
++++
+|[[headers]]`headers`|`String`|
++++
+Add a message header.
+ <p>
+ Message headers can be sent with any message and will be accessible with link
+ at the recipient.
 +++
 |[[sendTimeout]]`sendTimeout`|`Number (long)`|
 +++
@@ -452,6 +457,7 @@ Sets the host.
 Set the idle timeout, in seconds. zero means don't timeout.
  This determines if a connection will timeout and be closed if no data is received within the timeout.
 +++
+|[[jdkSslEngineOptions]]`jdkSslEngineOptions`|`link:dataobjects.html#JdkSSLEngineOptions[JdkSSLEngineOptions]`|-
 |[[keyStoreOptions]]`keyStoreOptions`|`link:dataobjects.html#JksOptions[JksOptions]`|
 +++
 Set the key/cert options in jks format, aka Java keystore.
@@ -460,6 +466,7 @@ Set the key/cert options in jks format, aka Java keystore.
 +++
 Set to true to enabled network activity logging: Netty's pipeline is configured for logging on Netty's logger.
 +++
+|[[openSslEngineOptions]]`openSslEngineOptions`|`link:dataobjects.html#OpenSSLEngineOptions[OpenSSLEngineOptions]`|-
 |[[pemKeyCertOptions]]`pemKeyCertOptions`|`link:dataobjects.html#PemKeyCertOptions[PemKeyCertOptions]`|
 +++
 Set the key/cert store options in pem format.
@@ -507,10 +514,6 @@ Set whether SO_linger keep alive is enabled
 |[[ssl]]`ssl`|`Boolean`|
 +++
 Set whether SSL/TLS is enabled
-+++
-|[[sslEngine]]`sslEngine`|`link:enums.html#SSLEngine[SSLEngine]`|
-+++
-Set to use SSL engine implementation to use.
 +++
 |[[tcpKeepAlive]]`tcpKeepAlive`|`Boolean`|
 +++
@@ -659,10 +662,18 @@ Add an enabled cipher suite
 +++
 Add an enabled SSL/TLS protocols
 +++
-|[[h2cUpgrade]]`h2cUpgrade`|`Boolean`|
+|[[http2ClearTextUpgrade]]`http2ClearTextUpgrade`|`Boolean`|
 +++
 Set to <code>true</code> when an <i>h2c</i> connection is established using an HTTP/1.1 upgrade request, and <code>false</code>
  when an <i>h2c</i> connection is established directly (with prior knowledge).
++++
+|[[http2ConnectionWindowSize]]`http2ConnectionWindowSize`|`Number (int)`|
++++
+Set the default HTTP/2 connection window size. It overrides the initial window
+ size set by link, so the connection window size
+ is greater than for its streams, in order the data throughput.
+ <p/>
+ A value of <code>-1</code> reuses the initial window size setting.
 +++
 |[[http2MaxPoolSize]]`http2MaxPoolSize`|`Number (int)`|
 +++
@@ -686,6 +697,7 @@ Set the idle timeout, in seconds. zero means don't timeout.
 +++
 Set the HTTP/2 connection settings immediately sent by to the server when the client connects.
 +++
+|[[jdkSslEngineOptions]]`jdkSslEngineOptions`|`link:dataobjects.html#JdkSSLEngineOptions[JdkSSLEngineOptions]`|-
 |[[keepAlive]]`keepAlive`|`Boolean`|
 +++
 Set whether keep alive is enabled on the client
@@ -720,6 +732,7 @@ Set the max websocket frame size
 Set the metrics name identifying the reported metrics, useful for grouping metrics
  with the same name.
 +++
+|[[openSslEngineOptions]]`openSslEngineOptions`|`link:dataobjects.html#OpenSSLEngineOptions[OpenSSLEngineOptions]`|-
 |[[pemKeyCertOptions]]`pemKeyCertOptions`|`link:dataobjects.html#PemKeyCertOptions[PemKeyCertOptions]`|
 +++
 Set the key/cert store options in pem format.
@@ -771,10 +784,6 @@ Set whether SO_linger keep alive is enabled
 |[[ssl]]`ssl`|`Boolean`|
 +++
 Set whether SSL/TLS is enabled
-+++
-|[[sslEngine]]`sslEngine`|`link:enums.html#SSLEngine[SSLEngine]`|
-+++
-Set to use SSL engine implementation to use.
 +++
 |[[tcpKeepAlive]]`tcpKeepAlive`|`Boolean`|
 +++
@@ -870,6 +879,14 @@ Set whether 100 Continue should be handled automatically
 +++
 Set the host
 +++
+|[[http2ConnectionWindowSize]]`http2ConnectionWindowSize`|`Number (int)`|
++++
+Set the default HTTP/2 connection window size. It overrides the initial window
+ size set by link, so the connection window size
+ is greater than for its streams, in order the data throughput.
+ <p/>
+ A value of <code>-1</code> reuses the initial window size setting.
++++
 |[[idleTimeout]]`idleTimeout`|`Number (int)`|
 +++
 Set the idle timeout, in seconds. zero means don't timeout.
@@ -879,6 +896,7 @@ Set the idle timeout, in seconds. zero means don't timeout.
 +++
 Set the HTTP/2 connection settings immediatly sent by the server when a client connects.
 +++
+|[[jdkSslEngineOptions]]`jdkSslEngineOptions`|`link:dataobjects.html#JdkSSLEngineOptions[JdkSSLEngineOptions]`|-
 |[[keyStoreOptions]]`keyStoreOptions`|`link:dataobjects.html#JksOptions[JksOptions]`|
 +++
 Set the key/cert options in jks format, aka Java keystore.
@@ -903,6 +921,7 @@ Set the maximum length of the initial line for HTTP/1.x (e.g. <code>"GET / HTTP/
 +++
 Set the maximum websocket frames size
 +++
+|[[openSslEngineOptions]]`openSslEngineOptions`|`link:dataobjects.html#OpenSSLEngineOptions[OpenSSLEngineOptions]`|-
 |[[pemKeyCertOptions]]`pemKeyCertOptions`|`link:dataobjects.html#PemKeyCertOptions[PemKeyCertOptions]`|
 +++
 Set the key/cert store options in pem format.
@@ -943,10 +962,6 @@ Set whether SO_linger keep alive is enabled
 +++
 Set whether SSL/TLS is enabled
 +++
-|[[sslEngine]]`sslEngine`|`link:enums.html#SSLEngine[SSLEngine]`|
-+++
-Set to use SSL engine implementation to use.
-+++
 |[[tcpKeepAlive]]`tcpKeepAlive`|`Boolean`|
 +++
 Set whether TCP keep alive is enabled
@@ -974,6 +989,24 @@ Set whether Netty pooled buffers are enabled
 |[[websocketSubProtocols]]`websocketSubProtocols`|`String`|
 +++
 Set the websocket subprotocols supported by the server.
++++
+|===
+
+[[JdkSSLEngineOptions]]
+== JdkSSLEngineOptions
+
+++++
+ Configures a link to use the JDK ssl engine implementation.
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[alpnAvailable]]`alpnAvailable`|`Boolean`|
++++
+@return if alpn support is available via the JDK SSL engine
 +++
 |===
 
@@ -1082,6 +1115,7 @@ Set the hostname verification algorithm interval
 Set the idle timeout, in seconds. zero means don't timeout.
  This determines if a connection will timeout and be closed if no data is received within the timeout.
 +++
+|[[jdkSslEngineOptions]]`jdkSslEngineOptions`|`link:dataobjects.html#JdkSSLEngineOptions[JdkSSLEngineOptions]`|-
 |[[keyStoreOptions]]`keyStoreOptions`|`link:dataobjects.html#JksOptions[JksOptions]`|
 +++
 Set the key/cert options in jks format, aka Java keystore.
@@ -1095,6 +1129,7 @@ Set to true to enabled network activity logging: Netty's pipeline is configured 
 Set the metrics name identifying the reported metrics, useful for grouping metrics
  with the same name.
 +++
+|[[openSslEngineOptions]]`openSslEngineOptions`|`link:dataobjects.html#OpenSSLEngineOptions[OpenSSLEngineOptions]`|-
 |[[pemKeyCertOptions]]`pemKeyCertOptions`|`link:dataobjects.html#PemKeyCertOptions[PemKeyCertOptions]`|
 +++
 Set the key/cert store options in pem format.
@@ -1142,10 +1177,6 @@ Set whether SO_linger keep alive is enabled
 |[[ssl]]`ssl`|`Boolean`|
 +++
 Set whether SSL/TLS is enabled
-+++
-|[[sslEngine]]`sslEngine`|`link:enums.html#SSLEngine[SSLEngine]`|
-+++
-Set to use SSL engine implementation to use.
 +++
 |[[tcpKeepAlive]]`tcpKeepAlive`|`Boolean`|
 +++
@@ -1226,6 +1257,7 @@ Set the host
 Set the idle timeout, in seconds. zero means don't timeout.
  This determines if a connection will timeout and be closed if no data is received within the timeout.
 +++
+|[[jdkSslEngineOptions]]`jdkSslEngineOptions`|`link:dataobjects.html#JdkSSLEngineOptions[JdkSSLEngineOptions]`|-
 |[[keyStoreOptions]]`keyStoreOptions`|`link:dataobjects.html#JksOptions[JksOptions]`|
 +++
 Set the key/cert options in jks format, aka Java keystore.
@@ -1234,6 +1266,7 @@ Set the key/cert options in jks format, aka Java keystore.
 +++
 Set to true to enabled network activity logging: Netty's pipeline is configured for logging on Netty's logger.
 +++
+|[[openSslEngineOptions]]`openSslEngineOptions`|`link:dataobjects.html#OpenSSLEngineOptions[OpenSSLEngineOptions]`|-
 |[[pemKeyCertOptions]]`pemKeyCertOptions`|`link:dataobjects.html#PemKeyCertOptions[PemKeyCertOptions]`|
 +++
 Set the key/cert store options in pem format.
@@ -1273,10 +1306,6 @@ Set whether SO_linger keep alive is enabled
 |[[ssl]]`ssl`|`Boolean`|
 +++
 Set whether SSL/TLS is enabled
-+++
-|[[sslEngine]]`sslEngine`|`link:enums.html#SSLEngine[SSLEngine]`|
-+++
-Set to use SSL engine implementation to use.
 +++
 |[[tcpKeepAlive]]`tcpKeepAlive`|`Boolean`|
 +++
@@ -1389,6 +1418,32 @@ Set whether the file should be truncated to zero length on opening if it exists 
 |[[write]]`write`|`Boolean`|
 +++
 Set whether the file is to be opened for writing
++++
+|===
+
+[[OpenSSLEngineOptions]]
+== OpenSSLEngineOptions
+
+++++
+ Configures a link to use OpenSsl.
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[alpnAvailable]]`alpnAvailable`|`Boolean`|
++++
+@return when alpn support is available via OpenSSL engine
++++
+|[[available]]`available`|`Boolean`|
++++
+@return when OpenSSL is available
++++
+|[[sessionCacheEnabled]]`sessionCacheEnabled`|`Boolean`|
++++
+Set whether session cache is enabled in open SSL session server context
 +++
 |===
 
@@ -1699,6 +1754,7 @@ Add an enabled SSL/TLS protocols
 Set the idle timeout, in seconds. zero means don't timeout.
  This determines if a connection will timeout and be closed if no data is received within the timeout.
 +++
+|[[jdkSslEngineOptions]]`jdkSslEngineOptions`|`link:dataobjects.html#JdkSSLEngineOptions[JdkSSLEngineOptions]`|-
 |[[keyStoreOptions]]`keyStoreOptions`|`link:dataobjects.html#JksOptions[JksOptions]`|
 +++
 Set the key/cert options in jks format, aka Java keystore.
@@ -1707,6 +1763,7 @@ Set the key/cert options in jks format, aka Java keystore.
 +++
 Set to true to enabled network activity logging: Netty's pipeline is configured for logging on Netty's logger.
 +++
+|[[openSslEngineOptions]]`openSslEngineOptions`|`link:dataobjects.html#OpenSSLEngineOptions[OpenSSLEngineOptions]`|-
 |[[pemKeyCertOptions]]`pemKeyCertOptions`|`link:dataobjects.html#PemKeyCertOptions[PemKeyCertOptions]`|
 +++
 Set the key/cert store options in pem format.
@@ -1742,10 +1799,6 @@ Set whether SO_linger keep alive is enabled
 |[[ssl]]`ssl`|`Boolean`|
 +++
 Set whether SSL/TLS is enabled
-+++
-|[[sslEngine]]`sslEngine`|`link:enums.html#SSLEngine[SSLEngine]`|
-+++
-Set to use SSL engine implementation to use.
 +++
 |[[tcpKeepAlive]]`tcpKeepAlive`|`Boolean`|
 +++
