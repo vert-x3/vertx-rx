@@ -36,7 +36,7 @@ public class ContextScheduler extends Scheduler {
 
   public ContextScheduler(Vertx vertx, boolean blocking) {
     this.vertx = vertx;
-    this.context = vertx.getOrCreateContext();
+    this.context = null;
     this.blocking = blocking;
   }
 
@@ -87,12 +87,14 @@ public class ContextScheduler extends Scheduler {
 
     class TimedAction implements Subscription, Runnable {
 
+      private final Context context;
       private long id;
       private final Action0 action;
       private final long periodMillis;
       private boolean cancelled;
 
       public TimedAction(Action0 action, long delayMillis, long periodMillis) {
+        this.context = ContextScheduler.this.context != null ? ContextScheduler.this.context : vertx.getOrCreateContext();
         this.cancelled = false;
         this.action = action;
         this.periodMillis = periodMillis;
@@ -110,7 +112,7 @@ public class ContextScheduler extends Scheduler {
 
       private void execute(Object o) {
         if (blocking) {
-          vertx.executeBlocking(this::run, NOOP);
+          context.executeBlocking(this::run, NOOP);
         } else {
           context.runOnContext(this::run);
         }

@@ -75,7 +75,7 @@ public class SchedulerTest extends VertxTestBase {
   public void testScheduleObserveOnReturnsOnTheCorrectThread() {
     Context testContext = vertx.getOrCreateContext();
     testContext.runOnContext(v -> {
-      Scheduler scheduler = new ContextScheduler(vertx, false);
+      Scheduler scheduler = new ContextScheduler(testContext, false);
       Observable<String> observable = Observable.create(new Observable.OnSubscribe<String>() {
         @Override
         public void call(Subscriber<? super String> subscriber) {
@@ -98,7 +98,7 @@ public class SchedulerTest extends VertxTestBase {
   public void testScheduleWithDelayObserveOnReturnsOnTheCorrectThread() {
     Context testContext = vertx.getOrCreateContext();
     testContext.runOnContext(v -> {
-      Scheduler scheduler = new ContextScheduler(vertx, false);
+      Scheduler scheduler = new ContextScheduler(testContext, false);
       Observable<String> observable = Observable.create(new Observable.OnSubscribe<String>() {
         @Override
         public void call(Subscriber<? super String> subscriber) {
