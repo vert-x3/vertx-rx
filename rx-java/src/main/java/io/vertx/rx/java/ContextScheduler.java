@@ -25,19 +25,30 @@ public class ContextScheduler extends Scheduler {
 
   private final Vertx vertx;
   private final boolean blocking;
+  private final boolean ordered;
   private final RxJavaSchedulersHook schedulersHook = RxJavaPlugins.getInstance().getSchedulersHook();;
   private final Context context;
 
   public ContextScheduler(Context context, boolean blocking) {
+    this(context, blocking, true);
+  }
+
+  public ContextScheduler(Context context, boolean blocking, boolean ordered) {
     this.vertx = context.owner();
     this.context = context;
     this.blocking = blocking;
+    this.ordered = ordered;
   }
 
   public ContextScheduler(Vertx vertx, boolean blocking) {
+    this(vertx, blocking, true);
+  }
+
+  public ContextScheduler(Vertx vertx, boolean blocking, boolean ordered) {
     this.vertx = vertx;
     this.context = null;
     this.blocking = blocking;
+    this.ordered = ordered;
   }
 
   @Override
@@ -112,7 +123,7 @@ public class ContextScheduler extends Scheduler {
 
       private void execute(Object o) {
         if (blocking) {
-          context.executeBlocking(this::run, NOOP);
+          context.executeBlocking(this::run, ordered, NOOP);
         } else {
           context.runOnContext(this::run);
         }
