@@ -683,11 +683,9 @@ public class JavaIntegrationTest extends VertxTestBase {
     io.vertx.rxjava.core.RxHelper.deployVerticle(vertx, new AbstractVerticle() {
       @Override
       public void start() {
-        System.out.println("HEY");
         deployLatch.countDown();
       }
     }).subscribe(resp -> {
-      System.out.println("HEYHEY");
       deployLatch.countDown();
     });
     awaitLatch(deployLatch);
