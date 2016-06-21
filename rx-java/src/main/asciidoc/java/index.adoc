@@ -228,6 +228,45 @@ fileSystem.open("/data.txt", new OpenOptions(), result -> {
 });
 ----
 
+=== Deploying a Verticle
+
+The Rxified API cannot deploy an existing Verticle instance, the helper `link:../../apidocs/io/vertx/rx/java/RxHelper.html#observableFuture--[RxHelper.observableFuture]` method
+provides a solution to that.
+
+The `link:../../apidocs/io/vertx/rxjava/core/RxHelper.html#deployVerticle-io.vertx.rxjava.core.Vertx-io.vertx.core.Verticle-[RxHelper.deployVerticle]` does it automatically
+for you, it deploys a `Verticle` and returns an `Observable<String>` of the deployment ID.
+
+[source,java]
+----
+Observable<String> deployment = RxHelper.deployVerticle(vertx, verticle);
+
+deployment.subscribe(id -> {
+  // Deployed
+}, err -> {
+  // Could not deploy
+});
+----
+
+=== HttpClient GET on subscription
+
+The `link:../../apidocs/io/vertx/rxjava/core/RxHelper.html#get-io.vertx.rxjava.core.http.HttpClient-int-java.lang.String-java.lang.String-[RxHelper.get]`
+is a convenient helper method that performs an HTTP GET upon subscription:
+
+[source,java]
+----
+Observable<HttpClientResponse> get = RxHelper.get(client, "http://the-server");
+
+// Do the request
+get.subscribe(resp -> {
+  // Got response
+}, err -> {
+  // Something went wrong
+});
+----
+
+WARNING: this API is different from the HttpClient that performs the GET request when the method is called and returns
+a one shot `Observable`.
+
 = Rxified API
 
 The _Rxified_ API is a code generated version of the Vert.x API, just like the _JavaScript_ or _Groovy_

@@ -153,6 +153,32 @@
  * {@link examples.RxifiedExamples#unmarshaller(io.vertx.rxjava.core.file.FileSystem)}
  * ----
  *
+ * === Deploying a Verticle
+ *
+ * The Rxified API cannot deploy an existing Verticle instance, the helper {@link io.vertx.rx.java.RxHelper#observableFuture()} method
+ * provides a solution to that.
+ *
+ * The {@link io.vertx.rxjava.core.RxHelper#deployVerticle(io.vertx.rxjava.core.Vertx, io.vertx.core.Verticle)} does it automatically
+ * for you, it deploys a `Verticle` and returns an `Observable<String>` of the deployment ID.
+ *
+ * [source,java]
+ * ----
+ * {@link examples.RxifiedExamples#deployVerticle}
+ * ----
+ *
+ * === HttpClient GET on subscription
+ *
+ * The {@link io.vertx.rxjava.core.RxHelper#get(io.vertx.rxjava.core.http.HttpClient, int, java.lang.String, java.lang.String)}
+ * is a convenient helper method that performs an HTTP GET upon subscription:
+ *
+ * [source,java]
+ * ----
+ * {@link examples.RxifiedExamples#get}
+ * ----
+ *
+ * WARNING: this API is different from the HttpClient that performs the GET request when the method is called and returns
+ * a one shot `Observable`.
+ *
  * = Rxified API
  *
  * The _Rxified_ API is a code generated version of the Vert.x API, just like the _JavaScript_ or _Groovy_

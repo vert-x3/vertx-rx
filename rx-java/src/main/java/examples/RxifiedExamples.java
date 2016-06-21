@@ -1,9 +1,11 @@
 package examples;
 
+import io.vertx.core.Verticle;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.rxjava.core.RxHelper;
 import io.vertx.rxjava.core.Vertx;
 import io.vertx.rxjava.core.buffer.Buffer;
 import io.vertx.rxjava.core.eventbus.EventBus;
@@ -75,6 +77,27 @@ public class RxifiedExamples {
             // Process the object
           }
       );
+    });
+  }
+
+  public void deployVerticle(Vertx vertx, Verticle verticle) {
+    Observable<String> deployment = RxHelper.deployVerticle(vertx, verticle);
+
+    deployment.subscribe(id -> {
+      // Deployed
+    }, err -> {
+      // Could not deploy
+    });
+  }
+
+  public void get(HttpClient client) {
+    Observable<HttpClientResponse> get = RxHelper.get(client, "http://the-server");
+
+    // Do the request
+    get.subscribe(resp -> {
+      // Got response
+    }, err -> {
+      // Something went wrong
     });
   }
 

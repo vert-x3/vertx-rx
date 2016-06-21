@@ -1,7 +1,10 @@
 package io.vertx.rxjava.core;
 
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Verticle;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.rx.java.ContextScheduler;
+import io.vertx.rx.java.ObservableFuture;
 import io.vertx.rx.java.UnmarshallerOperator;
 import io.vertx.rxjava.core.buffer.Buffer;
 import io.vertx.rxjava.core.http.HttpClient;
@@ -24,6 +27,7 @@ public class RxHelper {
    * @param vertx the vertx object
    * @return the scheduler hook
    */
+
   public static RxJavaSchedulersHook schedulerHook(Vertx vertx) {
     return io.vertx.rx.java.RxHelper.schedulerHook(vertx.delegate);
   }
@@ -149,5 +153,32 @@ public class RxHelper {
       resp.subscribe(subscriber);
       req.end();
     });
+  }
+
+  /**
+   * Deploy a verticle you have created yourself, using an
+   * RxJava vertx instance.
+   *
+   * @param vertx the vertx instance
+   * @param verticle the verticle instance to deploy
+   * @return the response observable
+   */
+  public static Observable<String> deployVerticle(Vertx vertx, Verticle verticle) {
+    return deployVerticle(vertx, verticle, new DeploymentOptions());
+  }
+
+  /**
+   * Like {@link #deployVerticle(Vertx, Verticle)}, but {@link io.vertx.core.DeploymentOptions} are provided to configure the
+   * deployment.
+   *
+   * @param vertx the vertx instance
+   * @param verticle the verticle instance to deploy
+   * @param options the deployment options.
+   * @return the response observable
+   */
+  public static Observable<String> deployVerticle(Vertx vertx, Verticle verticle, DeploymentOptions options) {
+    ObservableFuture<String> completionHandler = io.vertx.rx.java.RxHelper.observableFuture();
+    ((io.vertx.core.Vertx) vertx.getDelegate()).deployVerticle(verticle, options, completionHandler.toHandler());
+    return completionHandler;
   }
 }
