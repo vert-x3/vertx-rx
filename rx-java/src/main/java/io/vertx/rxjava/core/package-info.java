@@ -136,7 +136,7 @@
  * {@link examples.RxifiedExamples#schedulerHook(io.vertx.rxjava.core.Vertx)}
  * ----
  *
- * === Json unmashalling
+ * === Json unmarshalling
  *
  * The {@link io.vertx.rxjava.core.RxHelper#unmarshaller(java.lang.Class)} creates an `rx.Observable.Operator` that
  * transforms an `Observable<Buffer>` in json format into an object observable:

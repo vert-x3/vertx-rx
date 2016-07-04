@@ -93,7 +93,7 @@ scheduler for IO actions:
 include::defaultScheduler.groovy[tags=example]
 ----
 
-== Json unmashalling
+== Json unmarshalling
 
 The `io.vertx.rx.groovy.RxHelper#unmarshaller(java.lang.Class)}` creates an `rx.Observable.Operator` that
 transforms an `Observable<Buffer>` in json format into an object observable:
