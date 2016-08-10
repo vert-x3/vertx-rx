@@ -2,9 +2,9 @@ package io.vertx.rx.java;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.WorkerExecutor;
 import io.vertx.core.json.JsonObject;
 import rx.Scheduler;
 import rx.Subscription;
@@ -12,6 +12,7 @@ import rx.functions.Action0;
 import rx.plugins.RxJavaPlugins;
 import rx.plugins.RxJavaSchedulersHook;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -28,6 +29,7 @@ public class ContextScheduler extends Scheduler {
   private final boolean ordered;
   private final RxJavaSchedulersHook schedulersHook = RxJavaPlugins.getInstance().getSchedulersHook();;
   private final Context context;
+  private final WorkerExecutor workerExecutor;
 
   public ContextScheduler(Context context, boolean blocking) {
     this(context, blocking, true);
@@ -38,6 +40,7 @@ public class ContextScheduler extends Scheduler {
     this.context = context;
     this.blocking = blocking;
     this.ordered = ordered;
+    this.workerExecutor = null;
   }
 
   public ContextScheduler(Vertx vertx, boolean blocking) {
@@ -49,6 +52,27 @@ public class ContextScheduler extends Scheduler {
     this.context = null;
     this.blocking = blocking;
     this.ordered = ordered;
+    this.workerExecutor = null;
+  }
+
+  public ContextScheduler(WorkerExecutor workerExecutor) {
+    this(workerExecutor, true);
+  }
+
+  public ContextScheduler(WorkerExecutor workerExecutor, boolean ordered) {
+    this.workerExecutor = workerExecutor;
+    this.ordered = ordered;
+    Field contextField;
+    try {
+      contextField = workerExecutor.getClass().getDeclaredField("context");
+      contextField.setAccessible(true);
+      Context context = (Context) contextField.get(workerExecutor);
+      this.vertx = context.owner();
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+    this.blocking = false;
+    this.context = null;
   }
 
   @Override
@@ -105,7 +129,13 @@ public class ContextScheduler extends Scheduler {
       private boolean cancelled;
 
       public TimedAction(Action0 action, long delayMillis, long periodMillis) {
-        this.context = ContextScheduler.this.context != null ? ContextScheduler.this.context : vertx.getOrCreateContext();
+        if (ContextScheduler.this.context != null) {
+          this.context = ContextScheduler.this.context;
+        } else if (workerExecutor == null) {
+          this.context = vertx.getOrCreateContext();
+        } else {
+          this.context = null;
+        }
         this.cancelled = false;
         this.action = action;
         this.periodMillis = periodMillis;
@@ -122,7 +152,9 @@ public class ContextScheduler extends Scheduler {
       }
 
       private void execute(Object o) {
-        if (blocking) {
+        if (context == null) {
+          workerExecutor.executeBlocking(this::run, ordered, NOOP);
+        } else if (blocking) {
           context.executeBlocking(this::run, ordered, NOOP);
         } else {
           context.runOnContext(this::run);
