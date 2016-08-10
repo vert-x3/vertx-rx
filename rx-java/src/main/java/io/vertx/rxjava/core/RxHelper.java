@@ -2,7 +2,6 @@ package io.vertx.rxjava.core;
 
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Verticle;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.rx.java.ContextScheduler;
 import io.vertx.rx.java.ObservableFuture;
 import io.vertx.rx.java.UnmarshallerOperator;
@@ -50,6 +49,16 @@ public class RxHelper {
    */
   public static Scheduler scheduler(Vertx vertx) {
     return new ContextScheduler(vertx.delegate, false);
+  }
+
+  /**
+   * Create a scheduler for a {@link WorkerExecutor} object, actions are executed on the threads of this executor.
+   *
+   * @param executor the worker executor object
+   * @return the scheduler
+   */
+  public static Scheduler scheduler(WorkerExecutor executor) {
+    return new ContextScheduler(executor.delegate, false);
   }
 
   /**

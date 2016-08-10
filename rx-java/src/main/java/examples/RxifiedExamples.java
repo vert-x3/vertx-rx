@@ -4,9 +4,9 @@ import io.vertx.core.Verticle;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.http.HttpServerOptions;
 import io.vertx.rxjava.core.RxHelper;
 import io.vertx.rxjava.core.Vertx;
+import io.vertx.rxjava.core.WorkerExecutor;
 import io.vertx.rxjava.core.buffer.Buffer;
 import io.vertx.rxjava.core.eventbus.EventBus;
 import io.vertx.rxjava.core.eventbus.Message;
@@ -26,8 +26,8 @@ import rx.Scheduler;
 import rx.Single;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.plugins.RxJavaSchedulersHook;
 import rx.plugins.RxJavaHooks;
+import rx.plugins.RxJavaSchedulersHook;
 
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -67,7 +67,12 @@ public class RxifiedExamples {
 
   public void scheduler(Vertx vertx) {
     Scheduler scheduler = io.vertx.rxjava.core.RxHelper.scheduler(vertx);
-    Observable<Long> timer = Observable.timer(100, 100, TimeUnit.MILLISECONDS, scheduler);
+    Observable<Long> timer = Observable.interval(100, 100, TimeUnit.MILLISECONDS, scheduler);
+  }
+
+  public void scheduler(WorkerExecutor workerExecutor) {
+    Scheduler scheduler = io.vertx.rxjava.core.RxHelper.scheduler(workerExecutor);
+    Observable<Long> timer = Observable.interval(100, 100, TimeUnit.MILLISECONDS, scheduler);
   }
 
   public void schedulerHook(Vertx vertx) {

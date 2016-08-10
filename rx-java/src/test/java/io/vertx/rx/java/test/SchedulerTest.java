@@ -1,35 +1,45 @@
 package io.vertx.rx.java.test;
 
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.WorkerExecutor;
 import io.vertx.rx.java.ContextScheduler;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.After;
 import org.junit.Test;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Action0;
 import rx.plugins.RxJavaPlugins;
 import rx.plugins.RxJavaSchedulersHook;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class SchedulerTest extends VertxTestBase {
 
+  private WorkerExecutor workerExecutor;
+
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
+    workerExecutor = vertx.createSharedWorkerExecutor(name.getMethodName());
+  }
+
   @After
   public void after() throws Exception {
+    workerExecutor.close();
+
     // Cleanup  any RxJavaPlugins installed
     // Needs to hack a bit since we are not in the same package
     Method meth = RxJavaPlugins.class.getDeclaredMethod("reset");
@@ -47,25 +57,31 @@ public class SchedulerTest extends VertxTestBase {
     assertTrue("Was expecting worker thread instead of " + name, name.startsWith("vert.x-worker-thread"));
   }
 
+  private void assertWorkerExecutorThread() {
+    String thread = Thread.currentThread().getName();
+    assertTrue("Was expecting worker executor thread instead of " + thread, thread.startsWith(name.getMethodName()));
+  }
+
   @Test
   public void testScheduleImmediatly() {
-    testScheduleImmediatly(true);
+    testScheduleImmediatly(() -> new ContextScheduler(vertx, false), this::assertEventLoopThread);
   }
 
   @Test
   public void testScheduleImmediatlyBlocking() {
-    testScheduleImmediatly(false);
+    testScheduleImmediatly(() -> new ContextScheduler(vertx, true), this::assertWorkerThread);
   }
 
-  private void testScheduleImmediatly(boolean blocking) {
-    ContextScheduler scheduler = new ContextScheduler(vertx, blocking);
-    Scheduler.Worker worker = scheduler.createWorker();
+  @Test
+  public void testScheduleImmediatlyWorkerExecutor() {
+    testScheduleImmediatly(() -> new ContextScheduler(workerExecutor), this::assertWorkerExecutorThread);
+  }
+
+  private void testScheduleImmediatly(Supplier<ContextScheduler> scheduler, Runnable threadAssert) {
+    ContextScheduler scheduler2 = scheduler.get();
+    Scheduler.Worker worker = scheduler2.createWorker();
     worker.schedule(() -> {
-      if (blocking) {
-        assertWorkerThread();
-      } else {
-        assertEventLoopThread();
-      }
+      threadAssert.run();
       testComplete();
     }, 0, TimeUnit.MILLISECONDS);
     await();
@@ -76,13 +92,10 @@ public class SchedulerTest extends VertxTestBase {
     Context testContext = vertx.getOrCreateContext();
     testContext.runOnContext(v -> {
       Scheduler scheduler = new ContextScheduler(testContext, false);
-      Observable<String> observable = Observable.create(new Observable.OnSubscribe<String>() {
-        @Override
-        public void call(Subscriber<? super String> subscriber) {
-          assertFalse(Context.isOnVertxThread());
-          subscriber.onNext("expected");
-          subscriber.onCompleted();
-        }
+      Observable<String> observable = Observable.<String>create(subscriber -> {
+        assertFalse(Context.isOnVertxThread());
+        subscriber.onNext("expected");
+        subscriber.onCompleted();
       }).observeOn(scheduler).doOnNext(o -> assertEquals(Vertx.currentContext(), testContext));
       new Thread(() -> {
         observable.subscribe(
@@ -99,13 +112,10 @@ public class SchedulerTest extends VertxTestBase {
     Context testContext = vertx.getOrCreateContext();
     testContext.runOnContext(v -> {
       Scheduler scheduler = new ContextScheduler(testContext, false);
-      Observable<String> observable = Observable.create(new Observable.OnSubscribe<String>() {
-        @Override
-        public void call(Subscriber<? super String> subscriber) {
-          assertFalse(Context.isOnVertxThread());
-          subscriber.onNext("expected");
-          subscriber.onCompleted();
-        }
+      Observable<String> observable = Observable.<String>create(subscriber -> {
+        assertFalse(Context.isOnVertxThread());
+        subscriber.onNext("expected");
+        subscriber.onCompleted();
       }).delay(10, TimeUnit.MILLISECONDS, scheduler).doOnNext(o -> assertEquals(Vertx.currentContext(), testContext));
       new Thread(() -> {
         observable.subscribe(
@@ -119,24 +129,25 @@ public class SchedulerTest extends VertxTestBase {
 
   @Test
   public void testScheduleDelayed() {
-    testScheduleDelayed(false);
+    testScheduleDelayed(() -> new ContextScheduler(vertx, false), this::assertEventLoopThread);
   }
 
   @Test
   public void testScheduleDelayedBlocking() {
-    testScheduleDelayed(true);
+    testScheduleDelayed(() -> new ContextScheduler(vertx, true), this::assertWorkerThread);
   }
 
-  private void testScheduleDelayed(boolean blocking) {
-    ContextScheduler scheduler2 = new ContextScheduler(vertx, blocking);
+  @Test
+  public void testScheduleDelayedWorkerExecutor() {
+    testScheduleDelayed(() -> new ContextScheduler(workerExecutor), this::assertWorkerExecutorThread);
+  }
+
+  private void testScheduleDelayed(Supplier<ContextScheduler> scheduler, Runnable threadAssert) {
+    ContextScheduler scheduler2 = scheduler.get();
     Scheduler.Worker worker = scheduler2.createWorker();
     long time = System.currentTimeMillis();
     worker.schedule(() -> {
-      if (blocking) {
-        assertWorkerThread();
-      } else {
-        assertEventLoopThread();
-      }
+      threadAssert.run();
       assertTrue(System.currentTimeMillis() - time >= 40);
       testComplete();
     }, 40, TimeUnit.MILLISECONDS);
@@ -145,26 +156,27 @@ public class SchedulerTest extends VertxTestBase {
 
   @Test
   public void testSchedulePeriodic() {
-    testSchedulePeriodic(false);
+    testSchedulePeriodic(() -> new ContextScheduler(vertx, false), this::assertEventLoopThread);
   }
 
   @Test
   public void testSchedulePeriodicBlocking() {
-    testSchedulePeriodic(true);
+    testSchedulePeriodic(() -> new ContextScheduler(vertx, true), this::assertWorkerThread);
   }
 
-  private void testSchedulePeriodic(boolean blocking) {
-    ContextScheduler scheduler2 = new ContextScheduler(vertx, blocking);
+  @Test
+  public void testSchedulePeriodicWorkerExecutor() {
+    testSchedulePeriodic(() -> new ContextScheduler(workerExecutor), this::assertWorkerExecutorThread);
+  }
+
+  private void testSchedulePeriodic(Supplier<ContextScheduler> scheduler, Runnable threadAssert) {
+    ContextScheduler scheduler2 = scheduler.get();
     Scheduler.Worker worker = scheduler2.createWorker();
     AtomicLong time = new AtomicLong(System.currentTimeMillis() - 40);
     AtomicInteger count = new AtomicInteger();
     AtomicReference<Subscription> sub = new AtomicReference<>();
     sub.set(worker.schedulePeriodically(() -> {
-      if (blocking) {
-        assertWorkerThread();
-      } else {
-        assertEventLoopThread();
-      }
+      threadAssert.run();
       if (count.incrementAndGet() > 2) {
         sub.get().unsubscribe();
         testComplete();
@@ -180,16 +192,21 @@ public class SchedulerTest extends VertxTestBase {
 
   @Test
   public void testUnsubscribeBeforeExecute() throws Exception {
-    testUnsubscribeBeforeExecute(false);
+    testUnsubscribeBeforeExecute(() -> new ContextScheduler(vertx, false));
   }
 
   @Test
   public void testUnsubscribeBeforeExecuteBlocking() throws Exception {
-    testUnsubscribeBeforeExecute(true);
+    testUnsubscribeBeforeExecute(() -> new ContextScheduler(vertx, true));
   }
 
-  private void testUnsubscribeBeforeExecute(boolean blocking) throws Exception {
-    ContextScheduler scheduler2 = new ContextScheduler(vertx, blocking);
+  @Test
+  public void testUnsubscribeBeforeExecuteWorkerExecutor() throws Exception {
+    testUnsubscribeBeforeExecute(() -> new ContextScheduler(workerExecutor));
+  }
+
+  private void testUnsubscribeBeforeExecute(Supplier<ContextScheduler> scheduler) throws Exception {
+    ContextScheduler scheduler2 = scheduler.get();
     Scheduler.Worker worker = scheduler2.createWorker();
     CountDownLatch latch = new CountDownLatch(1);
     Subscription sub = worker.schedule(latch::countDown, 20, TimeUnit.MILLISECONDS);
@@ -199,16 +216,21 @@ public class SchedulerTest extends VertxTestBase {
 
   @Test
   public void testUnsubscribeDuringExecute() throws Exception {
-    testUnsubscribeDuringExecute(false);
+    testUnsubscribeDuringExecute(() -> new ContextScheduler(vertx, false));
   }
 
   @Test
   public void testUnsubscribeDuringExecuteBlocking() throws Exception {
-    testUnsubscribeDuringExecute(true);
+    testUnsubscribeDuringExecute(() -> new ContextScheduler(vertx, true));
   }
 
-  private void testUnsubscribeDuringExecute(boolean blocking) throws Exception {
-    ContextScheduler scheduler2 = new ContextScheduler(vertx, blocking);
+  @Test
+  public void testUnsubscribeDuringExecuteWorkerExecutor() throws Exception {
+    testUnsubscribeDuringExecute(() -> new ContextScheduler(workerExecutor));
+  }
+
+  private void testUnsubscribeDuringExecute(Supplier<ContextScheduler> scheduler) throws Exception {
+    ContextScheduler scheduler2 = scheduler.get();
     Scheduler.Worker worker = scheduler2.createWorker();
     AtomicInteger count = new AtomicInteger();
     AtomicReference<Subscription> sub = new AtomicReference<>();
@@ -223,16 +245,21 @@ public class SchedulerTest extends VertxTestBase {
 
   @Test
   public void testUnsubscribeBetweenActions() throws Exception {
-    testUnsubscribeBetweenActions(false);
+    testUnsubscribeBetweenActions(() -> new ContextScheduler(vertx, false));
   }
 
   @Test
   public void testUnsubscribeBetweenActionsBlocking() throws Exception {
-    testUnsubscribeBetweenActions(true);
+    testUnsubscribeBetweenActions(() -> new ContextScheduler(vertx, true));
   }
 
-  private void testUnsubscribeBetweenActions(boolean blocking) throws Exception {
-    ContextScheduler scheduler2 = new ContextScheduler(vertx, blocking);
+  @Test
+  public void testUnsubscribeBetweenActionsWorkerExecutor() throws Exception {
+    testUnsubscribeBetweenActions(() -> new ContextScheduler(workerExecutor));
+  }
+
+  private void testUnsubscribeBetweenActions(Supplier<ContextScheduler> scheduler) throws Exception {
+    ContextScheduler scheduler2 = scheduler.get();
     Scheduler.Worker worker = scheduler2.createWorker();
     AtomicInteger count = new AtomicInteger();
     CountDownLatch latch = new CountDownLatch(1);
@@ -250,16 +277,21 @@ public class SchedulerTest extends VertxTestBase {
 
   @Test
   public void testWorkerUnsubscribe() throws Exception {
-    testWorkerUnsubscribe(false);
+    testWorkerUnsubscribe(() -> new ContextScheduler(vertx, false));
   }
 
   @Test
   public void testWorkerUnsubscribeBlocking() throws Exception  {
-    testWorkerUnsubscribe(true);
+    testWorkerUnsubscribe(() -> new ContextScheduler(vertx, true));
   }
 
-  private void testWorkerUnsubscribe(boolean blocking) throws Exception {
-    ContextScheduler scheduler2 = new ContextScheduler(vertx, blocking);
+  @Test
+  public void testWorkerUnsubscribeWorkerExecutor() throws Exception {
+    testWorkerUnsubscribe(() -> new ContextScheduler(workerExecutor));
+  }
+
+  private void testWorkerUnsubscribe(Supplier<ContextScheduler> scheduler) throws Exception {
+    ContextScheduler scheduler2 = scheduler.get();
     Scheduler.Worker worker = scheduler2.createWorker();
     CountDownLatch latch = new CountDownLatch(2);
     Subscription sub1 = worker.schedule(latch::countDown, 40, TimeUnit.MILLISECONDS);
@@ -294,15 +326,20 @@ public class SchedulerTest extends VertxTestBase {
 
   @Test
   public void testSchedulerHook() throws Exception {
-    testSchedulerHook(false);
+    testSchedulerHook(() -> new ContextScheduler(vertx, false));
   }
 
   @Test
   public void testSchedulerHookBlocking() throws Exception {
-    testSchedulerHook(true);
+    testSchedulerHook(() -> new ContextScheduler(vertx, true));
   }
 
-  private void testSchedulerHook(boolean blocking) throws Exception {
+  @Test
+  public void testSchedulerHookWorkerExecutor() throws Exception {
+    testSchedulerHook(() -> new ContextScheduler(workerExecutor));
+  }
+
+  private void testSchedulerHook(Supplier<ContextScheduler> scheduler) throws Exception {
     RxJavaPlugins plugins = RxJavaPlugins.getInstance();
     AtomicInteger scheduled = new AtomicInteger();
     AtomicInteger called = new AtomicInteger();
@@ -319,8 +356,8 @@ public class SchedulerTest extends VertxTestBase {
       }
     });
 
-    ContextScheduler scheduler = new ContextScheduler(vertx, blocking);
-    Scheduler.Worker worker = scheduler.createWorker();
+    ContextScheduler scheduler2 = scheduler.get();
+    Scheduler.Worker worker = scheduler2.createWorker();
     assertEquals(0, scheduled.get());
     assertEquals(0, called.get());
     CountDownLatch latch = new CountDownLatch(1);

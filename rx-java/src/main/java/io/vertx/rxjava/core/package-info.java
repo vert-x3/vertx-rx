@@ -139,6 +139,14 @@
  * {@link examples.RxifiedExamples#schedulerHook(io.vertx.rxjava.core.Vertx)}
  * ----
  *
+ * It is also possible to create a scheduler backed by a named worker pool. This can be useful if you want to re-use
+ * the specific thread pool for scheduling blocking actions:
+ *
+ * [source,$lang]
+ * ----
+ * {@link examples.RxifiedExamples#scheduler(io.vertx.rxjava.core.WorkerExecutor)}
+ * ----
+ *
  * === Json unmarshalling
  *
  * The {@link io.vertx.rxjava.core.RxHelper#unmarshaller(java.lang.Class)} creates an `rx.Observable.Operator` that
