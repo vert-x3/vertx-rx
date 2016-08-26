@@ -45,7 +45,7 @@ fs.open("/data.txt", new OpenOptions(), result -> {
 });
 ----
 
-Such observables are *hot* observables, i.e they will produce notifications regardless of subscriptions.
+Such observables are *hot* observables, i.e. they will produce notifications regardless of subscriptions.
 
 === Handler support
 

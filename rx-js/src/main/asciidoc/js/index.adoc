@@ -37,7 +37,7 @@ compile {maven-groupId}:{maven-artifactId}:{maven-version}
 
 == Read stream support
 
-RxJS observable is a perfect match for Vert.x read streams : both provides provides a flow of items.
+RxJS observable is a perfect match for Vert.x read streams : both provide a flow of items.
 A read stream can be adapted to an observable with the `Rx.Observable.fromReadStream` function:
 
 [source,js]
