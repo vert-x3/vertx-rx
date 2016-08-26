@@ -16,9 +16,9 @@
  *
  * === Read stream support
  *
- * RxJava observable is a perfect match for Vert.x `ReadStream` class : both provides provides a flow of items.
+ * RxJava observable is a perfect match for Vert.x `ReadStream` class : both provide a flow of items.
  *
- * The {@link io.vertx.rx.java.RxHelper#toObservable(io.vertx.core.streams.ReadStream)} static methods converts
+ * The {@link io.vertx.rx.java.RxHelper#toObservable(io.vertx.core.streams.ReadStream)} static methods convert
  * a Vert.x read stream to an `rx.Observable`:
  *
  * [source,java]
@@ -34,7 +34,7 @@
  * {@link examples.RxifiedExamples#readStream(io.vertx.rxjava.core.Vertx)}
  * ----
  *
- * Such observables are *hot* observables, i.e they will produce notifications regardless of subscriptions.
+ * Such observables are *hot* observables, i.e. they will produce notifications regardless of subscriptions.
  *
  * === Handler support
  *
@@ -50,11 +50,11 @@
  *
  * === Async result support
  *
- * The Vert.x `Handler<AsyncResult<T>>` construct occuring as last parameter of an asynchronous methods can
+ * The Vert.x `Handler<AsyncResult<T>>` construct occuring as last parameter of an asynchronous method can
  * be mapped to an observable of a single element:
  *
  * - when the callback is a success, the observer `onNext` method is called with the item
- * and the `onComplete` method is immediatly invoked after
+ * and the `onComplete` method is immediately invoked after
  * - when the callback is a failure, the observer `onError` method is called
  *
  * The {@link io.vertx.rx.java.RxHelper#observableFuture()} method creates an {@link io.vertx.rx.java.ObservableFuture}:
@@ -90,13 +90,13 @@
  * {@link examples.RxifiedExamples#observableFuture(io.vertx.rxjava.core.Vertx)}
  * ----
  *
- * Such observables are *cold* observables, i.e they will produce notifications on request.
+ * Such observables are *cold* observables, i.e. they will produce notifications on request.
  *
  * === Scheduler support
  *
  * The reactive extension sometimes needs to schedule actions, for instance `Observable#timer` creates and returns
  * a timer that emit periodic events. By default, scheduled actions are managed by RxJava, it means that the
- * timer thread are not Vert.x threads and therefore not executing in a Vert.x event loop.
+ * timer threads are not Vert.x threads and therefore not executing in a Vert.x event loop.
  *
  * When an RxJava method deals with a scheduler, it accepts an overloaded method accepting an extra `rx.Scheduler`,
  * the {@link io.vertx.rx.java.RxHelper#scheduler(io.vertx.core.Vertx)}  method will return a scheduler that can be used
@@ -227,7 +227,7 @@
  * {@link examples.RxifiedExamples#eventBusBodies(io.vertx.rxjava.core.Vertx)}
  * ----
  *
- * RxJava map/reduce composition style can be then be used:
+ * RxJava map/reduce composition style can then be used:
  *
  * [source,java]
  * ----
@@ -323,7 +323,7 @@
  * {@link examples.RxifiedExamples#websocketClient(io.vertx.rxjava.core.Vertx)}
  * ----
  *
- * The {@link io.vertx.rxjava.core.http.WebSocket} can then be turned into an `Observable<Buffer>` easily
+ * The {@link io.vertx.rxjava.core.http.WebSocket} can then be turned into an `Observable<Buffer>` easily:
  *
  * [source,java]
  * ----

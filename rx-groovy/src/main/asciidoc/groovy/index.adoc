@@ -30,7 +30,7 @@ compile {maven-groupId}:{maven-artifactId}:{maven-version}
 
 == Read stream support
 
-RxJava observable is a perfect match for Vert.x `ReadStream` class : both provides provides a flow of items.
+RxJava observable is a perfect match for Vert.x `ReadStream` class : both provide a flow of items.
 
 Vert.x API for Groovy provides `io.vertx.groovy.core.stream.ReadStream` objects, the RxGroovy provides a
 Groovy extension module that adds the `toObservable` method to the read stream class.
