@@ -4,7 +4,6 @@
 == DataObjectWithBuffer
 
 ++++
- @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
 ++++
 '''
 
@@ -19,7 +18,6 @@
 == DataObjectWithLists
 
 ++++
- @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
 ++++
 '''
 
@@ -45,7 +43,6 @@
 == DataObjectWithMaps
 
 ++++
- @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
 ++++
 '''
 
@@ -71,7 +68,6 @@
 == DataObjectWithNestedBuffer
 
 ++++
- @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
 ++++
 '''
 
@@ -88,7 +84,6 @@
 == DataObjectWithOnlyJsonObjectConstructor
 
 ++++
- @author <a href="mailto:oreilldf@gmail.com">Dan O'Reilly</a>
 ++++
 '''
 
@@ -103,7 +98,6 @@
 == DataObjectWithValues
 
 ++++
- @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
 ++++
 '''
 
@@ -135,7 +129,6 @@
 == TestDataObject
 
 ++++
- @author <a href="http://tfox.org">Tim Fox</a>
 ++++
 '''
 
