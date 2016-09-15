@@ -18,6 +18,7 @@ import rx.Scheduler;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.plugins.RxJavaSchedulersHook;
+import rx.plugins.RxJavaHooks;
 
 import java.util.concurrent.TimeUnit;
 
@@ -96,7 +97,9 @@ public class NativeExamples {
 
   public void schedulerHook(Vertx vertx) {
     RxJavaSchedulersHook hook = RxHelper.schedulerHook(vertx);
-    rx.plugins.RxJavaPlugins.getInstance().registerSchedulersHook(hook);
+    RxJavaHooks.setOnIOScheduler(f -> hook.getIOScheduler());
+    RxJavaHooks.setOnNewThreadScheduler(f -> hook.getNewThreadScheduler());
+    RxJavaHooks.setOnComputationScheduler(f -> hook.getComputationScheduler());
   }
 
   private class MyPojo {
