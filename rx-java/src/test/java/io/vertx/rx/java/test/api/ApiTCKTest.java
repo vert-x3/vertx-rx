@@ -151,11 +151,6 @@ public class ApiTCKTest {
   }
 
   @Test
-  public void testNullDataObjectParam() {
-    obj.methodWithNullDataObjectParam(null);
-  }
-
-  @Test
   public void testMethodWithHandlerDataObject() {
     TestDataObject dataObject = new TestDataObject();
     dataObject.setFoo("foo");
@@ -530,16 +525,6 @@ public class ApiTCKTest {
         checker.<JsonObject>resultHandler(it -> assertEquals(new JsonObject().put("cheese", "stilton"), it)),
         checker.<JsonArray>resultHandler(it -> assertEquals(new JsonArray().add("socks").add("shoes"), it)
     ));
-    assertEquals(2, checker.count);
-  }
-
-  @Test
-  public void testNullJsonHandlerParams() {
-    AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerNullJson(
-        checker.<JsonObject>resultHandler(it -> assertEquals(null, it)),
-        checker.<JsonArray>resultHandler(it -> assertEquals(null, it)
-        ));
     assertEquals(2, checker.count);
   }
 

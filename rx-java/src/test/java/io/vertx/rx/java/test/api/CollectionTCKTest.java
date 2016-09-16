@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import static io.vertx.rx.java.test.api.ApiTCKTest.get;
 import static io.vertx.rx.java.test.api.ApiTCKTest.set;
@@ -36,38 +35,6 @@ import static org.junit.Assert.assertTrue;
 public class CollectionTCKTest {
 
   final CollectionTCK obj = new CollectionTCK(new CollectionTCKImpl());
-
-  @Test
-  public void testListOfDataObjectsParam() {
-    List<TestDataObject> list = new ArrayList<>();
-    TestDataObject object1 = new TestDataObject();
-    object1.setFoo("hello");
-    object1.setBar(123);
-    object1.setWibble(1.23);
-    list.add(object1);
-    TestDataObject object2 = new TestDataObject();
-    object2.setFoo("world");
-    object2.setBar(123);
-    object2.setWibble(1.23);
-    list.add(object2);
-    obj.methodWithListOfDataObjectsParam(list);
-  }
-
-  @Test
-  public void testSetOfDataObjectsParam() {
-    Set<TestDataObject> set = new HashSet<>();
-    TestDataObject object1 = new TestDataObject();
-    object1.setFoo("hello");
-    object1.setBar(123);
-    object1.setWibble(1.23);
-    set.add(object1);
-    TestDataObject object2 = new TestDataObject();
-    object2.setFoo("world");
-    object2.setBar(123);
-    object2.setWibble(1.23);
-    set.add(object2);
-    obj.methodWithSetOfDataObjectsParam(set);
-  }
 
   @Test
   public void testMethodWithHandlerListAndSet() {
@@ -210,27 +177,10 @@ public class CollectionTCKTest {
   }
 
   @Test
-  public void testMethodWithHandlerListNullJsonObject() {
-    AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerListNullJsonObject(checker.expectedResult(
-        Collections.singletonList(null)));
-    assertEquals(1, checker.count);
-  }
-
-  @Test
   public void testMethodWithHandlerAsyncResultListJsonObject() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerAsyncResultListJsonObject(
         checker.asyncExpectedResult(Arrays.asList(new JsonObject().put("cheese", "stilton"), new JsonObject().put("socks", "tartan")))
-    );
-    assertEquals(1, checker.count);
-  }
-
-  @Test
-  public void testMethodWithHandlerAsyncResultListNullJsonObject() {
-    AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultListNullJsonObject(
-        checker.asyncExpectedResult(Collections.singletonList(null))
     );
     assertEquals(1, checker.count);
   }
@@ -242,25 +192,10 @@ public class CollectionTCKTest {
   }
 
   @Test
-  public void testMethodWithFutureListNullJsonObject() throws Exception {
-    List<JsonObject> result = get(obj.methodWithHandlerAsyncResultListNullJsonObjectObservable());
-    assertEquals(Collections.singletonList(null), result);
-  }
-
-  @Test
   public void testMethodWithHandlerSetJsonObject() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerSetJsonObject(checker.<Set<JsonObject>>resultHandler(r -> {
       assertEquals(Arrays.asList(new JsonObject().put("cheese", "stilton"), new JsonObject().put("socks", "tartan")), new ArrayList<>(r));
-    }));
-    assertEquals(1, checker.count);
-  }
-
-  @Test
-  public void testMethodWithHandlerSetNullJsonObject() {
-    AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerSetNullJsonObject(checker.<Set<JsonObject>>resultHandler(r -> {
-      assertEquals(Collections.singletonList(null), new ArrayList<>(r));
     }));
     assertEquals(1, checker.count);
   }
@@ -275,24 +210,9 @@ public class CollectionTCKTest {
   }
 
   @Test
-  public void testMethodWithHandlerAsyncResultSetNullJsonObject() {
-    AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultSetNullJsonObject(checker.<Set<JsonObject>>asyncResultHandler(it ->
-        assertEquals(Collections.singletonList(null), new ArrayList<>(it))
-    ));
-    assertEquals(1, checker.count);
-  }
-
-  @Test
   public void testMethodWithFutureSetJsonObject() throws Exception {
     Set<JsonObject> result = get(obj.methodWithHandlerAsyncResultSetJsonObjectObservable());
     assertEquals(Arrays.asList(new JsonObject().put("cheese", "stilton"), new JsonObject().put("socks", "tartan")), new ArrayList<>(result));
-  }
-
-  @Test
-  public void testMethodWithFutureSetNullJsonObject() throws Exception {
-    Set<JsonObject> result = get(obj.methodWithHandlerAsyncResultSetNullJsonObjectObservable());
-    assertEquals(Collections.<JsonObject>singletonList(null), new ArrayList<>(result));
   }
 
   @Test
@@ -300,14 +220,6 @@ public class CollectionTCKTest {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerListJsonArray(checker.expectedResult(
         Arrays.asList(new JsonArray().add("green").add("blue"), new JsonArray().add("yellow").add("purple"))));
-    assertEquals(1, checker.count);
-  }
-
-  @Test
-  public void testMethodWithHandlerListNullJsonArray() {
-    AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerListNullJsonArray(checker.expectedResult(
-        Collections.singletonList(null)));
     assertEquals(1, checker.count);
   }
 
@@ -320,23 +232,9 @@ public class CollectionTCKTest {
   }
 
   @Test
-  public void testMethodWithHandlerAsyncResultListNullJsonArray() {
-    AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultListNullJsonArray(checker.asyncExpectedResult(
-        Collections.singletonList(null)));
-    assertEquals(1, checker.count);
-  }
-
-  @Test
   public void testMethodWithFutureListJsonArray() throws Exception {
     List<JsonArray> result = get(obj.methodWithHandlerAsyncResultListJsonArrayObservable());
     assertEquals(result, Arrays.asList(new JsonArray().add("green").add("blue"), new JsonArray().add("yellow").add("purple")));
-  }
-
-  @Test
-  public void testMethodWithFutureListNullJsonArray() throws Exception {
-    List<JsonArray> result = get(obj.methodWithHandlerAsyncResultListNullJsonArrayObservable());
-    assertEquals(result, Collections.<JsonArray>singletonList(null));
   }
 
   @Test
@@ -344,15 +242,6 @@ public class CollectionTCKTest {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerSetJsonArray(checker.<Set<JsonArray>>resultHandler(it ->
         assertEquals(Arrays.asList(new JsonArray().add("green").add("blue"), new JsonArray().add("yellow").add("purple")), new ArrayList<>(it))
-    ));
-    assertEquals(1, checker.count);
-  }
-
-  @Test
-  public void testMethodWithHandlerSetNullJsonArray() {
-    AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerSetNullJsonArray(checker.<Set<JsonArray>>resultHandler(it ->
-        assertEquals(Collections.singletonList(null), new ArrayList<>(it))
     ));
     assertEquals(1, checker.count);
   }
@@ -367,24 +256,9 @@ public class CollectionTCKTest {
   }
 
   @Test
-  public void testMethodWithHandlerAsyncResultSetNullJsonArray() {
-    AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultSetNullJsonArray(checker.<Set<JsonArray>>asyncResultHandler(it ->
-        assertEquals(Collections.singletonList(null), new ArrayList<>(it))
-    ));
-    assertEquals(1, checker.count);
-  }
-
-  @Test
   public void testMethodWithFutureSetJsonArray() throws Exception {
     Set<JsonArray> result = get(obj.methodWithHandlerAsyncResultSetJsonArrayObservable());
     assertEquals(Arrays.asList(new JsonArray().add("green").add("blue"), new JsonArray().add("yellow").add("purple")), new ArrayList<>(result));
-  }
-
-  @Test
-  public void testMethodWithFutureSetNullJsonArray() throws Exception {
-    Set<JsonArray> result = get(obj.methodWithHandlerAsyncResultSetNullJsonArrayObservable());
-    assertEquals(Collections.singletonList(null), new ArrayList<>(result));
   }
 
   @Test
@@ -398,16 +272,6 @@ public class CollectionTCKTest {
       assertEquals("String 2", list.get(1).getFoo());
       assertEquals(2, list.get(1).getBar());
       assertEquals(2.2, list.get(1).getWibble(), 0);
-    }));
-    assertEquals(1, checker.count);
-  }
-
-  @Test
-  public void testMethodWithHandlerNullListDataObject() throws Exception {
-    AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerListNullDataObject(checker.<List<TestDataObject>>resultHandler(list -> {
-      assertEquals(1, list.size());
-      assertNull(list.get(0));
     }));
     assertEquals(1, checker.count);
   }
@@ -429,17 +293,6 @@ public class CollectionTCKTest {
   }
 
   @Test
-  public void testMethodWithHandlerNullSetDataObject() throws Exception {
-    AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerSetNullDataObject(checker.<Set<TestDataObject>>resultHandler(set -> {
-      assertEquals(1, set.size());
-      List<TestDataObject> list = new ArrayList<>(set);
-      assertNull(list.get(0));
-    }));
-    assertEquals(1, checker.count);
-  }
-
-  @Test
   public void testMethodWithHandlerAsyncResultListDataObject() throws Exception {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerAsyncResultListDataObject(checker.<List<TestDataObject>>asyncResultHandler(list -> {
@@ -450,16 +303,6 @@ public class CollectionTCKTest {
       assertEquals("String 2", list.get(1).getFoo());
       assertEquals(2, list.get(1).getBar());
       assertEquals(2.2, list.get(1).getWibble(), 0);
-    }));
-    assertEquals(1, checker.count);
-  }
-
-  @Test
-  public void testMethodWithHandlerAsyncResultNullListDataObject() throws Exception {
-    AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultListNullDataObject(checker.<List<TestDataObject>>asyncResultHandler(list -> {
-      assertEquals(1, list.size());
-      assertNull(list.get(0));
     }));
     assertEquals(1, checker.count);
   }
@@ -476,17 +319,6 @@ public class CollectionTCKTest {
       assertEquals("String 2", list.get(1).getFoo());
       assertEquals(2, list.get(1).getBar());
       assertEquals(2.2, list.get(1).getWibble(), 0);
-    }));
-    assertEquals(1, checker.count);
-  }
-
-  @Test
-  public void testMethodWithHandlerAsyncResultNullSetDataObject() throws Exception {
-    AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultSetNullDataObject(checker.<Set<TestDataObject>>asyncResultHandler(set -> {
-      assertEquals(1, set.size());
-      List<TestDataObject> list = new ArrayList<>(set);
-      assertNull(list.get(0));
     }));
     assertEquals(1, checker.count);
   }
