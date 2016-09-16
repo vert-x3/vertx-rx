@@ -24,10 +24,10 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import static io.vertx.rx.java.test.api.ApiTest.get;
-import static io.vertx.rx.java.test.api.ApiTest.set;
-import static io.vertx.rx.java.test.api.ApiTest.list;
-import static io.vertx.rx.java.test.api.ApiTest.map;
+import static io.vertx.rx.java.test.api.ApiTCKTest.get;
+import static io.vertx.rx.java.test.api.ApiTCKTest.set;
+import static io.vertx.rx.java.test.api.ApiTCKTest.list;
+import static io.vertx.rx.java.test.api.ApiTCKTest.map;
 import static org.junit.Assert.assertTrue;
 
 /**

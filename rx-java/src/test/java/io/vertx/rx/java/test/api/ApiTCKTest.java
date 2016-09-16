@@ -37,7 +37,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class ApiTest {
+public class ApiTCKTest {
 
   final TestInterface obj = new TestInterface(new TestInterfaceImpl());
 
