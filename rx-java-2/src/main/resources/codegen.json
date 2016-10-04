@@ -1,0 +1,8 @@
+{
+  "name": "RxJava2",
+  "generators": [ {
+    "kind": "class",
+    "fileName": "module.translateQualifiedName(fqn, 'reactivex') + '.java'",
+    "templateFileName": "vertx-reactivex/template/class.templ"
+  } ]
+}

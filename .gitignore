@@ -25,3 +25,6 @@ rx-java/src/main/generated/**
 rx-java/src/main/java/io/vertx/core/**
 rx-java/src/test/java/io/vertx/codegen/**
 rx-java/src/test/java/com/acme/**
+rx-java-2/src/main/java/io/vertx/core/**
+rx-java-2/src/test/java/io/vertx/codegen/**
+rx-java-2/src/test/java/com/acme/**

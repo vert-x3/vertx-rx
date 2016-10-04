@@ -1,0 +1,101 @@
+@includeNamed{'common.templ'}
+
+/*\n
+ * Copyright 2014 Red Hat, Inc.\n
+ *\n
+ * Red Hat licenses this file to you under the Apache License, version 2.0\n
+ * (the "License"); you may not use this file except in compliance with the\n
+ * License.  You may obtain a copy of the License at:\n
+ *\n
+ * http://www.apache.org/licenses/LICENSE-2.0\n
+ *\n
+ * Unless required by applicable law or agreed to in writing, software\n
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT\n
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the\n
+ * License for the specific language governing permissions and limitations\n
+ * under the License.\n
+ */\n\n
+
+package @{type.raw.translatePackageName("reactivex")};\n\n
+
+@comment{'the current index of the cache'}
+@code{cacheDecls=new java.util.ArrayList()}
+
+import java.util.Map;\n
+import io.reactivex.Observable;\n
+@comment{"Generate the imports"}
+@foreach{importedType:importedTypes}
+	@if{importedType.kind == CLASS_API}
+		@if{!ifacePackageName.equals(importedType.packageName)}
+			import @{importedType.raw.translateName("reactivex")};\n
+		@end{}
+	@else{}
+		@if{!importedType.packageName.equals("java.lang")}
+			import @{importedType};\n
+		@end{}
+	@end{}
+@end{}
+
+\n
+@if{doc != null}
+/**\n
+@{renderDocToHtml(" *", doc, renderLinkToHtml)}
+ *\n
+ * <p/>\n
+ * NOTE: This class has been automatically generated from the {@link @{type.name} original} non RX-ified interface using Vert.x codegen.\n
+ */\n
+@end{}
+\n
+public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN)}
+
+@if{concrete}
+	@if{concreteSuperType != null}
+	 extends @{concreteSuperType.simpleName}
+	@end{}
+@end{}
+
+@if{abstractSuperTypes.size() > 0}
+	 @if{concrete}implements@else{}extends@end{}
+	@foreach{abstractSuperType: abstractSuperTypes}
+	 @{abstractSuperType.simpleName}
+	@end{', '}
+@end{}
+
+@if{handlerSuperType != null}
+	@if{abstractSuperTypes.empty}
+		 @if{concrete}implements @else{}extends @end{}
+	@else{}, @end{}
+	Handler<@{type.handlerArg.simpleName}>
+@end{} {\n\n
+
+@if{concrete}
+
+	@includeNamed{'classbody.templ';constructor=ifaceSimpleName}
+
+@else{}
+
+	  Object getDelegate();\n\n
+
+	@foreach{method:methods}
+		@includeNamed{'startMethodTemplate'};\n\n
+	@end{}
+
+	@if{type.raw.name == 'io.vertx.core.streams.ReadStream'}
+  io.reactivex.Observable<@{typeParams[0].name}> toObservable();\n\n
+	@end{}
+
+@end{}
+\n
+  public static @if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}@{type.simpleName} newInstance(@{type.raw.name} arg) {\n
+    return arg != null ? new @{type.raw.simpleName + (concrete ? '' : 'Impl')}@if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}(arg) : null;\n
+  }\n
+}\n
+
+@if{!concrete}
+
+\n
+class @{type.raw.simpleName}Impl@if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{','}>@end{} implements @{helper.getSimpleName(ifaceFQCN)} {\n
+@includeNamed{'classbody.templ';constructor=(type.raw.simpleName + 'Impl')}
+}\n
+
+@end{}

@@ -1,0 +1,34 @@
+== ArgumentModel
+
+++++
+ Models command line argument. Unlike options, argument don't have names and are identified using an index. The
+ first index is 0 (because we are in the computer world).
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+
+|[[argName]]`argName`
+|`String`
+|-
+|[[defaultValue]]`defaultValue`
+|`String`
+|-
+|[[description]]`description`
+|`String`
+|-
+|[[hidden]]`hidden`
+|`Boolean`
+|-
+|[[index]]`index`
+|`Number (int)`
+|-
+|[[rawValue]]`rawValue`
+|`String`
+|-
+|[[required]]`required`
+|`Boolean`
+|-|===
