@@ -1,0 +1,143 @@
+= Cheatsheets
+
+[[DataObjectWithBuffer]]
+== DataObjectWithBuffer
+
+++++
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[buffer]]`buffer`|`Buffer`|-
+|===
+
+[[DataObjectWithLists]]
+== DataObjectWithLists
+
+++++
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[booleanValues]]`booleanValues`|`Array of Boolean`|-
+|[[dataObjectValues]]`dataObjectValues`|`Array of link:dataobjects.html#TestDataObject[TestDataObject]`|-
+|[[doubleValues]]`doubleValues`|`Array of Number (Double)`|-
+|[[enumValues]]`enumValues`|`Array of link:enums.html#TestEnum[TestEnum]`|-
+|[[floatValues]]`floatValues`|`Array of Number (Float)`|-
+|[[genEnumValues]]`genEnumValues`|`Array of link:enums.html#TestGenEnum[TestGenEnum]`|-
+|[[integerValues]]`integerValues`|`Array of Number (Integer)`|-
+|[[jsonArrayValues]]`jsonArrayValues`|`Array of Json array`|-
+|[[jsonObjectValues]]`jsonObjectValues`|`Array of Json object`|-
+|[[longValues]]`longValues`|`Array of Number (Long)`|-
+|[[shortValues]]`shortValues`|`Array of Number (Short)`|-
+|[[stringValues]]`stringValues`|`Array of String`|-
+|===
+
+[[DataObjectWithMaps]]
+== DataObjectWithMaps
+
+++++
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[booleanValues]]`booleanValues`|`Boolean`|-
+|[[dataObjectValues]]`dataObjectValues`|`link:dataobjects.html#TestDataObject[TestDataObject]`|-
+|[[doubleValues]]`doubleValues`|`Number (Double)`|-
+|[[enumValues]]`enumValues`|`link:enums.html#TestEnum[TestEnum]`|-
+|[[floatValues]]`floatValues`|`Number (Float)`|-
+|[[genEnumValues]]`genEnumValues`|`link:enums.html#TestGenEnum[TestGenEnum]`|-
+|[[integerValues]]`integerValues`|`Number (Integer)`|-
+|[[jsonArrayValues]]`jsonArrayValues`|`Json array`|-
+|[[jsonObjectValues]]`jsonObjectValues`|`Json object`|-
+|[[longValues]]`longValues`|`Number (Long)`|-
+|[[shortValues]]`shortValues`|`Number (Short)`|-
+|[[stringValues]]`stringValues`|`String`|-
+|===
+
+[[DataObjectWithNestedBuffer]]
+== DataObjectWithNestedBuffer
+
+++++
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[buffer]]`buffer`|`Buffer`|-
+|[[buffers]]`buffers`|`Array of Buffer`|-
+|[[nested]]`nested`|`link:dataobjects.html#DataObjectWithBuffer[DataObjectWithBuffer]`|-
+|===
+
+[[DataObjectWithOnlyJsonObjectConstructor]]
+== DataObjectWithOnlyJsonObjectConstructor
+
+++++
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[foo]]`foo`|`String`|-
+|===
+
+[[DataObjectWithValues]]
+== DataObjectWithValues
+
+++++
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[booleanValue]]`booleanValue`|`Boolean`|-
+|[[boxedBooleanValue]]`boxedBooleanValue`|`Boolean`|-
+|[[boxedDoubleValue]]`boxedDoubleValue`|`Number (Double)`|-
+|[[boxedFloatValue]]`boxedFloatValue`|`Number (Float)`|-
+|[[boxedIntValue]]`boxedIntValue`|`Number (Integer)`|-
+|[[boxedLongValue]]`boxedLongValue`|`Number (Long)`|-
+|[[boxedShortValue]]`boxedShortValue`|`Number (Short)`|-
+|[[dataObjectValue]]`dataObjectValue`|`link:dataobjects.html#TestDataObject[TestDataObject]`|-
+|[[doubleValue]]`doubleValue`|`Number (double)`|-
+|[[enumValue]]`enumValue`|`link:enums.html#TestEnum[TestEnum]`|-
+|[[floatValue]]`floatValue`|`Number (float)`|-
+|[[genEnumValue]]`genEnumValue`|`link:enums.html#TestGenEnum[TestGenEnum]`|-
+|[[intValue]]`intValue`|`Number (int)`|-
+|[[jsonArrayValue]]`jsonArrayValue`|`Json array`|-
+|[[jsonObjectValue]]`jsonObjectValue`|`Json object`|-
+|[[longValue]]`longValue`|`Number (long)`|-
+|[[shortValue]]`shortValue`|`Number (short)`|-
+|[[stringValue]]`stringValue`|`String`|-
+|===
+
+[[TestDataObject]]
+== TestDataObject
+
+++++
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[bar]]`bar`|`Number (int)`|-
+|[[foo]]`foo`|`String`|-
+|[[wibble]]`wibble`|`Number (double)`|-
+|===
+

@@ -1,0 +1,18 @@
+== TestOptions
+
+++++
+ @author <a href="http://tfox.org">Tim Fox</a>
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+
+|[[foo]]`foo`
+|`String`
+|-
+|[[bar]]`bar`
+|`Number`
+|-|===

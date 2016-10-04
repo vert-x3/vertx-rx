@@ -1,0 +1,37 @@
+	  final @{helper.getNonGenericType(ifaceFQCN)} delegate;\n\n
+	  public @{constructor}(@{helper.getNonGenericType(ifaceFQCN)} delegate) {\n
+	@if{concrete && concreteSuperType != null}
+	    super(delegate);\n
+	@end{}
+	    this.delegate = delegate;\n
+	  }\n\n
+
+	  public Object getDelegate() {\n
+	    return delegate;\n
+	  }\n\n
+
+	@if{type.raw.readStream}
+		@code{streamType=type.raw.readStreamArg}
+  private io.reactivex.Observable<@{streamType.simpleName}> observable;\n\n
+
+  public synchronized io.reactivex.Observable<@{streamType.simpleName}> toObservable() {\n
+    if (observable == null) {\n
+		@if{streamType.kind == CLASS_API}
+      java.util.function.Function<@{streamType.raw.name}, @{streamType.simpleName}> conv = @{streamType.raw.simpleName}::newInstance;\n
+      // io.vertx.lang.rxjava.ReadStreamAdapter<@{streamType.raw.name}, @{streamType.simpleName}> adapter = new io.vertx.lang.rxjava.ReadStreamAdapter<>(this, conv);\n
+      observable = /* io.reactivex.Observable.create(adapter) */ null;\n
+		@else{}
+      observable = io.vertx.reactivex.RxHelper.toObservable((io.vertx.core.streams.ReadStream<@{streamType.name}>) this.getDelegate());\n
+		@end{}
+    }\n
+    return observable;\n
+  }\n\n
+	@end{}
+
+	@foreach{method:methods}
+		@includeNamed{'genMethod'}
+	@end{}
+
+	@foreach{cacheDecl:cacheDecls}
+	  @{cacheDecl};\n
+	@end{}
