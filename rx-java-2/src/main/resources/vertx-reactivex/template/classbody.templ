@@ -13,6 +13,7 @@
 	@if{type.raw.readStream}
 		@code{streamType=type.raw.readStreamArg}
   private io.reactivex.Observable<@{streamType.simpleName}> observable;\n\n
+  private io.reactivex.Flowable<@{streamType.simpleName}> flowable;\n\n
 
   public synchronized io.reactivex.Observable<@{streamType.simpleName}> toObservable() {\n
     if (observable == null) {\n
@@ -25,6 +26,18 @@
 		@end{}
     }\n
     return observable;\n
+  }\n\n
+
+  public synchronized io.reactivex.Flowable<@{streamType.simpleName}> toFlowable() {\n
+    if (flowable == null) {\n
+		@if{streamType.kind == CLASS_API}
+      java.util.function.Function<@{streamType.raw.name}, @{streamType.simpleName}> conv = @{streamType.raw.simpleName}::newInstance;\n
+      flowable = io.vertx.reactivex.RxHelper.toFlowable((io.vertx.core.streams.ReadStream<@{streamType.raw.name}>) this.getDelegate(), conv, io.vertx.core.Vertx.currentContext());\n
+		@else{}
+      flowable = io.vertx.reactivex.RxHelper.toFlowable((io.vertx.core.streams.ReadStream<@{streamType.name}>) this.getDelegate(), java.util.function.Function.identity(), io.vertx.core.Vertx.currentContext());\n
+		@end{}
+    }\n
+    return flowable;\n
   }\n\n
 	@end{}
 

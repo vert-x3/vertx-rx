@@ -23,6 +23,7 @@ package @{type.raw.translatePackageName("reactivex")};\n\n
 
 import java.util.Map;\n
 import io.reactivex.Observable;\n
+import io.reactivex.Single;\n
 @comment{"Generate the imports"}
 @foreach{importedType:importedTypes}
 	@if{importedType.kind == CLASS_API}
@@ -82,6 +83,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 
 	@if{type.raw.name == 'io.vertx.core.streams.ReadStream'}
   io.reactivex.Observable<@{typeParams[0].name}> toObservable();\n\n
+  io.reactivex.Flowable<@{typeParams[0].name}> toFlowable();\n\n
 	@end{}
 
 @end{}
