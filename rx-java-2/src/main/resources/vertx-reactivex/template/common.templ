@@ -1,0 +1,211 @@
+@includeNamed{'/vertx-java/template/common-lib.templ'}
+@code{
+
+  /**
+   * Render a tag link to an html link, this function is used as parameter of the
+   * renderDocToHtml function when it needs to render tag links.
+   */
+  def renderLinkToHtml(link) {
+    var rawType = link.targetType.raw;
+    if (rawType.module != null) {
+      var label = link.label.trim();
+      if (rawType.kind == CLASS_DATA_OBJECT) {
+        return "{@link " + rawType.name + "}";
+      } else {
+        if (type.kind == CLASS_API) {
+          var elt = link.targetElement;
+          var eltKind = elt.getKind().name();
+          var ret = "{@link " + rawType.translateName("reactivex");
+          if (eltKind == "METHOD") {
+            /* todo find a way for translating the complete signature */
+            ret += "#" + elt.getSimpleName().toString();
+          }
+          if (label.length() > 0) {
+            ret += " " + label;
+          }
+          ret += "}";
+          return ret;
+        }
+      }
+    }
+    return "{@link " + rawType.name + "}";
+  }
+
+  function genInvokeDelegate(method) {
+    var ret = '';
+    if (method.staticMethod) {
+      ret = helper.getNonGenericType(ifaceFQCN);
+    } else {
+      if (method.ownerTypes.size() > 1) {
+        /* Work around for https://jira.codehaus.org/browse/GROOVY-6970 */
+        ret = '((' + method.ownerTypes.iterator().next().name + ') delegate)';
+      } else {
+        ret = 'delegate';
+      }
+    }
+    ret += '.' + method.name + '(';
+    var index = 0;
+    for (param : method.params) {
+      if (index > 0) {
+        ret += ', ';
+      }
+      ret += genConvParam(param.type, param.name);
+      index = index + 1;
+    }
+    ret += ')';
+    return ret;
+  }
+
+  function isSameType(type) {
+    var kind = type.kind;
+    if (kind.basic || kind.json || kind == CLASS_OBJECT || kind == CLASS_DATA_OBJECT || kind == CLASS_ENUM || kind == CLASS_OTHER || kind == CLASS_THROWABLE || kind == CLASS_VOID) {
+      return true;
+    } else if (kind == CLASS_LIST || kind == CLASS_SET || kind == CLASS_ASYNC_RESULT) {
+      return isSameType(type.args[0]);
+    } else if (kind == CLASS_MAP) {
+      return isSameType(type.args[1]);
+    }
+    return false;
+  }
+
+  function genConvParam(type, expr) {
+    var kind = type.kind;
+    if (isSameType(type)) {
+      return expr;
+    } else if (kind == CLASS_HANDLER) {
+      var eventType = type.args[0];
+      if (isSameType(eventType)) {
+        return expr;
+      }
+      var eventKind = eventType.kind;
+      if (eventKind == CLASS_ASYNC_RESULT) {
+        var resultType = eventType.args[0];
+        return 'new Handler<AsyncResult<' + resultType.name + '>>() {\n' +
+               '      public void handle(AsyncResult<' + resultType.name + '> ar) {\n' +
+               '        if (ar.succeeded()) {\n' +
+               '          ' + expr + '.handle(io.vertx.core.Future.succeededFuture(' + genConvReturn(resultType, 'ar.result()') + '));\n' +
+               '        } else {\n' +
+               '          ' + expr + '.handle(io.vertx.core.Future.failedFuture(ar.cause()));\n' +
+               '        }\n' +
+               '      }\n' +
+               '    }';
+      } else {
+        return 'new Handler<' + eventType.name + '>() {\n' +
+               '      public void handle(' + eventType.name + ' event) {\n' +
+               '        ' + expr + '.handle(' + genConvReturn(eventType, 'event') + ');\n' +
+               '      }\n' +
+               '    }';
+      }
+    } else if (kind == CLASS_FUNCTION) {
+      var argType = type.args[0];
+      var retType = type.args[1];
+      return 'new java.util.function.Function<' + argType.name + ',' + retType.name + '>() {\n' +
+             '      public ' + retType.name + ' apply(' + argType.name + ' arg) {\n' +
+             '        ' + retType.simpleName + ' ret = ' + expr + '.apply(' + genConvReturn(argType, 'arg') + ');\n' +
+             '        return ' + genConvParam(retType, 'ret') + ';\n' +
+             '      }\n' +
+             '    }';
+    } else if (kind == CLASS_API) {
+      return '(' + type.name + ')' + expr + '.getDelegate()';
+    } else if (kind == CLASS_LIST || kind == CLASS_SET) {
+      return expr + '.stream().map(elt -> ' + genConvParam(type.args[0], 'elt') + ').collect(java.util.stream.Collectors.to' + type.raw.simpleName + '())';
+    } else if (kind == CLASS_MAP) {
+      return expr + '.entrySet().stream().collect(java.util.stream.Collectors.toMap(e -> e.getKey(), e -> ' + genConvParam(type.args[1], 'e.getValue()') + '))';
+    }
+    return 'null';
+  }
+
+  function genConvReturn(type, expr) {
+    if (type.kind == CLASS_OBJECT) {
+      return '(' + type.simpleName + ') ' + expr;
+    } else if (isSameType(type)) {
+      return expr;
+    } else if (type.kind == CLASS_API) {
+      return type.raw.simpleName + '.newInstance(' + expr + ')';
+    } else if (type.kind == CLASS_HANDLER) {
+      var abc = type.args[0];
+      if (abc.kind == CLASS_ASYNC_RESULT) {
+        var tutu = abc.args[0];
+        return 'new Handler<AsyncResult<' + tutu.simpleName + '>>() {\n' +
+               '      public void handle(AsyncResult<' + tutu.simpleName + '> ar) {\n' +
+               '        if (ar.succeeded()) {\n' +
+               '          ' + expr + '.handle(io.vertx.core.Future.succeededFuture(' + genConvParam(tutu, 'ar.result()') + '));\n' +
+               '        } else {\n' +
+               '          ' + expr + '.handle(io.vertx.core.Future.failedFuture(ar.cause()));\n' +
+               '        }\n' +
+               '      }\n' +
+               '    }';
+      } else {
+        return 'new Handler<' + abc.simpleName + '>() {\n' +
+               '      public void handle(' + abc.simpleName + ' event) {\n' +
+               '          ' + expr + '.handle(' + genConvParam(abc, 'event') + ');\n' +
+               '      }\n' +
+               '    }';
+      }
+    } else if (type.kind == CLASS_LIST || type.kind == CLASS_SET) {
+      return expr + '.stream().map(elt -> ' + genConvReturn(type.args[0], 'elt') + ').collect(java.util.stream.Collectors.to' + type.raw.simpleName + '())';
+    }
+    return expr;
+  }
+}
+
+@declare{'startMethodTemplate'}
+	@if{method.doc != null}
+	  /**\n
+	@{renderDocToHtml("   *", method.doc, renderLinkToHtml)}
+	@foreach{param: method.params}
+	   * @param @{param.name} @if{param.description != null}@{renderTokensToHtml("", param.description.tokens, renderLinkToHtml, "")}@end{}\n
+	@end{}
+	@if{!method.returnType.name.equals("void")}
+	   * @return @if{method.returnDescription != null}@{renderTokensToHtml("", method.returnDescription.tokens, renderLinkToHtml, "")}@end{}\n
+	@end{}
+	   */\n
+	@end{}
+  public @if{method.staticMethod}static @end{}@if{method.typeParams.size() > 0}<@foreach{typeParam:method.typeParams}@{typeParam.name}@end{', '}> @end{}@{method.returnType.simpleName} @{method.name}(@foreach{param: method.params}@{param.type.simpleName} @{param.name}@end{', '})
+@end{}
+
+@declare{'genMethod'}
+	@includeNamed{'startMethodTemplate';method:method} { \n
+	@if{method.fluent}
+	    @{genInvokeDelegate(method)};\n
+			@if{method.returnType.variable}
+	    return (@{method.returnType.name}) this;\n
+			@else{}
+	    return this;\n
+			@end{}
+	@else{method.returnType.name.equals('void')}
+	    @{genInvokeDelegate(method)};\n
+	@else{}
+		@if{method.cacheReturn}
+		    if (cached_@{cacheDecls.size()} != null) {\n
+		      return cached_@{cacheDecls.size()};\n
+		    }\n
+		@end{}
+		@if{method.returnType.kind == CLASS_PRIMITIVE}
+			@code{cachedType=method.returnType.boxed.name}
+		@else{}
+			@code{cachedType=method.returnType.simpleName}
+		@end{}
+		    @{method.returnType.simpleName} ret = @{genConvReturn(method.returnType, genInvokeDelegate(method))};\n
+		@if{method.cacheReturn}
+		    cached_@{cacheDecls.size()} = ret;\n
+			@code{cacheDecls.add('private' + (method.staticMethod ? ' static' : '') + ' ' + cachedType + ' cached_' + cacheDecls.size())}
+		@end{}
+		    return ret;\n
+		@end{}
+	  }\n\n
+
+	@if{method.kind == METHOD_FUTURE}
+	@code{methodName=method.name}
+	@code{futureParams=new java.util.ArrayList(method.params)}
+	@code{futureParam=futureParams.remove(futureParams.size()-1)}
+	@code{futureType=futureParam.type.args[0].args[0]}
+	@code{futureReturnType=new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Observable), false, java.util.Collections.singletonList(futureType))}
+	@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,method.name + 'Observable',method.kind,futureReturnType,null,method.fluent,method.cacheReturn,futureParams,method.comment,method.doc,method.staticMethod,method.defaultMethod,method.typeParams)}
+	@includeNamed{'startMethodTemplate';method=futureMethod} { \n
+	    // io.vertx.rx.java.ObservableFuture<@{futureType.simpleName}> @{futureParam.name} = io.vertx.rx.java.RxHelper.observableFuture();\n
+	    // @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}@{futureParam.name}.toHandler());\n
+	    return /* @{futureParam.name} */ null;\n
+	  }\n\n
+	@end{}
+@end{}

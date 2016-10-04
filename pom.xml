@@ -18,6 +18,7 @@
 
   <modules>
     <module>rx-java</module>
+    <module>rx-java-2</module>
     <module>rx-groovy</module>
     <module>rx-js</module>
   </modules>
@@ -33,6 +34,16 @@
         <groupId>io.reactivex</groupId>
         <artifactId>rxjava</artifactId>
         <version>1.2.2</version>
+      </dependency>
+      <dependency>
+        <groupId>io.reactivex.rxjava2</groupId>
+        <artifactId>rxjava</artifactId>
+        <version>2.0.0-RC3</version>
+      </dependency>
+      <dependency>
+        <groupId>org.reactivestreams</groupId>
+        <artifactId>reactive-streams</artifactId>
+        <version>1.0.0</version>
       </dependency>
       <dependency>
         <groupId>io.reactivex</groupId>

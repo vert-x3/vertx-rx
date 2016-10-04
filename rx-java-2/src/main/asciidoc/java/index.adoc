@@ -1,0 +1,559 @@
+= Vert.x RxJava
+:toc: left
+
+== Vert.x API for RxJava
+
+https://github.com/ReactiveX/RxJava[RxJava] is a popular library for composing asynchronous and event based programs using
+observable sequences for the Java VM.
+
+Vert.x integrates naturally with RxJava, allowing to use
+observable wherever you can use streams or asynchronous results.
+
+There are two ways for using the RxJava API with Vert.x:
+
+- via the original Vert.x API with the `link:../../apidocs/io/vertx/rx/java/RxHelper.html[RxHelper]` helper class that provides static
+methods for converting objects between Vert.x core API and RxJava API.
+- via the _Rxified_ Vert.x API enhancing the core Vert.x API.
+
+=== Read stream support
+
+RxJava observable is a perfect match for Vert.x `ReadStream` class : both provide a flow of items.
+
+The `link:../../apidocs/io/vertx/rx/java/RxHelper.html#toObservable-io.vertx.core.streams.ReadStream-[RxHelper.toObservable]` static methods convert
+a Vert.x read stream to an `rx.Observable`:
+
+[source,java]
+----
+FileSystem fileSystem = vertx.fileSystem();
+fileSystem.open("/data.txt", new OpenOptions(), result -> {
+  AsyncFile file = result.result();
+  Observable<Buffer> observable = RxHelper.toObservable(file);
+  observable.forEach(data -> System.out.println("Read data: " + data.toString("UTF-8")));
+});
+----
+
+The _Rxified_ Vert.x API provides a `link:../../apidocs/io/vertx/rxjava/core/streams/ReadStream.html#toObservable--[toObservable]`  method on
+`link:../../apidocs/io/vertx/rxjava/core/streams/ReadStream.html[ReadStream]`:
+
+[source,java]
+----
+FileSystem fs = vertx.fileSystem();
+fs.open("/data.txt", new OpenOptions(), result -> {
+  AsyncFile file = result.result();
+  Observable<Buffer> observable = file.toObservable();
+  observable.forEach(data -> System.out.println("Read data: " + data.toString("UTF-8")));
+});
+----
+
+Such observables are *hot* observables, i.e. they will produce notifications regardless of subscriptions.
+
+=== Handler support
+
+The `link:../../apidocs/io/vertx/rx/java/RxHelper.html[RxHelper]` can create an `link:../../apidocs/io/vertx/rx/java/ObservableHandler.html[ObservableHandler]`: an `Observable` with a
+`link:../../apidocs/io/vertx/rx/java/ObservableHandler.html#toHandler--[toHandler]` method returning an `Handler<T>` implementation:
+
+[source,java]
+----
+ObservableHandler<Long> observable = RxHelper.observableHandler();
+observable.subscribe(id -> {
+  // Fired
+});
+vertx.setTimer(1000, observable.toHandler());
+----
+
+The _Rxified_ Vert.x API does not provide a specific API for handler.
+
+=== Async result support
+
+The Vert.x `Handler<AsyncResult<T>>` construct occuring as last parameter of an asynchronous method can
+be mapped to an observable of a single element:
+
+- when the callback is a success, the observer `onNext` method is called with the item
+and the `onComplete` method is immediately invoked after
+- when the callback is a failure, the observer `onError` method is called
+
+The `link:../../apidocs/io/vertx/rx/java/RxHelper.html#observableFuture--[RxHelper.observableFuture]` method creates an `link:../../apidocs/io/vertx/rx/java/ObservableFuture.html[ObservableFuture]`:
+an `Observable` with a `link:../../apidocs/io/vertx/rx/java/ObservableFuture.html#toHandler--[toHandler]` method returning a `Handler<AsyncResult<T>>`
+implementation:
+
+[source,java]
+----
+ObservableFuture<HttpServer> observable = RxHelper.observableFuture();
+observable.subscribe(
+    server -> {
+      // Server is listening
+    },
+    failure -> {
+      // Server could not start
+    }
+);
+vertx.createHttpServer(new HttpServerOptions().
+    setPort(1234).
+    setHost("localhost")
+).listen(observable.toHandler());
+----
+
+The `ObservableFuture<Server>` will get a single `HttpServer` object, if the `listen` operation fails,
+the subscriber will be notified with the failure.
+
+The `link:../../apidocs/io/vertx/rx/java/RxHelper.html#toHandler-rx.Observer-[RxHelper.toHandler]` method adapts an existing `Observer` into an handler:
+
+[source,java]
+----
+Observer<HttpServer> observer = new Observer<HttpServer>() {
+  @Override
+  public void onNext(HttpServer o) {
+  }
+  @Override
+  public void onError(Throwable e) {
+  }
+  @Override
+  public void onCompleted() {
+  }
+};
+Handler<AsyncResult<HttpServer>> handler = RxHelper.toFuture(observer);
+----
+
+It also works with just actions:
+
+[source,java]
+----
+Action1<HttpServer> onNext = httpServer -> {};
+Action1<Throwable> onError = httpServer -> {};
+Action0 onComplete = () -> {};
+
+Handler<AsyncResult<HttpServer>> handler1 = RxHelper.toFuture(onNext);
+Handler<AsyncResult<HttpServer>> handler2 = RxHelper.toFuture(onNext, onError);
+Handler<AsyncResult<HttpServer>> handler3 = RxHelper.toFuture(onNext, onError, onComplete);
+----
+
+The _Rxified_ Vert.x API duplicates each such method with the `Observable` suffix that returns an observable:
+
+[source,java]
+----
+vertx.createHttpServer(
+    new HttpServerOptions().setPort(1234).setHost("localhost")
+).listenObservable().
+    subscribe(
+        server -> {
+          // Server is listening
+        },
+        failure -> {
+          // Server could not start
+        }
+    );
+----
+
+Such observables are *cold* observables, i.e. they will produce notifications on request.
+
+=== Scheduler support
+
+The reactive extension sometimes needs to schedule actions, for instance `Observable#timer` creates and returns
+a timer that emit periodic events. By default, scheduled actions are managed by RxJava, it means that the
+timer threads are not Vert.x threads and therefore not executing in a Vert.x event loop.
+
+When an RxJava method deals with a scheduler, it accepts an overloaded method accepting an extra `rx.Scheduler`,
+the `link:../../apidocs/io/vertx/rx/java/RxHelper.html#scheduler-io.vertx.core.Vertx-[RxHelper.scheduler]`  method will return a scheduler that can be used
+in such places.
+
+[source,java]
+----
+Scheduler scheduler = RxHelper.scheduler(vertx);
+Observable<Long> timer = Observable.timer(100, 100, TimeUnit.MILLISECONDS, scheduler);
+----
+
+For blocking scheduled actions, a scheduler can be created with the `link:../../apidocs/io/vertx/rx/java/RxHelper.html#blockingScheduler-io.vertx.core.Vertx-[RxHelper.blockingScheduler]`
+method:
+
+[source,java]
+----
+Scheduler scheduler = RxHelper.blockingScheduler(vertx);
+Observable<Integer> obs = blockingObservable.observeOn(scheduler);
+----
+
+RxJava can also be reconfigured to use the Vert.x scheduler, thanks to the scheduler hook created with
+`link:../../apidocs/io/vertx/rx/java/RxHelper.html#schedulerHook-io.vertx.core.Vertx-[RxHelper.schedulerHook]`, the returned scheduler hook
+uses a blocking scheduler for IO actions:
+
+[source,java]
+----
+RxJavaSchedulersHook hook = RxHelper.schedulerHook(vertx);
+rx.plugins.RxJavaPlugins.getInstance().registerSchedulersHook(hook);
+----
+
+The _Rxified_ Vert.x API provides also similar method on the `link:../../apidocs/io/vertx/rxjava/core/RxHelper.html[RxHelper]` class:
+
+[source,java]
+----
+Scheduler scheduler = io.vertx.rxjava.core.RxHelper.scheduler(vertx);
+Observable<Long> timer = Observable.timer(100, 100, TimeUnit.MILLISECONDS, scheduler);
+----
+
+[source,java]
+----
+RxJavaSchedulersHook hook = io.vertx.rxjava.core.RxHelper.schedulerHook(vertx);
+rx.plugins.RxJavaPlugins.getInstance().registerSchedulersHook(hook);
+----
+
+=== Json unmarshalling
+
+The `link:../../apidocs/io/vertx/rxjava/core/RxHelper.html#unmarshaller-java.lang.Class-[RxHelper.unmarshaller]` creates an `rx.Observable.Operator` that
+transforms an `Observable<Buffer>` in json format into an object observable:
+
+[source,java]
+----
+fileSystem.open("/data.txt", new OpenOptions(), result -> {
+  AsyncFile file = result.result();
+  Observable<Buffer> observable = RxHelper.toObservable(file);
+  observable.lift(RxHelper.unmarshaller(MyPojo.class)).subscribe(
+      mypojo -> {
+        // Process the object
+      }
+  );
+});
+----
+
+The same can be done with the _Rxified_ helper:
+
+[source,java]
+----
+fileSystem.open("/data.txt", new OpenOptions(), result -> {
+  AsyncFile file = result.result();
+  Observable<Buffer> observable = file.toObservable();
+  observable.lift(io.vertx.rxjava.core.RxHelper.unmarshaller(MyPojo.class)).subscribe(
+      mypojo -> {
+        // Process the object
+      }
+  );
+});
+----
+
+=== Deploying a Verticle
+
+The Rxified API cannot deploy an existing Verticle instance, the helper `link:../../apidocs/io/vertx/rx/java/RxHelper.html#observableFuture--[RxHelper.observableFuture]` method
+provides a solution to that.
+
+The `link:../../apidocs/io/vertx/rxjava/core/RxHelper.html#deployVerticle-io.vertx.rxjava.core.Vertx-io.vertx.core.Verticle-[RxHelper.deployVerticle]` does it automatically
+for you, it deploys a `Verticle` and returns an `Observable<String>` of the deployment ID.
+
+[source,java]
+----
+Observable<String> deployment = RxHelper.deployVerticle(vertx, verticle);
+
+deployment.subscribe(id -> {
+  // Deployed
+}, err -> {
+  // Could not deploy
+});
+----
+
+=== HttpClient GET on subscription
+
+The `link:../../apidocs/io/vertx/rxjava/core/RxHelper.html#get-io.vertx.rxjava.core.http.HttpClient-int-java.lang.String-java.lang.String-[RxHelper.get]`
+is a convenient helper method that performs an HTTP GET upon subscription:
+
+[source,java]
+----
+Observable<HttpClientResponse> get = RxHelper.get(client, "http://the-server");
+
+// Do the request
+get.subscribe(resp -> {
+  // Got response
+}, err -> {
+  // Something went wrong
+});
+----
+
+WARNING: this API is different from the HttpClient that performs the GET request when the method is called and returns
+a one shot `Observable`.
+
+= Rxified API
+
+The _Rxified_ API is a code generated version of the Vert.x API, just like the _JavaScript_ or _Groovy_
+language. The API uses the `io.vertx.rxjava` prefix, for instance the `io.vertx.core.Vertx` class is
+translated to the `link:../../apidocs/io/vertx/rxjava/core/Vertx.html[Vertx]` class.
+
+=== Embedding Rxfified Vert.x
+
+Just use the `link:../../apidocs/io/vertx/rxjava/core/Vertx.html#vertx--[Vertx.vertx]` methods:
+
+[source,java]
+----
+Vertx vertx = io.vertx.rxjava.core.Vertx.vertx();
+----
+
+=== As a Verticle
+
+Extend the `link:../../apidocs/io/vertx/rxjava/core/AbstractVerticle.html[AbstractVerticle]` class, it will wrap it for you:
+
+[source,java]
+----
+class MyVerticle extends io.vertx.rxjava.core.AbstractVerticle {
+  public void start() {
+    // Use Rxified Vertx here
+  }
+}
+----
+
+Deploying an RxJava verticle is still performed by the Java deployer and does not need a specified
+deployer.
+
+== Api examples
+
+Let's study now a few examples of using Vert.x with RxJava.
+
+=== EventBus message stream
+
+The event bus `link:../../apidocs/io/vertx/rxjava/core/eventbus/MessageConsumer.html[MessageConsumer]` provides naturally an `Observable<Message<T>>`:
+
+[source,java]
+----
+EventBus eb = vertx.eventBus();
+MessageConsumer<String> consumer = eb.<String>consumer("the-address");
+Observable<Message<String>> observable = consumer.toObservable();
+Subscription sub = observable.subscribe(msg -> {
+  // Got message
+});
+
+// Unregisters the stream after 10 seconds
+vertx.setTimer(10000, id -> {
+  sub.unsubscribe();
+});
+----
+
+The `link:../../apidocs/io/vertx/rxjava/core/eventbus/MessageConsumer.html[MessageConsumer]` provides a stream of `link:../../apidocs/io/vertx/rxjava/core/eventbus/Message.html[Message]`.
+The `link:../../apidocs/io/vertx/rxjava/core/eventbus/Message.html#body--[body]` gives access to a new stream of message bodies if needed:
+
+[source,java]
+----
+EventBus eb = vertx.eventBus();
+MessageConsumer<String> consumer = eb.<String>consumer("the-address");
+Observable<String> observable = consumer.bodyStream().toObservable();
+----
+
+RxJava map/reduce composition style can then be used:
+
+[source,java]
+----
+Observable<Double> observable = vertx.eventBus().
+    <Double>consumer("heat-sensor").
+    bodyStream().
+    toObservable();
+
+observable.
+    buffer(1, TimeUnit.SECONDS).
+    map(samples -> samples.
+        stream().
+        collect(Collectors.averagingDouble(d -> d))).
+    subscribe(heat -> {
+      vertx.eventBus().send("news-feed", "Current heat is " + heat);
+    });
+----
+
+=== Timers
+
+Timer task can be created with `link:../../apidocs/io/vertx/rxjava/core/Vertx.html#timerStream-long-[timerStream]`:
+
+[source,java]
+----
+vertx.timerStream(1000).
+    toObservable().
+    subscribe(
+        id -> {
+          System.out.println("Callback after 1 second");
+        }
+    );
+----
+
+Periodic task can be created with `link:../../apidocs/io/vertx/rxjava/core/Vertx.html#periodicStream-long-[periodicStream]`:
+
+[source,java]
+----
+vertx.periodicStream(1000).
+    toObservable().
+    subscribe(
+        id -> {
+          System.out.println("Callback every second");
+        }
+    );
+----
+
+The observable can be cancelled with an unsubscription:
+
+[source,java]
+----
+vertx.periodicStream(1000).
+    toObservable().
+    subscribe(new Subscriber<Long>() {
+      public void onNext(Long aLong) {
+        // Callback
+        unsubscribe();
+      }
+      public void onError(Throwable e) {}
+      public void onCompleted() {}
+    });
+----
+
+=== Http client requests
+
+`link:../../apidocs/io/vertx/rxjava/core/http/HttpClientRequest.html#toObservable--[toObservable]` provides a one shot callback with the
+`link:../../apidocs/io/vertx/core/http/HttpClientResponse.html[HttpClientResponse]` object. The observable reports a request failure.
+
+[source,java]
+----
+HttpClient client = vertx.createHttpClient(new HttpClientOptions());
+HttpClientRequest request = client.request(HttpMethod.GET, 8080, "localhost", "/the_uri");
+request.toObservable().subscribe(
+    response -> {
+      // Process the response
+    },
+    error -> {
+      // Could not connect
+    }
+);
+request.end();
+----
+
+The response can be processed as an `Observable<Buffer>` with the
+`link:../../apidocs/io/vertx/rxjava/core/http/HttpClientResponse.html#toObservable--[toObservable]` method:
+
+[source,java]
+----
+request.toObservable().
+    subscribe(
+        response -> {
+          Observable<Buffer> observable = response.toObservable();
+          observable.forEach(
+              buffer -> {
+                // Process buffer
+              }
+          );
+        }
+    );
+----
+
+The same flow can be achieved with the `flatMap` operation:
+
+[source,java]
+----
+request.toObservable().
+    flatMap(HttpClientResponse::toObservable).
+    forEach(
+        buffer -> {
+          // Process buffer
+        }
+    );
+----
+
+We can also unmarshall the `Observable<Buffer>` into an object using the `link:../../apidocs/io/vertx/rxjava/core/RxHelper.html#unmarshaller-java.lang.Class-[RxHelper.unmarshaller]`
+static method. This method creates an `Rx.Observable.Operator` unmarshalling buffers to an object:
+
+[source,java]
+----
+request.toObservable().
+    flatMap(HttpClientResponse::toObservable).
+    lift(io.vertx.rxjava.core.RxHelper.unmarshaller(MyPojo.class)).
+    forEach(
+        pojo -> {
+          // Process pojo
+        }
+    );
+----
+
+=== Http server requests
+
+The `link:../../apidocs/io/vertx/rxjava/core/http/HttpServer.html#requestStream--[requestStream]` provides a callback for each incoming
+request:
+
+[source,java]
+----
+Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
+requestObservable.subscribe(request -> {
+  // Process request
+});
+----
+
+The `link:../../apidocs/io/vertx/core/http/HttpServerRequest.html[HttpServerRequest]` can then be adapted to an `Observable<Buffer>`:
+
+----
+Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
+requestObservable.subscribe(request -> {
+  Observable<Buffer> observable = request.toObservable();
+});
+----
+
+The `link:../../apidocs/io/vertx/rxjava/core/RxHelper.html#unmarshaller-java.lang.Class-[RxHelper.unmarshaller]` can be used to parse and map
+a json request to an object:
+
+----
+Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
+requestObservable.subscribe(request -> {
+  Observable<MyPojo> observable = request.
+      toObservable().
+      lift(io.vertx.rxjava.core.RxHelper.unmarshaller(MyPojo.class));
+});
+----
+
+=== Websocket client
+
+The `link:../../apidocs/io/vertx/rxjava/core/http/HttpClient.html#websocketStream-int-java.lang.String-java.lang.String-[websocketStream]` provides a single callback when the websocket
+connects, otherwise a failure:
+
+[source,java]
+----
+HttpClient client = vertx.createHttpClient(new HttpClientOptions());
+WebSocketStream stream = client.websocketStream(8080, "localhost", "/the_uri");
+stream.toObservable().subscribe(
+    ws -> {
+      // Use the websocket
+    },
+    error -> {
+      // Could not connect
+    }
+);
+----
+
+The `link:../../apidocs/io/vertx/rxjava/core/http/WebSocket.html[WebSocket]` can then be turned into an `Observable<Buffer>` easily:
+
+[source,java]
+----
+socketObservable.subscribe(
+    socket -> {
+      Observable<Buffer> dataObs = socket.toObservable();
+      dataObs.subscribe(buffer -> {
+        System.out.println("Got message " + buffer.toString("UTF-8"));
+      });
+    }
+);
+----
+
+=== Websocket server
+
+The `link:../../apidocs/io/vertx/rxjava/core/http/HttpServer.html#websocketStream--[websocketStream]` provides a callback for each incoming
+connection:
+
+[source,java]
+----
+Observable<ServerWebSocket> socketObservable = server.websocketStream().toObservable();
+socketObservable.subscribe(
+    socket -> System.out.println("Web socket connect"),
+    failure -> System.out.println("Should never be called"),
+    () -> {
+      System.out.println("Subscription ended or server closed");
+    }
+);
+----
+
+The `link:../../apidocs/io/vertx/core/http/ServerWebSocket.html[ServerWebSocket]` can be turned into an `Observable<Buffer>` easily:
+
+[source,java]
+----
+socketObservable.subscribe(
+    socket -> {
+      Observable<Buffer> dataObs = socket.toObservable();
+      dataObs.subscribe(buffer -> {
+        System.out.println("Got message " + buffer.toString("UTF-8"));
+      });
+    }
+);
+----
