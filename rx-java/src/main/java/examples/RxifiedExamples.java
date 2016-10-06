@@ -26,6 +26,7 @@ import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.plugins.RxJavaSchedulersHook;
+import rx.plugins.RxJavaHooks;
 
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -65,7 +66,9 @@ public class RxifiedExamples {
 
   public void schedulerHook(Vertx vertx) {
     RxJavaSchedulersHook hook = io.vertx.rxjava.core.RxHelper.schedulerHook(vertx);
-    rx.plugins.RxJavaPlugins.getInstance().registerSchedulersHook(hook);
+      RxJavaHooks.setOnIOScheduler(f -> hook.getIOScheduler());
+      RxJavaHooks.setOnNewThreadScheduler(f -> hook.getNewThreadScheduler());
+      RxJavaHooks.setOnComputationScheduler(f -> hook.getComputationScheduler());
   }
 
   public void unmarshaller(FileSystem fileSystem) {
