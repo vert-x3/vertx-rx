@@ -11,10 +11,15 @@ import io.vertx.reactivex.core.Context;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.core.eventbus.EventBus;
+import io.vertx.reactivex.core.eventbus.Message;
 import io.vertx.reactivex.core.eventbus.MessageConsumer;
+import io.vertx.reactivex.core.http.HttpClient;
 import io.vertx.reactivex.core.http.HttpClientRequest;
+import io.vertx.reactivex.core.http.HttpClientResponse;
 import io.vertx.reactivex.core.http.HttpServer;
 import io.vertx.reactivex.core.http.HttpServerRequest;
+import io.vertx.reactivex.core.http.ServerWebSocket;
+import io.vertx.reactivex.core.http.WebSocket;
 import io.vertx.reactivex.core.net.NetServer;
 import io.vertx.reactivex.core.net.NetSocket;
 import io.vertx.test.core.VertxTestBase;
@@ -28,7 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 /**
@@ -97,47 +102,46 @@ public class JavaIntegrationTest extends VertxTestBase {
     await();
   }
 
-/*
   @Test
   public void testRegisterAgain() {
     EventBus eb = vertx.eventBus();
     MessageConsumer<String> consumer = eb.<String>consumer("the-address");
-    Observable<String> obs = consumer.bodyStream().toObservable();
+    Flowable<String> obs = consumer.bodyStream().toFlowable();
     obs.subscribe(new Subscriber<String>() {
-      @Override
+      Subscription sub;
+      public void onSubscribe(Subscription s) {
+        sub = s;
+        sub.request(Long.MAX_VALUE);
+      }
       public void onNext(String s) {
         assertEquals("msg1", s);
-        unsubscribe();
+        sub.cancel();
         assertFalse(consumer.isRegistered());
         obs.subscribe(new Subscriber<String>() {
-          @Override
+          Subscription sub;
+          public void onSubscribe(Subscription s) {
+            sub = s;
+            sub.request(Long.MAX_VALUE);
+          }
           public void onNext(String s) {
             assertEquals("msg2", s);
-            unsubscribe();
+            sub.cancel();
             assertFalse(consumer.isRegistered());
             testComplete();
           }
-
-          @Override
           public void onError(Throwable throwable) {
             fail("Was not esxpecting error " + throwable.getMessage());
           }
-
-          @Override
-          public void onCompleted() {
+          public void onComplete() {
             fail();
           }
         });
         eb.send("the-address", "msg2");
       }
-
-      @Override
       public void onError(Throwable throwable) {
-        fail("Was not esxpecting error " + throwable.getMessage());
+        fail("Was not expecting error " + throwable.getMessage());
       }
-
-      @Override
-      public void onCompleted() {
+      public void onComplete() {
         fail();
       }
     });
@@ -146,27 +150,26 @@ public class JavaIntegrationTest extends VertxTestBase {
   }
 
   @Test
-  public void testObservableUnsubscribeDuringObservation() {
+  public void testFlowableUnsubscribeDuringObservation() {
     EventBus eb = vertx.eventBus();
     MessageConsumer<String> consumer = eb.<String>consumer("the-address");
-    Observable<String> obs = consumer.bodyStream().toObservable();
-    Observable<String> a = obs.take(4);
+    Flowable<String> obs = consumer.bodyStream().toFlowable();
+    Flowable<String> a = obs.take(4);
     List<String> obtained = new ArrayList<>();
     a.subscribe(new Subscriber<String>() {
-      @Override
-      public void onCompleted() {
+      public void onComplete() {
         assertEquals(Arrays.asList("msg0", "msg1", "msg2", "msg3"), obtained);
+        assertFalse(consumer.isRegistered());
         testComplete();
       }
-
-      @Override
       public void onError(Throwable e) {
         fail(e.getMessage());
       }
-
-      @Override
       public void onNext(String str) {
         obtained.add(str);
+      }
+      public void onSubscribe(Subscription s) {
+        s.request(Long.MAX_VALUE);
       }
     });
     for (int i = 0; i < 7; i++) {
@@ -181,10 +184,10 @@ public class JavaIntegrationTest extends VertxTestBase {
     eb.<String>consumer("the-address", msg -> {
       msg.reply(msg.body());
     });
-    Observable<Message<String>> obs1 = eb.sendObservable("the-address", "msg1");
-    Observable<Message<String>> obs2 = eb.sendObservable("the-address", "msg2");
+    Single<Message<String>> obs1 = eb.sendSingle("the-address", "msg1");
+    Single<Message<String>> obs2 = eb.sendSingle("the-address", "msg2");
     eb.send("the-address", "done", reply -> {
-      Observable<Message<String>> all = Observable.concat(obs1, obs2);
+      Flowable<Message<String>> all = Single.concat(obs1, obs2);
       LinkedList<String> values = new LinkedList<String>();
       all.subscribe(next -> {
         values.add(next.body());
@@ -197,42 +200,20 @@ public class JavaIntegrationTest extends VertxTestBase {
     });
     await();
   }
-*/
+
   @Test
   public void testObservableNetSocket() throws Exception {
     NetServer server = vertx.createNetServer(new NetServerOptions().setPort(1234).setHost("localhost"));
     Flowable<NetSocket> socketObs = inContext(() -> server.connectStream().toFlowable());
-    socketObs.subscribe(new Subscriber<NetSocket>() {
-      public void onSubscribe(Subscription s) {
-        s.request(Long.MAX_VALUE);
-      }
-      public void onNext(NetSocket o) {
-        Flowable<Buffer> dataObs = o.toFlowable();
-        dataObs.subscribe(new Subscriber<Buffer>() {
-          LinkedList<Buffer> buffers = new LinkedList<>();
-          public void onSubscribe(Subscription s) {
-            s.request(Long.MAX_VALUE);
-          }
-          public void onNext(Buffer buffer) {
-            buffers.add(buffer);
-          }
-          public void onError(Throwable e) {
-            fail(e.getMessage());
-          }
-          public void onComplete() {
-            assertEquals(1, buffers.size());
-            assertEquals("foo", buffers.get(0).toString("UTF-8"));
-            server.close();
-          }
-        });
-      }
-      public void onError(Throwable e) {
-        fail(e.getMessage());
-      }
-      public void onComplete() {
-        testComplete();
-      }
-    });
+    socketObs.subscribe(socket -> {
+      Flowable<Buffer> dataObs = socket.toFlowable();
+      LinkedList<Buffer> buffers = new LinkedList<>();
+      dataObs.subscribe(buffers::add, err -> fail(err.getMessage()), () -> {
+        assertEquals(1, buffers.size());
+        assertEquals("foo", buffers.get(0).toString("UTF-8"));
+        server.close();
+      });
+    }, err -> fail(err.getMessage()), this::testComplete);
     Single<NetServer> onListen = server.listenSingle();
     onListen.subscribe(
         s -> vertx.createNetClient(new NetClientOptions()).connect(1234, "localhost", ar -> {
@@ -246,60 +227,28 @@ public class JavaIntegrationTest extends VertxTestBase {
     await();
   }
 
-/*
   @Test
   public void testObservableWebSocket() {
-    ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
-    onListen.subscribe(
-        server -> vertx.createHttpClient(new HttpClientOptions()).websocket(8080, "localhost", "/some/path", ws -> {
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
+    Flowable<ServerWebSocket> socketObs = server.websocketStream().toFlowable();
+    socketObs.subscribe(ws -> {
+      Flowable<Buffer> dataObs = ws.toFlowable();
+      LinkedList<Buffer> buffers = new LinkedList<>();
+      dataObs.subscribe(buffers::add, err -> fail(err.getMessage()), () -> {
+        assertEquals(1, buffers.size());
+        assertEquals("foo", buffers.get(0).toString("UTF-8"));
+        server.close();
+      });
+    }, err -> fail(err.getMessage()), this::testComplete);
+    server.listenSingle().subscribe(
+        s -> vertx.createHttpClient(new HttpClientOptions()).websocket(8080, "localhost", "/some/path", ws -> {
           ws.write(Buffer.buffer("foo"));
           ws.close();
         }),
         error -> fail(error.getMessage())
     );
-    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
-    Observable<ServerWebSocket> socketObs = server.websocketStream().toObservable();
-    socketObs.subscribe(new Subscriber<ServerWebSocket>() {
-      @Override
-      public void onNext(ServerWebSocket o) {
-        Observable<Buffer> dataObs = o.toObservable();
-        dataObs.subscribe(new Observer<Buffer>() {
-
-          LinkedList<Buffer> buffers = new LinkedList<>();
-
-          @Override
-          public void onNext(Buffer buffer) {
-            buffers.add(buffer);
-          }
-
-          @Override
-          public void onError(Throwable e) {
-            fail(e.getMessage());
-          }
-
-          @Override
-          public void onCompleted() {
-            assertEquals(1, buffers.size());
-            assertEquals("foo", buffers.get(0).toString("UTF-8"));
-            server.close();
-          }
-        });
-      }
-
-      @Override
-      public void onError(Throwable e) {
-        fail(e.getMessage());
-      }
-
-      @Override
-      public void onCompleted() {
-        testComplete();
-      }
-    });
-    server.listen(onListen.toHandler());
     await();
   }
-*/
 
   @Test
   public void testObservableHttpRequest() throws Exception {
@@ -348,12 +297,11 @@ public class JavaIntegrationTest extends VertxTestBase {
     );
     await();
   }
-/*
   @Test
   public void testConcatOperator() {
-    Observable<Long> o1 = vertx.timerStream(100).toObservable();
-    Observable<Long> o2 = vertx.timerStream(100).toObservable();
-    Observable<Long> obs = Observable.concat(o1, o2);
+    Flowable<Long> o1 = vertx.timerStream(100).toFlowable();
+    Flowable<Long> o2 = vertx.timerStream(100).toFlowable();
+    Flowable<Long> obs = Flowable.concat(o1, o2);
     AtomicInteger count = new AtomicInteger();
     obs.subscribe(msg -> count.incrementAndGet(),
         err -> fail(),
@@ -363,6 +311,7 @@ public class JavaIntegrationTest extends VertxTestBase {
         });
     await();
   }
+/*
 
   @Test
   public void testScheduledTimer() {
@@ -507,7 +456,7 @@ public class JavaIntegrationTest extends VertxTestBase {
     vertx.setTimer(1, RxHelper.toHandler(observer));
     await();
   }
-
+*/
   @Test
   public void testHttpClient() {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
@@ -518,8 +467,8 @@ public class JavaIntegrationTest extends VertxTestBase {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
       client.request(HttpMethod.GET, 8080, "localhost", "/the_uri", resp -> {
         Buffer content = Buffer.buffer();
-        Observable<Buffer> observable = resp.toObservable();
-        observable.forEach(content::appendBuffer, err -> fail(), () -> {
+        Flowable<Buffer> observable = resp.toFlowable();
+        observable.subscribe(content::appendBuffer, err -> fail(), () -> {
           server.close();
           assertEquals("some_content", content.toString("UTF-8"));
           testComplete();
@@ -538,9 +487,9 @@ public class JavaIntegrationTest extends VertxTestBase {
     server.listen(ar -> {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
       HttpClientRequest req = client.request(HttpMethod.GET, 8080, "localhost", "/the_uri");
-      Observable<HttpClientResponse> obs =  req.toObservable();
+      Flowable<HttpClientResponse> obs =  req.toFlowable();
       Buffer content = Buffer.buffer();
-      obs.flatMap(HttpClientResponse::toObservable).forEach(
+      obs.flatMap(HttpClientResponse::toFlowable).subscribe(
           content::appendBuffer,
           err -> fail(), () -> {
         server.close();
@@ -552,6 +501,7 @@ public class JavaIntegrationTest extends VertxTestBase {
     await();
   }
 
+/*
   @Test
   public void testHttpClientFlatMapUnmarshallPojo() {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
@@ -576,12 +526,12 @@ public class JavaIntegrationTest extends VertxTestBase {
     });
     await();
   }
-
+*/
   @Test
   public void testHttpClientConnectionFailure() {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
     HttpClientRequest req = client.request(HttpMethod.GET, 9998, "255.255.255.255", "/the_uri");
-    Observable<HttpClientResponse> obs = req.toObservable();
+    Flowable<HttpClientResponse> obs = req.toFlowable(); // Should be single
     obs.subscribe(
         buffer -> fail(),
         err -> testComplete(),
@@ -594,8 +544,8 @@ public class JavaIntegrationTest extends VertxTestBase {
   public void testHttpClientConnectionFailureFlatMap() {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
     HttpClientRequest req = client.request(HttpMethod.GET, 9998, "255.255.255.255", "/the_uri");
-    Observable<HttpClientResponse> obs = req.toObservable();
-    obs.flatMap(HttpClientResponse::toObservable).forEach(
+    Flowable<HttpClientResponse> obs = req.toFlowable();
+    obs.flatMap(HttpClientResponse::toFlowable).subscribe(
         buffer -> fail(),
         err -> testComplete(),
         this::fail);
@@ -614,8 +564,8 @@ public class JavaIntegrationTest extends VertxTestBase {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
       client.websocket(8080, "localhost", "/the_uri", ws -> {
         Buffer content = Buffer.buffer();
-        Observable<Buffer> observable = ws.toObservable();
-        observable.forEach(content::appendBuffer, err -> fail(), () -> {
+        Flowable<Buffer> observable = ws.toFlowable();
+        observable.subscribe(content::appendBuffer, err -> fail(), () -> {
           server.close();
           assertEquals("some_content", content.toString("UTF-8"));
           testComplete();
@@ -637,9 +587,9 @@ public class JavaIntegrationTest extends VertxTestBase {
       Buffer content = Buffer.buffer();
       client.
           websocketStream(8080, "localhost", "/the_uri").
-          toObservable().
-          flatMap(WebSocket::toObservable).
-          forEach(content::appendBuffer, err -> fail(), () -> {
+          toFlowable().
+          flatMap(WebSocket::toFlowable).
+          subscribe(content::appendBuffer, err -> fail(), () -> {
             server.close();
             assertEquals("some_content", content.toString("UTF-8"));
             testComplete();
@@ -647,6 +597,7 @@ public class JavaIntegrationTest extends VertxTestBase {
     });
     await();
   }
+/*
 
   @Test
   public void testGetHelper() throws Exception {

@@ -16,21 +16,20 @@ public class FlowableReadStream<T, U> extends Flowable<U> {
 
   static final int DEFAULT_WRITE_QUEUE_MAX_SIZE = 32;
 
-  final ReadStream<T> stream;
-  final UnicastProcessor<U> processor;
-  final Function<T, U> f;
+  private final ReadStream<T> stream;
+  private final Function<T, U> f;
+  private UnicastProcessor<U> processor;
 
   public FlowableReadStream(ReadStream<T> stream, Function<T, U> f) {
     this.stream = stream;
     this.f = f;
-    this.processor = UnicastProcessor.create();
   }
 
   @Override
   protected void subscribeActual(Subscriber<? super U> subscriber) {
-
-
-
+    if (processor == null) {
+      processor = UnicastProcessor.create();
+    }
     processor.subscribe(new Subscriber<U>() {
       private int size;
       public void onSubscribe(Subscription _) {
@@ -57,9 +56,15 @@ public class FlowableReadStream<T, U> extends Flowable<U> {
           }
           public void cancel() {
             sub.cancel();
-            stream.handler(null);
-            stream.exceptionHandler(null);
-            stream.endHandler(null);
+            processor = null;
+            try {
+              stream.handler(null);
+              stream.exceptionHandler(null);
+              stream.endHandler(null);
+            } catch (Exception ignore) {
+              // Todo : handle this case
+              // happens with testObservableWebSocket
+            }
           }
         };
         subscriber.onSubscribe(basic);
