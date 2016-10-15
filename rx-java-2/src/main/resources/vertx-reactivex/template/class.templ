@@ -24,6 +24,7 @@ package @{type.raw.translatePackageName("reactivex")};\n\n
 import java.util.Map;\n
 import io.reactivex.Observable;\n
 import io.reactivex.Single;\n
+import io.reactivex.Completable;\n
 @comment{"Generate the imports"}
 @foreach{importedType:importedTypes}
 	@if{importedType.kind == CLASS_API}
