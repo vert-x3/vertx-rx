@@ -3,6 +3,7 @@ package io.vertx.test.reactivex;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.vertx.codegen.testmodel.TestInterfaceImpl;
+import io.vertx.core.json.JsonArray;
 import io.vertx.reactivex.codegen.testmodel.TestInterface;
 import org.junit.Assert;
 import org.junit.Test;
