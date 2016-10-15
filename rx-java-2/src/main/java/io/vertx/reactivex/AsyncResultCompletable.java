@@ -1,7 +1,7 @@
 package io.vertx.reactivex;
 
-import io.reactivex.SingleObserver;
-import io.reactivex.SingleSource;
+import io.reactivex.CompletableObserver;
+import io.reactivex.CompletableSource;
 import io.reactivex.disposables.Disposable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -9,23 +9,23 @@ import io.vertx.core.Handler;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class AsyncResultSource<T> implements SingleSource<T>, Handler<AsyncResult<T>> {
+public class AsyncResultCompletable implements CompletableSource, Handler<AsyncResult<Void>> {
 
-  private AsyncResult<T> asyncResult;
-  private Subscription<T> sub;
+  private AsyncResult<Void> asyncResult;
+  private CompletableObserver observer;
 
   @Override
-  public void handle(AsyncResult<T> event) {
+  public void handle(AsyncResult<Void> event) {
     asyncResult = event;
     check();
   }
 
   @Override
-  public void subscribe(SingleObserver<? super T> observer) {
-    if (sub != null) {
+  public void subscribe(CompletableObserver obj) {
+    if (this.observer != null) {
       throw new UnsupportedOperationException("todo");
     }
-    sub = new Subscription<>(observer);
+    this.observer = obj;
     observer.onSubscribe(new Disposable() {
       @Override
       public void dispose() {
@@ -39,33 +39,24 @@ public class AsyncResultSource<T> implements SingleSource<T>, Handler<AsyncResul
   }
 
   private void check() {
-    if (asyncResult != null && sub != null) {
+    if (asyncResult != null && observer != null) {
       if (asyncResult.succeeded()) {
         try {
-          sub.observer.onSuccess(asyncResult.result());
+          observer.onComplete();
         } catch (Exception e) {
 
         } finally {
-          sub = null;
+          observer = null;
         }
       } else if (asyncResult.failed()) {
         try {
-          sub.observer.onError(asyncResult.cause());
+          observer.onError(asyncResult.cause());
         } catch (Exception e) {
           e.printStackTrace();
         } finally {
-          sub = null;
+          observer = null;
         }
       }
-    }
-  }
-
-  private static class Subscription<T> {
-
-    private final SingleObserver<? super T> observer;
-
-    public Subscription(SingleObserver<? super T> observer) {
-      this.observer = observer;
     }
   }
 }
