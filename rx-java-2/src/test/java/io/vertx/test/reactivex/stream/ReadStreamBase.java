@@ -1,5 +1,6 @@
 package io.vertx.test.reactivex.stream;
 
+import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.streams.ReadStream;
 
@@ -11,13 +12,24 @@ import java.util.LinkedList;
  */
 public class ReadStreamBase<T, Self extends ReadStreamBase<T, Self>> implements ReadStream<T> {
 
-  private static final Object END = new Object();
-
-  private final Deque<Object> events = new LinkedList<>();
+  private final Deque<T> events = new LinkedList<>();
   private Handler<T> dataHandler;
   private Handler<Throwable> exceptionHandler;
   private Handler<Void> endHandler;
   private boolean paused;
+  private boolean ended;
+  private final Context context;
+  private final Self self;
+
+  public ReadStreamBase(Context context) {
+    this.self = (Self) this;
+    this.context = context;
+  }
+
+  public ReadStreamBase() {
+    this.self = (Self) this;
+    this.context = null;
+  }
 
   public synchronized boolean paused() {
     return paused;
@@ -37,6 +49,9 @@ public class ReadStreamBase<T, Self extends ReadStreamBase<T, Self>> implements 
 
   public void write(T buffer) {
     synchronized (this) {
+      if (ended) {
+        throw new IllegalStateException();
+      }
       events.addLast(buffer);
     }
     checkPending();
@@ -45,7 +60,7 @@ public class ReadStreamBase<T, Self extends ReadStreamBase<T, Self>> implements 
   @Override
   public synchronized Self exceptionHandler(Handler<Throwable> handler) {
     exceptionHandler = handler;
-    return (Self) this;
+    return self;
   }
 
   @Override
@@ -54,45 +69,58 @@ public class ReadStreamBase<T, Self extends ReadStreamBase<T, Self>> implements 
       dataHandler = handler;
     }
     checkPending();
-    return (Self) this;
+    return self;
   }
 
   @Override
   public synchronized Self pause() {
     paused = true;
-    return (Self) this;
+    return self;
+  }
+
+  private Handler<Void> poll() {
+    Handler<Void> task;
+    synchronized (this) {
+      if (events.size() > 0) {
+        if (paused) {
+          task = null;
+        } else {
+          T next = events.peekFirst();
+          if (dataHandler != null) {
+            events.removeFirst();
+            task = v -> {
+              dataHandler.handle(next);
+            };
+          } else {
+            task = null;
+          }
+        }
+      } else {
+        if (ended && endHandler != null) {
+          task = endHandler;
+          endHandler = null;
+        } else {
+          task = null;
+        }
+      }
+    }
+    return task;
   }
 
   private void checkPending() {
-    while (true) {
-      Runnable task;
-      synchronized (this) {
-        if (events.size() > 0) {
-          Object next = events.peekFirst();
-          if (next != END) {
-            if (dataHandler != null) {
-              events.removeFirst();
-              task = () -> {
-                dataHandler.handle((T) next);
-              };
-            } else {
-              break;
-            }
-          } else {
-            if (endHandler != null) {
-              events.removeFirst();
-              task = () -> {
-                endHandler.handle(null);
-              };
-            } else {
-              break;
-            }
-          }
-        } else {
-          break;
-        }
+    if (context != null) {
+      Handler<Void> task = poll();
+      if (task != null) {
+        context.runOnContext(v -> {
+          task.handle(null);
+          checkPending();
+        });
       }
-      task.run();
+    } else {
+      Handler<Void> task;
+      while ((task = poll()) != null) {
+        task.handle(null);
+      }
     }
   }
 
@@ -102,21 +130,37 @@ public class ReadStreamBase<T, Self extends ReadStreamBase<T, Self>> implements 
       paused = false;
     }
     checkPending();
-    return (Self) this;
+    return self;
   }
 
   @Override
   public Self endHandler(Handler<Void> handler) {
     synchronized (this) {
-      endHandler = handler;
+      if (handler != null) {
+        if (ended && events.isEmpty()) {
+          if (context != null) {
+            context.runOnContext(handler);
+          } else {
+            handler.handle(null);
+          }
+          return self;
+        }
+        endHandler = handler;
+      } else {
+        endHandler = null;
+        return self;
+      }
     }
     checkPending();
-    return (Self) this;
+    return self;
   }
 
   public void end() {
     synchronized (this) {
-      events.addLast(END);
+      if (ended) {
+        throw new IllegalStateException();
+      }
+      ended = true;
     }
     checkPending();
   }
