@@ -10,6 +10,7 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
 import java.util.LinkedList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -242,6 +243,85 @@ public abstract class AbstractReadStreamTest<B> extends VertxTestBase {
       }
     });
     stream.write(expected);
+    await();
+  }
+
+  @Test
+  public void testPausedInitially1() throws Exception {
+    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    assertFalse(stream.paused());
+    Flowable<B> observable = toObservable(stream);
+    assertTrue(stream.paused());
+    CountDownLatch latch = new CountDownLatch(1);
+    observable.subscribe(new Subscriber<B>() {
+      LinkedList<B> events;
+      @Override
+      public void onSubscribe(Subscription s) {
+        assertTrue(stream.paused());
+        events = new LinkedList<>();
+        s.request(1);
+        assertFalse(stream.paused());
+        latch.countDown();
+      }
+      @Override
+      public void onNext(B b) {
+        events.add(b);
+      }
+
+      @Override
+      public void onError(Throwable t) {
+        fail(t);
+      }
+
+      @Override
+      public void onComplete() {
+        assertEquals(buffer("item"), events.getFirst());
+        assertEquals(1, events.size());
+        testComplete();
+      }
+    });
+    awaitLatch(latch);
+    assertFalse(stream.paused());
+    stream.write(Buffer.buffer("item"));
+    assertTrue(stream.paused());
+    stream.end();
+    await();
+  }
+
+  @Test
+  public void testPausedInitially2() {
+    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    stream.write(Buffer.buffer("item"));
+    stream.end();
+    assertFalse(stream.paused());
+    Flowable<B> observable = toObservable(stream);
+    assertTrue(stream.paused());
+    observable.subscribe(new Subscriber<B>() {
+      LinkedList<B> events;
+      @Override
+      public void onSubscribe(Subscription s) {
+        assertTrue(stream.paused());
+        events = new LinkedList<>();
+        s.request(1);
+        assertTrue(stream.paused());
+      }
+      @Override
+      public void onNext(B b) {
+        events.add(b);
+      }
+
+      @Override
+      public void onError(Throwable t) {
+        fail(t);
+      }
+
+      @Override
+      public void onComplete() {
+        assertEquals(buffer("item"), events.getFirst());
+        assertEquals(1, events.size());
+        testComplete();
+      }
+    });
     await();
   }
 }

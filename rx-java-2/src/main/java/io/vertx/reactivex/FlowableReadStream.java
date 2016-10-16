@@ -14,13 +14,16 @@ import java.util.function.Function;
  */
 public class FlowableReadStream<T, U> extends Flowable<U> {
 
-  static final int DEFAULT_WRITE_QUEUE_MAX_SIZE = 32;
-
   private final ReadStream<T> stream;
   private final Function<T, U> f;
   private UnicastProcessor<U> processor;
+  private BasicIntQueueSubscription basic;
 
   public FlowableReadStream(ReadStream<T> stream, Function<T, U> f) {
+
+    // Pause until we have a subscription
+    stream.pause();
+
     this.stream = stream;
     this.f = f;
   }
@@ -31,19 +34,20 @@ public class FlowableReadStream<T, U> extends Flowable<U> {
       processor = UnicastProcessor.create();
     }
     processor.subscribe(new Subscriber<U>() {
-      private int size;
+
+      // Number of requested items
+      // this number can be < 0 : the number of queued items - this happen
+      // when a ReadStream has sent items and no claim has been done
+      private long requested;
+
       public void onSubscribe(Subscription _) {
         BasicIntQueueSubscription<U> sub = (BasicIntQueueSubscription<U>) _;
-        BasicIntQueueSubscription<U> basic = new BasicIntQueueSubscription<U>() {
+        basic = new BasicIntQueueSubscription<U>() {
           public int requestFusion(int mode) {
             return sub.requestFusion(mode);
           }
           public U poll() throws Exception {
-            U value = sub.poll();
-            if (value != null && --size < DEFAULT_WRITE_QUEUE_MAX_SIZE) {
-              stream.resume();
-            }
-            return value;
+            return sub.poll();
           }
           public boolean isEmpty() {
             return sub.isEmpty();
@@ -52,6 +56,14 @@ public class FlowableReadStream<T, U> extends Flowable<U> {
             sub.clear();
           }
           public void request(long n) {
+            if (n == Long.MAX_VALUE) {
+              requested = Long.MAX_VALUE;
+            } else {
+              requested += n;
+            }
+            if (requested > 0) {
+              stream.resume();
+            }
             sub.request(n);
           }
           public void cancel() {
@@ -67,21 +79,19 @@ public class FlowableReadStream<T, U> extends Flowable<U> {
             }
           }
         };
-        subscriber.onSubscribe(basic);
         stream.endHandler(v -> processor.onComplete());
         stream.exceptionHandler(processor::onError);
         stream.handler(item -> {
           processor.onNext(f.apply(item));
-          if (size++ > DEFAULT_WRITE_QUEUE_MAX_SIZE) {
-            stream.pause();
+          if (requested != Long.MAX_VALUE) {
+            if (--requested <= 0) {
+              stream.pause();
+            }
           }
         });
       }
       public void onNext(U t) {
         subscriber.onNext(t);
-        if (t != null && --size < DEFAULT_WRITE_QUEUE_MAX_SIZE) {
-          stream.resume();
-        }
       }
       public void onError(Throwable t) {
         subscriber.onError(t);
@@ -90,5 +100,8 @@ public class FlowableReadStream<T, U> extends Flowable<U> {
         subscriber.onComplete();
       }
     });
+
+    //
+    subscriber.onSubscribe(basic);
   }
 }
