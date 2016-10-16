@@ -10,7 +10,12 @@ import java.util.function.Function;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class ReactiveStreamTest extends AbstractReadStreamTest<Buffer> {
+public class AsyncReadStreamTest extends ReadStreamTestBase<Buffer> {
+
+  @Override
+  protected BufferReadStreamImpl stream() {
+    return new BufferReadStreamImpl(vertx.getOrCreateContext());
+  }
 
   @Override
   protected Buffer buffer(String s) {
