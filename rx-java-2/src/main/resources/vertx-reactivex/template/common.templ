@@ -147,6 +147,14 @@
     }
     return expr;
   }
+
+  def capitalizeFirstLetter(s) {
+    if (s.length() == 0) {
+      return s;
+    } else {
+      return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+    }
+  }
 }
 
 @declare{'startMethodTemplate'}
@@ -202,16 +210,14 @@
 	@code{futureType=futureParam.type.args[0].args[0]}
 	@if{futureType.kind == CLASS_VOID}
 		@code{futureReturnType=io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Completable)}
-		@code{rxMethodName=method.name + 'Completable'}
 		@code{adapterType='io.vertx.reactivex.AsyncResultCompletable'}
 		@code{rxType='io.reactivex.Completable'}
 	@else{}
 		@code{futureReturnType=new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Single), false, java.util.Collections.singletonList(futureType))}
-		@code{rxMethodName=method.name + 'Single'}
 		@code{adapterType='io.vertx.reactivex.AsyncResultSingle<' + futureType.simpleName + '>'}
 		@code{rxType='io.reactivex.Single'}
 	@end{}
-	@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,rxMethodName,method.kind,futureReturnType,null,method.fluent,method.cacheReturn,futureParams,method.comment,method.doc,method.staticMethod,method.defaultMethod,method.typeParams)}
+	@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,'rx' + capitalizeFirstLetter(method.name),method.kind,futureReturnType,null,method.fluent,method.cacheReturn,futureParams,method.comment,method.doc,method.staticMethod,method.defaultMethod,method.typeParams)}
 	@includeNamed{'startMethodTemplate';method=futureMethod} { \n
 	    @{adapterType} @{futureParam.name} = new @{adapterType}();\n
 	    @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}@{futureParam.name});\n
