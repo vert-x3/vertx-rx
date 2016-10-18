@@ -21,7 +21,7 @@ public class ApiTest {
   @Test
   public void testSingle() {
     TestInterface obj = new TestInterface(new TestInterfaceImpl());
-    Single<String> fut = obj.methodWithHandlerAsyncResultStringSingle(false);
+    Single<String> fut = obj.rxMethodWithHandlerAsyncResultString(false);
     AtomicInteger result = new AtomicInteger();
     AtomicInteger fail = new AtomicInteger();
     fut.subscribe(res -> {
@@ -36,13 +36,13 @@ public class ApiTest {
   @Test
   public void testCompletable() {
     TestInterface obj = new TestInterface(new TestInterfaceImpl());
-    Completable failure = obj.methodWithHandlerAsyncResultVoidCompletable(true);
+    Completable failure = obj.rxMethodWithHandlerAsyncResultVoid(true);
     AtomicInteger count = new AtomicInteger();
     failure.subscribe(Assert::fail, err -> {
       count.incrementAndGet();
     });
     assertEquals(1, count.getAndSet(0));
-    Completable success = obj.methodWithHandlerAsyncResultVoidCompletable(false);
+    Completable success = obj.rxMethodWithHandlerAsyncResultVoid(false);
     success.subscribe(count::incrementAndGet, err -> fail());
     assertEquals(1, count.get());
   }
