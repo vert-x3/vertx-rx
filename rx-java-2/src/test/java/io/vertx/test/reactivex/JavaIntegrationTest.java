@@ -184,8 +184,8 @@ public class JavaIntegrationTest extends VertxTestBase {
     eb.<String>consumer("the-address", msg -> {
       msg.reply(msg.body());
     });
-    Single<Message<String>> obs1 = eb.sendSingle("the-address", "msg1");
-    Single<Message<String>> obs2 = eb.sendSingle("the-address", "msg2");
+    Single<Message<String>> obs1 = eb.rxSend("the-address", "msg1");
+    Single<Message<String>> obs2 = eb.rxSend("the-address", "msg2");
     eb.send("the-address", "done", reply -> {
       Flowable<Message<String>> all = Single.concat(obs1, obs2);
       LinkedList<String> values = new LinkedList<String>();
@@ -214,7 +214,7 @@ public class JavaIntegrationTest extends VertxTestBase {
         server.close();
       });
     }, err -> fail(err.getMessage()), this::testComplete);
-    Single<NetServer> onListen = server.listenSingle();
+    Single<NetServer> onListen = server.rxListen();
     onListen.subscribe(
         s -> vertx.createNetClient(new NetClientOptions()).connect(1234, "localhost", ar -> {
           assertTrue(ar.succeeded());
@@ -240,7 +240,7 @@ public class JavaIntegrationTest extends VertxTestBase {
         server.close();
       });
     }, err -> fail(err.getMessage()), this::testComplete);
-    server.listenSingle().subscribe(
+    server.rxListen().subscribe(
         s -> vertx.createHttpClient(new HttpClientOptions()).websocket(8080, "localhost", "/some/path", ws -> {
           ws.write(Buffer.buffer("foo"));
           ws.close();
@@ -285,7 +285,7 @@ public class JavaIntegrationTest extends VertxTestBase {
         testComplete();
       }
     });
-    Single<HttpServer> onListen = server.listenSingle();
+    Single<HttpServer> onListen = server.rxListen();
     onListen.subscribe(
         s -> {
           HttpClientRequest req = vertx.createHttpClient(new HttpClientOptions()).request(HttpMethod.PUT, 8080, "localhost", "/some/path", resp -> {
