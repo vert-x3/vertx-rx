@@ -1,8 +1,8 @@
 import io.vertx.rx.java.RxHelper
 import io.vertx.rx.java.ObservableFuture
-import io.vertx.groovy.core.buffer.Buffer
-import io.vertx.groovy.core.http.HttpServer
-import io.vertx.groovy.core.http.ServerWebSocket
+import io.vertx.core.buffer.Buffer
+import io.vertx.core.http.HttpServer
+import io.vertx.core.http.ServerWebSocket
 import rx.Subscriber
 import rx.Observer
 import rx.Observable

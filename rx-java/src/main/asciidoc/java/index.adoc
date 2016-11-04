@@ -178,7 +178,9 @@ uses a blocking scheduler for IO actions:
 [source,java]
 ----
 RxJavaSchedulersHook hook = RxHelper.schedulerHook(vertx);
-rx.plugins.RxJavaPlugins.getInstance().registerSchedulersHook(hook);
+RxJavaHooks.setOnIOScheduler(f -> hook.getIOScheduler());
+RxJavaHooks.setOnNewThreadScheduler(f -> hook.getNewThreadScheduler());
+RxJavaHooks.setOnComputationScheduler(f -> hook.getComputationScheduler());
 ----
 
 The _Rxified_ Vert.x API provides also similar method on the `link:../../apidocs/io/vertx/rxjava/core/RxHelper.html[RxHelper]` class:
@@ -192,7 +194,9 @@ Observable<Long> timer = Observable.timer(100, 100, TimeUnit.MILLISECONDS, sched
 [source,java]
 ----
 RxJavaSchedulersHook hook = io.vertx.rxjava.core.RxHelper.schedulerHook(vertx);
-rx.plugins.RxJavaPlugins.getInstance().registerSchedulersHook(hook);
+  RxJavaHooks.setOnIOScheduler(f -> hook.getIOScheduler());
+  RxJavaHooks.setOnNewThreadScheduler(f -> hook.getNewThreadScheduler());
+  RxJavaHooks.setOnComputationScheduler(f -> hook.getComputationScheduler());
 ----
 
 === Json unmarshalling

@@ -1,7 +1,7 @@
 import io.vertx.core.http.HttpMethod
-import io.vertx.groovy.core.buffer.Buffer
-import io.vertx.groovy.core.http.HttpClient
-import io.vertx.groovy.core.http.HttpServer
+import io.vertx.core.buffer.Buffer
+import io.vertx.core.http.HttpClient
+import io.vertx.core.http.HttpServer
 
 HttpServer server = vertx.createHttpServer(port:8080);
 server.requestStream().handler({ req ->

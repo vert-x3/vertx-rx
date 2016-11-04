@@ -1,4 +1,4 @@
-import io.vertx.groovy.core.http.HttpServer
+import io.vertx.core.http.HttpServer
 import rx.Observer
 
 import java.util.concurrent.atomic.AtomicInteger;

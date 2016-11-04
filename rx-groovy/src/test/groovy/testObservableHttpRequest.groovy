@@ -1,10 +1,10 @@
 import io.vertx.core.http.HttpMethod
 import io.vertx.rx.java.RxHelper
 import io.vertx.rx.java.ObservableFuture
-import io.vertx.groovy.core.buffer.Buffer
-import io.vertx.groovy.core.http.HttpClientRequest
-import io.vertx.groovy.core.http.HttpServer
-import io.vertx.groovy.core.http.HttpServerRequest
+import io.vertx.core.buffer.Buffer
+import io.vertx.core.http.HttpClientRequest
+import io.vertx.core.http.HttpServer
+import io.vertx.core.http.HttpServerRequest
 import rx.Subscriber
 import rx.Observer
 import rx.Observable

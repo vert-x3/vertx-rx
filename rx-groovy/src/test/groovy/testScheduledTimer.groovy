@@ -1,4 +1,4 @@
-import io.vertx.groovy.core.Context
+import io.vertx.core.Context
 import rx.Observable
 import rx.Observer
 

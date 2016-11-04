@@ -1,9 +1,9 @@
 import io.vertx.rx.java.RxHelper
 import io.vertx.rx.java.ObservableFuture
-import io.vertx.groovy.core.buffer.Buffer
-import io.vertx.groovy.core.net.NetServer
-import io.vertx.groovy.core.net.NetSocket
-import io.vertx.groovy.core.streams.ReadStream
+import io.vertx.core.buffer.Buffer
+import io.vertx.core.net.NetServer
+import io.vertx.core.net.NetSocket
+import io.vertx.core.streams.ReadStream
 import rx.Observable
 
 ObservableFuture<NetServer> onListen = RxHelper.observableFuture();

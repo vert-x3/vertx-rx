@@ -1,7 +1,6 @@
 package io.vertx.rx.groovy.test;
 
 import groovy.lang.Binding;
-import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
 import io.vertx.core.Vertx;
@@ -108,7 +107,7 @@ public class GroovyIntegrationTest extends VertxTestBase {
       Script s = gcl.parse(new File(script));
       Binding binding = new Binding();
       binding.setProperty("test", this);
-      binding.setProperty("vertx", new io.vertx.groovy.core.Vertx(vertx));
+      binding.setProperty("vertx", vertx);
       s.setBinding(binding);
       s.run();
     } finally {

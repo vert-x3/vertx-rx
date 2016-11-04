@@ -1,4 +1,4 @@
-import io.vertx.groovy.core.Vertx
+import io.vertx.core.Vertx
 
 import rx.Subscriber
 

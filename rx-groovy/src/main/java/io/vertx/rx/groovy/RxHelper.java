@@ -1,8 +1,8 @@
 package io.vertx.rx.groovy;
 
-import io.vertx.groovy.core.Context;
-import io.vertx.groovy.core.Vertx;
-import io.vertx.groovy.core.buffer.Buffer;
+import io.vertx.core.Context;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.rx.java.UnmarshallerOperator;
 import rx.Observable;
 import rx.plugins.RxJavaSchedulersHook;
@@ -19,7 +19,7 @@ public class RxHelper {
    * @return the scheduler hook
    */
   public static RxJavaSchedulersHook schedulerHook(Vertx vertx) {
-    return io.vertx.rx.java.RxHelper.schedulerHook((io.vertx.core.Vertx) vertx.getDelegate());
+    return io.vertx.rx.java.RxHelper.schedulerHook(vertx);
   }
 
   /**
@@ -29,7 +29,7 @@ public class RxHelper {
    * @return the scheduler hook
    */
   public static RxJavaSchedulersHook schedulerHook(Context context) {
-    return io.vertx.rx.java.RxHelper.schedulerHook((io.vertx.core.Context) context.getDelegate());
+    return io.vertx.rx.java.RxHelper.schedulerHook(context);
   }
 
   /**
@@ -49,7 +49,7 @@ public class RxHelper {
     return new UnmarshallerOperator<T, Buffer>(mappedType) {
       @Override
       public io.vertx.core.buffer.Buffer unwrap(Buffer buffer) {
-        return ((io.vertx.core.buffer.Buffer) buffer.getDelegate());
+        return (buffer);
       }
     };
   }

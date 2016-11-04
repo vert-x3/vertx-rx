@@ -1,6 +1,6 @@
 import io.vertx.core.http.HttpMethod
-import io.vertx.groovy.core.http.HttpClient
-import io.vertx.groovy.core.http.HttpServer
+import io.vertx.core.http.HttpClient
+import io.vertx.core.http.HttpServer
 import io.vertx.rx.groovy.RxHelper
 import io.vertx.rx.groovy.test.MyPojo
 
