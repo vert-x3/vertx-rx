@@ -1,13 +1,13 @@
 package io.vertx.rx.groovy;
 
 import io.vertx.core.Handler;
-import io.vertx.rx.java.SingleOnSubscribeAdapter;
+import io.vertx.rx.java.ObservableOnSubscribeAdapter;
 import io.vertx.core.streams.ReadStream;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-class HandlerAdapter<T> extends SingleOnSubscribeAdapter<T> implements Handler<T> {
+class HandlerAdapter<T> extends ObservableOnSubscribeAdapter<T> implements Handler<T> {
 
   private final ReadStream<T> stream;
 

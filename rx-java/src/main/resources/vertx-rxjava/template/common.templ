@@ -139,6 +139,8 @@
           tmp.append(', ');
           if (arg.kind == CLASS_API) {
             tmp.append(arg.translateName('rxjava')).append('.arg');
+          } else if (arg.kind == CLASS_OBJECT && arg.variable && arg.classParam) {
+            tmp.append('typeArg_').append(arg.name);
           } else {
             tmp.append('io.vertx.lang.rxjava.TypeArg.unknown()');
           }
@@ -170,6 +172,36 @@
       return expr + '.stream().map(elt -> ' + genConvReturn(type.args[0], 'elt') + ').collect(java.util.stream.Collectors.to' + type.raw.simpleName + '())';
     }
     return expr;
+  }
+
+  def genFutureMethod(method) {
+    var futMethodName = 'rx' + java.lang.Character.toUpperCase(method.name.charAt(0)) + method.name.substring(1);
+    var futParams = new java.util.ArrayList();
+    var count = 0;
+    var size = method.params.size() - 1;
+    while (count < size) {
+      var param = method.params[count];
+      /* Transform ReadStream -> Observable */
+      futParams.add(param);
+      count = count + 1;
+    }
+    var futParam = method.params[size];
+    var futType = futParam.type.args[0].args[0];
+    var futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(rx.Single), false, java.util.Collections.singletonList(futType));
+    var futMethod = new io.vertx.codegen.MethodInfo(
+      method.ownerTypes, futMethodName,
+      method.kind,
+      futReturnType,
+      null,
+      method.fluent,
+      method.cacheReturn,
+      futParams,
+      method.comment,
+      method.doc,
+      method.staticMethod,
+      method.defaultMethod,
+      method.typeParams);
+    return futMethod;
   }
 }
 
@@ -220,6 +252,7 @@
 	  }\n\n
 
 	@if{method.kind == METHOD_FUTURE}
+	@code{originalMeth=method}
 	@code{methodName=method.name}
 	@code{futureParams=new java.util.ArrayList(method.params)}
 	@code{futureParam=futureParams.remove(futureParams.size()-1)}
@@ -230,6 +263,15 @@
 	    io.vertx.rx.java.ObservableFuture<@{futureType.simpleName}> @{futureParam.name} = io.vertx.rx.java.RxHelper.observableFuture();\n
 	    @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}@{futureParam.name}.toHandler());\n
 	    return @{futureParam.name};\n
+	  }\n\n
+	@end{}
+
+	@if{method.kind == METHOD_FUTURE}
+	@code{futMeth = genFutureMethod(originalMeth)}
+	@includeNamed{'startMethodTemplate';method=futMeth} { \n
+	    return Single.create(new io.vertx.rx.java.SingleOnSubscribeAdapter<>(fut -> {\n
+	      @{originalMeth.name}(@foreach{param:futMeth.params}@{param.name}@end{', '}@if{futMeth.params.size() > 0}, @end{}fut);\n
+	    }));\n
 	  }\n\n
 	@end{}
 @end{}

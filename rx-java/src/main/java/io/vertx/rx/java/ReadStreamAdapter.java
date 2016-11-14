@@ -6,7 +6,7 @@ import io.vertx.core.streams.ReadStream;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-class ReadStreamAdapter<T> extends SingleOnSubscribeAdapter<T> implements Handler<T> {
+class ReadStreamAdapter<T> extends ObservableOnSubscribeAdapter<T> implements Handler<T> {
 
   private final ReadStream<T> stream;
 

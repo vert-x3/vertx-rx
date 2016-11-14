@@ -6,7 +6,7 @@ import io.vertx.core.Handler;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class HandlerAdapter<T> extends SingleOnSubscribeAdapter<T> implements Handler<AsyncResult<T>> {
+public class HandlerAdapter<T> extends ObservableOnSubscribeAdapter<T> implements Handler<AsyncResult<T>> {
 
   private AsyncResult<T> buffered;
   private boolean subscribed;
