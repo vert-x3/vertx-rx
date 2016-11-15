@@ -530,7 +530,6 @@ public class JavaIntegrationTest extends VertxTestBase {
     await();
   }
 
-  @Test
   public void testHttpClientFlatMap() {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
     server.requestStream().handler(req -> {
