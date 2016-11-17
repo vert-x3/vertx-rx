@@ -49,7 +49,17 @@
       if (index > 0) {
         ret += ', ';
       }
-      ret += genConvParam(param.type, param.name);
+      if (param.type.parameterized && param.type.raw.name == 'rx.Observable') {
+        var bilto = '';
+        if (param.type.args[0].variable) {
+          bilto = 'java.util.function.Function.identity()';
+        } else {
+          bilto = 'obj -> (' + param.type.args[0].raw.name + ')obj.getDelegate()';
+        }
+        ret += 'io.vertx.rx.java.ReadStreamSubscriber.asReadStream(' + param.name + ',' + bilto + ').resume()';
+      } else {
+        ret += genConvParam(param.type, param.name);
+      }
       index = index + 1;
     }
     ret += ')';
@@ -202,6 +212,56 @@
       method.defaultMethod,
       method.typeParams);
     return futMethod;
+  }
+
+  def hasReadStream(method) {
+    for (param : method.params) {
+      if (param.type.parameterized && param.type.raw.name == 'io.vertx.core.streams.ReadStream') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  def overloadedMethod(method) {
+    var params = null;
+    var count = 0;
+    for (param : method.params) {
+      if (param.type.parameterized && param.type.raw.name == 'io.vertx.core.streams.ReadStream') {
+        if (params == null) {
+          params = new java.util.ArrayList(method.params);
+        }
+        var paramType = new io.vertx.codegen.type.ParameterizedTypeInfo(
+          io.vertx.codegen.type.TypeReflectionFactory.create(rx.Observable),
+          false,
+          java.util.Collections.singletonList(param.type.args[0])
+        );
+        params[count] = new io.vertx.codegen.ParamInfo(
+          param.index,
+          param.name,
+          param.description,
+          paramType
+        );
+      }
+      count = count + 1;
+    }
+    if (params != null) {
+      return new io.vertx.codegen.MethodInfo(
+        method.ownerTypes,
+        method.name,
+        method.kind,
+        method.returnType,
+        null,
+        method.fluent,
+        method.cacheReturn,
+        params,
+        method.comment,
+        method.doc,
+        method.staticMethod,
+        method.defaultMethod,
+        method.typeParams);
+    }
+    return null;
   }
 }
 
