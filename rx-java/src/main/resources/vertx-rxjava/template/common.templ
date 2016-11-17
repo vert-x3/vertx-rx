@@ -36,12 +36,7 @@
     if (method.staticMethod) {
       ret = helper.getNonGenericType(ifaceFQCN);
     } else {
-      if (method.ownerTypes.size() > 1) {
-        /* Work around for https://jira.codehaus.org/browse/GROOVY-6970 */
-        ret = '((' + method.ownerTypes.iterator().next().name + ') delegate)';
-      } else {
-        ret = 'delegate';
-      }
+      ret = 'delegate';
     }
     ret += '.' + method.name + '(';
     var index = 0;
@@ -121,7 +116,7 @@
              '      }\n' +
              '    }';
     } else if (kind == CLASS_API) {
-      return '(' + type.name + ')' + expr + '.getDelegate()';
+      return expr + '.getDelegate()';
     } else if (kind == CLASS_LIST || kind == CLASS_SET) {
       return expr + '.stream().map(elt -> ' + genConvParam(type.args[0], 'elt') + ').collect(java.util.stream.Collectors.to' + type.raw.simpleName + '())';
     } else if (kind == CLASS_MAP) {
