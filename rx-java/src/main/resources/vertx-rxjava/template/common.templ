@@ -58,7 +58,7 @@
 
   function isSameType(type) {
     var kind = type.kind;
-    if (kind.basic || kind.json || kind == CLASS_OBJECT || kind == CLASS_DATA_OBJECT || kind == CLASS_ENUM || kind == CLASS_OTHER || kind == CLASS_THROWABLE || kind == CLASS_VOID) {
+    if (kind.basic || kind.json || (kind == CLASS_OBJECT && !type.variable) || kind == CLASS_DATA_OBJECT || kind == CLASS_ENUM || kind == CLASS_OTHER || kind == CLASS_THROWABLE || kind == CLASS_VOID) {
       return true;
     } else if (kind == CLASS_LIST || kind == CLASS_SET || kind == CLASS_ASYNC_RESULT) {
       return isSameType(type.args[0]);
@@ -71,6 +71,11 @@
   function genConvParam(type, expr) {
     var kind = type.kind;
     if (isSameType(type)) {
+      return expr;
+    } else if (kind == CLASS_OBJECT) {
+      if (type.classParam) {
+        return 'typeArg_' + type.name + '.unwrap.apply(' + expr + ')';
+      }
       return expr;
     } else if (kind == CLASS_HANDLER) {
       var eventType = type.args[0];
@@ -117,11 +122,30 @@
 
   function genConvReturn(type, expr) {
     if (type.kind == CLASS_OBJECT) {
+      if (type.variable) {
+        if (type.classParam) {
+          return 'typeArg_' + type.name + '.wrap.apply(' + expr + ')';
+        }
+      }
       return '(' + type.simpleName + ') ' + expr;
     } else if (isSameType(type)) {
       return expr;
     } else if (type.kind == CLASS_API) {
-      return type.raw.simpleName + '.newInstance(' + expr + ')';
+      var tmp = new StringBuilder(type.raw.simpleName);
+      tmp.append('.newInstance(');
+      tmp.append(expr);
+      if (type.parameterized) {
+        for (arg : type.args) {
+          tmp.append(', ');
+          if (arg.kind == CLASS_API) {
+            tmp.append(arg.translateName('rxjava')).append('.arg');
+          } else {
+            tmp.append('io.vertx.lang.rxjava.TypeArg.unknown()');
+          }
+        }
+      }
+      tmp.append(')');
+      return tmp.toString();
     } else if (type.kind == CLASS_HANDLER) {
       var abc = type.args[0];
       if (abc.kind == CLASS_ASYNC_RESULT) {

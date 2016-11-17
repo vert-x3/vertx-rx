@@ -1,10 +1,37 @@
-	  final @{helper.getNonGenericType(ifaceFQCN)} delegate;\n\n
+	@if{concrete && type.params.empty}
+	  public static final io.vertx.lang.rxjava.TypeArg<@{type.simpleName}> arg = new io.vertx.lang.rxjava.TypeArg<>(\n
+	    obj -> new @{type.simpleName}((@{type.name}) obj),\n
+	    obj -> obj.getDelegate()\n
+	  );\n
+	\n
+	@end{}
+	  final @{helper.getNonGenericType(ifaceFQCN)} delegate;\n
+	@foreach{typeParam:type.params}
+	  private io.vertx.lang.rxjava.TypeArg<@{typeParam.name}> typeArg_@{typeParam.name};\n
+	@end{}
+	  \n
 	  public @{constructor}(@{helper.getNonGenericType(ifaceFQCN)} delegate) {\n
 	@if{concrete && concreteSuperType != null}
 	    super(delegate);\n
 	@end{}
 	    this.delegate = delegate;\n
+	@foreach{typeParam:type.params}
+	    this.typeArg_@{typeParam.name} = io.vertx.lang.rxjava.TypeArg.unknown();\n
+	@end{}
 	  }\n\n
+	@if{type.params.size() > 0}
+	  public @{constructor}(@{helper.getNonGenericType(ifaceFQCN)} delegate@foreach{typeParam:type.params}
+		, io.vertx.lang.rxjava.TypeArg<@{typeParam.name}> typeArg_@{typeParam.name}
+		@end{}) {\n
+	@if{concrete && concreteSuperType != null}
+	    super(delegate);\n
+	@end{}
+	    this.delegate = delegate;\n
+	@foreach{typeParam:type.params}
+	    this.typeArg_@{typeParam.name} = typeArg_@{typeParam.name};\n
+	@end{}
+	  }\n\n
+	@end{}
 
 	  public Object getDelegate() {\n
 	    return delegate;\n
