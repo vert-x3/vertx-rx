@@ -11,11 +11,11 @@ public class TypeArg<T> {
     return new TypeArg<>(obj -> (T)obj, obj -> obj);
   }
 
-  public final Function<Object, T> toJava; // wrap ???
+  public final Function<Object, T> wrap;
   public final Function<T, Object> unwrap;
 
-  public TypeArg(Function<Object, T> toJava, Function<T, Object> unwrap) {
-    this.toJava = toJava;
+  public TypeArg(Function<Object, T> wrap, Function<T, Object> unwrap) {
+    this.wrap = wrap;
     this.unwrap = unwrap;
   }
 }

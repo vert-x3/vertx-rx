@@ -124,7 +124,7 @@
     if (type.kind == CLASS_OBJECT) {
       if (type.variable) {
         if (type.classParam) {
-          return 'typeArg_' + type.name + '.toJava.apply(' + expr + ')';
+          return 'typeArg_' + type.name + '.wrap.apply(' + expr + ')';
         }
       }
       return '(' + type.simpleName + ') ' + expr;
