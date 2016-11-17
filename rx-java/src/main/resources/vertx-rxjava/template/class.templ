@@ -74,7 +74,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 
 @else{}
 
-	  Object getDelegate();\n\n
+	  @{type.name} getDelegate();\n\n
 
 	@foreach{method:methods}
 		@includeNamed{'startMethodTemplate'};\n\n
