@@ -1,5 +1,5 @@
 {
-  "name": "Java",
+  "name": "RxJava",
   "generators": [ {
     "kind": "class",
     "fileName": "module.translateQualifiedName(fqn, 'rxjava') + '.java'",
