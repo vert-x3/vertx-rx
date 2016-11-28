@@ -581,7 +581,7 @@ public class JavaIntegrationTest extends VertxTestBase {
         Single<HttpResponse<Buffer>> single = client
           .createPost(8080, "localhost", "/the_uri")
           .bufferBody()
-          .rxSend(stream);
+          .rxSendStream(stream);
         for (int i = 0;i < times;i++) {
           single.subscribe(resp -> {
             complete();
