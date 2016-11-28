@@ -41,6 +41,10 @@ public class ReadStreamSubscriberTest extends VertxTestBase {
       subscriber.onCompleted();
     }
 
+    void fail(Throwable cause) {
+      subscriber.onError(cause);
+    }
+
     void assertRequested(long expected) {
       assertEquals(expected, requested);
     }
@@ -129,7 +133,7 @@ public class ReadStreamSubscriberTest extends VertxTestBase {
   }
 
   @Test
-  public void testEnd() {
+  public void testCompletion() {
     Sender sender = new Sender();
     Receiver receiver = new Receiver();
     receiver.subscribe(sender.subscriber);
@@ -138,7 +142,7 @@ public class ReadStreamSubscriberTest extends VertxTestBase {
   }
 
   @Test
-  public void testEndWhenPaused() {
+  public void testCompletionWhenPaused() {
     Sender sender = new Sender();
     sender.subscriber.pause();
     Receiver receiver = new Receiver();
@@ -150,12 +154,14 @@ public class ReadStreamSubscriberTest extends VertxTestBase {
   }
 
   @Test
-  public void testSetNullHandlerInEndHandler() {
+  public void testSetNullHandlersInEndHandler() {
     Sender sender = new Sender();
     AtomicInteger count = new AtomicInteger();
     sender.subscriber.endHandler(v -> {
       count.incrementAndGet();
       sender.subscriber.handler(null);
+      sender.subscriber.endHandler(null);
+      sender.subscriber.exceptionHandler(null);
     });
     sender.subscriber.handler(item -> {});
     sender.complete();
@@ -163,7 +169,7 @@ public class ReadStreamSubscriberTest extends VertxTestBase {
   }
 
   @Test
-  public void testSetEndHandlerAfterComplete() {
+  public void testSetHandlersAfterCompletion() {
     Sender sender = new Sender();
     sender.subscriber.handler(item -> {});
     sender.complete();
@@ -173,29 +179,91 @@ public class ReadStreamSubscriberTest extends VertxTestBase {
     } catch (IllegalStateException expected) {
     }
     sender.subscriber.endHandler(null);
+    try {
+      sender.subscriber.exceptionHandler(v -> {});
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    sender.subscriber.exceptionHandler(null);
   }
 
   @Test
-  public void testDontDeliverCompleteEventWhenPausedWithPendingBuffers() {
+  public void testSetHandlersAfterError() {
     Sender sender = new Sender();
-    AtomicInteger ended = new AtomicInteger();
     sender.subscriber.handler(item -> {});
-    sender.subscriber.endHandler(v -> ended.incrementAndGet());
+    sender.fail(new Throwable());
+    try {
+      sender.subscriber.endHandler(v -> {});
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    sender.subscriber.endHandler(null);
+    try {
+      sender.subscriber.exceptionHandler(v -> {});
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+    sender.subscriber.exceptionHandler(null);
+  }
+
+  @Test
+  public void testDontDeliverCompletionWhenPausedWithPendingBuffers() {
+    Sender sender = new Sender();
+    AtomicInteger failed = new AtomicInteger();
+    AtomicInteger completed = new AtomicInteger();
+    sender.subscriber.endHandler(v -> completed.incrementAndGet());
+    sender.subscriber.exceptionHandler(v -> failed.incrementAndGet());
+    sender.subscriber.handler(item -> {});
     sender.subscriber.pause();
     sender.emit();
     sender.complete();
-    assertEquals(0, ended.get());
+    assertEquals(0, completed.get());
     sender.subscriber.resume();
-    assertEquals(1, ended.get());
+    assertEquals(1, completed.get());
+    assertEquals(0, failed.get());
   }
 
   @Test
-  public void testSetEndHandlerAfterCompleteButPending() {
+  public void testDontDeliverErrorWhenPausedWithPendingBuffers() {
+    Sender sender = new Sender();
+    AtomicInteger failed = new AtomicInteger();
+    AtomicInteger completed = new AtomicInteger();
+    sender.subscriber.endHandler(v -> completed.incrementAndGet());
+    sender.subscriber.exceptionHandler(v -> failed.incrementAndGet());
+    sender.subscriber.handler(item -> {});
+    sender.subscriber.pause();
+    sender.emit();
+    RuntimeException cause = new RuntimeException();
+    sender.fail(cause);
+    assertEquals(0, completed.get());
+    assertEquals(0, failed.get());
+    sender.subscriber.resume();
+    assertEquals(1, completed.get());
+    assertEquals(1, failed.get());
+  }
+
+  @Test
+  public void testSetHandlersAfterCompletionButPending() {
     Sender sender = new Sender();
     sender.subscriber.handler(item -> {});
     sender.subscriber.pause();
     sender.emit();
     sender.complete();
+    sender.subscriber.exceptionHandler(err -> {});
+    sender.subscriber.exceptionHandler(null);
+    sender.subscriber.endHandler(v -> {});
+    sender.subscriber.endHandler(null);
+  }
+
+  @Test
+  public void testSetHandlersAfterErrorButPending() {
+    Sender sender = new Sender();
+    sender.subscriber.handler(item -> {});
+    sender.subscriber.pause();
+    sender.emit();
+    sender.fail(new Throwable());
+    sender.subscriber.exceptionHandler(err -> {});
+    sender.subscriber.exceptionHandler(null);
     sender.subscriber.endHandler(v -> {});
     sender.subscriber.endHandler(null);
   }
