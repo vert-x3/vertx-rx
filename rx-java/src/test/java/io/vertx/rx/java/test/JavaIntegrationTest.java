@@ -15,7 +15,6 @@ import io.vertx.rxjava.core.eventbus.MessageConsumer;
 import io.vertx.rxjava.core.http.HttpClient;
 import io.vertx.rxjava.core.http.HttpClientRequest;
 import io.vertx.rxjava.core.http.HttpClientResponse;
-import io.vertx.rxjava.core.http.HttpResponse;
 import io.vertx.rxjava.core.http.HttpServer;
 import io.vertx.rxjava.core.http.HttpServerRequest;
 import io.vertx.rxjava.core.http.ServerWebSocket;
@@ -29,7 +28,6 @@ import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 import rx.Observable;
 import rx.Observer;
-import rx.Single;
 import rx.Subscriber;
 
 import java.util.ArrayList;
@@ -40,7 +38,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -528,65 +525,6 @@ public class JavaIntegrationTest extends VertxTestBase {
             testComplete();
           });
         }).end();
-      });
-      await();
-    } finally {
-      server.close();
-    }
-  }
-
-  @Test
-  public void testHttpClientRequestBuilderGet() {
-    int times = 5;
-    waitFor(times);
-    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    server.requestStream().handler(req -> {
-      req.response().setChunked(true).end("some_content");
-    });
-    try {
-      server.listen(ar -> {
-        HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-        Single<HttpResponse<Buffer>> single = client
-          .createGet(8080, "localhost", "/the_uri")
-          .bufferBody()
-          .rxSend();
-        for (int i = 0;i < times;i++) {
-          single.subscribe(resp -> {
-            assertEquals("some_content", resp.body().toString("UTF-8"));
-            complete();
-          }, this::fail);
-        }
-      });
-      await();
-    } finally {
-      server.close();
-    }
-  }
-
-  @Test
-  public void testHttpClientRequestBuilderPost() {
-    int times = 5;
-    waitFor(times);
-    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    server.requestStream().handler(req -> {
-      req.bodyHandler(buff -> {
-        assertEquals("onetwothree", buff.toString());
-        req.response().end();
-      });
-    });
-    try {
-      server.listen(ar -> {
-        HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-        Observable<Buffer> stream = Observable.just(Buffer.buffer("one"), Buffer.buffer("two"), Buffer.buffer("three"));
-        Single<HttpResponse<Buffer>> single = client
-          .createPost(8080, "localhost", "/the_uri")
-          .bufferBody()
-          .rxSendStream(stream);
-        for (int i = 0;i < times;i++) {
-          single.subscribe(resp -> {
-            complete();
-          }, this::fail);
-        }
       });
       await();
     } finally {
