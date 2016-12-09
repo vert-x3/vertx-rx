@@ -15,6 +15,7 @@ import java.util.function.Function;
  */
 public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStream<J> {
 
+  private static final Runnable NOOP_ACTION = () -> {};
   private static final Throwable DONE_SENTINEL = new Throwable();
 
   public static final int FETCH_SIZE = 16;
@@ -41,64 +42,89 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
 
   @Override
   public ReadStream<J> handler(Handler<J> handler) {
-    itemHandler = handler;
+    synchronized (this) {
+      itemHandler = handler;
+    }
     checkStatus();
     return this;
   }
 
   @Override
   public ReadStream<J> pause() {
-    paused = true;
+    synchronized (this) {
+      paused = true;
+    }
     return this;
   }
 
   @Override
   public ReadStream<J> resume() {
-    paused = false;
+    synchronized (this) {
+      paused = false;
+    }
     checkStatus();
     return this;
   }
 
   private void checkStatus() {
-    Handler<J> handler;
-    while (!paused && (handler = itemHandler) != null) {
-      if (pending.size() > 0) {
-        requested--;
-        R item = pending.poll();
-        J adapted = adapter.apply(item);
-        handler.handle(adapted);
-      } else {
-        break;
-      }
-    }
-    if (completed != null) {
-      if (pending.isEmpty()) {
-        if (completed != DONE_SENTINEL) {
-          Handler<Throwable> callback = exceptionHandler;
-          if (callback != null) {
-            exceptionHandler = null;
-            callback.handle(completed);
+    Runnable action = NOOP_ACTION;
+    while (true) {
+      J adapted;
+      Handler<J> handler;
+      synchronized (this) {
+        if (!paused && (handler = itemHandler) != null && pending.size() > 0) {
+          requested--;
+          R item = pending.poll();
+          adapted = adapter.apply(item);
+        } else {
+          if (completed != null) {
+            if (pending.isEmpty()) {
+              Handler<Throwable> onError;
+              Throwable result;
+              if (completed != DONE_SENTINEL) {
+                onError = exceptionHandler;
+                result = completed;
+                exceptionHandler = null;
+              } else {
+                onError = null;
+                result = null;
+              }
+              Handler<Void> onCompleted = endHandler;
+              endHandler = null;
+              action = () -> {
+                try {
+                  if (onError != null) {
+                    onError.handle(result);
+                  }
+                } finally {
+                  if (onCompleted != null) {
+                    onCompleted.handle(null);
+                  }
+                }
+              };
+            }
+          } else if (requested < FETCH_SIZE / 2) {
+            int request = FETCH_SIZE - requested;
+            action = () -> request(request);
+            requested = FETCH_SIZE;
           }
-        }
-        Handler<Void> callback = endHandler;
-        if (callback != null) {
-          endHandler = null;
-          callback.handle(null);
+          break;
         }
       }
-    } else if (requested < FETCH_SIZE / 2) {
-      request(FETCH_SIZE - requested);
-      requested = FETCH_SIZE;
+      handler.handle(adapted);
     }
+    action.run();
   }
 
   @Override
   public ReadStream<J> endHandler(Handler<Void> handler) {
-    if (completed == null || pending.size() > 0) {
-      endHandler = handler;
-    } else {
-      if (handler != null) {
-        throw new IllegalStateException();
+    synchronized (this) {
+      if (completed == null || pending.size() > 0) {
+        endHandler = handler;
+      } else {
+        if (handler != null) {
+          throw new IllegalStateException();
+        }
       }
     }
     return this;
@@ -106,11 +132,13 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
 
   @Override
   public ReadStream<J> exceptionHandler(Handler<Throwable> handler) {
-    if (completed == null || pending.size() > 0) {
-      exceptionHandler = handler;
-    } else {
-      if (handler != null) {
-        throw new IllegalStateException();
+    synchronized (this) {
+      if (completed == null || pending.size() > 0) {
+        exceptionHandler = handler;
+      } else {
+        if (handler != null) {
+          throw new IllegalStateException();
+        }
       }
     }
     return this;
@@ -123,15 +151,20 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
 
   @Override
   public void onError(Throwable e) {
-    if (completed == null) {
+    synchronized (this) {
+      if (completed != null) {
+        return;
+      }
       completed = e;
-      checkStatus();
     }
+    checkStatus();
   }
 
   @Override
   public void onNext(R item) {
-    pending.add(item);
+    synchronized (this) {
+      pending.add(item);
+    }
     checkStatus();
   }
 }
