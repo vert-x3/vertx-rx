@@ -127,13 +127,16 @@ Handler<AsyncResult<HttpServer>> handler2 = RxHelper.toFuture(onNext, onError);
 Handler<AsyncResult<HttpServer>> handler3 = RxHelper.toFuture(onNext, onError, onComplete);
 ----
 
-The _Rxified_ Vert.x API duplicates each such method with the `Observable` suffix that returns an observable:
+The _Rxified_ Vert.x API duplicates each such method with the `rx` prefix that returns an RxJava `Single`:
 
 [source,java]
 ----
-vertx.createHttpServer(
-    new HttpServerOptions().setPort(1234).setHost("localhost")
-).listenObservable().
+Single<HttpServer> single = vertx
+  .createHttpServer()
+  .rxListen(1234, "localhost");
+
+// Subscribe to bind the server
+single.
     subscribe(
         server -> {
           // Server is listening
@@ -144,7 +147,10 @@ vertx.createHttpServer(
     );
 ----
 
-Such observables are *cold* observables, i.e. they will produce notifications on request.
+Such single are *cold* singles, and the corresponding API method is called on subscribe.
+
+NOTE: the `rx*` methods replace the `*Observable` of the previous _Rxified_ versions with a semantic
+change to be more in line with RxJava.
 
 === Scheduler support
 

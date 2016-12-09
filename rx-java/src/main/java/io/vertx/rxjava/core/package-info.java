@@ -83,14 +83,17 @@
  * {@link examples.NativeExamples#actionsToHandler()}
  * ----
  *
- * The _Rxified_ Vert.x API duplicates each such method with the `Observable` suffix that returns an observable:
+ * The _Rxified_ Vert.x API duplicates each such method with the `rx` prefix that returns an RxJava {@code Single}:
  *
  * [source,java]
  * ----
- * {@link examples.RxifiedExamples#observableFuture(io.vertx.rxjava.core.Vertx)}
+ * {@link examples.RxifiedExamples#single(io.vertx.rxjava.core.Vertx)}
  * ----
  *
- * Such observables are *cold* observables, i.e. they will produce notifications on request.
+ * Such single are *cold* singles, and the corresponding API method is called on subscribe.
+ *
+ * NOTE: the `rx*` methods replace the `*Observable` of the previous _Rxified_ versions with a semantic
+ * change to be more in line with RxJava.
  *
  * === Scheduler support
  *

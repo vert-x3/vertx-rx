@@ -23,6 +23,7 @@ import io.vertx.rxjava.core.http.WebSocket;
 import io.vertx.rxjava.core.http.WebSocketStream;
 import rx.Observable;
 import rx.Scheduler;
+import rx.Single;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.plugins.RxJavaSchedulersHook;
@@ -45,10 +46,15 @@ public class RxifiedExamples {
     });
   }
 
-  public void observableFuture(Vertx vertx) {
-    vertx.createHttpServer(
-        new HttpServerOptions().setPort(1234).setHost("localhost")
-    ).listenObservable().
+  public void single(Vertx vertx) {
+
+    // Obtain a single that performs the actual listen on subscribe
+    Single<HttpServer> single = vertx
+      .createHttpServer()
+      .rxListen(1234, "localhost");
+
+    // Subscribe to bind the server
+    single.
         subscribe(
             server -> {
               // Server is listening
