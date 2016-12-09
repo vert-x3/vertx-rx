@@ -50,13 +50,13 @@
         ret += ', ';
       }
       if (param.type.parameterized && param.type.raw.name == 'rx.Observable') {
-        var bilto = '';
+        var adapterFunction = '';
         if (param.type.args[0].variable) {
-          bilto = 'java.util.function.Function.identity()';
+          adapterFunction = 'java.util.function.Function.identity()';
         } else {
-          bilto = 'obj -> (' + param.type.args[0].raw.name + ')obj.getDelegate()';
+          adapterFunction = 'obj -> (' + param.type.args[0].raw.name + ')obj.getDelegate()';
         }
-        ret += 'io.vertx.rx.java.ReadStreamSubscriber.asReadStream(' + param.name + ',' + bilto + ').resume()';
+        ret += 'io.vertx.rx.java.ReadStreamSubscriber.asReadStream(' + param.name + ',' + adapterFunction + ').resume()';
       } else {
         ret += genConvParam(param.type, param.name);
       }
