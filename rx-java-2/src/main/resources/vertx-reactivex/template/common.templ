@@ -219,9 +219,9 @@
 	@end{}
 	@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,'rx' + capitalizeFirstLetter(method.name),method.kind,futureReturnType,null,method.fluent,method.cacheReturn,futureParams,method.comment,method.doc,method.staticMethod,method.defaultMethod,method.typeParams)}
 	@includeNamed{'startMethodTemplate';method=futureMethod} { \n
-	    @{adapterType} @{futureParam.name} = new @{adapterType}();\n
-	    @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}@{futureParam.name});\n
-	    return @{rxType}.unsafeCreate(@{futureParam.name});\n
+	    return @{rxType}.unsafeCreate(new @{adapterType}(handler -> {\n
+	      @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}handler);\n
+	    }));\n
 	  }\n\n
 	@end{}
 @end{}
