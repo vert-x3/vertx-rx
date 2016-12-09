@@ -6,57 +6,48 @@ import io.reactivex.disposables.Disposable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class AsyncResultCompletable implements CompletableSource, Handler<AsyncResult<Void>> {
+public class AsyncResultCompletable implements CompletableSource {
 
-  private AsyncResult<Void> asyncResult;
-  private CompletableObserver observer;
+  private final Handler<Handler<AsyncResult<Void>>> method;
 
-  @Override
-  public void handle(AsyncResult<Void> event) {
-    asyncResult = event;
-    check();
+  public AsyncResultCompletable(Handler<Handler<AsyncResult<Void>>> method) {
+    this.method = method;
   }
 
   @Override
-  public void subscribe(CompletableObserver obj) {
-    if (this.observer != null) {
-      throw new UnsupportedOperationException("todo");
-    }
-    this.observer = obj;
+  public void subscribe(CompletableObserver observer) {
+    AtomicBoolean disposed = new AtomicBoolean();
     observer.onSubscribe(new Disposable() {
       @Override
       public void dispose() {
+        disposed.set(true);
       }
       @Override
       public boolean isDisposed() {
-        return false;
+        return disposed.get();
       }
     });
-    check();
-  }
-
-  private void check() {
-    if (asyncResult != null && observer != null) {
-      if (asyncResult.succeeded()) {
-        try {
-          observer.onComplete();
-        } catch (Exception e) {
-
-        } finally {
-          observer = null;
+    if (!disposed.get()) {
+      method.handle(ar -> {
+        if (!disposed.getAndSet(false)) {
+          if (ar.succeeded()) {
+            try {
+              observer.onComplete();
+            } catch (Throwable ignore) {
+            }
+          } else {
+            try {
+              observer.onError(ar.cause());
+            } catch (Throwable ignore) {
+            }
+          }
         }
-      } else if (asyncResult.failed()) {
-        try {
-          observer.onError(asyncResult.cause());
-        } catch (Exception e) {
-          e.printStackTrace();
-        } finally {
-          observer = null;
-        }
-      }
+      });
     }
   }
 }
