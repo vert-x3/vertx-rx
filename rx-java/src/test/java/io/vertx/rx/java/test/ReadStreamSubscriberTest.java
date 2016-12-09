@@ -103,14 +103,14 @@ public class ReadStreamSubscriberTest extends VertxTestBase {
     sender.assertRequested(0);
     Receiver receiver = new Receiver();
     receiver.subscribe(sender.subscriber);
-    sender.assertRequested(ReadStreamSubscriber.FETCH_SIZE);
-    while (sender.seq < ReadStreamSubscriber.FETCH_SIZE / 2) {
+    sender.assertRequested(ReadStreamSubscriber.BUFFER_SIZE);
+    while (sender.seq < ReadStreamSubscriber.BUFFER_SIZE / 2) {
       sender.emit();
-      sender.assertRequested(ReadStreamSubscriber.FETCH_SIZE);
+      sender.assertRequested(ReadStreamSubscriber.BUFFER_SIZE);
     }
-    int i = ReadStreamSubscriber.FETCH_SIZE - (sender.seq - 1);
+    int i = ReadStreamSubscriber.BUFFER_SIZE - (sender.seq - 1);
     sender.emit();
-    sender.assertRequested(ReadStreamSubscriber.FETCH_SIZE + i);
+    sender.assertRequested(ReadStreamSubscriber.BUFFER_SIZE + i);
   }
 
   @Test
@@ -120,14 +120,14 @@ public class ReadStreamSubscriberTest extends VertxTestBase {
     sender.subscriber.pause();
     Receiver receiver = new Receiver();
     receiver.subscribe(sender.subscriber);
-    for (int i = 0;i < ReadStreamSubscriber.FETCH_SIZE;i++) {
+    for (int i = 0; i < ReadStreamSubscriber.BUFFER_SIZE; i++) {
       sender.emit();
-      assertEquals(ReadStreamSubscriber.FETCH_SIZE, sender.requested);
+      assertEquals(ReadStreamSubscriber.BUFFER_SIZE, sender.requested);
     }
     assertEquals(0, sender.available());
     receiver.assertEmpty();
     sender.subscriber.resume();
-    assertEquals(ReadStreamSubscriber.FETCH_SIZE, sender.available());
+    assertEquals(ReadStreamSubscriber.BUFFER_SIZE, sender.available());
     receiver.assertItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15");
     receiver.assertEmpty();
   }

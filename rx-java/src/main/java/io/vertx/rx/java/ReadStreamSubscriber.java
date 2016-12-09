@@ -9,7 +9,19 @@ import java.util.ArrayDeque;
 import java.util.function.Function;
 
 /**
- * todo: synchronization
+ * An RxJava {@code Subscriber} that turns an {@code Observable} into a {@link ReadStream}.
+ * <p>
+ * The stream implements the {@link #pause()} and {@link #resume()} operation by maintaining
+ * a buffer of {@link #BUFFER_SIZE} elements between the {@code Observable} and the {@code ReadStream}.
+ * <p>
+ * When the subscriber is created it requests {@code 0} elements to activate the subscriber's back-pressure.
+ * Setting the handler initially on the {@code ReadStream} triggers a request of {@link #BUFFER_SIZE} elements.
+ * When the item buffer is half empty, new elements are requested to fill the buffer back to {@link #BUFFER_SIZE}
+ * elements.
+ * <p>
+ * The {@link #endHandler(Handler<Void>)} is called when the {@code Observable} is completed or has failed and
+ * no pending elements, emitted before the completion or failure, are still in the buffer, i.e the handler
+ * is not called when the stream is paused.
  *
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
@@ -18,10 +30,10 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
   private static final Runnable NOOP_ACTION = () -> {};
   private static final Throwable DONE_SENTINEL = new Throwable();
 
-  public static final int FETCH_SIZE = 16;
+  public static final int BUFFER_SIZE = 16;
 
   public static <R, J> ReadStream<J> asReadStream(Observable<R> observable, Function<R, J> adapter) {
-    ReadStreamSubscriber<R, J> observer = new ReadStreamSubscriber<R, J>(adapter);
+    ReadStreamSubscriber<R, J> observer = new ReadStreamSubscriber<>(adapter);
     observable.subscribe(observer);
     return observer;
   }
@@ -29,7 +41,7 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
   private final Function<R, J> adapter;
   private Handler<Void> endHandler;
   private Handler<Throwable> exceptionHandler;
-  private Handler<J> itemHandler;
+  private Handler<J> elementHandler;
   private boolean paused = false;
   private Throwable completed;
   private ArrayDeque<R> pending = new ArrayDeque<>();
@@ -43,7 +55,7 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
   @Override
   public ReadStream<J> handler(Handler<J> handler) {
     synchronized (this) {
-      itemHandler = handler;
+      elementHandler = handler;
     }
     checkStatus();
     return this;
@@ -72,7 +84,7 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
       J adapted;
       Handler<J> handler;
       synchronized (this) {
-        if (!paused && (handler = itemHandler) != null && pending.size() > 0) {
+        if (!paused && (handler = elementHandler) != null && pending.size() > 0) {
           requested--;
           R item = pending.poll();
           adapted = adapter.apply(item);
@@ -103,10 +115,10 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
                 }
               };
             }
-          } else if (requested < FETCH_SIZE / 2) {
-            int request = FETCH_SIZE - requested;
+          } else if (requested < BUFFER_SIZE / 2) {
+            int request = BUFFER_SIZE - requested;
             action = () -> request(request);
-            requested = FETCH_SIZE;
+            requested = BUFFER_SIZE;
           }
           break;
         }
