@@ -59,6 +59,13 @@
 		@includeNamed{'genMethod'}
 	@end{}
 
+	@foreach{method:methods}
+		@code{overloaded = overloadedMethod(method)}
+		@if{overloaded != null}
+			@includeNamed{'genMethod';method=overloaded}
+		@end{}
+	@end{}
+
 	@foreach{cacheDecl:cacheDecls}
 	  @{cacheDecl};\n
 	@end{}

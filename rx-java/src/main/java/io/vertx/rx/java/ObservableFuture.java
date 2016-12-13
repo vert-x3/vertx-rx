@@ -9,7 +9,7 @@ import rx.Observable;
  */
 public class ObservableFuture<T> extends Observable<T> {
 
-  private static class HandlerAdapter<T> extends SingleOnSubscribeAdapter<T> implements Handler<AsyncResult<T>> {
+  private static class HandlerAdapter<T> extends ObservableOnSubscribeAdapter<T> implements Handler<AsyncResult<T>> {
 
     private AsyncResult<T> buffered;
     private boolean subscribed;

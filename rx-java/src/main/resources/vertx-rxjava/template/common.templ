@@ -44,7 +44,17 @@
       if (index > 0) {
         ret += ', ';
       }
-      ret += genConvParam(param.type, param.name);
+      if (param.type.parameterized && param.type.raw.name == 'rx.Observable') {
+        var adapterFunction = '';
+        if (param.type.args[0].variable) {
+          adapterFunction = 'java.util.function.Function.identity()';
+        } else {
+          adapterFunction = 'obj -> (' + param.type.args[0].raw.name + ')obj.getDelegate()';
+        }
+        ret += 'io.vertx.rx.java.ReadStreamSubscriber.asReadStream(' + param.name + ',' + adapterFunction + ').resume()';
+      } else {
+        ret += genConvParam(param.type, param.name);
+      }
       index = index + 1;
     }
     ret += ')';
@@ -134,6 +144,8 @@
           tmp.append(', ');
           if (arg.kind == CLASS_API) {
             tmp.append(arg.translateName('rxjava')).append('.arg');
+          } else if (arg.kind == CLASS_OBJECT && arg.variable && arg.classParam) {
+            tmp.append('typeArg_').append(arg.name);
           } else {
             tmp.append('io.vertx.lang.rxjava.TypeArg.unknown()');
           }
@@ -166,6 +178,90 @@
     }
     return expr;
   }
+
+  def genFutureMethodName(method) {
+    return 'rx' + java.lang.Character.toUpperCase(method.name.charAt(0)) + method.name.substring(1);
+  }
+
+  def genFutureMethod(method) {
+    var futMethodName = genFutureMethodName(method);
+    var futParams = new java.util.ArrayList();
+    var count = 0;
+    var size = method.params.size() - 1;
+    while (count < size) {
+      var param = method.params[count];
+      /* Transform ReadStream -> Observable */
+      futParams.add(param);
+      count = count + 1;
+    }
+    var futParam = method.params[size];
+    var futType = futParam.type.args[0].args[0];
+    var futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(rx.Single), false, java.util.Collections.singletonList(futType));
+    var futMethod = new io.vertx.codegen.MethodInfo(
+      method.ownerTypes, futMethodName,
+      method.kind,
+      futReturnType,
+      null,
+      method.fluent,
+      method.cacheReturn,
+      futParams,
+      method.comment,
+      method.doc,
+      method.staticMethod,
+      method.defaultMethod,
+      method.typeParams);
+    return futMethod;
+  }
+
+  def hasReadStream(method) {
+    for (param : method.params) {
+      if (param.type.parameterized && param.type.raw.name == 'io.vertx.core.streams.ReadStream') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  def overloadedMethod(method) {
+    var params = null;
+    var count = 0;
+    for (param : method.params) {
+      if (param.type.parameterized && param.type.raw.name == 'io.vertx.core.streams.ReadStream') {
+        if (params == null) {
+          params = new java.util.ArrayList(method.params);
+        }
+        var paramType = new io.vertx.codegen.type.ParameterizedTypeInfo(
+          io.vertx.codegen.type.TypeReflectionFactory.create(rx.Observable),
+          false,
+          java.util.Collections.singletonList(param.type.args[0])
+        );
+        params[count] = new io.vertx.codegen.ParamInfo(
+          param.index,
+          param.name,
+          param.description,
+          paramType
+        );
+      }
+      count = count + 1;
+    }
+    if (params != null) {
+      return new io.vertx.codegen.MethodInfo(
+        method.ownerTypes,
+        method.name,
+        method.kind,
+        method.returnType,
+        null,
+        method.fluent,
+        method.cacheReturn,
+        params,
+        method.comment,
+        method.doc,
+        method.staticMethod,
+        method.defaultMethod,
+        method.typeParams);
+    }
+    return null;
+  }
 }
 
 @declare{'startMethodTemplate'}
@@ -178,13 +274,19 @@
 	@if{!method.returnType.name.equals("void")}
 	   * @return @if{method.returnDescription != null}@{renderTokensToHtml("", method.returnDescription.tokens, renderLinkToHtml, "")}@end{}\n
 	@end{}
+	@if{deprecated != null && deprecated.length() > 0}
+	   * @deprecated @{deprecated}\n
+	@end{}
 	   */\n
+	@end{}
+	@if{deprecated != null && deprecated.length() > 0}
+  @Deprecated()\n
 	@end{}
   public @if{method.staticMethod}static @end{}@if{method.typeParams.size() > 0}<@foreach{typeParam:method.typeParams}@{typeParam.name}@end{', '}> @end{}@{method.returnType.simpleName} @{method.name}(@foreach{param: method.params}@{param.type.simpleName} @{param.name}@end{', '})
 @end{}
 
 @declare{'genMethod'}
-	@includeNamed{'startMethodTemplate';method:method} { \n
+	@includeNamed{'startMethodTemplate';method=method;deprecated=''} { \n
 	@if{method.fluent}
 	    @{genInvokeDelegate(method)};\n
 			@if{method.returnType.variable}
@@ -215,16 +317,26 @@
 	  }\n\n
 
 	@if{method.kind == METHOD_FUTURE}
+	@code{originalMeth=method}
 	@code{methodName=method.name}
 	@code{futureParams=new java.util.ArrayList(method.params)}
 	@code{futureParam=futureParams.remove(futureParams.size()-1)}
 	@code{futureType=futureParam.type.args[0].args[0]}
 	@code{futureReturnType=new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(rx.Observable), false, java.util.Collections.singletonList(futureType))}
 	@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,method.name + 'Observable',method.kind,futureReturnType,null,method.fluent,method.cacheReturn,futureParams,method.comment,method.doc,method.staticMethod,method.defaultMethod,method.typeParams)}
-	@includeNamed{'startMethodTemplate';method=futureMethod} { \n
+	@includeNamed{'startMethodTemplate';method=futureMethod;deprecated='use {@link #' + genFutureMethodName(originalMeth) + '} instead'} { \n
 	    io.vertx.rx.java.ObservableFuture<@{futureType.simpleName}> @{futureParam.name} = io.vertx.rx.java.RxHelper.observableFuture();\n
 	    @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}@{futureParam.name}.toHandler());\n
 	    return @{futureParam.name};\n
+	  }\n\n
+	@end{}
+
+	@if{method.kind == METHOD_FUTURE}
+	@code{futMeth = genFutureMethod(originalMeth)}
+	@includeNamed{'startMethodTemplate';method=futMeth;deprecated=''} { \n
+	    return Single.create(new io.vertx.rx.java.SingleOnSubscribeAdapter<>(fut -> {\n
+	      @{originalMeth.name}(@foreach{param:futMeth.params}@{param.name}@end{', '}@if{futMeth.params.size() > 0}, @end{}fut);\n
+	    }));\n
 	  }\n\n
 	@end{}
 @end{}

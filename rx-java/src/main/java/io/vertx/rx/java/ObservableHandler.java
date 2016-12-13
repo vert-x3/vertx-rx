@@ -8,7 +8,7 @@ import rx.Observable;
  */
 public class ObservableHandler<T> extends Observable<T> {
 
-  private abstract static class HandlerAdapter<T> extends SingleOnSubscribeAdapter<T> implements Handler<T> {
+  private abstract static class HandlerAdapter<T> extends ObservableOnSubscribeAdapter<T> implements Handler<T> {
 
     private static final int STATUS_MULTI = 0;
     private static final int STATUS_SINGLE = 1;

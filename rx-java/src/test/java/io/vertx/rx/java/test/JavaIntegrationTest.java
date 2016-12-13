@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -515,19 +514,22 @@ public class JavaIntegrationTest extends VertxTestBase {
     server.requestStream().handler(req -> {
       req.response().setChunked(true).end("some_content");
     });
-    server.listen(ar -> {
-      HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-      client.request(HttpMethod.GET, 8080, "localhost", "/the_uri", resp -> {
-        Buffer content = Buffer.buffer();
-        Observable<Buffer> observable = resp.toObservable();
-        observable.forEach(content::appendBuffer, err -> fail(), () -> {
-          server.close();
-          assertEquals("some_content", content.toString("UTF-8"));
-          testComplete();
-        });
-      }).end();
-    });
-    await();
+    try {
+      server.listen(ar -> {
+        HttpClient client = vertx.createHttpClient(new HttpClientOptions());
+        client.request(HttpMethod.GET, 8080, "localhost", "/the_uri", resp -> {
+          Buffer content = Buffer.buffer();
+          Observable<Buffer> observable = resp.toObservable();
+          observable.forEach(content::appendBuffer, err -> fail(), () -> {
+            assertEquals("some_content", content.toString("UTF-8"));
+            testComplete();
+          });
+        }).end();
+      });
+      await();
+    } finally {
+      server.close();
+    }
   }
 
   @Test

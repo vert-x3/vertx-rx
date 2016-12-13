@@ -23,6 +23,7 @@ package @{type.raw.translatePackageName("rxjava")};\n\n
 
 import java.util.Map;\n
 import rx.Observable;\n
+import rx.Single;\n
 @comment{"Generate the imports"}
 @foreach{importedType:importedTypes}
 	@if{importedType.kind == CLASS_API}
@@ -77,7 +78,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 	  @{type.name} getDelegate();\n\n
 
 	@foreach{method:methods}
-		@includeNamed{'startMethodTemplate'};\n\n
+		@includeNamed{'startMethodTemplate';deprecated=''};\n\n
 	@end{}
 
 	@if{type.raw.name == 'io.vertx.core.streams.ReadStream'}

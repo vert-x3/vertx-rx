@@ -2,14 +2,14 @@ package io.vertx.lang.rxjava;
 
 import io.vertx.core.Handler;
 import io.vertx.rxjava.core.streams.ReadStream;
-import io.vertx.rx.java.SingleOnSubscribeAdapter;
+import io.vertx.rx.java.ObservableOnSubscribeAdapter;
 
 import java.util.function.Function;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class ReadStreamAdapter<J, R> extends SingleOnSubscribeAdapter<R> implements Handler<J> {
+public class ReadStreamAdapter<J, R> extends ObservableOnSubscribeAdapter<R> implements Handler<J> {
 
   private final io.vertx.core.streams.ReadStream<J> stream;
   private final Function<J, R> adapter;
