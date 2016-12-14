@@ -5,7 +5,9 @@ import io.vertx.codegen.testmodel.TestDataObject;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rx.java.test.AsyncResultChecker;
+import io.vertx.rxjava.codegen.testmodel.GenericNullableRefedInterface;
 import io.vertx.rxjava.codegen.testmodel.NullableTCK;
+import io.vertx.rxjava.codegen.testmodel.RefedInterface1;
 import org.junit.Test;
 
 import java.util.ArrayList;
