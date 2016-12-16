@@ -5,6 +5,7 @@ import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.WorkerExecutor;
+import io.vertx.core.impl.WorkerExecutorInternal;
 import io.vertx.core.json.JsonObject;
 import rx.Scheduler;
 import rx.Subscription;
@@ -12,7 +13,6 @@ import rx.functions.Action0;
 import rx.plugins.RxJavaPlugins;
 import rx.plugins.RxJavaSchedulersHook;
 
-import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,7 +27,7 @@ public class ContextScheduler extends Scheduler {
   private final Vertx vertx;
   private final boolean blocking;
   private final boolean ordered;
-  private final RxJavaSchedulersHook schedulersHook = RxJavaPlugins.getInstance().getSchedulersHook();;
+  private final RxJavaSchedulersHook schedulersHook = RxJavaPlugins.getInstance().getSchedulersHook();
   private final Context context;
   private final WorkerExecutor workerExecutor;
 
@@ -62,15 +62,7 @@ public class ContextScheduler extends Scheduler {
   public ContextScheduler(WorkerExecutor workerExecutor, boolean ordered) {
     this.workerExecutor = workerExecutor;
     this.ordered = ordered;
-    Field contextField;
-    try {
-      contextField = workerExecutor.getClass().getDeclaredField("context");
-      contextField.setAccessible(true);
-      Context context = (Context) contextField.get(workerExecutor);
-      this.vertx = context.owner();
-    } catch (NoSuchFieldException | IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
+    this.vertx = ((WorkerExecutorInternal) workerExecutor).getContext().owner();
     this.blocking = false;
     this.context = null;
   }
