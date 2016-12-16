@@ -143,26 +143,22 @@ public class ContextScheduler extends Scheduler {
           schedule(delayMillis);
         } else {
           id = -1;
-          execute(null);
+          execute();
         }
       }
 
       private void schedule(long delay) {
-        this.id = vertx.setTimer(delay, this::execute);
+        this.id = vertx.setTimer(delay, l -> execute());
       }
 
-      private void execute(Object o) {
+      private void execute() {
         if (context == null) {
-          workerExecutor.executeBlocking(this::run, ordered, NOOP);
+          workerExecutor.executeBlocking(fut -> run(), ordered, NOOP);
         } else if (blocking) {
-          context.executeBlocking(this::run, ordered, NOOP);
+          context.executeBlocking(fut -> run(), ordered, NOOP);
         } else {
-          context.runOnContext(this::run);
+          context.runOnContext(v -> run());
         }
-      }
-
-      private void run(Object arg) {
-        run();
       }
 
       @Override
