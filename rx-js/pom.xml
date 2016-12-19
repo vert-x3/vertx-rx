@@ -50,6 +50,13 @@
       <plugin>
         <groupId>org.asciidoctor</groupId>
         <artifactId>asciidoctor-maven-plugin</artifactId>
+        <configuration>
+          <attributes>
+            <maven-groupId>${project.groupId}</maven-groupId>
+            <maven-artifactId>${project.artifactId}</maven-artifactId>
+            <maven-version>${project.version}</maven-version>
+          </attributes>
+        </configuration>
         <executions>
           <execution>
             <id>process-asciidoc</id>
