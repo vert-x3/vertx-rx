@@ -344,4 +344,8 @@
 	  }\n\n
 	@end{}
 
+	@if{method.kind == METHOD_FUTURE && method.fluentFuture != null}
+		@includeNamed{'genSimpleMethod';method=new io.vertx.codegen.MethodInfo(method.ownerTypes, method.name, method.kind, method.returnType, method.returnDescription, method.fluent, method.cacheReturn, method.params.subList(0, method.params.size() - 1), method.comment, method.doc, method.staticMethod, method.defaultMethod, method.typeParams)}
+	@end{}
+
 @end{}
