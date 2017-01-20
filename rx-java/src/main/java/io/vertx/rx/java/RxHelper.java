@@ -43,7 +43,19 @@ public class RxHelper {
    * @return the adapted observable
    */
   public static <T> Observable<T> toObservable(ReadStream<T> stream) {
-    return Observable.create(new ReadStreamAdapter<>(stream));
+    return toObservable(stream, Function.identity());
+  }
+
+  public static <T> Observable<T> toObservable(ReadStream<T> stream, int maxBufferSize) {
+    return toObservable(stream, Function.identity(), maxBufferSize);
+  }
+
+  public static <T, R> Observable<R> toObservable(ReadStream<T> stream, Function<T, R> adapter) {
+    return Observable.create(new ObservableReadStream<>(stream, adapter));
+  }
+
+  public static <T, R> Observable<R> toObservable(ReadStream<T> stream, Function<T, R> adapter, int maxBufferSize) {
+    return Observable.create(new ObservableReadStream<>(stream, adapter, maxBufferSize));
   }
 
   /**
@@ -287,5 +299,26 @@ public class RxHelper {
         return buffer;
       }
     };
+  }
+
+  /**
+   * Clearing handlers after stream closed causes issues for some (eg AsyncFile) so silently drop errors.
+   */
+  static void setNullHandlers(ReadStream<?> stream) {
+    try {
+      stream.exceptionHandler(null);
+    }
+    catch(Exception ignore) {
+    }
+    try {
+      stream.endHandler(null);
+    }
+    catch(Exception ignore) {
+    }
+    try {
+      stream.handler(null);
+    }
+    catch(Exception ignore) {
+    }
   }
 }
