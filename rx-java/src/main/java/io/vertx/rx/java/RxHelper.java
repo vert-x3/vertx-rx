@@ -14,6 +14,8 @@ import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.plugins.RxJavaSchedulersHook;
 
+import java.util.function.Function;
+
 /**
  * A set of helpers for RxJava and Vert.x.
  *
@@ -21,6 +23,16 @@ import rx.plugins.RxJavaSchedulersHook;
  */
 public class RxHelper {
 
+  /**
+   * Adapts an RxJava {@link Observable<T>} to a Vert.x {@link io.vertx.core.streams.ReadStream<T>}. The returned
+   * readstream will be subscribed to the {@link Observable<T>}.<p>
+   *
+   * @param observable the observable to adapt
+   * @return the adapted stream
+   */
+  public static <T> ReadStream<T> toReadStream(Observable<T> observable) {
+    return ReadStreamSubscriber.asReadStream(observable, Function.identity());
+  }
 
   /**
    * Adapts a Vert.x {@link io.vertx.core.streams.ReadStream<T>} to an RxJava {@link Observable<T>}. After

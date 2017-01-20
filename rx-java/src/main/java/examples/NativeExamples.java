@@ -9,6 +9,9 @@ import io.vertx.core.file.FileSystem;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
 import io.vertx.rx.java.ObservableFuture;
 import io.vertx.rx.java.ObservableHandler;
 import io.vertx.rx.java.RxHelper;
@@ -27,13 +30,24 @@ import java.util.concurrent.TimeUnit;
  */
 public class NativeExamples {
 
-  public void readStream(Vertx vertx) {
+  public void toObservable(Vertx vertx) {
     FileSystem fileSystem = vertx.fileSystem();
     fileSystem.open("/data.txt", new OpenOptions(), result -> {
       AsyncFile file = result.result();
       Observable<Buffer> observable = RxHelper.toObservable(file);
       observable.forEach(data -> System.out.println("Read data: " + data.toString("UTF-8")));
     });
+  }
+
+  private Observable<Buffer> getObservable() {
+    throw new UnsupportedOperationException();
+  }
+
+  public void toReadStream(io.vertx.rxjava.core.Vertx vertx, HttpServerResponse response) {
+    Observable<Buffer> observable = getObservable();
+    ReadStream<Buffer> readStream = RxHelper.toReadStream(observable);
+    Pump pump = Pump.pump(readStream, response);
+    pump.start();
   }
 
   public void observableHandler(Vertx vertx) {

@@ -16,14 +16,14 @@
  *
  * === Read stream support
  *
- * RxJava observable is a perfect match for Vert.x `ReadStream` class : both provide a flow of items.
+ * RxJava `Observable` is a perfect match for Vert.x `ReadStream` class : both provide a flow of items.
  *
  * The {@link io.vertx.rx.java.RxHelper#toObservable(io.vertx.core.streams.ReadStream)} static methods convert
  * a Vert.x read stream to an `rx.Observable`:
  *
  * [source,java]
  * ----
- * {@link examples.NativeExamples#readStream(io.vertx.core.Vertx)}
+ * {@link examples.NativeExamples#toObservable}
  * ----
  *
  * The _Rxified_ Vert.x API provides a {@link io.vertx.rxjava.core.streams.ReadStream#toObservable()}  method on
@@ -31,10 +31,20 @@
  *
  * [source,java]
  * ----
- * {@link examples.RxifiedExamples#readStream(io.vertx.rxjava.core.Vertx)}
+ * {@link examples.RxifiedExamples#toObservable}
  * ----
  *
  * Such observables are *hot* observables, i.e. they will produce notifications regardless of subscriptions.
+ *
+ * Likewise it is possible to turn an existing `Observable` into a Vert.x `ReadStream`.
+ *
+ * The {@link io.vertx.rx.java.RxHelper#toReadStream(rx.Observable)}  static methods convert
+ * an `rx.Observable` to a Vert.x read stream:
+ *
+ * [source,java]
+ * ----
+ * {@link examples.NativeExamples#toReadStream}
+ * ----
  *
  * === Handler support
  *

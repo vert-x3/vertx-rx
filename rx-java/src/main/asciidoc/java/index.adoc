@@ -17,7 +17,7 @@ methods for converting objects between Vert.x core API and RxJava API.
 
 === Read stream support
 
-RxJava observable is a perfect match for Vert.x `ReadStream` class : both provide a flow of items.
+RxJava `Observable` is a perfect match for Vert.x `ReadStream` class : both provide a flow of items.
 
 The `link:../../apidocs/io/vertx/rx/java/RxHelper.html#toObservable-io.vertx.core.streams.ReadStream-[RxHelper.toObservable]` static methods convert
 a Vert.x read stream to an `rx.Observable`:
@@ -46,6 +46,19 @@ fs.open("/data.txt", new OpenOptions(), result -> {
 ----
 
 Such observables are *hot* observables, i.e. they will produce notifications regardless of subscriptions.
+
+Likewise it is possible to turn an existing `Observable` into a Vert.x `ReadStream`.
+
+The `link:../../apidocs/io/vertx/rx/java/RxHelper.html#toReadStream-rx.Observable-[RxHelper.toReadStream]`  static methods convert
+an `rx.Observable` to a Vert.x read stream:
+
+[source,java]
+----
+Observable<Buffer> observable = getObservable();
+ReadStream<Buffer> readStream = RxHelper.toReadStream(observable);
+Pump pump = Pump.pump(readStream, response);
+pump.start();
+----
 
 === Handler support
 

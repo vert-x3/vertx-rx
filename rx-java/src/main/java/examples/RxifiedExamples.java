@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  */
 public class RxifiedExamples {
 
-  public void readStream(Vertx vertx) {
+  public void toObservable(Vertx vertx) {
     FileSystem fs = vertx.fileSystem();
     fs.open("/data.txt", new OpenOptions(), result -> {
       AsyncFile file = result.result();
