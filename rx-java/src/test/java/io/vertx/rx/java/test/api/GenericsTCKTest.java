@@ -9,6 +9,8 @@ import io.vertx.rxjava.codegen.testmodel.GenericsTCK;
 import io.vertx.rxjava.codegen.testmodel.RefedInterface1;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
@@ -84,10 +86,22 @@ public class GenericsTCKTest {
   }
 
   @Test
-  public void testMethodWithClassTypeHandler() throws Exception {
+  public void testMethodWithClassTypeReturn() throws Exception {
     RefedInterface1 refed = obj.methodWithClassTypeReturn(RefedInterface1.class);
+    assertEquals("foo", refed.getString());
+  }
 
+  @Test
+  public void testMethodWithClassTypeHandler() throws Exception {
+    AtomicReference<RefedInterface1> refed = new AtomicReference<>();
+    obj.methodWithClassTypeHandler(RefedInterface1.class, refed::set);
+    assertEquals("foo", refed.get().getString());
+  }
 
-
+  @Test
+  public void testMethodWithClassTypeHandlerAsyncResult() throws Exception {
+    AtomicReference<RefedInterface1> refed = new AtomicReference<>();
+    obj.methodWithClassTypeHandlerAsyncResult(RefedInterface1.class, ar -> refed.set(ar.result()));
+    assertEquals("foo", refed.get().getString());
   }
 }
