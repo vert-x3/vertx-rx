@@ -139,7 +139,7 @@
         if (typeArg.classType) {
           return 'io.vertx.lang.rxjava.TypeArg.of(' + typeArg.param.name + ')';
         } else {
-          return typeArg.param.name + '.__typeArg_' + typeArg.index + ')';
+          return typeArg.param.name + '.__typeArg_' + typeArg.index;
         }
       }
     }
