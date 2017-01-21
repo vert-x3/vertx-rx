@@ -10,6 +10,7 @@ import io.vertx.rxjava.codegen.testmodel.RefedInterface1;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -50,5 +51,43 @@ public class GenericsTCKTest {
   public void testMethodWithGenericNullableApiReturn() throws Exception {
     GenericNullableRefedInterface<RefedInterface1> ret = obj.methodWithGenericNullableApiReturn(false);
     assertEquals(null, ret.getValue());
+  }
+
+  @Test
+  public void testMethodWithClassTypeParameterizedReturn() throws Exception {
+    GenericRefedInterface<RefedInterface1> refed = obj.methodWithClassTypeParameterizedReturn(RefedInterface1.class);
+    RefedInterface1 a = refed.getValue();
+    assertEquals("foo", a.getString());
+  }
+
+  @Test
+  public void testMethodWithParamInferedReturn() throws Exception {
+    GenericRefedInterface<RefedInterface1> refed = obj.methodWithUserTypeParameterizedReturn();
+    GenericRefedInterface<RefedInterface1> ret = obj.methodWithParamInferedReturn(refed);
+    assertSame(refed.getDelegate(), ret.getDelegate());
+  }
+
+  @Test
+  public void testMethodWithHandlerParamInfered() throws Exception {
+    GenericRefedInterface<RefedInterface1> refed = obj.methodWithUserTypeParameterizedReturn();
+    obj.methodWithHandlerParamInfered(refed, ret -> {
+      assertSame(refed.getDelegate(), ret.getDelegate());
+    });
+  }
+
+  @Test
+  public void testMethodWithHandlerAsyncResultParamInfered() throws Exception {
+    GenericRefedInterface<RefedInterface1> refed = obj.methodWithUserTypeParameterizedReturn();
+    obj.methodWithHandlerAsyncResultParamInfered(refed, ret -> {
+      assertSame(refed.getDelegate(), ret.result().getDelegate());
+    });
+  }
+
+  @Test
+  public void testMethodWithClassTypeHandler() throws Exception {
+    RefedInterface1 refed = obj.methodWithClassTypeReturn(RefedInterface1.class);
+
+
+
   }
 }

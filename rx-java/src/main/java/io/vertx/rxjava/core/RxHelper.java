@@ -28,7 +28,7 @@ public class RxHelper {
    */
 
   public static RxJavaSchedulersHook schedulerHook(Vertx vertx) {
-    return io.vertx.rx.java.RxHelper.schedulerHook(vertx.delegate);
+    return io.vertx.rx.java.RxHelper.schedulerHook(vertx.getDelegate());
   }
 
   /**
@@ -38,7 +38,7 @@ public class RxHelper {
    * @return the scheduler hook
    */
   public static RxJavaSchedulersHook schedulerHook(Context context) {
-    return io.vertx.rx.java.RxHelper.schedulerHook(context.delegate);
+    return io.vertx.rx.java.RxHelper.schedulerHook(context.getDelegate());
   }
 
   /**
@@ -48,7 +48,7 @@ public class RxHelper {
    * @return the scheduler
    */
   public static Scheduler scheduler(Vertx vertx) {
-    return new ContextScheduler(vertx.delegate, false);
+    return new ContextScheduler(vertx.getDelegate(), false);
   }
 
   /**
@@ -58,7 +58,7 @@ public class RxHelper {
    * @return the scheduler
    */
   public static Scheduler scheduler(WorkerExecutor executor) {
-    return new ContextScheduler(executor.delegate, false);
+    return new ContextScheduler(executor.getDelegate(), false);
   }
 
   /**
@@ -68,7 +68,7 @@ public class RxHelper {
    * @return the scheduler
    */
   public static Scheduler scheduler(Context context) {
-    return new ContextScheduler(context.delegate, false);
+    return new ContextScheduler(context.getDelegate(), false);
   }
 
   /**
@@ -79,7 +79,7 @@ public class RxHelper {
    * @return the scheduler
    */
   public static Scheduler blockingScheduler(Vertx vertx) {
-    return new ContextScheduler(vertx.delegate.getOrCreateContext(), true);
+    return new ContextScheduler(vertx.getDelegate().getOrCreateContext(), true);
   }
 
   /**

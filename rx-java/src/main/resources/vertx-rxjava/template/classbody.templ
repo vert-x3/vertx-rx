@@ -1,13 +1,13 @@
-	@if{concrete && type.params.empty}
-	  public static final io.vertx.lang.rxjava.TypeArg<@{type.simpleName}> arg = new io.vertx.lang.rxjava.TypeArg<>(\n
+	@if{concrete}
+	  public static final io.vertx.lang.rxjava.TypeArg<@{type.simpleName}> __TYPE_ARG = new io.vertx.lang.rxjava.TypeArg<>(\n
 	    obj -> new @{type.simpleName}((@{type.name}) obj),\n
 	    @{type.simpleName}::getDelegate\n
 	  );\n
 	\n
 	@end{}
-	  final @{helper.getNonGenericType(ifaceFQCN)} delegate;\n
+	  private final @{helper.getNonGenericType(ifaceFQCN)} delegate;\n
 	@foreach{typeParam:type.params}
-	  public final io.vertx.lang.rxjava.TypeArg<@{typeParam.name}> typeArg_@{typeParam.index};\n
+	  public final io.vertx.lang.rxjava.TypeArg<@{typeParam.name}> __typeArg_@{typeParam.index};\n
 	@end{}
 	  \n
 	  public @{constructor}(@{helper.getNonGenericType(ifaceFQCN)} delegate) {\n
@@ -16,7 +16,7 @@
 	@end{}
 	    this.delegate = delegate;\n
 	@foreach{typeParam:type.params}
-	    this.typeArg_@{typeParam.index} = io.vertx.lang.rxjava.TypeArg.unknown();\n
+	    this.__typeArg_@{typeParam.index} = io.vertx.lang.rxjava.TypeArg.unknown();\n
 	@end{}
 	  }\n\n
 	@if{type.params.size() > 0}
@@ -28,7 +28,7 @@
 	@end{}
 	    this.delegate = delegate;\n
 	@foreach{typeParam:type.params}
-	    this.typeArg_@{typeParam.index} = typeArg_@{typeParam.index};\n
+	    this.__typeArg_@{typeParam.index} = typeArg_@{typeParam.index};\n
 	@end{}
 	  }\n\n
 	@end{}

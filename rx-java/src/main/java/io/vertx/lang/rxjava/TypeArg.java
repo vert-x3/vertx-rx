@@ -1,14 +1,30 @@
 package io.vertx.lang.rxjava;
 
+import java.lang.reflect.Field;
 import java.util.function.Function;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
+@SuppressWarnings("unchecked")
 public class TypeArg<T> {
 
+  private static TypeArg UNKNOWN = new TypeArg<>(Function.identity(), Function.identity());
+
+  public static <U> TypeArg<U> of(Class<U> type) {
+    RxGen rxgen = type.getAnnotation(RxGen.class);
+    if (rxgen != null) {
+      try {
+        Field field = type.getField("__TYPE_ARG");
+        return (TypeArg<U>) field.get(null);
+      } catch (Exception ignore) {
+      }
+    }
+    return unknown();
+  }
+
   public static <T> TypeArg<T> unknown() {
-    return new TypeArg<>(obj -> (T)obj, obj -> obj);
+    return (TypeArg<T>) UNKNOWN;
   }
 
   public final Function<Object, Object> wrap;
@@ -23,7 +39,7 @@ public class TypeArg<T> {
     return o != null ? (T) wrap.apply(o) : null;
   }
 
-  public Object unwrap(T o) {
-    return o != null ? unwrap.apply(o) : null;
+  public <X> X unwrap(T o) {
+    return o != null ? (X) unwrap.apply(o) : null;
   }
 }

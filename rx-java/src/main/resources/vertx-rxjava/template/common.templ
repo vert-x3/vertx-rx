@@ -78,8 +78,11 @@
     if (isSameType(type)) {
       return expr;
     } else if (kind == CLASS_OBJECT) {
-      if (type.classParam) {
-        return 'typeArg_' + type.param.index + '.unwrap(' + expr + ')';
+      if (type.variable) {
+        var typeArg = genTypeArg(type);
+        if (typeArg != null) {
+          return typeArg + '.unwrap(' + expr + ')';
+        }
       }
       return expr;
     } else if (kind == CLASS_HANDLER) {
@@ -121,15 +124,34 @@
       return expr + '.stream().map(elt -> ' + genConvParam(type.args[0], 'elt') + ').collect(java.util.stream.Collectors.to' + type.raw.simpleName + '())';
     } else if (kind == CLASS_MAP) {
       return expr + '.entrySet().stream().collect(java.util.stream.Collectors.toMap(e -> e.getKey(), e -> ' + genConvParam(type.args[1], 'e.getValue()') + '))';
+    } else if (kind == CLASS_CLASS_TYPE) {
+      return 'io.vertx.lang.rxjava.Helper.unwrap(' + expr + ')';
     }
     return expr;
+  }
+
+  function genTypeArg(typeVar) {
+    if (typeVar.classParam) {
+      return '__typeArg_' + typeVar.param.index + '';
+    } else {
+      var typeArg = method.resolveTypeArg(typeVar);
+      if (typeArg != null) {
+        if (typeArg.classType) {
+          return 'io.vertx.lang.rxjava.TypeArg.of(' + typeArg.param.name + ')';
+        } else {
+          return typeArg.param.name + '.__typeArg_' + typeArg.index + ')';
+        }
+      }
+    }
+    return null;
   }
 
   function genConvReturn(type, expr) {
     if (type.kind == CLASS_OBJECT) {
       if (type.variable) {
-        if (type.classParam) {
-          return 'typeArg_' + type.param.index + '.wrap(' + expr + ')';
+        var typeArg = genTypeArg(type);
+        if (typeArg != null) {
+          return '(' + type.name + ')' + typeArg + '.wrap(' + expr + ')';
         }
       }
       return '(' + type.simpleName + ') ' + expr;
@@ -143,11 +165,16 @@
         for (arg : type.args) {
           tmp.append(', ');
           if (arg.kind == CLASS_API) {
-            tmp.append(arg.translateName('rxjava')).append('.arg');
-          } else if (arg.kind == CLASS_OBJECT && arg.variable && arg.classParam) {
-            tmp.append('typeArg_').append(arg.param.index);
+            tmp.append(arg.translateName('rxjava')).append('.__TYPE_ARG');
           } else {
-            tmp.append('io.vertx.lang.rxjava.TypeArg.unknown()');
+            var typeArg = 'io.vertx.lang.rxjava.TypeArg.unknown()';
+            if (arg.kind == CLASS_OBJECT && arg.variable) {
+              var resolved = genTypeArg(arg);
+              if (resolved != null) {
+                typeArg = resolved;
+              }
+            }
+            tmp.append(typeArg);
           }
         }
       }
