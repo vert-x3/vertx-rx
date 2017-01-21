@@ -79,7 +79,7 @@
       return expr;
     } else if (kind == CLASS_OBJECT) {
       if (type.classParam) {
-        return 'typeArg_' + type.name + '.unwrap(' + expr + ')';
+        return 'typeArg_' + type.param.index + '.unwrap(' + expr + ')';
       }
       return expr;
     } else if (kind == CLASS_HANDLER) {
@@ -129,7 +129,7 @@
     if (type.kind == CLASS_OBJECT) {
       if (type.variable) {
         if (type.classParam) {
-          return 'typeArg_' + type.name + '.wrap(' + expr + ')';
+          return 'typeArg_' + type.param.index + '.wrap(' + expr + ')';
         }
       }
       return '(' + type.simpleName + ') ' + expr;
@@ -145,7 +145,7 @@
           if (arg.kind == CLASS_API) {
             tmp.append(arg.translateName('rxjava')).append('.arg');
           } else if (arg.kind == CLASS_OBJECT && arg.variable && arg.classParam) {
-            tmp.append('typeArg_').append(arg.name);
+            tmp.append('typeArg_').append(arg.param.index);
           } else {
             tmp.append('io.vertx.lang.rxjava.TypeArg.unknown()');
           }
