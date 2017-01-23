@@ -50,6 +50,10 @@ import rx.Single;\n
 @io.vertx.lang.rxjava.RxGen(@{type.name}.class)\n
 public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN)}
 
+@if{type.name == 'io.vertx.core.buffer.Buffer'}
+	 implements io.vertx.core.shareddata.impl.ClusterSerializable
+@end{}
+
 @if{concrete}
 	@if{concreteSuperType != null}
 	 extends @{concreteSuperType.simpleName}
@@ -71,6 +75,17 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 @end{} {\n\n
 
 @if{concrete}
+
+	@if{type.name == 'io.vertx.core.buffer.Buffer'}
+	    public void writeToBuffer(io.vertx.core.buffer.Buffer buffer) {\n
+	      delegate.writeToBuffer(buffer);\n
+	    }\n
+	\n
+	    public int readFromBuffer(int pos, io.vertx.core.buffer.Buffer buffer) {\n
+	      return delegate.readFromBuffer(pos, buffer);\n
+	    }\n
+	\n
+	@end{}
 
 	@includeNamed{'classbody.templ';constructor=ifaceSimpleName}
 

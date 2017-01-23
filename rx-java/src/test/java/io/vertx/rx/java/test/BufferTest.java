@@ -11,6 +11,8 @@ import rx.Observable;
 
 import java.util.Arrays;
 
+import static junit.framework.TestCase.assertEquals;
+
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
@@ -58,5 +60,18 @@ public class BufferTest {
     sub.assertItem(new ObjectMapper().createObjectNode().put("foo", "bar"));
     sub.assertCompleted();
     sub.assertEmpty();
+  }
+
+  @Test
+  public void testClusterSerializable() throws Exception {
+    io.vertx.rxjava.core.buffer.Buffer buff = io.vertx.rxjava.core.buffer.Buffer.buffer("hello-world");
+    Buffer actual = Buffer.buffer();
+    buff.writeToBuffer(actual);
+    Buffer expected = Buffer.buffer();
+    Buffer.buffer("hello-world").writeToBuffer(expected);
+    assertEquals(expected, actual);
+    buff = io.vertx.rxjava.core.buffer.Buffer.buffer("hello-world");
+    assertEquals(expected.length(), buff.readFromBuffer(0, expected));
+    assertEquals("hello-world", buff.toString());
   }
 }
