@@ -14,7 +14,7 @@ import rx.Subscription;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
+public abstract class ReadStreamAdapterTestBase<B> extends VertxTestBase {
 
   protected abstract Observable<B> toObservable(BufferReadStreamImpl stream);
   protected abstract B buffer(String s);
