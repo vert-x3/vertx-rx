@@ -1,4 +1,4 @@
-package io.vertx.rx.java.test.api;
+package io.vertx.rx.java.test.gen;
 
 import io.vertx.codegen.testmodel.FunctionParamTCKImpl;
 import io.vertx.codegen.testmodel.RefedInterface1Impl;

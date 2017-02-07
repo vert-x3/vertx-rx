@@ -1,4 +1,4 @@
-package io.vertx.rx.java.test.api;
+package io.vertx.rx.java.test.gen;
 
 import io.vertx.codegen.testmodel.CollectionTCKImpl;
 import io.vertx.codegen.testmodel.RefedInterface1Impl;
@@ -6,7 +6,6 @@ import io.vertx.codegen.testmodel.TestDataObject;
 import io.vertx.codegen.testmodel.TestEnum;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.rx.java.test.AsyncResultChecker;
 import io.vertx.rxjava.codegen.testmodel.CollectionTCK;
 import io.vertx.rxjava.codegen.testmodel.RefedInterface1;
 import io.vertx.rxjava.codegen.testmodel.RefedInterface2;
@@ -23,10 +22,10 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
-import static io.vertx.rx.java.test.api.ApiTCKTest.get;
-import static io.vertx.rx.java.test.api.ApiTCKTest.set;
-import static io.vertx.rx.java.test.api.ApiTCKTest.list;
-import static io.vertx.rx.java.test.api.ApiTCKTest.map;
+import static io.vertx.rx.java.test.gen.ApiTCKTest.get;
+import static io.vertx.rx.java.test.gen.ApiTCKTest.set;
+import static io.vertx.rx.java.test.gen.ApiTCKTest.list;
+import static io.vertx.rx.java.test.gen.ApiTCKTest.map;
 import static org.junit.Assert.assertTrue;
 
 /**

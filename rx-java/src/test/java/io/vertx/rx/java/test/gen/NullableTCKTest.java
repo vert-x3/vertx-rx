@@ -1,22 +1,18 @@
-package io.vertx.rx.java.test.api;
+package io.vertx.rx.java.test.gen;
 
 import io.vertx.codegen.testmodel.NullableTCKImpl;
 import io.vertx.codegen.testmodel.TestDataObject;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.rx.java.test.AsyncResultChecker;
-import io.vertx.rxjava.codegen.testmodel.GenericNullableRefedInterface;
 import io.vertx.rxjava.codegen.testmodel.NullableTCK;
-import io.vertx.rxjava.codegen.testmodel.RefedInterface1;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static io.vertx.rx.java.test.api.ApiTCKTest.get;
+import static io.vertx.rx.java.test.gen.ApiTCKTest.get;
 import static org.junit.Assert.assertEquals;
 
 /**

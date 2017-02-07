@@ -1,4 +1,4 @@
-package io.vertx.rx.java.test.api;
+package io.vertx.rx.java.test.gen;
 
 import io.vertx.codegen.testmodel.RefedInterface1Impl;
 import io.vertx.codegen.testmodel.TestDataObject;
@@ -15,7 +15,6 @@ import io.vertx.rxjava.codegen.testmodel.RefedInterface2;
 import io.vertx.rxjava.codegen.testmodel.TestInterface;
 import com.acme.rxjava.pkg.MyInterface;
 import com.acme.rxjava.pkg.sub.SubInterface;
-import io.vertx.rx.java.test.AsyncResultChecker;
 import io.vertx.test.core.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;

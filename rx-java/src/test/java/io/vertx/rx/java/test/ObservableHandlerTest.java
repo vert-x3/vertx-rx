@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class HandlerTest {
+public class ObservableHandlerTest {
 
   @Test
   public void testMultiNotifyBeforeSubscribe() {
