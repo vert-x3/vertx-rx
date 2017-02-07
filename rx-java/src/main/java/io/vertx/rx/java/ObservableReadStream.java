@@ -15,10 +15,6 @@ import java.util.function.Function;
  */
 public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Adapter<T> {
 
-  private static <T> T noItem() {
-    return (T) NO_ITEM;
-  }
-
   private static final Object NO_ITEM = new Object();
   public static final long DEFAULT_MAX_BUFFER_SIZE = 256;
 
@@ -26,7 +22,6 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ad
   private final ReadStream<T> stream;
   private final Function<T, R> adapter;
   private final AtomicReference<Sub> subscription = new AtomicReference<>();
-  private Throwable completed;
   private long requested;
 
   public ObservableReadStream(ReadStream<T> stream, Function<T, R> adapter) {
@@ -46,11 +41,12 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ad
 
   private class Sub implements Subscription, Producer {
 
-    final Subscriber<? super R> subscriber;
-    Adapter<T> queue = ObservableReadStream.this;
+    private final Subscriber<? super R> subscriber;
+    private Adapter<T> queue;
 
     Sub(Subscriber<? super R> subscriber) {
       this.subscriber = subscriber;
+      this.queue = ObservableReadStream.this;
     }
 
     @Override
@@ -137,6 +133,7 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ad
     private ArrayDeque<R> pending = new ArrayDeque<>();
     private boolean draining;
     private boolean paused;
+    private Throwable completed;
 
     private QueueAdapter(long requested) {
       this.lowWaterMark = highWaterMark / 2;
@@ -170,6 +167,10 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ad
         }
       }
       drain();
+    }
+
+    private <T> T noItem() {
+      return (T) NO_ITEM;
     }
 
     private void drain() {

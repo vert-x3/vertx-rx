@@ -10,6 +10,7 @@ import rx.Producer;
  */
 interface Adapter<T> extends Handler<T>, Producer {
 
+
   /**
    * A sentinel signaling a completion.
    */
