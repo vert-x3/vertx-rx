@@ -2,7 +2,7 @@ package io.vertx.rx.java.test.stream;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.rx.java.test.SimpleReadStream;
+import io.vertx.rx.java.test.support.SimpleReadStream;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>

@@ -2,10 +2,11 @@ package io.vertx.rx.java.test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rx.java.RxHelper;
+import io.vertx.rx.java.test.support.SimplePojo;
+import io.vertx.rx.java.test.support.SimpleSubscriber;
 import org.junit.Test;
 import rx.Observable;
 
@@ -22,7 +23,7 @@ public class BufferTest {
   public void testBufferReduce() {
     Observable<Buffer> stream = Observable.from(Arrays.asList(Buffer.buffer("lorem"), Buffer.buffer("ipsum")));
     Observable<Buffer> reduced = stream.reduce(Buffer::appendBuffer);
-    MySubscriber<Buffer> sub = new MySubscriber<>();
+    SimpleSubscriber<Buffer> sub = new SimpleSubscriber<>();
     reduced.subscribe(sub);
     sub.assertItem(Buffer.buffer("loremipsum"));
     sub.assertCompleted();
@@ -33,7 +34,7 @@ public class BufferTest {
   public void testUnmarshallJsonObjectFromBuffer() {
     Observable<Buffer> stream = Observable.from(Arrays.asList(Buffer.buffer("{\"foo\":\"bar\"}")));
     Observable<JsonObject> mapped = stream.map(buffer -> new JsonObject(buffer.toString("UTF-8")));
-    MySubscriber<JsonObject> sub = new MySubscriber<>();
+    SimpleSubscriber<JsonObject> sub = new SimpleSubscriber<>();
     mapped.subscribe(sub);
     sub.assertItem(new JsonObject().put("foo", "bar"));
     sub.assertCompleted();
@@ -43,10 +44,10 @@ public class BufferTest {
   @Test
   public void testMapPojoFromBuffer() throws Exception {
     Observable<Buffer> stream = Observable.from(Arrays.asList(Buffer.buffer("{\"foo\":\"bar\"}")));
-    Observable<MyPojo> mapped = stream.lift(RxHelper.unmarshaller(MyPojo.class));
-    MySubscriber<MyPojo> sub = new MySubscriber<>();
+    Observable<SimplePojo> mapped = stream.lift(RxHelper.unmarshaller(SimplePojo.class));
+    SimpleSubscriber<SimplePojo> sub = new SimpleSubscriber<>();
     mapped.subscribe(sub);
-    sub.assertItem(new MyPojo("bar"));
+    sub.assertItem(new SimplePojo("bar"));
     sub.assertCompleted();
     sub.assertEmpty();
   }
@@ -55,7 +56,7 @@ public class BufferTest {
   public void testMapObjectNodeFromBuffer() throws Exception {
     Observable<Buffer> stream = Observable.from(Arrays.asList(Buffer.buffer("{\"foo\":\"bar\"}")));
     Observable<JsonNode> mapped = stream.lift(RxHelper.unmarshaller(JsonNode.class));
-    MySubscriber<JsonNode> sub = new MySubscriber<>();
+    SimpleSubscriber<JsonNode> sub = new SimpleSubscriber<>();
     mapped.subscribe(sub);
     sub.assertItem(new ObjectMapper().createObjectNode().put("foo", "bar"));
     sub.assertCompleted();

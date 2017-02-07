@@ -10,11 +10,15 @@ import java.util.ArrayDeque;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
+import static io.vertx.rx.java.Adapter.COMPLETED_SENTINEL;
+
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Adapter<T> {
+public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
 
+  private static final Throwable COMPLETED_SENTINEL = new Throwable();
+  private static final Object RESUME = new Object(), PAUSE = new Object();
   private static final Object NO_ITEM = new Object();
   public static final long DEFAULT_MAX_BUFFER_SIZE = 256;
 
@@ -22,7 +26,7 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ad
   private final ReadStream<T> stream;
   private final Function<T, R> adapter;
   private final AtomicReference<Sub> subscription = new AtomicReference<>();
-  private long requested;
+  private Throwable completed;
 
   public ObservableReadStream(ReadStream<T> stream, Function<T, R> adapter) {
     this(stream, adapter, DEFAULT_MAX_BUFFER_SIZE);
@@ -36,17 +40,15 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ad
 
   public long getRequested() {
     Sub sub = subscription.get();
-    return sub != null ? sub.queue.requested() : 0;
+    return sub != null ? sub.adapter.requested() : 0;
   }
 
   private class Sub implements Subscription, Producer {
 
-    private final Subscriber<? super R> subscriber;
-    private Adapter<T> queue;
+    private Adapter adapter;
 
-    Sub(Subscriber<? super R> subscriber) {
-      this.subscriber = subscriber;
-      this.queue = ObservableReadStream.this;
+    Sub(Adapter queue) {
+      this.adapter = queue;
     }
 
     @Override
@@ -54,13 +56,19 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ad
       if (n < 0) {
         throw new IllegalArgumentException("Cannot request negative items:" + n);
       }
-      queue.request(n);
+      adapter.request(n);
     }
 
     @Override
     public void unsubscribe() {
       if (subscription.compareAndSet(this, null)) {
-        queue.dispose();
+        boolean resume;
+        synchronized (ObservableReadStream.this) {
+          resume = adapter.dispose() && completed == null;
+        }
+        if (resume) {
+          stream.resume();
+        }
         RxHelper.setNullHandlers(stream);
       }
     }
@@ -73,120 +81,129 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ad
 
   @Override
   public void call(Subscriber<? super R> subscriber) {
-    Sub sub = new Sub(subscriber);
+
+    SimpleAdapter adapter = new SimpleAdapter(subscriber);
+    Sub sub = new Sub(adapter);
     if (!subscription.compareAndSet(null, sub)) {
       throw new IllegalStateException();
     }
+
     subscriber.setProducer(sub);
     subscriber.add(sub);
+    long requested = adapter.requested();
     if (requested != Long.MAX_VALUE) {
-      sub.queue = new QueueAdapter(requested);
+      sub.adapter = new QueueAdapter(requested, subscriber);
     }
 
     // At this moment reactive back-pressure should have been established (or not)
     // so we can pass set the handlers as they won't change
-    stream.exceptionHandler(sub.queue::end);
-    stream.endHandler(v -> sub.queue.end(COMPLETED_SENTINEL));
-    stream.handler(sub.queue);
+    stream.exceptionHandler(sub.adapter::end);
+    stream.endHandler(v -> sub.adapter.end(COMPLETED_SENTINEL));
+    stream.handler(sub.adapter::handle);
   }
 
-  @Override
-  public void end(Throwable t) {
-    Sub sub = subscription.get();
-    if (sub != null) {
-      if (t == COMPLETED_SENTINEL) {
-        sub.subscriber.onCompleted();
-      } else {
-        sub.subscriber.onError(t);
-      }
-    }
-  }
+  private abstract class Adapter {
 
-  @Override
-  public void handle(T item) {
-    Sub sub = subscription.get();
-    if (sub != null) {
-      sub.subscriber.onNext(adapter.apply(item));
-    }
-  }
+    protected long requested;
 
-  @Override
-  public long requested() {
-    return requested;
-  }
-
-  @Override
-  public void request(long n) {
-    if (n == Long.MAX_VALUE || (n >= Long.MAX_VALUE - requested)) {
-      requested = Long.MAX_VALUE;
-    } else {
-      requested += n;
-    }
-  }
-
-  private class QueueAdapter implements Adapter<T> {
-
-    private static final int NOOP = 0, RESUME = 1, PAUSE = 2;
-
-    private long requested;
-    private final long lowWaterMark;
-    private ArrayDeque<R> pending = new ArrayDeque<>();
-    private boolean draining;
-    private boolean paused;
-    private Throwable completed;
-
-    private QueueAdapter(long requested) {
-      this.lowWaterMark = highWaterMark / 2;
-      this.requested = requested;
-    }
-
-    @Override
-    public synchronized long requested() {
-      return requested;
-    }
-
-    @Override
-    public void dispose() {
-      boolean resume;
-      synchronized (this) {
-        resume = paused;
-        paused = false;
-      }
-      if (resume) {
-        stream.resume();
+    synchronized long requested() {
+      synchronized (ObservableReadStream.this) {
+        return requested;
       }
     }
 
-    @Override
-    public void request(long n) {
-      synchronized (this) {
+    void request(long n) {
+      synchronized (ObservableReadStream.this) {
         if (n == Long.MAX_VALUE || (n >= Long.MAX_VALUE - requested)) {
           requested = Long.MAX_VALUE;
         } else {
           requested += n;
         }
       }
+    }
+
+    /**
+     * Dispose the state - should not do any callback
+     * @return true if the stream should be resumed according to the internal state
+     */
+    abstract boolean dispose();
+    abstract void handle(T item);
+    abstract void end(Throwable t);
+
+  }
+
+  private class SimpleAdapter extends Adapter {
+
+    private final Subscriber<? super R> subscriber;
+
+    SimpleAdapter(Subscriber<? super R> subscriber) {
+      this.subscriber = subscriber;
+    }
+
+    @Override
+    boolean dispose() {
+      return false;
+    }
+
+    @Override
+    public void end(Throwable t) {
+      if (t == COMPLETED_SENTINEL) {
+        subscriber.onCompleted();
+      } else {
+        subscriber.onError(t);
+      }
+    }
+
+    @Override
+    public void handle(T item) {
+      subscriber.onNext(adapter.apply(item));
+    }
+  }
+
+  private class QueueAdapter extends Adapter {
+
+    private final long lowWaterMark;
+    private ArrayDeque<R> pending = new ArrayDeque<>();
+    private boolean draining;
+    private boolean paused;
+    private boolean subscribed = true;
+    private final Subscriber<? super R> subscriber;
+
+    private QueueAdapter(long requested, Subscriber<? super R> subscriber) {
+      this.requested = requested;
+      this.lowWaterMark = highWaterMark / 2;
+      this.subscriber = subscriber;
+    }
+
+    @Override
+    public boolean dispose() {
+      if (!subscribed) {
+        throw new AssertionError();
+      }
+      boolean resume = paused;
+      paused = false;
+      subscribed = false;
+      return resume;
+    }
+
+    @Override
+    public void request(long n) {
+      super.request(n);
       drain();
     }
 
-    private <T> T noItem() {
-      return (T) NO_ITEM;
-    }
-
     private void drain() {
-      synchronized (this) {
+      synchronized (ObservableReadStream.this) {
         if (draining) {
           return;
         }
         draining = true;
       }
-      Sub sub;
       while (true) {
-        sub = subscription.get();
-        int action = NOOP;
-        R next = noItem();
-        synchronized (this) {
-          if (sub == null) {
+        @SuppressWarnings("unchecked")
+        R next = (R) NO_ITEM;
+        synchronized (ObservableReadStream.this) {
+          if (!subscribed) {
             draining = false;
             return;
           } else if (pending.size() > 0) {
@@ -201,6 +218,20 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ad
               break;
             }
           }
+        }
+        if (next != NO_ITEM) {
+          subscriber.onNext(next);
+        } else {
+          break;
+        }
+      }
+      Object action = null;
+      synchronized (ObservableReadStream.this) {
+        if (completed != null) {
+          if (pending.size() == 0) {
+            action = completed;
+          }
+        } else {
           if (paused && pending.size() < lowWaterMark) {
             paused = false;
             action = RESUME;
@@ -210,35 +241,24 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ad
             action = PAUSE;
           }
         }
-        switch (action) {
-          case RESUME:
-            stream.resume();
-            break;
-          case PAUSE:
-            stream.pause();
-            break;
-        }
-        if (next != NO_ITEM) {
-          sub.subscriber.onNext(next);
-        } else {
-          break;
-        }
-      }
-      synchronized (this) {
-        if (pending.size() == 0 && completed != null) {
-          if (completed == COMPLETED_SENTINEL) {
-            sub.subscriber.onCompleted();
-          } else {
-            sub.subscriber.onError(completed);
-          }
-        }
         draining = false;
+      }
+      if (action != null) {
+        if (action == RESUME) {
+          stream.resume();
+        } else if (action == PAUSE) {
+          stream.pause();
+        } else if (action == COMPLETED_SENTINEL) {
+          subscriber.onCompleted();
+        } else {
+          subscriber.onError((Throwable) action);
+        }
       }
     }
 
     @Override
     public void handle(T item) {
-      synchronized (this) {
+      synchronized (ObservableReadStream.this) {
         pending.add(adapter.apply(item));
       }
       drain();

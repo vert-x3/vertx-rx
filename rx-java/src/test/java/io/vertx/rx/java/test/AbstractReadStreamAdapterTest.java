@@ -3,6 +3,7 @@ package io.vertx.rx.java.test;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.rx.java.test.stream.BufferReadStreamImpl;
+import io.vertx.rx.java.test.support.SimpleSubscriber;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 import rx.Observable;
@@ -23,7 +24,7 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
   public void testReact() {
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
     Observable<B> observable = toObservable(stream);
-    MySubscriber<B> subscriber = new MySubscriber<B>() {
+    SimpleSubscriber<B> subscriber = new SimpleSubscriber<B>() {
       @Override
       protected void assertEquals(Object expected, Object actual) {
         super.assertEquals(string((B) expected), string((B) actual));

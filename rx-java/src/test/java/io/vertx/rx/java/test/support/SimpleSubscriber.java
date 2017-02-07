@@ -1,4 +1,4 @@
-package io.vertx.rx.java.test;
+package io.vertx.rx.java.test.support;
 
 import org.junit.Assert;
 import rx.Producer;
@@ -12,17 +12,28 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class MySubscriber<T> extends Subscriber<T> {
+public class SimpleSubscriber<T> extends Subscriber<T> {
 
-  private Producer producer;
-  private final Object completed = new Object() {
+  private static final Object completed = new Object() {
     @Override
     public String toString() {
       return "Completed";
     }
   };
 
-  final ArrayBlockingQueue<Object> events = new ArrayBlockingQueue<>(100);
+  private long prefetch = Long.MAX_VALUE;
+  private Producer producer;
+  private final ArrayBlockingQueue<Object> events = new ArrayBlockingQueue<>(100);
+
+  public SimpleSubscriber<T> prefetch(long value) {
+    prefetch = value;
+    return this;
+  }
+
+  @Override
+  public void onStart() {
+    request(prefetch);
+  }
 
   @Override
   public void onCompleted() { events.add(completed); }
@@ -46,26 +57,33 @@ public class MySubscriber<T> extends Subscriber<T> {
   @Override
   public void onNext(T t) { events.add(t); }
 
-  MySubscriber<T> assertItem(T expected) {
+  public SimpleSubscriber<T> assertItem(T expected) {
     return assertEvent(expected);
   }
 
-  MySubscriber<T> assertError(Throwable expected) {
+  public SimpleSubscriber<T> assertItems(T... expected) {
+    for (T item : expected) {
+      assertItem(item);
+    }
+    return this;
+  }
+
+  public SimpleSubscriber<T> assertError(Throwable expected) {
     return assertEvent(expected);
   }
 
-  MySubscriber<T> assertCompleted() {
+  public SimpleSubscriber<T> assertCompleted() {
     return assertEvent(completed);
   }
 
-  MySubscriber<T> assertEmpty() {
+  public SimpleSubscriber<T> assertEmpty() {
     if (!events.isEmpty()) {
       throw new AssertionError("Was expecting no events instead of " + events);
     }
     return this;
   }
 
-  private MySubscriber<T> assertEvent(Object expected) {
+  private SimpleSubscriber<T> assertEvent(Object expected) {
     Object event;
     try {
       event = events.poll(1, TimeUnit.SECONDS);
