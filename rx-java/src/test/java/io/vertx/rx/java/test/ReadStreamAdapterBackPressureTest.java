@@ -15,7 +15,7 @@ import java.util.function.Function;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class BackPressureTest extends ReadStreamAdapterTestBase<Buffer> {
+public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase<Buffer> {
 
   protected Observable<Buffer> toObservable(BufferReadStreamImpl stream, int maxBufferSize) {
     return RxHelper.toObservable(stream, maxBufferSize);
