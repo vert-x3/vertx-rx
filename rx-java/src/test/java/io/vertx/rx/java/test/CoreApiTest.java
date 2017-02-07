@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class JavaIntegrationTest extends VertxTestBase {
+public class CoreApiTest extends VertxTestBase {
 
   private Vertx vertx;
 
