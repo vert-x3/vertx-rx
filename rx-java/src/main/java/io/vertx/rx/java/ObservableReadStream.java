@@ -13,7 +13,7 @@ import java.util.function.Function;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, BackPressure<T> {
+public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Adapter<T> {
 
   private static <T> T noItem() {
     return (T) NO_ITEM;
@@ -27,6 +27,7 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ba
   private final Function<T, R> adapter;
   private final AtomicReference<Sub> subscription = new AtomicReference<>();
   private Throwable completed;
+  private long requested;
 
   public ObservableReadStream(ReadStream<T> stream, Function<T, R> adapter) {
     this(stream, adapter, DEFAULT_MAX_BUFFER_SIZE);
@@ -40,14 +41,13 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ba
 
   public long getRequested() {
     Sub sub = subscription.get();
-    return sub != null ? sub.requested : 0;
+    return sub != null ? sub.queue.requested() : 0;
   }
 
   private class Sub implements Subscription, Producer {
 
     final Subscriber<? super R> subscriber;
-    BackPressure<T> backPressure = ObservableReadStream.this;
-    long requested;
+    Adapter<T> queue = ObservableReadStream.this;
 
     Sub(Subscriber<? super R> subscriber) {
       this.subscriber = subscriber;
@@ -58,22 +58,13 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ba
       if (n < 0) {
         throw new IllegalArgumentException("Cannot request negative items:" + n);
       }
-      synchronized (ObservableReadStream.this) {
-        if (n == Long.MAX_VALUE || (n >= Long.MAX_VALUE - requested)) {
-          requested = Long.MAX_VALUE;
-        } else {
-          requested += n;
-        }
-      }
-      if (requested > 0) {
-        backPressure.drain();
-      }
+      queue.request(n);
     }
 
     @Override
     public void unsubscribe() {
       if (subscription.compareAndSet(this, null)) {
-        backPressure.dispose();
+        queue.dispose();
         RxHelper.setNullHandlers(stream);
       }
     }
@@ -92,15 +83,15 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ba
     }
     subscriber.setProducer(sub);
     subscriber.add(sub);
-    if (sub.requested != Long.MAX_VALUE) {
-      sub.backPressure = new Signal();
+    if (requested != Long.MAX_VALUE) {
+      sub.queue = new QueueAdapter(requested);
     }
 
     // At this moment reactive back-pressure should have been established (or not)
     // so we can pass set the handlers as they won't change
-    stream.exceptionHandler(sub.backPressure::end);
-    stream.endHandler(v -> sub.backPressure.end(COMPLETED_SENTINEL));
-    stream.handler(sub.backPressure);
+    stream.exceptionHandler(sub.queue::end);
+    stream.endHandler(v -> sub.queue.end(COMPLETED_SENTINEL));
+    stream.handler(sub.queue);
   }
 
   @Override
@@ -123,23 +114,44 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ba
     }
   }
 
-  private class Signal implements BackPressure<T> {
+  @Override
+  public long requested() {
+    return requested;
+  }
+
+  @Override
+  public void request(long n) {
+    if (n == Long.MAX_VALUE || (n >= Long.MAX_VALUE - requested)) {
+      requested = Long.MAX_VALUE;
+    } else {
+      requested += n;
+    }
+  }
+
+  private class QueueAdapter implements Adapter<T> {
 
     private static final int NOOP = 0, RESUME = 1, PAUSE = 2;
 
+    private long requested;
     private final long lowWaterMark;
     private ArrayDeque<R> pending = new ArrayDeque<>();
     private boolean draining;
     private boolean paused;
 
-    private Signal() {
+    private QueueAdapter(long requested) {
       this.lowWaterMark = highWaterMark / 2;
+      this.requested = requested;
+    }
+
+    @Override
+    public synchronized long requested() {
+      return requested;
     }
 
     @Override
     public void dispose() {
       boolean resume;
-      synchronized (ObservableReadStream.this) {
+      synchronized (this) {
         resume = paused;
         paused = false;
       }
@@ -149,8 +161,19 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ba
     }
 
     @Override
-    public void drain() {
-      synchronized (ObservableReadStream.this) {
+    public void request(long n) {
+      synchronized (this) {
+        if (n == Long.MAX_VALUE || (n >= Long.MAX_VALUE - requested)) {
+          requested = Long.MAX_VALUE;
+        } else {
+          requested += n;
+        }
+      }
+      drain();
+    }
+
+    private void drain() {
+      synchronized (this) {
         if (draining) {
           return;
         }
@@ -161,15 +184,15 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ba
         sub = subscription.get();
         int action = NOOP;
         R next = noItem();
-        synchronized (ObservableReadStream.this) {
+        synchronized (this) {
           if (sub == null) {
             draining = false;
             return;
           } else if (pending.size() > 0) {
-            if (sub.requested > 0) {
+            if (requested > 0) {
               next = pending.poll();
-              if (sub.requested != Long.MAX_VALUE) {
-                sub.requested--;
+              if (requested != Long.MAX_VALUE) {
+                requested--;
               }
             }
           } else {
@@ -200,7 +223,7 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ba
           break;
         }
       }
-      synchronized (ObservableReadStream.this) {
+      synchronized (this) {
         if (pending.size() == 0 && completed != null) {
           if (completed == COMPLETED_SENTINEL) {
             sub.subscriber.onCompleted();
@@ -214,7 +237,7 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R>, Ba
 
     @Override
     public void handle(T item) {
-      synchronized (ObservableReadStream.this) {
+      synchronized (this) {
         pending.add(adapter.apply(item));
       }
       drain();

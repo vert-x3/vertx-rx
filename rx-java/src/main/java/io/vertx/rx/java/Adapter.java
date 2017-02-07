@@ -1,21 +1,21 @@
 package io.vertx.rx.java;
 
 import io.vertx.core.Handler;
+import rx.Producer;
 
 /**
+ * Adapt
+ *
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-interface BackPressure<T> extends Handler<T> {
+interface Adapter<T> extends Handler<T>, Producer {
 
   /**
    * A sentinel signaling a completion.
    */
   Throwable COMPLETED_SENTINEL = new Throwable();
 
-  /**
-   * Drain.
-   */
-  default void drain() {}
+  long requested();
 
   /**
    * Dispose.
