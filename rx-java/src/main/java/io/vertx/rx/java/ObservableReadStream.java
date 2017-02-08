@@ -107,9 +107,17 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
     stream.handler(sub.adapter);
   }
 
+  /*
+   * Adapt the callbacks from the read stream to the subscriber with a strategy.
+   */
   private abstract class Adapter implements Handler<T> {
 
-    protected long requested;
+    protected final Subscriber<? super R> subscriber;
+    long requested;
+
+    Adapter(Subscriber<? super R> subscriber) {
+      this.subscriber = subscriber;
+    }
 
     synchronized long requested() {
       synchronized (ObservableReadStream.this) {
@@ -117,6 +125,11 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
       }
     }
 
+    /**
+     * Request n items
+     *
+     * @param n the number o fitems
+     */
     void request(long n) {
       synchronized (ObservableReadStream.this) {
         if (n == Long.MAX_VALUE || (n >= Long.MAX_VALUE - requested)) {
@@ -128,21 +141,25 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
     }
 
     /**
-     * Dispose the state - should not do any callback
+     * Dispose the state - should not do any callback as it is called from an unsubscribe
      * @return true if the stream should be resumed according to the internal state
      */
     abstract boolean dispose();
 
+    /**
+     * Signal read stream end or error.
+     *
+     * @param t null if end otherwise the error
+     */
     abstract void end(Throwable t);
 
   }
 
   private class SimpleAdapter extends Adapter {
 
-    private final Subscriber<? super R> subscriber;
 
     SimpleAdapter(Subscriber<? super R> subscriber) {
-      this.subscriber = subscriber;
+      super(subscriber);
     }
 
     @Override
@@ -172,12 +189,11 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
     private boolean draining;
     private boolean paused;
     private boolean subscribed = true;
-    private final Subscriber<? super R> subscriber;
 
     private QueueAdapter(long requested, Subscriber<? super R> subscriber) {
+      super(subscriber);
       this.requested = requested;
       this.lowWaterMark = highWaterMark / 2;
-      this.subscriber = subscriber;
     }
 
     @Override
