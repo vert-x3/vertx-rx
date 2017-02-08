@@ -1,5 +1,6 @@
 package io.vertx.rx.java;
 
+import io.vertx.core.Handler;
 import io.vertx.core.streams.ReadStream;
 import rx.Observable;
 import rx.Producer;
@@ -99,10 +100,10 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
     // so we can pass set the handlers as they won't change
     stream.exceptionHandler(sub.adapter::end);
     stream.endHandler(v -> sub.adapter.end(COMPLETED_SENTINEL));
-    stream.handler(sub.adapter::handle);
+    stream.handler(sub.adapter);
   }
 
-  private abstract class Adapter {
+  private abstract class Adapter implements Handler<T> {
 
     protected long requested;
 
@@ -127,7 +128,7 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
      * @return true if the stream should be resumed according to the internal state
      */
     abstract boolean dispose();
-    abstract void handle(T item);
+
     abstract void end(Throwable t);
 
   }
@@ -146,7 +147,7 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
     }
 
     @Override
-    public void end(Throwable t) {
+    void end(Throwable t) {
       if (t == COMPLETED_SENTINEL) {
         subscriber.onCompleted();
       } else {
@@ -176,7 +177,7 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
     }
 
     @Override
-    public boolean dispose() {
+    boolean dispose() {
       if (!subscribed) {
         throw new AssertionError();
       }
@@ -264,7 +265,7 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
       drain();
     }
 
-    public void end(Throwable t) {
+    void end(Throwable t) {
       synchronized (ObservableReadStream.this) {
         if (completed != null) {
           return;
