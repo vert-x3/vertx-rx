@@ -93,6 +93,32 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
   }
 
   @Test
+  public void testEndWithoutRequest() {
+    testEndOrFailWithoutRequest(null);
+  }
+
+  @Test
+  public void testFailWithoutRequest() {
+    testEndOrFailWithoutRequest(new RuntimeException());
+  }
+
+  private void testEndOrFailWithoutRequest(Throwable err) {
+    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
+    Observable<Buffer> observable = toObservable(stream, 2);
+    observable.subscribe(subscriber);
+    if (err == null) {
+      stream.end();
+      subscriber.assertCompleted();
+    } else {
+      stream.fail(err);
+      subscriber.assertError(err);
+    }
+    stream.check();
+    subscriber.assertEmpty();
+  }
+
+  @Test
   public void testNoResumeWhenRequestingBuffered() {
     AtomicBoolean resumed = new AtomicBoolean();
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
