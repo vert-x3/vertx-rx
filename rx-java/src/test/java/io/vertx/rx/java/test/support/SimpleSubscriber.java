@@ -30,6 +30,11 @@ public class SimpleSubscriber<T> extends Subscriber<T> {
     return this;
   }
 
+  public SimpleSubscriber<T> fetch(long val) {
+    request(val);
+    return this;
+  }
+
   @Override
   public void onStart() {
     request(prefetch);
@@ -50,7 +55,6 @@ public class SimpleSubscriber<T> extends Subscriber<T> {
 
   @Override
   public void onError(Throwable e) {
-    e.printStackTrace();
     events.add(e);
   }
 

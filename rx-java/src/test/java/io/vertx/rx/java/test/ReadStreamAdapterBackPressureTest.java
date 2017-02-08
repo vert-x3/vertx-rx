@@ -157,21 +157,51 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
   }
 
   @Test
-  public void testDeliverEventWhenPaused() {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl() {
-    };
+  public void testDeliverEndWhenPaused() {
+    testDeliverEndOrFailWhenPaused(null);
+  }
+
+  @Test
+  public void testDeliverFailWhenPaused() {
+    testDeliverEndOrFailWhenPaused(new RuntimeException());
+  }
+
+  private void testDeliverEndOrFailWhenPaused(Throwable err) {
+    BufferReadStreamImpl stream = new BufferReadStreamImpl();
     stream.expectPause();
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
     Observable<Buffer> observable = toObservable(stream, 2);
     observable.subscribe(subscriber);
-    stream.end(buffer("0"), buffer("1")); // We send an event even though we are paused
+    stream.emit(buffer("0"), buffer("1"));
+    stream.check();
+    // We send events even though we are paused
+    if (err == null) {
+      stream.end();
+    } else {
+      stream.fail(err);
+    }
     subscriber.getProducer().request(2);
-    subscriber.assertItems(buffer("0"), buffer("1")).assertCompleted().assertEmpty();
+    subscriber.assertItems(buffer("0"), buffer("1"));
+    if (err == null) {
+      subscriber.assertCompleted();
+    } else {
+      subscriber.assertError(err);
+    }
+    subscriber.assertEmpty();
     stream.check();
   }
 
   @Test
   public void testEndWhenPaused() {
+    testEndOrFailWhenPaused(null);
+  }
+
+  @Test
+  public void testFailWhenPaused() {
+    testEndOrFailWhenPaused(new RuntimeException());
+  }
+
+  private void testEndOrFailWhenPaused(Throwable err) {
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
     stream.expectPause();
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
@@ -179,9 +209,19 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
     observable.subscribe(subscriber);
     stream.emit(buffer("0"), buffer("1"));
     stream.assertPaused();
-    stream.end();
+    if (err == null) {
+      stream.end();
+    } else {
+      stream.fail(err);
+    }
     subscriber.getProducer().request(2);
-    subscriber.assertItems(buffer("0"), buffer("1")).assertCompleted().assertEmpty();
+    subscriber.assertItems(buffer("0"), buffer("1"));
+    if (err == null) {
+      subscriber.assertCompleted();
+    } else {
+      subscriber.assertError(err);
+    }
+    subscriber.assertEmpty();
     stream.check();
   }
 
@@ -316,6 +356,19 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
     stream.emit(buffer("2"));
     stream.expectPause();
     stream.emit(buffer("3"));
+    subscriber.assertEmpty();
+    stream.check();
+    stream.expectResume();
+    subscriber.fetch(2);
+    subscriber.assertItems(buffer("2"), buffer("3"));
+    RuntimeException cause = new RuntimeException();
+    stream.fail(cause);
+    subscriber.assertError(cause);
+    assertTrue(sub.isUnsubscribed());
+    subscriber = new SimpleSubscriber<>();
+    sub = observable.subscribe(subscriber);
+    stream.end();
+    subscriber.assertCompleted();
     stream.check();
   }
 }

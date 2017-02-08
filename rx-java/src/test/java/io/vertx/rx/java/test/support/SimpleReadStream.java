@@ -134,13 +134,20 @@ public class SimpleReadStream<T> implements ReadStream<T> {
     return this;
   }
 
-  public void end(T... items) {
-    emit(items);
+  public void end() {
     endHandler.handle(null);
   }
 
-  public void end() {
-    endHandler.handle(null);
+  public void fail(Throwable err) {
+    exceptionHandler.handle(err);
+  }
+
+  public void done(Throwable err) {
+    if (err == null) {
+      end();
+    } else {
+      fail(err);
+    }
   }
 
   @Override
