@@ -11,9 +11,13 @@ import java.util.ArrayDeque;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
-import static io.vertx.rx.java.Adapter.COMPLETED_SENTINEL;
-
 /**
+ * Adapt a {@link ReadStream} to be an {@link Observable.OnSubscribe} that can be used to
+ * build {@link Observable}.
+ * <p>
+ * The adapter supports <a href="https://github.com/ReactiveX/RxJava/wiki/Backpressure">reactive pull</a>
+ * back-pressure.
+ *
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
