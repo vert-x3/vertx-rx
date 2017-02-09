@@ -528,14 +528,13 @@ requestObservable.subscribe(request -> {
 
 === Websocket client
 
-The `link:../../apidocs/io/vertx/rxjava/core/http/HttpClient.html#websocketStream-int-java.lang.String-java.lang.String-[websocketStream]` provides a single callback when the websocket
+The `link:../../apidocs/io/vertx/rxjava/core/http/HttpClient.html#websocketStream-io.vertx.core.http.RequestOptions-[websocketStream]` provides a single callback when the websocket
 connects, otherwise a failure:
 
 [source,java]
 ----
 HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-WebSocketStream stream = client.websocketStream(8080, "localhost", "/the_uri");
-stream.toObservable().subscribe(
+client.websocketStream(8080, "localhost", "/the_uri").toObservable().subscribe(
     ws -> {
       // Use the websocket
     },

@@ -20,7 +20,6 @@ import io.vertx.rxjava.core.http.HttpServer;
 import io.vertx.rxjava.core.http.HttpServerRequest;
 import io.vertx.rxjava.core.http.ServerWebSocket;
 import io.vertx.rxjava.core.http.WebSocket;
-import io.vertx.rxjava.core.http.WebSocketStream;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Single;
@@ -187,8 +186,7 @@ public class RxifiedExamples {
 
   public void websocketClient(Vertx vertx) {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-    WebSocketStream stream = client.websocketStream(8080, "localhost", "/the_uri");
-    stream.toObservable().subscribe(
+    client.websocketStream(8080, "localhost", "/the_uri").toObservable().subscribe(
         ws -> {
           // Use the websocket
         },
