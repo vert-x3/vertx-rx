@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class ObservableTest extends VertxTestBase {
+public class CoreRxifiedApiTest extends VertxTestBase {
 
   @Test
   public void testDeploy() throws Exception {

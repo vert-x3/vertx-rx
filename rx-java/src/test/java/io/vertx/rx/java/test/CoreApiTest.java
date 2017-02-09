@@ -5,6 +5,7 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServerOptions;
+import io.vertx.rx.java.test.support.SimplePojo;
 import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.rxjava.core.Context;
 import io.vertx.rxjava.core.Vertx;
@@ -43,7 +44,7 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class JavaIntegrationTest extends VertxTestBase {
+public class CoreApiTest extends VertxTestBase {
 
   private Vertx vertx;
 
@@ -565,14 +566,14 @@ public class JavaIntegrationTest extends VertxTestBase {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
       HttpClientRequest req = client.request(HttpMethod.GET, 8080, "localhost", "/the_uri");
       Observable<HttpClientResponse> obs =  req.toObservable();
-      ArrayList<MyPojo> objects = new ArrayList<>();
+      ArrayList<SimplePojo> objects = new ArrayList<>();
       obs.flatMap(HttpClientResponse::toObservable).
-          lift(io.vertx.rxjava.core.RxHelper.unmarshaller(MyPojo.class)).
+          lift(io.vertx.rxjava.core.RxHelper.unmarshaller(SimplePojo.class)).
           forEach(
               objects::add,
               err -> fail(), () -> {
                 server.close();
-                assertEquals(Arrays.asList(new MyPojo("bar")), objects);
+                assertEquals(Arrays.asList(new SimplePojo("bar")), objects);
                 testComplete();
               });;
       req.end();

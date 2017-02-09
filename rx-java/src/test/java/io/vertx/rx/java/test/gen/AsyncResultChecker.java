@@ -1,4 +1,4 @@
-package io.vertx.rx.java.test;
+package io.vertx.rx.java.test.gen;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;

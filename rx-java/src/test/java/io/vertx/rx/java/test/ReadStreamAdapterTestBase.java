@@ -3,6 +3,7 @@ package io.vertx.rx.java.test;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.rx.java.test.stream.BufferReadStreamImpl;
+import io.vertx.rx.java.test.support.SimpleSubscriber;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 import rx.Observable;
@@ -13,7 +14,7 @@ import rx.Subscription;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
+public abstract class ReadStreamAdapterTestBase<B> extends VertxTestBase {
 
   protected abstract Observable<B> toObservable(BufferReadStreamImpl stream);
   protected abstract B buffer(String s);
@@ -23,21 +24,19 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
   public void testReact() {
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
     Observable<B> observable = toObservable(stream);
-    MySubscriber<B> subscriber = new MySubscriber<B>() {
+    SimpleSubscriber<B> subscriber = new SimpleSubscriber<B>() {
       @Override
       protected void assertEquals(Object expected, Object actual) {
         super.assertEquals(string((B) expected), string((B) actual));
       }
     };
     Subscription subscription = observable.subscribe(subscriber);
-    assertNotNull(stream.endHandler);
-    assertNotNull(stream.endHandler);
-    assertNotNull(stream.handler);
-    stream.handler.handle(Buffer.buffer("foo"));
+    stream.assertHasHandlers();
+    stream.emit(Buffer.buffer("foo"));
     subscriber.assertItem(buffer("foo")).assertEmpty();
-    stream.handler.handle(Buffer.buffer("bar"));
+    stream.emit(Buffer.buffer("bar"));
     subscriber.assertItem(buffer("bar")).assertEmpty();
-    stream.endHandler.handle(null);
+    stream.end();
     subscriber.assertCompleted().assertEmpty();
     assertTrue(subscription.isUnsubscribed());
     testComplete();
@@ -47,20 +46,22 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
   public void testConcat() {
     BufferReadStreamImpl stream1 = new BufferReadStreamImpl();
     BufferReadStreamImpl stream2 = new BufferReadStreamImpl();
+    Observable<B> observable1 = toObservable(stream1);
+    Observable<B> observable2 = toObservable(stream2);
+    Observable<B> observable = Observable.concat(observable1, observable2);
     Observer<B> observer = new Subscriber<B>() {
       @Override
       public void onNext(B next) {
         switch (string(next)) {
           case "item1":
-            assertNotNull(stream1.handler);
-            assertNull(stream2.handler);
-            stream1.endHandler.handle(null);
-            stream2.handler.handle(Buffer.buffer("item2"));
+            stream1.assertHasItemHandler();
+            stream2.assertHasNoItemHandler();
+            stream1.end();
             break;
           case "item2":
-            assertNotNull(stream1.handler);
-            assertNotNull(stream2.handler);
-            stream2.endHandler.handle(null);
+            stream1.assertHasNoItemHandler();
+            stream2.assertHasItemHandler();
+            stream2.end();
             break;
           default:
             fail();
@@ -75,11 +76,11 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
         testComplete();
       }
     };
-    Observable<B> observable1 = toObservable(stream1);
-    Observable<B> observable2 = toObservable(stream2);
-    Observable<B> observable = Observable.concat(observable1, observable2);
     observable.subscribe(observer);
-    stream1.handler.handle(Buffer.buffer("item1"));
+    stream1.emit(Buffer.buffer("item1"));
+    stream1.assertHasNoItemHandler();
+    stream2.emit(Buffer.buffer("item2"));
+    stream2.assertHasNoItemHandler();
     await();
   }
 
@@ -89,11 +90,11 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
       @Override
       public BufferReadStreamImpl handler(Handler<Buffer> handler) {
         if (handler == null) {
-          assertNull(exceptionHandler);
-          assertNull(endHandler);
+          assertHasNoExceptionHandler();
+          assertHasNoEndHandler();
         } else {
-          assertNotNull(exceptionHandler);
-          assertNotNull(endHandler);
+          assertHasExceptionHandler();
+          assertHasEndHandler();
         }
         return super.handler(handler);
       }
@@ -108,12 +109,25 @@ public abstract class AbstractReadStreamAdapterTest<B> extends VertxTestBase {
     BufferReadStreamImpl stream = new BufferReadStreamImpl() {
       @Override
       public BufferReadStreamImpl handler(Handler<Buffer> handler) {
-        assertNotNull(endHandler);
-        assertNotNull(exceptionHandler);
+        assertHasExceptionHandler();
+        assertHasEndHandler();
         return super.handler(handler);
       }
     };
     Observable<B> observable = toObservable(stream);
-    observable.subscribe(s -> {}, err -> {}, () -> {});
+    observable.subscribe(s -> {
+    }, err -> {
+    }, () -> {
+    });
+  }
+
+  @Test
+  public void testHandlers() {
+    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    Observable<B> observable = toObservable(stream);
+    Subscription subscription = observable.subscribe(s -> {}, err -> {}, () -> {});
+    stream.assertHasHandlers();
+    subscription.unsubscribe();
+    stream.assertHasNoHandlers();
   }
 }

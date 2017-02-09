@@ -7,7 +7,7 @@ import rx.Observable;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class ConvertingReadStreamAdapterTest extends AbstractReadStreamAdapterTest<Buffer> {
+public class ReadStreamAdapterConvertingTest extends ReadStreamAdapterTestBase<Buffer> {
 
   @Override
   protected Observable<Buffer> toObservable(BufferReadStreamImpl stream) {

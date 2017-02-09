@@ -37,13 +37,59 @@ public class RxHelper {
   /**
    * Adapts a Vert.x {@link io.vertx.core.streams.ReadStream<T>} to an RxJava {@link Observable<T>}. After
    * the stream is adapted to an observable, the original stream handlers should not be used anymore
-   * as they will be used by the observable adapter.<p>
+   * as they will be used by the observable adapter.
+   * <p>
+   * The adapter supports <a href="https://github.com/ReactiveX/RxJava/wiki/Backpressure">reactive pull</a>
+   * back-pressure.
+   * <p>
+   * When back-pressure is enabled, a buffer of {@link ObservableReadStream#DEFAULT_MAX_BUFFER_SIZE}
+   * items is maintained:
+   * <ul>
+   *   <li>When the buffer is full, the stream is paused</li>
+   *   <li>When the buffer is half empty, the stream is resumed</li>
+   * </ul>
    *
    * @param stream the stream to adapt
    * @return the adapted observable
    */
   public static <T> Observable<T> toObservable(ReadStream<T> stream) {
-    return Observable.create(new ReadStreamAdapter<>(stream));
+    return toObservable(stream, Function.identity());
+  }
+
+  /**
+   * Adapts a Vert.x {@link io.vertx.core.streams.ReadStream<T>} to an RxJava {@link Observable<T>}. After
+   * the stream is adapted to an observable, the original stream handlers should not be used anymore
+   * as they will be used by the observable adapter.
+   * <p>
+   * The adapter supports <a href="https://github.com/ReactiveX/RxJava/wiki/Backpressure">reactive pull</a>
+   * back-pressure.
+   * <p>
+   * When back-pressure is enabled, a buffer of {@code maxBufferSize} items is maintained:
+   * <ul>
+   *   <li>When the buffer is full, the stream is paused</li>
+   *   <li>When the buffer is half empty, the stream is resumed</li>
+   * </ul>
+   *
+   * @param stream the stream to adapt
+   * @param maxBufferSize the max size of the buffer used when back-pressure is active
+   * @return the adapted observable
+   */
+  public static <T> Observable<T> toObservable(ReadStream<T> stream, int maxBufferSize) {
+    return toObservable(stream, Function.identity(), maxBufferSize);
+  }
+
+  /**
+   * Like {@link #toObservable(ReadStream)} but with a function that adapts the items.
+   */
+  public static <T, R> Observable<R> toObservable(ReadStream<T> stream, Function<T, R> adapter) {
+    return Observable.create(new ObservableReadStream<>(stream, adapter));
+  }
+
+  /**
+   * Like {@link #toObservable(ReadStream, int)} but with a function that adapts the items.
+   */
+  public static <T, R> Observable<R> toObservable(ReadStream<T> stream, Function<T, R> adapter, int maxBufferSize) {
+    return Observable.create(new ObservableReadStream<>(stream, adapter, maxBufferSize));
   }
 
   /**
@@ -287,5 +333,26 @@ public class RxHelper {
         return buffer;
       }
     };
+  }
+
+  /**
+   * Clearing handlers after stream closed causes issues for some (eg AsyncFile) so silently drop errors.
+   */
+  static void setNullHandlers(ReadStream<?> stream) {
+    try {
+      stream.exceptionHandler(null);
+    }
+    catch(Exception ignore) {
+    }
+    try {
+      stream.endHandler(null);
+    }
+    catch(Exception ignore) {
+    }
+    try {
+      stream.handler(null);
+    }
+    catch(Exception ignore) {
+    }
   }
 }

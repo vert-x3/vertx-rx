@@ -1,4 +1,4 @@
-package io.vertx.rx.java.test;
+package io.vertx.rx.java.test.gen;
 
 import com.acme.rxjava.pkg.AnotherInterface;
 import org.junit.Test;

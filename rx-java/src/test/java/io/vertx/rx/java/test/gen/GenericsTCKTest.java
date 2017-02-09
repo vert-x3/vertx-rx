@@ -1,8 +1,7 @@
-package io.vertx.rx.java.test.api;
+package io.vertx.rx.java.test.gen;
 
 import io.vertx.codegen.testmodel.GenericsTCKImpl;
 import io.vertx.codegen.testmodel.RefedInterface1Impl;
-import io.vertx.rx.java.test.AsyncResultChecker;
 import io.vertx.rxjava.codegen.testmodel.GenericNullableRefedInterface;
 import io.vertx.rxjava.codegen.testmodel.GenericRefedInterface;
 import io.vertx.rxjava.codegen.testmodel.GenericsTCK;

@@ -1,22 +1,22 @@
-package io.vertx.rx.java.test;
+package io.vertx.rx.java.test.support;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class MyPojo {
+public class SimplePojo {
 
   public String foo;
 
-  public MyPojo(String foo) {
+  public SimplePojo(String foo) {
     this.foo = foo;
   }
 
-  public MyPojo() {
+  public SimplePojo() {
   }
 
   @Override
   public boolean equals(Object obj) {
-    MyPojo that = (MyPojo) obj;
+    SimplePojo that = (SimplePojo) obj;
     return foo.equals(that.foo);
   }
 }
