@@ -341,7 +341,7 @@ include the `jackson-dataformat-yaml`artifact in your POM and use the following 
 
 [source,java]
 ----
-def mapper = new ObjectMapper(new YAMLFactory())
+ObjectMapper mapper = new ObjectMapper(new YAMLFactory())
 
 fileSystem.open("/data.txt", new OpenOptions(), result -> {
  AsyncFile file = result.result();
