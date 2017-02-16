@@ -334,6 +334,26 @@ fileSystem.open("/data.txt", new OpenOptions(), result -> {
 });
 ----
 
+=== YAML unmarshalling
+
+The _Rxified_ helper for unmarshalling also supports a custom mapper, so if you want to unmarshal YAML you can
+include the `jackson-dataformat-yaml`artifact in your POM and use the following code
+
+[source,java]
+----
+def mapper = new ObjectMapper(new YAMLFactory())
+
+fileSystem.open("/data.txt", new OpenOptions(), result -> {
+ AsyncFile file = result.result();
+ Observable<Buffer> observable = file.toObservable();
+ observable.lift(io.vertx.rxjava.core.RxHelper.unmarshaller(MyPojo.class, mapper)).subscribe(
+     mypojo -> {
+       // Process the object
+     }
+ );
+});
+----
+
 === Deploying a Verticle
 
 The Rxified API cannot deploy an existing Verticle instance, the helper `link:../../apidocs/io/vertx/rx/java/RxHelper.html#observableFuture--[RxHelper.observableFuture]` method
