@@ -99,7 +99,7 @@ public class RxHelper {
     return new UnmarshallerOperator<T, Buffer>(mappedType) {
       @Override
       public io.vertx.core.buffer.Buffer unwrap(Buffer buffer) {
-        return ((io.vertx.core.buffer.Buffer) buffer.getDelegate());
+        return buffer.getDelegate();
       }
     };
   }
@@ -187,7 +187,7 @@ public class RxHelper {
    */
   public static Observable<String> deployVerticle(Vertx vertx, Verticle verticle, DeploymentOptions options) {
     ObservableFuture<String> completionHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    ((io.vertx.core.Vertx) vertx.getDelegate()).deployVerticle(verticle, options, completionHandler.toHandler());
+    vertx.getDelegate().deployVerticle(verticle, options, completionHandler.toHandler());
     return completionHandler;
   }
 }
