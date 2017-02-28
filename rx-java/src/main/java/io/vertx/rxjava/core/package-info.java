@@ -60,6 +60,14 @@
  *
  * === Async result support
  *
+ * You can create an RxJava `Subscriber` from an existing Vert.x `Handler<AsyncResult<T>>` and subscribe
+ * it to an `Observable` or a `Single`:
+ *
+ * [source,java]
+ * ----
+ * {@link examples.NativeExamples#handlerToSubscriber}
+ * ----
+ *
  * The Vert.x `Handler<AsyncResult<T>>` construct occuring as last parameter of an asynchronous method can
  * be mapped to an observable of a single element:
  *

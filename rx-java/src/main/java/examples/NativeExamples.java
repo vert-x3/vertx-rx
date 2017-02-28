@@ -18,6 +18,7 @@ import io.vertx.rx.java.RxHelper;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
+import rx.Single;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.plugins.RxJavaSchedulersHook;
@@ -56,6 +57,18 @@ public class NativeExamples {
       // Fired
     });
     vertx.setTimer(1000, observable.toHandler());
+  }
+
+  public void handlerToSubscriber(Observable<String> observable,
+                                  Single<String> single,
+                                  Handler<AsyncResult<String>> handler1,
+                                  Handler<AsyncResult<String>> handler2) {
+    //
+    // Subscribe to an Observable
+    observable.subscribe(RxHelper.toSubscriber(handler1));
+
+    // Subscribe to a Single
+    single.subscribe(RxHelper.toSubscriber(handler2));
   }
 
   public void observableFuture(Vertx vertx) {

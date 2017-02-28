@@ -78,6 +78,17 @@ The _Rxified_ Vert.x API does not provide a specific API for handler.
 
 === Async result support
 
+You can create an RxJava `Subscriber` from an existing Vert.x `Handler<AsyncResult<T>>` and subscribe
+it to an `Observable` or a `Single`:
+
+[source,java]
+----
+observable.subscribe(RxHelper.toSubscriber(handler1));
+
+//
+single.subscribe(RxHelper.toSubscriber(handler2));
+----
+
 The Vert.x `Handler<AsyncResult<T>>` construct occuring as last parameter of an asynchronous method can
 be mapped to an observable of a single element:
 

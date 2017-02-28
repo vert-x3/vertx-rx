@@ -2,6 +2,7 @@ package io.vertx.rx.java;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -14,6 +15,7 @@ import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.plugins.RxJavaSchedulersHook;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 /**
@@ -22,6 +24,39 @@ import java.util.function.Function;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class RxHelper {
+
+  /**
+   * Adapts an Vert.x {@code Handler<AsyncResult<T>>} to an RxJava {@link Subscriber}.
+   * <p>
+   * The returned subscriber can be subscribed to an {@link Observable#subscribe(Subscriber)} or
+   * {@link rx.Single#subscribe(Subscriber)}.
+   *
+   * @param handler the handler to adapt
+   * @return the subscriber
+   */
+  public static <T> Subscriber<T> toSubscriber(Handler<AsyncResult<T>> handler) {
+    AtomicBoolean completed = new AtomicBoolean();
+    return new Subscriber<T>() {
+      @Override
+      public void onCompleted() {
+        if (completed.compareAndSet(false, true)) {
+          handler.handle(Future.succeededFuture());
+        }
+      }
+      @Override
+      public void onError(Throwable error) {
+        if (completed.compareAndSet(false, true)) {
+          handler.handle(Future.failedFuture(error));
+        }
+      }
+      @Override
+      public void onNext(T item) {
+        if (completed.compareAndSet(false, true)) {
+          handler.handle(Future.succeededFuture(item));
+        }
+      }
+    };
+  }
 
   /**
    * Adapts an RxJava {@link Observable<T>} to a Vert.x {@link io.vertx.core.streams.ReadStream<T>}. The returned
