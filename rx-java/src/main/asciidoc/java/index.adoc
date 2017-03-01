@@ -85,7 +85,7 @@ it to an `Observable` or a `Single`:
 ----
 observable.subscribe(RxHelper.toSubscriber(handler1));
 
-//
+// Subscribe to a Single
 single.subscribe(RxHelper.toSubscriber(handler2));
 ----
 
@@ -171,7 +171,25 @@ single.
     );
 ----
 
-Such single are *cold* singles, and the corresponding API method is called on subscribe.
+For `Void` type an RxJava `Completable` is used instead:
+
+[source,java]
+----
+Completable completable = server.rxClose();
+
+// Subscribe to close the server
+completable.
+  subscribe(
+    () -> {
+      // Server is closed
+    },
+    failure -> {
+      // Server could not stop
+    }
+  );
+----
+
+Such reactive types are *cold*, and the corresponding API method is called on subscribe.
 
 NOTE: the `rx*` methods replace the `*Observable` of the previous _Rxified_ versions with a semantic
 change to be more in line with RxJava.

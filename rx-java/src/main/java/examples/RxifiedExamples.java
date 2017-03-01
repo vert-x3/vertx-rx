@@ -21,6 +21,7 @@ import io.vertx.rxjava.core.http.HttpServer;
 import io.vertx.rxjava.core.http.HttpServerRequest;
 import io.vertx.rxjava.core.http.ServerWebSocket;
 import io.vertx.rxjava.core.http.WebSocket;
+import rx.Completable;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Single;
@@ -63,6 +64,23 @@ public class RxifiedExamples {
               // Server could not start
             }
         );
+  }
+
+  public void completable(HttpServer server) {
+
+    // Obtain a completable that performs the actual close on subscribe
+    Completable completable = server.rxClose();
+
+    // Subscribe to close the server
+    completable.
+      subscribe(
+        () -> {
+          // Server is closed
+        },
+        failure -> {
+          // Server could not stop
+        }
+      );
   }
 
   public void scheduler(Vertx vertx) {
