@@ -108,14 +108,7 @@
  * {@link examples.RxifiedExamples#single(io.vertx.rxjava.core.Vertx)}
  * ----
  *
- * For `Void` type an RxJava {@code Completable} is used instead:
- *
- * [source,java]
- * ----
- * {@link examples.RxifiedExamples#completable}
- * ----
- *
- * Such reactive types are *cold*, and the corresponding API method is called on subscribe.
+ * Such single are *cold* singles, and the corresponding API method is called on subscribe.
  *
  * NOTE: the `rx*` methods replace the `*Observable` of the previous _Rxified_ versions with a semantic
  * change to be more in line with RxJava.
