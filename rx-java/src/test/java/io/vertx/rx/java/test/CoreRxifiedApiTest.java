@@ -16,9 +16,9 @@
 package io.vertx.rx.java.test;
 
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.rxjava.core.Vertx;
 import io.vertx.rxjava.core.http.HttpServer;
+import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 import rx.Observable;
@@ -57,26 +57,6 @@ public class CoreRxifiedApiTest extends VertxTestBase {
   }
 
   @Test
-  public void testDeployWithSingleAndCompletable() throws Exception {
-    vertx.deployVerticle(new AbstractVerticle() {
-      @Override
-      public void start() throws Exception {
-        HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080)).requestHandler(req -> {
-        });
-        server.rxListen()
-          .subscribe(
-            result -> server
-              .rxClose()
-              .subscribe(
-                () -> testComplete(),
-                err -> fail(err)),
-            err -> fail(err));
-      }
-    });
-    await();
-  }
-
-  @Test
   public void testObservablePeriodic() throws Exception {
     Vertx vertx = new Vertx(this.vertx);
     Observable<Long> stream = vertx.periodicStream(1).toObservable();
@@ -86,12 +66,10 @@ public class CoreRxifiedApiTest extends VertxTestBase {
         unsubscribe();
         testComplete();
       }
-
       @Override
       public void onCompleted() {
         fail();
       }
-
       @Override
       public void onError(Throwable e) {
         fail(e.getMessage());

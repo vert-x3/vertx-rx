@@ -171,25 +171,7 @@ single.
     );
 ----
 
-For `Void` type an RxJava `Completable` is used instead:
-
-[source,java]
-----
-Completable completable = server.rxClose();
-
-// Subscribe to close the server
-completable.
-  subscribe(
-    () -> {
-      // Server is closed
-    },
-    failure -> {
-      // Server could not stop
-    }
-  );
-----
-
-Such reactive types are *cold*, and the corresponding API method is called on subscribe.
+Such single are *cold* singles, and the corresponding API method is called on subscribe.
 
 NOTE: the `rx*` methods replace the `*Observable` of the previous _Rxified_ versions with a semantic
 change to be more in line with RxJava.
