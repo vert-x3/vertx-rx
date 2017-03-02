@@ -223,12 +223,7 @@
     }
     var futParam = method.params[size];
     var futType = futParam.type.args[0].args[0];
-    var futReturnType;
-    if (futType.name == 'java.lang.Void') {
-      futReturnType = io.vertx.codegen.type.TypeReflectionFactory.create(rx.Completable);
-    } else {
-      futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(rx.Single), false, java.util.Collections.singletonList(futType));
-    }
+    var futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(rx.Single), false, java.util.Collections.singletonList(futType));
     var futMethod = new io.vertx.codegen.MethodInfo(
       method.ownerTypes, futMethodName,
       method.kind,
@@ -351,25 +346,23 @@
 
 @declare{'genMethod'}
 	@includeNamed{'genSimpleMethod'}
-	@if{method.kind == METHOD_FUTURE}
+	@if{method.kind == METHOD_FUTURE && options.get('codegen.rxjava.deprecated') == 'true'}
+		@code{methodName=method.name}
 		@code{futureParams=new java.util.ArrayList(method.params)}
 		@code{futureParam=futureParams.remove(futureParams.size()-1)}
 		@code{futureType=futureParam.type.args[0].args[0]}
-		@if{options.get('codegen.rxjava.deprecated') == 'true'}
-			@code{methodName=method.name}
-			@code{futureReturnType=new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(rx.Observable), false, java.util.Collections.singletonList(futureType))}
-			@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,method.name + 'Observable',method.kind,futureReturnType,null,method.fluent,method.cacheReturn,futureParams,method.comment,method.doc,method.staticMethod,method.defaultMethod,method.typeParams)}
-			@includeNamed{'startMethodTemplate';meth=futureMethod;deprecated='use {@link #' + genFutureMethodName(method) + '} instead'} { \n
-			    io.vertx.rx.java.ObservableFuture<@{futureType.simpleName}> @{futureParam.name} = io.vertx.rx.java.RxHelper.observableFuture();\n
-			    @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}@{futureParam.name}.toHandler());\n
-			    return @{futureParam.name};\n
-			  }\n\n
-		@end{}
+		@code{futureReturnType=new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(rx.Observable), false, java.util.Collections.singletonList(futureType))}
+		@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,method.name + 'Observable',method.kind,futureReturnType,null,method.fluent,method.cacheReturn,futureParams,method.comment,method.doc,method.staticMethod,method.defaultMethod,method.typeParams)}
+		@includeNamed{'startMethodTemplate';meth=futureMethod;deprecated='use {@link #' + genFutureMethodName(method) + '} instead'} { \n
+		    io.vertx.rx.java.ObservableFuture<@{futureType.simpleName}> @{futureParam.name} = io.vertx.rx.java.RxHelper.observableFuture();\n
+		    @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}@{futureParam.name}.toHandler());\n
+		    return @{futureParam.name};\n
+		  }\n\n
+	@end{}
+	@if{method.kind == METHOD_FUTURE}
 		@code{futMeth = genFutureMethod(method)}
-		@code{foobar = futureType.name == 'java.lang.Void' ? 'Completable' : 'Single'}
-		@code{foojuu = futureType.name  == 'java.lang.Void' ? 'CompletableOnSubscribeAdapter' : 'SingleOnSubscribeAdapter<>'}
 		@includeNamed{'startMethodTemplate';meth=futMeth;deprecated=''} { \n
-		    return @{foobar}.create(new io.vertx.rx.java.@{foojuu}(fut -> {\n
+		    return Single.create(new io.vertx.rx.java.SingleOnSubscribeAdapter<>(fut -> {\n
 		      @{method.name}(@foreach{param:futMeth.params}@{param.name}@end{', '}@if{futMeth.params.size() > 0}, @end{}fut);\n
 		    }));\n
 		  }\n\n
