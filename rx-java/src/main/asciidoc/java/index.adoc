@@ -85,7 +85,7 @@ it to an `Observable` or a `Single`:
 ----
 observable.subscribe(RxHelper.toSubscriber(handler1));
 
-//
+// Subscribe to a Single
 single.subscribe(RxHelper.toSubscriber(handler2));
 ----
 
