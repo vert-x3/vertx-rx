@@ -61,7 +61,7 @@ public class ContextScheduler extends Scheduler {
   public ContextScheduler(WorkerExecutor workerExecutor, boolean ordered) {
     this.workerExecutor = () -> workerExecutor;
     this.ordered = ordered;
-    this.vertx = ((WorkerExecutorInternal) workerExecutor).owner();
+    this.vertx = ((WorkerExecutorInternal) workerExecutor).vertx();
     this.context = null;
   }
 
