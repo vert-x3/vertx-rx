@@ -10,7 +10,7 @@ import rx.Observable;
 import rx.Single;
 import rx.SingleEmitter;
 import rx.Subscriber;
-import rx.internal.operators.OnSubscribeFromEmitter;
+import rx.internal.operators.OnSubscribeCreate;
 import rx.internal.operators.SingleFromEmitter;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class SubscriberTest extends VertxTestBase {
 
   private static Emitter<String> subscribe(Subscriber<String> subscriber) {
     AtomicReference<Emitter<String>> emitter = new AtomicReference<>();
-    Observable<String> observable = Observable.create(new OnSubscribeFromEmitter<>(emitter::set, Emitter.BackpressureMode.BUFFER));
+    Observable<String> observable = Observable.create(new OnSubscribeCreate<>(emitter::set, Emitter.BackpressureMode.BUFFER));
     observable.subscribe(subscriber);
     return emitter.get();
   }
