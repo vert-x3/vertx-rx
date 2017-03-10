@@ -1,5 +1,6 @@
 package io.vertx.rx.java.test;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.buffer.Buffer;
@@ -11,6 +12,7 @@ import org.junit.Test;
 import rx.Observable;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -75,4 +77,16 @@ public class BufferTest {
     assertEquals(expected.length(), buff.readFromBuffer(0, expected));
     assertEquals("hello-world", buff.toString());
   }
+
+  @Test
+  public void testMapPojoListFromBuffer() throws Exception {
+    Observable<Buffer> stream = Observable.just(Buffer.buffer("[{\"foo\":\"bar\"}]"));
+    Observable<List<SimplePojo>> mapped = stream.lift(RxHelper.unmarshaller(new TypeReference<List<SimplePojo>>(){}));
+    SimpleSubscriber<List<SimplePojo>> sub = new SimpleSubscriber<>();
+    mapped.subscribe(sub);
+    sub.assertItems(Arrays.asList(new SimplePojo("bar")));
+    sub.assertCompleted();
+    sub.assertEmpty();
+  }
+
 }
