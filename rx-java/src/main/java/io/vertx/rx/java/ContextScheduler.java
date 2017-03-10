@@ -1,11 +1,8 @@
 package io.vertx.rx.java;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.WorkerExecutor;
-import io.vertx.core.impl.ContextInternal;
 import io.vertx.core.impl.WorkerExecutorInternal;
 import io.vertx.core.json.JsonObject;
 import rx.Scheduler;
@@ -14,33 +11,34 @@ import rx.functions.Action0;
 import rx.plugins.RxJavaPlugins;
 import rx.plugins.RxJavaSchedulersHook;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class ContextScheduler extends Scheduler {
 
-  private static final Handler<AsyncResult<Object>> NOOP = result -> {};
-
-  private final Vertx vertx;
-  private final boolean ordered;
   private final RxJavaSchedulersHook schedulersHook = RxJavaPlugins.getInstance().getSchedulersHook();
-  private final Supplier<Context> context;
-  private final Supplier<WorkerExecutor> workerExecutor;
+  private final Vertx vertx;
+  private final Context context;
+  private final WorkerExecutor workerExecutor;
+  private final boolean blocking;
+  private final boolean ordered;
 
   public ContextScheduler(Context context, boolean blocking) {
     this(context, blocking, true);
   }
 
   public ContextScheduler(Context context, boolean blocking, boolean ordered) {
+    Objects.requireNonNull(context, "context is null");
     this.vertx = context.owner();
-    this.context = () -> context;
+    this.context = context;
+    this.workerExecutor = null;
+    this.blocking = blocking;
     this.ordered = ordered;
-    this.workerExecutor = blocking ? ((ContextInternal) context)::createWorkerExecutor : null;
   }
 
   public ContextScheduler(Vertx vertx, boolean blocking) {
@@ -48,10 +46,12 @@ public class ContextScheduler extends Scheduler {
   }
 
   public ContextScheduler(Vertx vertx, boolean blocking, boolean ordered) {
+    Objects.requireNonNull(vertx, "vertx is null");
     this.vertx = vertx;
-    this.context = vertx::getOrCreateContext;
+    this.context = null;
+    this.workerExecutor = null;
+    this.blocking = blocking;
     this.ordered = ordered;
-    this.workerExecutor = blocking ? () -> ((ContextInternal) context.get()).createWorkerExecutor() : null;
   }
 
   public ContextScheduler(WorkerExecutor workerExecutor) {
@@ -59,10 +59,12 @@ public class ContextScheduler extends Scheduler {
   }
 
   public ContextScheduler(WorkerExecutor workerExecutor, boolean ordered) {
-    this.workerExecutor = () -> workerExecutor;
-    this.ordered = ordered;
+    Objects.requireNonNull(workerExecutor, "workerExecutor is null");
     this.vertx = ((WorkerExecutorInternal) workerExecutor).vertx();
     this.context = null;
+    this.workerExecutor = workerExecutor;
+    this.blocking = true;
+    this.ordered = ordered;
   }
 
   @Override
@@ -135,9 +137,22 @@ public class ContextScheduler extends Scheduler {
 
       private void execute() {
         if (workerExecutor != null) {
-          workerExecutor.get().executeBlocking(fut -> run(), ordered, NOOP);
+          workerExecutor.executeBlocking(fut -> {
+            run();
+            fut.complete();
+          }, ordered, null);
+          return;
+        }
+        Context ctx = context != null ? context : vertx.getOrCreateContext();
+        if (blocking) {
+          ctx.executeBlocking(fut -> {
+            run();
+            fut.complete();
+          }, ordered, null);
         } else {
-          context.get().runOnContext(v -> run());
+          ctx.runOnContext(v -> {
+            run();
+          });
         }
       }
 
