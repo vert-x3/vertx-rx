@@ -518,6 +518,7 @@ requestObservable.subscribe(request -> {
 
 The `link:../../apidocs/io/vertx/core/http/HttpServerRequest.html[HttpServerRequest]` can then be adapted to an `Observable<Buffer>`:
 
+[source,java]
 ----
 Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
 requestObservable.subscribe(request -> {
@@ -528,6 +529,7 @@ requestObservable.subscribe(request -> {
 The `link:../../apidocs/io/vertx/rxjava/core/RxHelper.html#unmarshaller-java.lang.Class-[RxHelper.unmarshaller]` can be used to parse and map
 a json request to an object:
 
+[source,java]
 ----
 Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
 requestObservable.subscribe(request -> {
