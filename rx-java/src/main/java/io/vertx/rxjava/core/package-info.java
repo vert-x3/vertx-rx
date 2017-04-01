@@ -331,6 +331,7 @@
  *
  * The {@link io.vertx.core.http.HttpServerRequest} can then be adapted to an `Observable<Buffer>`:
  *
+ * [source,java]
  * ----
  * {@link examples.RxifiedExamples#httpServerRequestObservable(io.vertx.rxjava.core.http.HttpServer)}
  * ----
@@ -338,6 +339,7 @@
  * The {@link io.vertx.rxjava.core.RxHelper#unmarshaller(java.lang.Class)} can be used to parse and map
  * a json request to an object:
  *
+ * [source,java]
  * ----
  * {@link examples.RxifiedExamples#httpServerRequestObservableUnmarshall(io.vertx.rxjava.core.http.HttpServer)}
  * ----
