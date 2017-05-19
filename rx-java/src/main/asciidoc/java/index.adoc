@@ -45,7 +45,48 @@ fs.open("/data.txt", new OpenOptions(), result -> {
 });
 ----
 
-Such observables are *hot* observables, i.e. they will produce notifications regardless of subscriptions.
+Such observables are *hot* observables, i.e. they will produce notifications regardless of subscriptions because
+a `ReadStream` can potentially emit items spontaneously or not, depending on the implementation:
+
+At subscription time, the adapter calls `link:../../apidocs/io/vertx/core/streams/ReadStream.html#handler-io.vertx.core.Handler-[handler]`
+to set its own handler.
+
+Some `ReadStream` implementations can start to emit events after this call, others will emit events whether an
+handler is set or not:
+
+- `AsyncFile` produces buffer events after the handler is set
+- `HttpServerRequest` produces events independantly of the handler (i.e buffer may be lost if no handler is set)
+
+In both cases, subscribing to the `Observable` in the same call is safe because the event loop or the worker
+verticles cannot be called concurrently, so the subscription will always happens before the handler starts emitting
+data.
+
+When you need to delay the subscription, you need to `pause` the `ReadStream` and then `resume` it, which is what
+you would do with a `ReadStream`.
+
+[source,java]
+----
+server.requestHandler(request -> {
+  if (request.method() == HttpMethod.POST) {
+
+    // Stop receiving buffers
+    request.pause();
+
+    checkAuth(res -> {
+
+      // Now we can receive buffers again
+      request.resume();
+
+      if (res.succeeded()) {
+        Observable<Buffer> observable = request.toObservable();
+        observable.subscribe(buff -> {
+          // Get buffers
+        });
+      }
+    });
+  }
+});
+----
 
 Likewise it is possible to turn an existing `Observable` into a Vert.x `ReadStream`.
 
@@ -518,6 +559,7 @@ requestObservable.subscribe(request -> {
 
 The `link:../../apidocs/io/vertx/core/http/HttpServerRequest.html[HttpServerRequest]` can then be adapted to an `Observable<Buffer>`:
 
+[source,java]
 ----
 Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
 requestObservable.subscribe(request -> {
@@ -528,6 +570,7 @@ requestObservable.subscribe(request -> {
 The `link:../../apidocs/io/vertx/rxjava/core/RxHelper.html#unmarshaller-java.lang.Class-[RxHelper.unmarshaller]` can be used to parse and map
 a json request to an object:
 
+[source,java]
 ----
 Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
 requestObservable.subscribe(request -> {
