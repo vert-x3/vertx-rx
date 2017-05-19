@@ -1,5 +1,7 @@
 package examples;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import io.vertx.core.Verticle;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpClientOptions;
@@ -43,6 +45,33 @@ public class RxifiedExamples {
       AsyncFile file = result.result();
       Observable<Buffer> observable = file.toObservable();
       observable.forEach(data -> System.out.println("Read data: " + data.toString("UTF-8")));
+    });
+  }
+
+  private static void checkAuth(Handler<AsyncResult<Void>> handler) {
+    throw new UnsupportedOperationException();
+  }
+
+  public void delayToObservable(HttpServer server) {
+    server.requestHandler(request -> {
+      if (request.method() == HttpMethod.POST) {
+
+        // Stop receiving buffers
+        request.pause();
+
+        checkAuth(res -> {
+
+          // Now we can receive buffers again
+          request.resume();
+
+          if (res.succeeded()) {
+            Observable<Buffer> observable = request.toObservable();
+            observable.subscribe(buff -> {
+              // Get buffers
+            });
+          }
+        });
+      }
     });
   }
 

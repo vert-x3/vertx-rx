@@ -34,7 +34,29 @@
  * {@link examples.RxifiedExamples#toObservable}
  * ----
  *
- * Such observables are *hot* observables, i.e. they will produce notifications regardless of subscriptions.
+ * Such observables are *hot* observables, i.e. they will produce notifications regardless of subscriptions because
+ * a `ReadStream` can potentially emit items spontaneously or not, depending on the implementation:
+ *
+ * At subscription time, the adapter calls {@link io.vertx.core.streams.ReadStream#handler(io.vertx.core.Handler)}
+ * to set its own handler.
+ *
+ * Some `ReadStream` implementations can start to emit events after this call, others will emit events whether an
+ * handler is set or not:
+ *
+ * - `AsyncFile` produces buffer events after the handler is set
+ * - `HttpServerRequest` produces events independantly of the handler (i.e buffer may be lost if no handler is set)
+ *
+ * In both cases, subscribing to the `Observable` in the same call is safe because the event loop or the worker
+ * verticles cannot be called concurrently, so the subscription will always happens before the handler starts emitting
+ * data.
+ *
+ * When you need to delay the subscription, you need to `pause` the `ReadStream` and then `resume` it, which is what
+ * you would do with a `ReadStream`.
+ *
+ * [source,java]
+ * ----
+ * {@link examples.RxifiedExamples#delayToObservable}
+ * ----
  *
  * Likewise it is possible to turn an existing `Observable` into a Vert.x `ReadStream`.
  *
