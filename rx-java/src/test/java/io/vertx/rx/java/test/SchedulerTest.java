@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -46,53 +47,57 @@ public class SchedulerTest extends VertxTestBase {
     meth.invoke(RxJavaPlugins.getInstance());
   }
 
-  private void assertEventLoopThread() {
-    String name = Thread.currentThread().getName();
-    assertTrue("Was expecting event loop thread instead of " + name, name.startsWith("vert.x-eventloop-thread"));
+  private void assertEventLoopThread(Thread thread) {
+    String threadName = thread.getName();
+    assertTrue("Was expecting event loop thread instead of " + threadName, threadName.startsWith("vert.x-eventloop-thread"));
   }
 
-  private void assertWorkerThread() {
-    String name = Thread.currentThread().getName();
-    assertTrue("Was expecting worker thread instead of " + name, name.startsWith("vert.x-worker-thread"));
+  private void assertWorkerThread(Thread thread) {
+    String threadName = thread.getName();
+    assertTrue("Was expecting worker thread instead of " + threadName, threadName.startsWith("vert.x-worker-thread"));
   }
 
-  private void assertWorkerExecutorThread() {
-    String thread = Thread.currentThread().getName();
-    assertTrue("Was expecting worker executor thread instead of " + thread, thread.startsWith(name.getMethodName()));
+  private void assertWorkerExecutorThread(Thread thread) {
+    String threadName = thread.getName();
+    assertTrue("Was expecting worker executor thread instead of " + threadName, threadName.startsWith(name.getMethodName()));
   }
 
   @Test
-  public void testScheduleImmediatly() {
+  public void testScheduleImmediatly() throws Exception {
     testScheduleImmediatly(() -> new ContextScheduler(vertx, false), this::assertEventLoopThread);
   }
 
   @Test
-  public void testScheduleImmediatlyBlocking() {
+  public void testScheduleImmediatlyBlocking() throws Exception {
     testScheduleImmediatly(() -> new ContextScheduler(vertx, true), this::assertWorkerThread);
   }
 
   @Test
-  public void testScheduleImmediatlyWorkerExecutor() {
+  public void testScheduleImmediatlyWorkerExecutor() throws Exception {
     testScheduleImmediatly(() -> new ContextScheduler(workerExecutor), this::assertWorkerExecutorThread);
   }
 
-  private void testScheduleImmediatly(Supplier<ContextScheduler> scheduler, Runnable threadAssert) {
+  private void testScheduleImmediatly(Supplier<ContextScheduler> scheduler, Consumer<Thread> threadAssert) throws Exception {
+    CountDownLatch latch = new CountDownLatch(1);
     ContextScheduler scheduler2 = scheduler.get();
     Scheduler.Worker worker = scheduler2.createWorker();
+    AtomicReference<Thread> thread = new AtomicReference<>();
     worker.schedule(() -> {
-      threadAssert.run();
-      testComplete();
+      thread.set(Thread.currentThread());
+      latch.countDown();
     }, 0, TimeUnit.MILLISECONDS);
-    await();
+    awaitLatch(latch);
+    threadAssert.accept(thread.get());
   }
 
   @Test
   public void testScheduleObserveOnReturnsOnTheCorrectThread() {
     Context testContext = vertx.getOrCreateContext();
+    AtomicBoolean isOnVertxThread = new AtomicBoolean();
     testContext.runOnContext(v -> {
       Scheduler scheduler = new ContextScheduler(testContext, false);
       Observable<String> observable = Observable.<String>create(subscriber -> {
-        assertFalse(Context.isOnVertxThread());
+        isOnVertxThread.set(Context.isOnVertxThread());
         subscriber.onNext("expected");
         subscriber.onCompleted();
       }).observeOn(scheduler).doOnNext(o -> assertEquals(Vertx.currentContext(), testContext));
@@ -104,15 +109,17 @@ public class SchedulerTest extends VertxTestBase {
       }).start();
     });
     await();
+    assertFalse(isOnVertxThread.get());
   }
 
   @Test
   public void testScheduleWithDelayObserveOnReturnsOnTheCorrectThread() {
     Context testContext = vertx.getOrCreateContext();
+    AtomicBoolean isOnVertxThread = new AtomicBoolean();
     testContext.runOnContext(v -> {
       Scheduler scheduler = new ContextScheduler(testContext, false);
       Observable<String> observable = Observable.<String>create(subscriber -> {
-        assertFalse(Context.isOnVertxThread());
+        isOnVertxThread.set(Context.isOnVertxThread());
         subscriber.onNext("expected");
         subscriber.onCompleted();
       }).delay(10, TimeUnit.MILLISECONDS, scheduler).doOnNext(o -> assertEquals(Vertx.currentContext(), testContext));
@@ -123,34 +130,40 @@ public class SchedulerTest extends VertxTestBase {
             this::testComplete);
       }).start();
     });
+    assertFalse(isOnVertxThread.get());
     await();
   }
 
   @Test
-  public void testScheduleDelayed() {
+  public void testScheduleDelayed() throws Exception {
     testScheduleDelayed(() -> new ContextScheduler(vertx, false), this::assertEventLoopThread);
   }
 
   @Test
-  public void testScheduleDelayedBlocking() {
+  public void testScheduleDelayedBlocking() throws Exception {
     testScheduleDelayed(() -> new ContextScheduler(vertx, true), this::assertWorkerThread);
   }
 
   @Test
-  public void testScheduleDelayedWorkerExecutor() {
+  public void testScheduleDelayedWorkerExecutor() throws Exception {
     testScheduleDelayed(() -> new ContextScheduler(workerExecutor), this::assertWorkerExecutorThread);
   }
 
-  private void testScheduleDelayed(Supplier<ContextScheduler> scheduler, Runnable threadAssert) {
+  private void testScheduleDelayed(Supplier<ContextScheduler> scheduler, Consumer<Thread> threadAssert) throws Exception {
     ContextScheduler scheduler2 = scheduler.get();
     Scheduler.Worker worker = scheduler2.createWorker();
     long time = System.currentTimeMillis();
+    CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<Thread> thread = new AtomicReference<>();
+    AtomicLong execTime = new AtomicLong();
     worker.schedule(() -> {
-      threadAssert.run();
-      assertTrue(System.currentTimeMillis() - time >= 40);
-      testComplete();
+      thread.set(Thread.currentThread());
+      execTime.set(System.currentTimeMillis() - time);
+      latch.countDown();
     }, 40, TimeUnit.MILLISECONDS);
-    await();
+    awaitLatch(latch);
+    threadAssert.accept(thread.get());
+    assertTrue(execTime.get() >= 40);
   }
 
   @Test
@@ -168,14 +181,15 @@ public class SchedulerTest extends VertxTestBase {
     testSchedulePeriodic(() -> new ContextScheduler(workerExecutor), this::assertWorkerExecutorThread);
   }
 
-  private void testSchedulePeriodic(Supplier<ContextScheduler> scheduler, Runnable threadAssert) {
+  private void testSchedulePeriodic(Supplier<ContextScheduler> scheduler, Consumer<Thread> threadAssert) {
+    disableThreadChecks();
     ContextScheduler scheduler2 = scheduler.get();
     Scheduler.Worker worker = scheduler2.createWorker();
     AtomicLong time = new AtomicLong(System.currentTimeMillis() - 40);
     AtomicInteger count = new AtomicInteger();
     AtomicReference<Subscription> sub = new AtomicReference<>();
     sub.set(worker.schedulePeriodically(() -> {
-      threadAssert.run();
+      threadAssert.accept(Thread.currentThread());
       if (count.incrementAndGet() > 2) {
         sub.get().unsubscribe();
         testComplete();
@@ -360,14 +374,18 @@ public class SchedulerTest extends VertxTestBase {
     assertEquals(0, scheduled.get());
     assertEquals(0, called.get());
     CountDownLatch latch = new CountDownLatch(1);
+    AtomicInteger workerScheduledVal = new AtomicInteger();
+    AtomicInteger workerCalledVal = new AtomicInteger();
     worker.schedule(() -> {
+      workerScheduledVal.set(scheduled.get());
+      workerCalledVal.set(called.get());
       latch.countDown();
-      assertEquals(1, scheduled.get());
-      assertEquals(0, called.get());
     }, 0, TimeUnit.SECONDS);
     awaitLatch(latch);
     awaitLatch(latchCalled);
     assertEquals(1, scheduled.get());
     assertEquals(1, called.get());
+    assertEquals(1, workerScheduledVal.get());
+    assertEquals(0, workerCalledVal.get());
   }
 }
