@@ -5,7 +5,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.WorkerExecutor;
 import io.vertx.rx.java.ContextScheduler;
 import io.vertx.test.core.VertxTestBase;
-import org.junit.After;
 import org.junit.Test;
 import rx.Observable;
 import rx.Scheduler;
@@ -36,10 +35,10 @@ public class SchedulerTest extends VertxTestBase {
     workerExecutor = vertx.createSharedWorkerExecutor(name.getMethodName());
   }
 
-  @After
-  public void after() throws Exception {
+  @Override
+  protected void tearDown() throws Exception {
     workerExecutor.close();
-
+    super.tearDown();
     // Cleanup  any RxJavaPlugins installed
     // Needs to hack a bit since we are not in the same package
     Method meth = RxJavaPlugins.class.getDeclaredMethod("reset");
