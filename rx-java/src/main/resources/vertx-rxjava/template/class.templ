@@ -103,12 +103,12 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 
 @end{}
 \n
-  public static @if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}@{type.simpleName} newInstance(@{type.raw.name} arg) {\n
+  public static @if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}@{type.simpleName}@{genOptTypeParamsDecl(type, '')} newInstance(@{type.raw.name} arg) {\n
     return arg != null ? new @{type.raw.simpleName + (concrete ? '' : 'Impl')}@if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}(arg) : null;\n
   }\n
 @if{type.params.size() > 0}
 \n
-  public static @if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}@{type.simpleName} newInstance(@{type.raw.name} arg@foreach{typeParam:type.params}
+  public static @if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}@{type.simpleName}@{genOptTypeParamsDecl(type, '')} newInstance(@{type.raw.name} arg@foreach{typeParam:type.params}
 , io.vertx.lang.rxjava.TypeArg<@{typeParam.name}> __typeArg_@{typeParam.name}
 @end{}) {\n
     return arg != null ? new @{type.raw.simpleName + (concrete ? '' : 'Impl')}@if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}(arg@foreach{typeParam:typeParams}

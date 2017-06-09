@@ -289,6 +289,22 @@
     }
     return null;
   }
+
+  def genOptTypeParamsDecl(type, deflt) {
+    if (type.params.size() > 0) {
+      var s = new java.lang.StringBuilder();
+      var sep = '<';
+      for (param : type.params) {
+        s.append(sep);
+        s.append(param.name);
+        sep = ',';
+      }
+      s.append('>');
+      return s.toString();
+    } else {
+      return deflt;
+    }
+  }
 }
 
 @declare{'startMethodTemplate'}
