@@ -103,15 +103,15 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 
 @end{}
 \n
-  public static @if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}@{type.simpleName}@{genOptTypeParamsDecl(type, '')} newInstance(@{type.raw.name} arg) {\n
-    return arg != null ? new @{type.raw.simpleName + (concrete ? '' : 'Impl')}@if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}(arg) : null;\n
+  public static @{genOptTypeParamsDecl(type, ' ')}@{type.simpleName}@{genOptTypeParamsDecl(type, '')} newInstance(@{type.raw.name} arg) {\n
+    return arg != null ? new @{type.raw.simpleName + (concrete ? '' : 'Impl')}@{genOptTypeParamsDecl(type, '')}(arg) : null;\n
   }\n
 @if{type.params.size() > 0}
 \n
-  public static @if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}@{type.simpleName}@{genOptTypeParamsDecl(type, '')} newInstance(@{type.raw.name} arg@foreach{typeParam:type.params}
+  public static @{genOptTypeParamsDecl(type, ' ')}@{type.simpleName}@{genOptTypeParamsDecl(type, '')} newInstance(@{type.raw.name} arg@foreach{typeParam:type.params}
 , io.vertx.lang.rxjava.TypeArg<@{typeParam.name}> __typeArg_@{typeParam.name}
 @end{}) {\n
-    return arg != null ? new @{type.raw.simpleName + (concrete ? '' : 'Impl')}@if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{', '}> @end{}(arg@foreach{typeParam:typeParams}
+    return arg != null ? new @{type.raw.simpleName + (concrete ? '' : 'Impl')}@{genOptTypeParamsDecl(type, '')}(arg@foreach{typeParam:typeParams}
 , __typeArg_@{typeParam.name}
 @end{}) : null;\n
   }\n
@@ -121,7 +121,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 @if{!concrete}
 
 \n
-class @{type.raw.simpleName}Impl@if{typeParams.size() > 0}<@foreach{typeParam:typeParams}@{typeParam.name}@end{','}>@end{} implements @{helper.getSimpleName(ifaceFQCN)} {\n
+class @{type.raw.simpleName}Impl@{genOptTypeParamsDecl(type, '')} implements @{helper.getSimpleName(ifaceFQCN)} {\n
 @includeNamed{'classbody.templ';constructor=(type.raw.simpleName + 'Impl')}
 }\n
 
