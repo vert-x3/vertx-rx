@@ -7,11 +7,11 @@
   <parent>
     <artifactId>vertx-rx</artifactId>
     <groupId>io.vertx</groupId>
-    <version>3.4.2</version>
+    <version>3.5.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>vertx-rx-groovy</artifactId>
-  <version>3.4.2</version>
+  <version>3.5.0-SNAPSHOT</version>
 
   <properties>
     <asciidoc.dir>${project.basedir}/src/main/asciidoc</asciidoc.dir>
@@ -26,7 +26,7 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-rx-java</artifactId>
-      <version>3.4.2</version>
+      <version>3.5.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>

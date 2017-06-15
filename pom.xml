@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>vertx-rx</artifactId>
-  <version>3.4.2</version>
+  <version>3.5.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Vert.x Reactive Extensions</name>
@@ -21,7 +21,7 @@
   </modules>
 
   <properties>
-    <stack.version>3.4.2</stack.version>
+    <stack.version>3.5.0-SNAPSHOT</stack.version>
   </properties>
 
   <dependencyManagement>
