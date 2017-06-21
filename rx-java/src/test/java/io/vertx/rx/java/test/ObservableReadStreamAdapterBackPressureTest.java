@@ -26,13 +26,18 @@ public class ObservableReadStreamAdapterBackPressureTest extends ReadStreamAdapt
   }
 
   @Override
-  protected void subscribe(Observable<Buffer> observable, SimpleSubscriber<Buffer> subscriber) {
-    SimpleSubscriber.subscribe(observable, subscriber);
+  protected void subscribe(Observable<Buffer> obs, SimpleSubscriber<Buffer> sub) {
+    SimpleSubscriber.subscribe(obs, sub);
   }
 
   @Override
-  protected Observable<Buffer> concat(Observable<Buffer> observable1, Observable<Buffer> observable2) {
-    return Observable.concat(observable1, observable2);
+  protected Observable<Buffer> concat(Observable<Buffer> obs1, Observable<Buffer> obs2) {
+    return Observable.concat(obs1, obs2);
+  }
+
+  @Override
+  protected Observable<Buffer> flatMap(Observable<Buffer> obs, Function<Buffer, Observable<Buffer>> f) {
+    return obs.flatMap(f::apply);
   }
 
   @Test

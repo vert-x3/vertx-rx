@@ -1,12 +1,18 @@
 package io.vertx.rx.java.test;
 
+import io.reactivex.Flowable;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.rx.java.ObservableReadStream;
 import io.vertx.rx.java.test.stream.BufferReadStreamImpl;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
 import org.junit.Test;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -14,6 +20,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAdapterTestBase<Buffer, O> {
 
   protected abstract O toObservable(BufferReadStreamImpl stream, int maxBufferSize);
+
+  protected abstract O flatMap(O obs, Function<Buffer, O> f);
 
   @Override
   protected Buffer buffer(String s) {
@@ -165,6 +173,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     } else {
       stream.fail(err);
     }
+    stream.expectResume();
     subscriber.request(2);
     subscriber.assertItems(buffer("0"), buffer("1"));
     if (err == null) {
@@ -199,6 +208,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     } else {
       stream.fail(err);
     }
+    stream.expectResume();
     subscriber.request(2);
     subscriber.assertItems(buffer("0"), buffer("1"));
     if (err == null) {
@@ -253,7 +263,9 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
     stream.expectPause();
-    stream.expectResume(stream::end);
+    stream.expectResume(() -> {
+      stream.end();
+    });
     O observable = toObservable(stream, num);
     subscribe(observable, subscriber);
     for (int i = 0;i < num;i++) {
@@ -355,5 +367,95 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     stream.end();
     subscriber.assertCompleted();
     stream.check();
+  }
+
+  @Test
+  public void testBackPressureBuffer() {
+    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    O observable = toObservable(stream, 20);
+    SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>() {
+      @Override
+      public void onSubscribe(Subscription sub) {
+        super.onSubscribe(sub);
+        request(5);
+      }
+    }.prefetch(0);
+    subscribe(observable, subscriber);
+    waitUntil(subscriber::isSubscribed);
+    final AtomicInteger count = new AtomicInteger();
+    stream.expectPause();
+    stream.untilPaused(() -> {
+      stream.emit(buffer("" + count.get()));
+      count.incrementAndGet();
+    });
+    for (int i = 0;i < 5;i++) {
+      subscriber.assertItem(buffer("" + i));
+      stream.emit(Buffer.buffer("" + count));
+      count.incrementAndGet();
+    }
+    subscriber.assertEmpty();
+    stream.expectResume();
+    subscriber.request(count.get() - 5);
+    for (int i = 5;i < count.get(); i++) {
+      subscriber.assertItem(buffer("" + i));
+    }
+    subscriber.assertEmpty();
+    stream.end();
+    subscriber.assertCompleted().assertEmpty();
+  }
+
+  @Test
+  public void testChained() throws Exception {
+    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    O observable = toObservable(stream);
+    SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<>();
+    subscriber.prefetch(1);
+    subscribe(observable, subscriber);
+    waitUntil(subscriber::isSubscribed);
+    stream.emit(buffer("foo"));
+    stream.end();
+    subscriber.assertItem(buffer("foo"));
+    subscriber.assertCompleted();
+  }
+
+  @Test
+  public void testFlatMap() {
+    BufferReadStreamImpl stream1 = new BufferReadStreamImpl();
+    O obs1 = toObservable(stream1);
+    BufferReadStreamImpl stream2 = new BufferReadStreamImpl();
+    O obs2 = toObservable(stream2);
+    O obs3 = flatMap(obs1, s -> obs2);
+    SimpleSubscriber<Buffer> sub = new SimpleSubscriber<>();
+    sub.prefetch(1);
+    subscribe(obs3, sub);
+    stream1.emit(buffer("foo"));
+    stream1.end();
+    stream2.emit(buffer("bar"));
+    stream2.end();
+    sub.assertItem(buffer("bar"));
+    sub.assertCompleted();
+  }
+
+  @Test
+  public void testCancelWhenSubscribedPropagatesToStream() {
+    Buffer expected = buffer("something");
+    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    O observable = toObservable(stream);
+    SimpleSubscriber<Buffer> sub = new SimpleSubscriber<Buffer>() {
+      @Override
+      public void onNext(Buffer b) {
+        assertSame(b, expected);
+        super.onNext(b);
+        unsubscribe();
+        stream.assertHasNoItemHandler();
+      }
+    };
+    sub.prefetch(1);
+    subscribe(observable, sub);
+    sub.assertEmpty();
+    stream.emit(expected);
+    sub.assertItem(expected);
+    sub.assertEmpty();
+    stream.assertHasNoItemHandler();
   }
 }

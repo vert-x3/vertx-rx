@@ -33,7 +33,7 @@ public class SimpleSubscriber<T> {
     sub.fetch(prefetch);
   }
 
-  interface Subscription {
+  public interface Subscription {
 
     void fetch(long val);
 
@@ -77,6 +77,10 @@ public class SimpleSubscriber<T> {
   public SimpleSubscriber<T> unsubscribe() {
     subscription.unsubscribe();
     return this;
+  }
+
+  public boolean isSubscribed() {
+    return !isUnsubscribed();
   }
 
   public boolean isUnsubscribed() {

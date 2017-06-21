@@ -15,8 +15,8 @@ public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
   protected abstract O toObservable(BufferReadStreamImpl stream);
   protected abstract B buffer(String s);
   protected abstract String string(B buffer);
-  protected abstract void subscribe(O observable, SimpleSubscriber<B> subscriber);
-  protected abstract O concat(O observable1, O observable2);
+  protected abstract void subscribe(O obs, SimpleSubscriber<B> sub);
+  protected abstract O concat(O obs1, O obs2);
 
   @Test
   public void testReact() {
@@ -78,6 +78,7 @@ public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
     stream1.emit(Buffer.buffer("item1"));
     stream1.assertHasNoItemHandler();
     stream2.emit(Buffer.buffer("item2"));
+    assertTrue(observer.isUnsubscribed());
     stream2.assertHasNoItemHandler();
     await();
   }

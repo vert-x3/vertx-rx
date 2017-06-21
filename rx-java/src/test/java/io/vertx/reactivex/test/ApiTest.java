@@ -1,0 +1,48 @@
+package io.vertx.reactivex.test;
+
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.vertx.codegen.testmodel.TestInterfaceImpl;
+import io.vertx.reactivex.codegen.testmodel.TestInterface;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+/**
+ * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
+ */
+public class ApiTest {
+
+  @Test
+  public void testSingle() {
+    TestInterface obj = new TestInterface(new TestInterfaceImpl());
+    Single<String> fut = obj.rxMethodWithHandlerAsyncResultString(false);
+    AtomicInteger result = new AtomicInteger();
+    AtomicInteger fail = new AtomicInteger();
+    fut.subscribe(res -> {
+      result.getAndIncrement();
+    }, err -> {
+      fail.getAndIncrement();
+    });
+    assertEquals(1, result.get());
+    assertEquals(0, fail.get());
+  }
+
+  @Test
+  public void testCompletable() {
+    TestInterface obj = new TestInterface(new TestInterfaceImpl());
+    Completable failure = obj.rxMethodWithHandlerAsyncResultVoid(true);
+    AtomicInteger count = new AtomicInteger();
+    failure.subscribe(Assert::fail, err -> {
+      count.incrementAndGet();
+    });
+    assertEquals(1, count.getAndSet(0));
+    Completable success = obj.rxMethodWithHandlerAsyncResultVoid(false);
+    success.subscribe(count::incrementAndGet, err -> fail());
+    assertEquals(1, count.get());
+  }
+}
