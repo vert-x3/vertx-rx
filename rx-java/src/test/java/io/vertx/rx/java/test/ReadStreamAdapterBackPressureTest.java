@@ -2,29 +2,18 @@ package io.vertx.rx.java.test;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.rx.java.ObservableReadStream;
-import io.vertx.rx.java.RxHelper;
 import io.vertx.rx.java.test.stream.BufferReadStreamImpl;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
 import org.junit.Test;
-import rx.Observable;
-import rx.Subscription;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase<Buffer> {
+public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAdapterTestBase<Buffer, O> {
 
-  protected Observable<Buffer> toObservable(BufferReadStreamImpl stream, int maxBufferSize) {
-    return RxHelper.toObservable(stream, maxBufferSize);
-  }
-
-  @Override
-  protected Observable<Buffer> toObservable(BufferReadStreamImpl stream) {
-    return RxHelper.toObservable(stream);
-  }
+  protected abstract O toObservable(BufferReadStreamImpl stream, int maxBufferSize);
 
   @Override
   protected Buffer buffer(String s) {
@@ -39,9 +28,9 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
   @Test
   public void testPause() {
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
-    Observable<Buffer> observable = toObservable(stream);
+    O observable = toObservable(stream);
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
-    observable.subscribe(subscriber);
+    subscribe(observable, subscriber);
     subscriber.assertEmpty();
     stream.expectPause();
     for (int i = 0; i < ObservableReadStream.DEFAULT_MAX_BUFFER_SIZE; i++) {
@@ -49,7 +38,7 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
     }
     stream.check();
     subscriber.assertEmpty();
-    subscriber.getProducer().request(1);
+    subscriber.request(1);
     subscriber.assertItem(buffer("0")).assertEmpty();
   }
 
@@ -63,8 +52,8 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
         request(1);
       }
     }.prefetch(1);
-    Observable<Buffer> observable = toObservable(stream);
-    observable.subscribe(subscriber);
+    O observable = toObservable(stream);
+    subscribe(observable, subscriber);
     stream.emit(buffer("0"), buffer("1"), buffer("2"));
     stream.check();
   }
@@ -82,11 +71,11 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
           unsubscribe();
         }
       }.prefetch(0);
-      Observable<Buffer> observable = toObservable(stream, 2);
-      observable.subscribe(subscriber);
+      O observable = toObservable(stream, 2);
+      subscribe(observable, subscriber);
       stream.emit(buffer("0"), buffer("1"));
       stream.assertPaused();
-      subscriber.getProducer().request(i);
+      subscriber.request(i);
       subscriber.assertItem(Buffer.buffer("0")).assertEmpty();
       stream.check();
     }
@@ -105,8 +94,8 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
   private void testEndOrFailWithoutRequest(Throwable err) {
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
-    Observable<Buffer> observable = toObservable(stream, 2);
-    observable.subscribe(subscriber);
+    O observable = toObservable(stream, 2);
+    subscribe(observable, subscriber);
     if (err == null) {
       stream.end();
       subscriber.assertCompleted();
@@ -124,10 +113,10 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
     stream.expectPause();
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
-    Observable<Buffer> observable = toObservable(stream, 2);
-    observable.subscribe(subscriber);
+    O observable = toObservable(stream, 2);
+    subscribe(observable, subscriber);
     stream.emit(buffer("0"), buffer("1"));
-    subscriber.getProducer().request(1);
+    subscriber.request(1);
     assertEquals(false, resumed.get());
     stream.check();
   }
@@ -139,47 +128,17 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
     stream.expectPause();
     stream.expectResume(stream::end);
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
-    Observable<Buffer> observable = toObservable(stream, num);
-    observable.subscribe(subscriber);
+    O observable = toObservable(stream, num);
+    subscribe(observable, subscriber);
     for (int i = 0;i < num;i++) {
       stream.emit(Buffer.buffer("" + i));
     }
-    subscriber.getProducer().request(num);
+    subscriber.request(num);
     for (int i = 0;i < num;i++) {
       subscriber.assertItem(Buffer.buffer("" + i));
     }
     subscriber.assertCompleted().assertEmpty();
     stream.check();
-  }
-
-  @Test
-  public void testDisableBackPressure() {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
-    ObservableReadStream<Buffer, Buffer> adapter = new ObservableReadStream<>(stream, Function.identity());
-    Observable<Buffer> observable = Observable.create(adapter);
-    SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<>();
-    observable.subscribe(subscriber);
-    assertEquals(Long.MAX_VALUE, adapter.getRequested());
-    stream.emit(buffer("0"));
-    assertEquals(Long.MAX_VALUE, adapter.getRequested());
-  }
-
-  @Test
-  public void testImplicitBackPressureActivation() {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
-    ObservableReadStream<Buffer, Buffer> adapter = new ObservableReadStream<Buffer, Buffer>(stream, Function.identity());
-    Observable<Buffer> observable = Observable.create(adapter);
-    SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>() {
-      @Override
-      public void onNext(Buffer o) {
-        super.onNext(o);
-        request(2);
-      }
-    }.prefetch(Long.MAX_VALUE - 1);
-    observable.subscribe(subscriber);
-    assertEquals(Long.MAX_VALUE - 1, adapter.getRequested());
-    stream.emit(buffer("0"));
-    assertEquals(Long.MAX_VALUE, adapter.getRequested());
   }
 
   @Test
@@ -196,8 +155,8 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
     stream.expectPause();
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
-    Observable<Buffer> observable = toObservable(stream, 2);
-    observable.subscribe(subscriber);
+    O observable = toObservable(stream, 2);
+    subscribe(observable, subscriber);
     stream.emit(buffer("0"), buffer("1"));
     stream.check();
     // We send events even though we are paused
@@ -206,7 +165,7 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
     } else {
       stream.fail(err);
     }
-    subscriber.getProducer().request(2);
+    subscriber.request(2);
     subscriber.assertItems(buffer("0"), buffer("1"));
     if (err == null) {
       subscriber.assertCompleted();
@@ -231,8 +190,8 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
     stream.expectPause();
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
-    Observable<Buffer> observable = toObservable(stream, 2);
-    observable.subscribe(subscriber);
+    O observable = toObservable(stream, 2);
+    subscribe(observable, subscriber);
     stream.emit(buffer("0"), buffer("1"));
     stream.assertPaused();
     if (err == null) {
@@ -240,7 +199,7 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
     } else {
       stream.fail(err);
     }
-    subscriber.getProducer().request(2);
+    subscriber.request(2);
     subscriber.assertItems(buffer("0"), buffer("1"));
     if (err == null) {
       subscriber.assertCompleted();
@@ -261,8 +220,8 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
         request(1);
       }
     }.prefetch(1);
-    Observable<Buffer> observable = toObservable(stream);
-    observable.subscribe(subscriber);
+    O observable = toObservable(stream);
+    subscribe(observable, subscriber);
     stream.emit(buffer("0"));
     subscriber.assertItem(buffer("0")).assertEmpty();
     stream.emit(buffer("1"));
@@ -279,11 +238,11 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
     stream.expectPause();
     stream.expectResume(() -> stream.emit(buffer("2")));
-    Observable<Buffer> observable = toObservable(stream, 2);
-    observable.subscribe(subscriber);
+    O observable = toObservable(stream, 2);
+    subscribe(observable, subscriber);
     stream.emit(Buffer.buffer("0"));
     stream.emit(Buffer.buffer("1"));
-    subscriber.getProducer().request(2);
+    subscriber.request(2);
     subscriber.assertItems(buffer("0"), buffer("1")).assertEmpty();
     stream.check();
   }
@@ -295,12 +254,12 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
     stream.expectPause();
     stream.expectResume(stream::end);
-    Observable<Buffer> observable = toObservable(stream, num);
-    observable.subscribe(subscriber);
+    O observable = toObservable(stream, num);
+    subscribe(observable, subscriber);
     for (int i = 0;i < num;i++) {
       stream.emit(Buffer.buffer("" + i));
     }
-    subscriber.getProducer().request(num);
+    subscriber.request(num);
     for (int i = 0;i < num;i++) {
       subscriber.assertItem(Buffer.buffer("" + i));
     }
@@ -315,10 +274,10 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
     stream.expectPause();
     stream.expectResume(() -> stream.emit(buffer("2"), buffer("3")));
     stream.expectPause();
-    Observable<Buffer> observable = toObservable(stream, 2);
-    observable.subscribe(subscriber);
+    O observable = toObservable(stream, 2);
+    subscribe(observable, subscriber);
     stream.emit(buffer("0"), buffer("1"));
-    subscriber.getProducer().request(2);
+    subscriber.request(2);
     subscriber.assertItem(buffer("0")).assertItem(buffer("1")).assertEmpty();
     stream.check();
   }
@@ -327,11 +286,11 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
   public void testFoo() {
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
-    Observable<Buffer> observable = toObservable(stream);
-    observable.subscribe(subscriber);
+    O observable = toObservable(stream);
+    subscribe(observable, subscriber);
     stream.emit(buffer("0"));
     stream.end();
-    subscriber.getProducer().request(1);
+    subscriber.request(1);
     subscriber.assertItem(buffer("0")).assertCompleted().assertEmpty();
   }
 
@@ -340,13 +299,13 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
     stream.expectPause();
-    Observable<Buffer> observable = toObservable(stream);
-    observable.subscribe(subscriber);
+    O observable = toObservable(stream);
+    subscribe(observable, subscriber);
     for (int i = 0; i < ObservableReadStream.DEFAULT_MAX_BUFFER_SIZE; i++) {
       stream.emit(buffer("" + i));
     }
     stream.end();
-    subscriber.getProducer().request(1);
+    subscriber.request(1);
     subscriber.assertItem(buffer("0")).assertEmpty();
   }
 
@@ -360,8 +319,8 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
       }
     };
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
-    Observable<Buffer> observable = toObservable(stream);
-    observable.subscribe(subscriber);
+    O observable = toObservable(stream);
+    subscribe(observable, subscriber);
     stream.emit(buffer("0"));
   }
 
@@ -369,30 +328,30 @@ public class ReadStreamAdapterBackPressureTest extends ReadStreamAdapterTestBase
   public void testResubscribe() {
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
-    Observable<Buffer> observable = toObservable(stream, 2);
-    Subscription sub = observable.subscribe(subscriber);
+    O observable = toObservable(stream, 2);
+    subscribe(observable, subscriber);
     stream.expectPause();
     stream.emit(buffer("0"), buffer("1"));
     stream.check();
     stream.expectResume();
-    sub.unsubscribe();
+    subscriber.unsubscribe();
     stream.check();
     subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
-    sub = observable.subscribe(subscriber);
+    subscribe(observable, subscriber);
     stream.emit(buffer("2"));
     stream.expectPause();
     stream.emit(buffer("3"));
     subscriber.assertEmpty();
     stream.check();
     stream.expectResume();
-    subscriber.fetch(2);
+    subscriber.request(2);
     subscriber.assertItems(buffer("2"), buffer("3"));
     RuntimeException cause = new RuntimeException();
     stream.fail(cause);
     subscriber.assertError(cause);
-    assertTrue(sub.isUnsubscribed());
+    assertTrue(subscriber.isUnsubscribed());
     subscriber = new SimpleSubscriber<>();
-    sub = observable.subscribe(subscriber);
+    subscribe(observable, subscriber);
     stream.end();
     subscriber.assertCompleted();
     stream.check();

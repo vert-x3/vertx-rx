@@ -14,6 +14,7 @@ import rx.Observable;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.vertx.rx.java.test.support.SimpleSubscriber.subscribe;
 import static junit.framework.TestCase.assertEquals;
 
 /**
@@ -26,7 +27,7 @@ public class BufferTest {
     Observable<Buffer> stream = Observable.from(Arrays.asList(Buffer.buffer("lorem"), Buffer.buffer("ipsum")));
     Observable<Buffer> reduced = stream.reduce(Buffer::appendBuffer);
     SimpleSubscriber<Buffer> sub = new SimpleSubscriber<>();
-    reduced.subscribe(sub);
+    subscribe(reduced, sub);
     sub.assertItem(Buffer.buffer("loremipsum"));
     sub.assertCompleted();
     sub.assertEmpty();
@@ -37,7 +38,7 @@ public class BufferTest {
     Observable<Buffer> stream = Observable.from(Arrays.asList(Buffer.buffer("{\"foo\":\"bar\"}")));
     Observable<JsonObject> mapped = stream.map(buffer -> new JsonObject(buffer.toString("UTF-8")));
     SimpleSubscriber<JsonObject> sub = new SimpleSubscriber<>();
-    mapped.subscribe(sub);
+    subscribe(mapped, sub);
     sub.assertItem(new JsonObject().put("foo", "bar"));
     sub.assertCompleted();
     sub.assertEmpty();
@@ -48,7 +49,7 @@ public class BufferTest {
     Observable<Buffer> stream = Observable.from(Arrays.asList(Buffer.buffer("{\"foo\":\"bar\"}")));
     Observable<SimplePojo> mapped = stream.lift(RxHelper.unmarshaller(SimplePojo.class));
     SimpleSubscriber<SimplePojo> sub = new SimpleSubscriber<>();
-    mapped.subscribe(sub);
+    subscribe(mapped, sub);
     sub.assertItem(new SimplePojo("bar"));
     sub.assertCompleted();
     sub.assertEmpty();
@@ -59,7 +60,7 @@ public class BufferTest {
     Observable<Buffer> stream = Observable.from(Arrays.asList(Buffer.buffer("{\"foo\":\"bar\"}")));
     Observable<JsonNode> mapped = stream.lift(RxHelper.unmarshaller(JsonNode.class));
     SimpleSubscriber<JsonNode> sub = new SimpleSubscriber<>();
-    mapped.subscribe(sub);
+    subscribe(mapped, sub);
     sub.assertItem(new ObjectMapper().createObjectNode().put("foo", "bar"));
     sub.assertCompleted();
     sub.assertEmpty();
@@ -83,7 +84,7 @@ public class BufferTest {
     Observable<Buffer> stream = Observable.just(Buffer.buffer("[{\"foo\":\"bar\"}]"));
     Observable<List<SimplePojo>> mapped = stream.lift(RxHelper.unmarshaller(new TypeReference<List<SimplePojo>>(){}));
     SimpleSubscriber<List<SimplePojo>> sub = new SimpleSubscriber<>();
-    mapped.subscribe(sub);
+    subscribe(mapped, sub);
     sub.assertItems(Arrays.asList(new SimplePojo("bar")));
     sub.assertCompleted();
     sub.assertEmpty();

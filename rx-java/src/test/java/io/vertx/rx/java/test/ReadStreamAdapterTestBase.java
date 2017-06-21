@@ -6,31 +6,29 @@ import io.vertx.rx.java.test.stream.BufferReadStreamImpl;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
-import rx.Observable;
-import rx.Observer;
-import rx.Subscriber;
-import rx.Subscription;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public abstract class ReadStreamAdapterTestBase<B> extends VertxTestBase {
+public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
 
-  protected abstract Observable<B> toObservable(BufferReadStreamImpl stream);
+  protected abstract O toObservable(BufferReadStreamImpl stream);
   protected abstract B buffer(String s);
   protected abstract String string(B buffer);
+  protected abstract void subscribe(O observable, SimpleSubscriber<B> subscriber);
+  protected abstract O concat(O observable1, O observable2);
 
   @Test
   public void testReact() {
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
-    Observable<B> observable = toObservable(stream);
+    O observable = toObservable(stream);
     SimpleSubscriber<B> subscriber = new SimpleSubscriber<B>() {
       @Override
       protected void assertEquals(Object expected, Object actual) {
         super.assertEquals(string((B) expected), string((B) actual));
       }
     };
-    Subscription subscription = observable.subscribe(subscriber);
+    subscribe(observable, subscriber);
     stream.assertHasHandlers();
     stream.emit(Buffer.buffer("foo"));
     subscriber.assertItem(buffer("foo")).assertEmpty();
@@ -38,7 +36,7 @@ public abstract class ReadStreamAdapterTestBase<B> extends VertxTestBase {
     subscriber.assertItem(buffer("bar")).assertEmpty();
     stream.end();
     subscriber.assertCompleted().assertEmpty();
-    assertTrue(subscription.isUnsubscribed());
+    assertTrue(subscriber.isUnsubscribed());
     testComplete();
   }
 
@@ -46,10 +44,10 @@ public abstract class ReadStreamAdapterTestBase<B> extends VertxTestBase {
   public void testConcat() {
     BufferReadStreamImpl stream1 = new BufferReadStreamImpl();
     BufferReadStreamImpl stream2 = new BufferReadStreamImpl();
-    Observable<B> observable1 = toObservable(stream1);
-    Observable<B> observable2 = toObservable(stream2);
-    Observable<B> observable = Observable.concat(observable1, observable2);
-    Observer<B> observer = new Subscriber<B>() {
+    O observable1 = toObservable(stream1);
+    O observable2 = toObservable(stream2);
+    O observable = concat(observable1, observable2);
+    SimpleSubscriber<B> observer = new SimpleSubscriber<B>() {
       @Override
       public void onNext(B next) {
         switch (string(next)) {
@@ -76,7 +74,7 @@ public abstract class ReadStreamAdapterTestBase<B> extends VertxTestBase {
         testComplete();
       }
     };
-    observable.subscribe(observer);
+    subscribe(observable, observer);
     stream1.emit(Buffer.buffer("item1"));
     stream1.assertHasNoItemHandler();
     stream2.emit(Buffer.buffer("item2"));
@@ -99,9 +97,10 @@ public abstract class ReadStreamAdapterTestBase<B> extends VertxTestBase {
         return super.handler(handler);
       }
     };
-    Observable<B> observable = toObservable(stream);
-    Subscription subscription = observable.subscribe(item -> {});
-    subscription.unsubscribe();
+    O observable = toObservable(stream);
+    SimpleSubscriber<B> subscriber = new SimpleSubscriber<>();
+    subscribe(observable, subscriber);
+    subscriber.unsubscribe();
   }
 
   @Test
@@ -114,20 +113,19 @@ public abstract class ReadStreamAdapterTestBase<B> extends VertxTestBase {
         return super.handler(handler);
       }
     };
-    Observable<B> observable = toObservable(stream);
-    observable.subscribe(s -> {
-    }, err -> {
-    }, () -> {
-    });
+    O observable = toObservable(stream);
+    SimpleSubscriber<B> subscriber = new SimpleSubscriber<>();
+    subscribe(observable, subscriber);
   }
 
   @Test
   public void testHandlers() {
     BufferReadStreamImpl stream = new BufferReadStreamImpl();
-    Observable<B> observable = toObservable(stream);
-    Subscription subscription = observable.subscribe(s -> {}, err -> {}, () -> {});
+    O observable = toObservable(stream);
+    SimpleSubscriber<B> subscriber = new SimpleSubscriber<>();
+    subscribe(observable, subscriber);
     stream.assertHasHandlers();
-    subscription.unsubscribe();
+    subscriber.unsubscribe();
     stream.assertHasNoHandlers();
   }
 }

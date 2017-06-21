@@ -1,18 +1,17 @@
 package io.vertx.rx.java.test.support;
 
 import org.junit.Assert;
-import rx.Producer;
+import rx.Observable;
+import rx.Observer;
 import rx.Subscriber;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class SimpleSubscriber<T> extends Subscriber<T> {
+public class SimpleSubscriber<T> {
 
   private static final Object completed = new Object() {
     @Override
@@ -22,43 +21,79 @@ public class SimpleSubscriber<T> extends Subscriber<T> {
   };
 
   private long prefetch = Long.MAX_VALUE;
-  private Producer producer;
   private final ArrayBlockingQueue<Object> events = new ArrayBlockingQueue<>(100);
+  private Subscription subscription;
+
+  public static <B> void subscribe(Observable<B> observable, SimpleSubscriber<B> subscriber) {
+    observable.subscribe(subscriber.toObserver());
+  }
+
+  public void onSubscribe(Subscription sub) {
+    subscription = sub;
+    sub.fetch(prefetch);
+  }
+
+  interface Subscription {
+
+    void fetch(long val);
+
+    void unsubscribe();
+
+    boolean isUnsubscribed();
+
+  }
+
+  public Observer<T> toObserver() {
+    class SubscriberImpl extends Subscriber<T> implements Subscription {
+      @Override
+      public void onCompleted() {
+        SimpleSubscriber.this.onCompleted();
+      }
+      @Override
+      public void onError(Throwable throwable) {
+        SimpleSubscriber.this.onError(throwable);
+      }
+      @Override
+      public void onNext(T t) {
+        SimpleSubscriber.this.onNext(t);
+      }
+      @Override
+      public void onStart() {
+        SimpleSubscriber.this.onSubscribe(this);
+      }
+      @Override
+      public void fetch(long val) {
+        request(val);
+      }
+    }
+    return new SubscriberImpl();
+  }
 
   public SimpleSubscriber<T> prefetch(long value) {
     prefetch = value;
     return this;
   }
 
-  public SimpleSubscriber<T> fetch(long val) {
-    request(val);
+  public SimpleSubscriber<T> unsubscribe() {
+    subscription.unsubscribe();
     return this;
   }
 
-  @Override
-  public void onStart() {
-    request(prefetch);
+  public boolean isUnsubscribed() {
+    return subscription.isUnsubscribed();
   }
 
-  @Override
+  public SimpleSubscriber<T> request(long val) {
+    subscription.fetch(val);
+    return this;
+  }
+
   public void onCompleted() { events.add(completed); }
 
-  @Override
-  public void setProducer(Producer producer) {
-    super.setProducer(producer);
-    this.producer = producer;
-  }
-
-  public Producer getProducer() {
-    return producer;
-  }
-
-  @Override
   public void onError(Throwable e) {
     events.add(e);
   }
 
-  @Override
   public void onNext(T t) { events.add(t); }
 
   public SimpleSubscriber<T> assertItem(T expected) {
