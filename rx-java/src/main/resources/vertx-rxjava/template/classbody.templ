@@ -1,5 +1,5 @@
 	@if{concrete}
-	  public static final io.vertx.lang.rxjava.TypeArg<@{type.simpleName}> __TYPE_ARG = new io.vertx.lang.rxjava.TypeArg<>(\n
+	  public static final io.vertx.lang.@{rxid}.TypeArg<@{type.simpleName}> __TYPE_ARG = new io.vertx.lang.@{rxid}.TypeArg<>(\n
 	    obj -> new @{type.simpleName}((@{type.name}) obj),\n
 	    @{type.simpleName}::getDelegate\n
 	  );\n
@@ -7,7 +7,7 @@
 	@end{}
 	  private final @{helper.getNonGenericType(ifaceFQCN)} delegate;\n
 	@foreach{typeParam:type.params}
-	  public final io.vertx.lang.rxjava.TypeArg<@{typeParam.name}> __typeArg_@{typeParam.index};\n
+	  public final io.vertx.lang.@{rxid}.TypeArg<@{typeParam.name}> __typeArg_@{typeParam.index};\n
 	@end{}
 	  \n
 	  public @{constructor}(@{helper.getNonGenericType(ifaceFQCN)} delegate) {\n
@@ -16,12 +16,12 @@
 	@end{}
 	    this.delegate = delegate;\n
 	@foreach{typeParam:type.params}
-	    this.__typeArg_@{typeParam.index} = io.vertx.lang.rxjava.TypeArg.unknown();\n
+	    this.__typeArg_@{typeParam.index} = io.vertx.lang.@{rxid}.TypeArg.unknown();\n
 	@end{}
 	  }\n\n
 	@if{type.params.size() > 0}
 	  public @{constructor}(@{helper.getNonGenericType(ifaceFQCN)} delegate@foreach{typeParam:type.params}
-		, io.vertx.lang.rxjava.TypeArg<@{typeParam.name}> typeArg_@{typeParam.index}
+		, io.vertx.lang.@{rxid}.TypeArg<@{typeParam.name}> typeArg_@{typeParam.index}
 		@end{}) {\n
 	@if{concrete && concreteSuperType != null}
 	    super(delegate);\n
@@ -38,34 +38,11 @@
 	  }\n\n
 
 	@if{type.raw.readStream}
-		@code{streamType=type.raw.readStreamArg}
-  private rx.Observable<@{streamType.simpleName}> observable;\n\n
-
-  public synchronized rx.Observable<@{streamType.simpleName}> toObservable() {\n
-    if (observable == null) {\n
-		@if{streamType.kind == CLASS_API}
-      java.util.function.Function<@{streamType.raw.name}, @{streamType.simpleName}> conv = @{streamType.raw.simpleName}::newInstance;\n
-      observable = io.vertx.rx.java.RxHelper.toObservable(delegate, conv);\n
-		@else{streamType.variable}
-      java.util.function.Function<Object, @{streamType.simpleName}> conv = (java.util.function.Function<Object, @{streamType.simpleName}>) __typeArg_0.wrap;\n
-      observable = io.vertx.rx.java.RxHelper.toObservable(delegate, conv);\n
-		@else{}
-      observable = io.vertx.rx.java.RxHelper.toObservable(this.getDelegate());\n
-		@end{}
-    }\n
-    return observable;\n
-  }\n\n
+		@includeNamed{'genToObservable'}
 	@end{}
 
 	@foreach{method:methods}
-		@includeNamed{'genMethod'}
-	@end{}
-
-	@foreach{method:methods}
-		@code{overloaded = overloadedMethod(method)}
-		@if{overloaded != null}
-			@includeNamed{'genMethod';method=overloaded}
-		@end{}
+		@includeNamed{'foobar';method=method}
 	@end{}
 
 	@foreach{cacheDecl:cacheDecls}

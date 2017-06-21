@@ -15,7 +15,7 @@
         if (type.kind == CLASS_API) {
           var elt = link.targetElement;
           var eltKind = elt.getKind().name();
-          var ret = "{@link " + rawType.translateName("rxjava");
+          var ret = "{@link " + rawType.translateName(rxid);
           if (eltKind == "METHOD") {
             /* todo find a way for translating the complete signature */
             ret += "#" + elt.getSimpleName().toString();
@@ -125,7 +125,7 @@
     } else if (kind == CLASS_MAP) {
       return expr + '.entrySet().stream().collect(java.util.stream.Collectors.toMap(e -> e.getKey(), e -> ' + genConvParam(type.args[1], 'e.getValue()') + '))';
     } else if (kind == CLASS_CLASS_TYPE) {
-      return 'io.vertx.lang.rxjava.Helper.unwrap(' + expr + ')';
+      return 'io.vertx.lang.' + rxid + '.Helper.unwrap(' + expr + ')';
     }
     return expr;
   }
@@ -137,7 +137,7 @@
       var typeArg = method.resolveTypeArg(typeVar);
       if (typeArg != null) {
         if (typeArg.classType) {
-          return 'io.vertx.lang.rxjava.TypeArg.of(' + typeArg.param.name + ')';
+          return 'io.vertx.lang.' + rxid + '.TypeArg.of(' + typeArg.param.name + ')';
         } else {
           return typeArg.param.name + '.__typeArg_' + typeArg.index;
         }
@@ -165,9 +165,9 @@
         for (arg : type.args) {
           tmp.append(', ');
           if (arg.kind == CLASS_API) {
-            tmp.append(arg.translateName('rxjava')).append('.__TYPE_ARG');
+            tmp.append(arg.translateName(rxid)).append('.__TYPE_ARG');
           } else {
-            var typeArg = 'io.vertx.lang.rxjava.TypeArg.unknown()';
+            var typeArg = 'io.vertx.lang.' + rxid + '.TypeArg.unknown()';
             if (arg.kind == CLASS_OBJECT && arg.variable) {
               var resolved = genTypeArg(arg);
               if (resolved != null) {
@@ -206,40 +206,6 @@
     return expr;
   }
 
-  def genFutureMethodName(method) {
-    return 'rx' + java.lang.Character.toUpperCase(method.name.charAt(0)) + method.name.substring(1);
-  }
-
-  def genFutureMethod(method) {
-    var futMethodName = genFutureMethodName(method);
-    var futParams = new java.util.ArrayList();
-    var count = 0;
-    var size = method.params.size() - 1;
-    while (count < size) {
-      var param = method.params[count];
-      /* Transform ReadStream -> Observable */
-      futParams.add(param);
-      count = count + 1;
-    }
-    var futParam = method.params[size];
-    var futType = futParam.type.args[0].args[0];
-    var futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(rx.Single), false, java.util.Collections.singletonList(futType));
-    var futMethod = new io.vertx.codegen.MethodInfo(
-      method.ownerTypes, futMethodName,
-      method.kind,
-      futReturnType,
-      null,
-      method.fluent,
-      method.cacheReturn,
-      futParams,
-      method.comment,
-      method.doc,
-      method.staticMethod,
-      method.defaultMethod,
-      method.typeParams);
-    return futMethod;
-  }
-
   def hasReadStream(method) {
     for (param : method.params) {
       if (param.type.parameterized && param.type.raw.name == 'io.vertx.core.streams.ReadStream') {
@@ -247,47 +213,6 @@
       }
     }
     return false;
-  }
-
-  def overloadedMethod(method) {
-    var params = null;
-    var count = 0;
-    for (param : method.params) {
-      if (param.type.parameterized && param.type.raw.name == 'io.vertx.core.streams.ReadStream') {
-        if (params == null) {
-          params = new java.util.ArrayList(method.params);
-        }
-        var paramType = new io.vertx.codegen.type.ParameterizedTypeInfo(
-          io.vertx.codegen.type.TypeReflectionFactory.create(rx.Observable),
-          false,
-          java.util.Collections.singletonList(param.type.args[0])
-        );
-        params[count] = new io.vertx.codegen.ParamInfo(
-          param.index,
-          param.name,
-          param.description,
-          paramType
-        );
-      }
-      count = count + 1;
-    }
-    if (params != null) {
-      return new io.vertx.codegen.MethodInfo(
-        method.ownerTypes,
-        method.name,
-        method.kind,
-        method.returnType,
-        null,
-        method.fluent,
-        method.cacheReturn,
-        params,
-        method.comment,
-        method.doc,
-        method.staticMethod,
-        method.defaultMethod,
-        method.typeParams);
-    }
-    return null;
   }
 
   def genOptTypeParamsDecl(type, deflt) {
@@ -362,25 +287,7 @@
 
 @declare{'genMethod'}
 	@includeNamed{'genSimpleMethod'}
-	@if{method.kind == METHOD_FUTURE && options.get('codegen.rxjava.deprecated') == 'true'}
-		@code{methodName=method.name}
-		@code{futureParams=new java.util.ArrayList(method.params)}
-		@code{futureParam=futureParams.remove(futureParams.size()-1)}
-		@code{futureType=futureParam.type.args[0].args[0]}
-		@code{futureReturnType=new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(rx.Observable), false, java.util.Collections.singletonList(futureType))}
-		@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,method.name + 'Observable',method.kind,futureReturnType,null,method.fluent,method.cacheReturn,futureParams,method.comment,method.doc,method.staticMethod,method.defaultMethod,method.typeParams)}
-		@includeNamed{'startMethodTemplate';meth=futureMethod;deprecated='use {@link #' + genFutureMethodName(method) + '} instead'} { \n
-		    io.vertx.rx.java.ObservableFuture<@{futureType.simpleName}> @{futureParam.name} = io.vertx.rx.java.RxHelper.observableFuture();\n
-		    @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}@{futureParam.name}.toHandler());\n
-		    return @{futureParam.name};\n
-		  }\n\n
-	@end{}
 	@if{method.kind == METHOD_FUTURE}
-		@code{futMeth = genFutureMethod(method)}
-		@includeNamed{'startMethodTemplate';meth=futMeth;deprecated=''} { \n
-		    return Single.create(new io.vertx.rx.java.SingleOnSubscribeAdapter<>(fut -> {\n
-		      @{method.name}(@foreach{param:futMeth.params}@{param.name}@end{', '}@if{futMeth.params.size() > 0}, @end{}fut);\n
-		    }));\n
-		  }\n\n
-		@end{}
+		@includeNamed{'genRxMethod'}
+	@end{}
 @end{}
