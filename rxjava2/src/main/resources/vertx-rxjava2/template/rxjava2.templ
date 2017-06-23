@@ -20,6 +20,8 @@
     var futReturnType;
     if (futType.kind == CLASS_VOID) {
       futReturnType = io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Completable);
+    } else if (futType.nullable) {
+      futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Maybe), false, java.util.Collections.singletonList(futType));
     } else {
       futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Single), false, java.util.Collections.singletonList(futType));
     }
@@ -119,6 +121,7 @@
 import io.reactivex.Flowable;\n
 import io.reactivex.Single;\n
 import io.reactivex.Completable;\n
+import io.reactivex.Maybe;\n
 @end{}
 
 @declare{'foobar'}
