@@ -232,7 +232,6 @@
               <compilerArgs>
                 <arg>-Acodegen.output=${project.basedir}/src/main</arg>
                 <arg>-Acodegen.generators=RxJava2</arg>
-                <arg>-Acodegen.rxjava.deprecated=true</arg>
                 <arg>-Amaven.groupId=${project.groupId}</arg>
                 <arg>-Amaven.artifactId=${project.artifactId}</arg>
                 <arg>-Amaven.version=${project.version}</arg>
@@ -248,7 +247,6 @@
               <compilerArgs>
                 <arg>-Acodegen.output=${project.basedir}/src/test</arg>
                 <arg>-Acodegen.generators=RxJava2</arg>
-                <arg>-Acodegen.rxjava.deprecated=true</arg>
               </compilerArgs>
             </configuration>
           </execution>
