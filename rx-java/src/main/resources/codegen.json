@@ -4,9 +4,5 @@
     "kind": "class",
     "fileName": "module.translateQualifiedName(fqn, 'rxjava') + '.java'",
     "templateFileName": "vertx-rxjava/template/rxjava.templ"
-  }, {
-    "kind": "class",
-    "fileName": "module.translateQualifiedName(fqn, 'reactivex') + '.java'",
-    "templateFileName": "vertx-rxjava/template/rxjava2.templ"
-  } ]
+  }]
 }

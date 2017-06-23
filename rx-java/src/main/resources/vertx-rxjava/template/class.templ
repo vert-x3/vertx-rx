@@ -46,7 +46,7 @@ import java.util.Map;\n
  */\n
 @end{}
 \n
-@io.vertx.lang.rxjava.RxGen(@{type.name}.class)\n
+@io.vertx.lang.@{rxid}.RxGen(@{type.name}.class)\n
 public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN)}
 
 @if{type.name == 'io.vertx.core.buffer.Buffer'}
@@ -108,7 +108,7 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 @if{type.params.size() > 0}
 \n
   public static @{genOptTypeParamsDecl(type, ' ')}@{type.simpleName}@{genOptTypeParamsDecl(type, '')} newInstance(@{type.raw.name} arg@foreach{typeParam:type.params}
-, io.vertx.lang.rxjava.TypeArg<@{typeParam.name}> __typeArg_@{typeParam.name}
+, io.vertx.lang.@{rxid}.TypeArg<@{typeParam.name}> __typeArg_@{typeParam.name}
 @end{}) {\n
     return arg != null ? new @{type.raw.simpleName + (concrete ? '' : 'Impl')}@{genOptTypeParamsDecl(type, '')}(arg@foreach{typeParam:typeParams}
 , __typeArg_@{typeParam.name}

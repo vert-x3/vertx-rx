@@ -16,6 +16,8 @@ import java.util.function.Function;
  */
 public class FlowableReadStream<T, U> extends Flowable<U> {
 
+  public static final long DEFAULT_MAX_BUFFER_SIZE = 256;
+
   private final ReadStream<T> stream;
   private final Function<T, U> f;
   private final AtomicReference<UnicastProcessor<U>> processor = new AtomicReference<>();

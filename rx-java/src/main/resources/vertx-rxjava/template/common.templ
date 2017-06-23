@@ -125,7 +125,7 @@
     } else if (kind == CLASS_MAP) {
       return expr + '.entrySet().stream().collect(java.util.stream.Collectors.toMap(e -> e.getKey(), e -> ' + genConvParam(type.args[1], 'e.getValue()') + '))';
     } else if (kind == CLASS_CLASS_TYPE) {
-      return 'io.vertx.lang.rxjava.Helper.unwrap(' + expr + ')';
+      return 'io.vertx.lang.' + rxid +  '.Helper.unwrap(' + expr + ')';
     }
     return expr;
   }
@@ -137,7 +137,7 @@
       var typeArg = method.resolveTypeArg(typeVar);
       if (typeArg != null) {
         if (typeArg.classType) {
-          return 'io.vertx.lang.rxjava.TypeArg.of(' + typeArg.param.name + ')';
+          return 'io.vertx.lang.' + rxid + '.TypeArg.of(' + typeArg.param.name + ')';
         } else {
           return typeArg.param.name + '.__typeArg_' + typeArg.index;
         }
@@ -167,7 +167,7 @@
           if (arg.kind == CLASS_API) {
             tmp.append(arg.translateName(rxid)).append('.__TYPE_ARG');
           } else {
-            var typeArg = 'io.vertx.lang.rxjava.TypeArg.unknown()';
+            var typeArg = 'io.vertx.lang.' + rxid + '.TypeArg.unknown()';
             if (arg.kind == CLASS_OBJECT && arg.variable) {
               var resolved = genTypeArg(arg);
               if (resolved != null) {

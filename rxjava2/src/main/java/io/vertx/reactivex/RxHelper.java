@@ -2,9 +2,7 @@ package io.vertx.reactivex;
 
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
-import io.vertx.core.Context;
 import io.vertx.core.streams.ReadStream;
-import io.vertx.rx.java.ObservableReadStream;
 
 import java.util.function.Function;
 
@@ -46,7 +44,7 @@ public class RxHelper {
    * @return the adapted observable
    */
   public static <T> Flowable<T> toFlowable(ReadStream<T> stream) {
-    return new FlowableReadStream<>(stream, ObservableReadStream.DEFAULT_MAX_BUFFER_SIZE, Function.identity());
+    return new FlowableReadStream<>(stream, FlowableReadStream.DEFAULT_MAX_BUFFER_SIZE, Function.identity());
   }
 
   /**

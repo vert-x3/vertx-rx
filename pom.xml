@@ -16,6 +16,7 @@
 
   <modules>
     <module>rx-java</module>
+    <module>rxjava2</module>
     <module>rx-groovy</module>
     <module>rx-js</module>
   </modules>

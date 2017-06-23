@@ -10,10 +10,10 @@
     <version>3.5.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>vertx-rx-java</artifactId>
+  <artifactId>vertx-rxjava2</artifactId>
   <version>3.5.0-SNAPSHOT</version>
 
-  <name>Vert.x RxJava API</name>
+  <name>Vert.x RxJava2 API</name>
 
   <properties>
     <asciidoc.dir>${project.basedir}/src/main/asciidoc</asciidoc.dir>
@@ -26,8 +26,12 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.reactivex</groupId>
+      <groupId>io.reactivex.rxjava2</groupId>
       <artifactId>rxjava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.reactivestreams</groupId>
+      <artifactId>reactive-streams</artifactId>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -60,6 +64,18 @@
       <artifactId>vertx-core</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-rx-java</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-rx-java</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+      <version>3.5.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -104,6 +120,51 @@
       </plugins>
     </pluginManagement>
     <plugins>
+
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <execution>
+            <id>copy-templates</id>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}/vertx-rxjava2/template</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/../rx-java/src/main/resources/vertx-rxjava/template</directory>
+                  <includes>
+                    <include>class.templ</include>
+                    <include>classbody.templ</include>
+                    <include>common.templ</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-codegen-extra</id>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <phase>generate-test-sources</phase>
+            <configuration>
+              <outputDirectory>${project.basedir}/src/test/java/</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/../rx-java/src/test/java</directory>
+                  <includes>
+                    <include>io/vertx/codegen/extra/**</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -170,7 +231,7 @@
               </annotationProcessors>
               <compilerArgs>
                 <arg>-Acodegen.output=${project.basedir}/src/main</arg>
-                <arg>-Acodegen.generators=RxJava</arg>
+                <arg>-Acodegen.generators=RxJava2</arg>
                 <arg>-Acodegen.rxjava.deprecated=true</arg>
                 <arg>-Amaven.groupId=${project.groupId}</arg>
                 <arg>-Amaven.artifactId=${project.artifactId}</arg>
@@ -186,7 +247,7 @@
               </annotationProcessors>
               <compilerArgs>
                 <arg>-Acodegen.output=${project.basedir}/src/test</arg>
-                <arg>-Acodegen.generators=RxJava</arg>
+                <arg>-Acodegen.generators=RxJava2</arg>
                 <arg>-Acodegen.rxjava.deprecated=true</arg>
               </compilerArgs>
             </configuration>

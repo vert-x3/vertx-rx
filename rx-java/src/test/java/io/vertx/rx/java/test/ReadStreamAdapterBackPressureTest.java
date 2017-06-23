@@ -1,15 +1,11 @@
 package io.vertx.rx.java.test;
 
-import io.reactivex.Flowable;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.rx.java.ObservableReadStream;
 import io.vertx.rx.java.test.stream.BufferReadStreamImpl;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
 import org.junit.Test;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
-import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
