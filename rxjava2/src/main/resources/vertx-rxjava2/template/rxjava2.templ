@@ -115,7 +115,7 @@
 
 @declare{'genRxMethod'}
 	@code{futMeth = genFutureMethod(method)}
-	@code{adapterType='io.vertx.reactivex.AsyncResult' + futMeth.returnType.simpleName}
+	@code{adapterType='io.vertx.reactivex.core.impl.AsyncResult' + futMeth.returnType.simpleName}
 	@code{rxType=futMeth.returnType.raw.name}
 	@includeNamed{'startMethodTemplate';meth=futMeth;deprecated=''} { \n
     return @{rxType}.unsafeCreate(new @{adapterType}(handler -> {\n

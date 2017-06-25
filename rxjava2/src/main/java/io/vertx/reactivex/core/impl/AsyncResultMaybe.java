@@ -1,4 +1,4 @@
-package io.vertx.reactivex;
+package io.vertx.reactivex.core.impl;
 
 import io.reactivex.MaybeObserver;
 import io.reactivex.MaybeSource;
