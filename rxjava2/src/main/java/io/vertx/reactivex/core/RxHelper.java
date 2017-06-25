@@ -1,8 +1,10 @@
-package io.vertx.reactivex;
+package io.vertx.reactivex.core;
 
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.vertx.core.streams.ReadStream;
+import io.vertx.reactivex.FlowableReadStream;
+import io.vertx.reactivex.ObservableReadStream;
 
 import java.util.function.Function;
 

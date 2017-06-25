@@ -93,12 +93,12 @@
     if (@{rxName} == null) {\n
 	@if{streamType.kind == CLASS_API}
       java.util.function.Function<@{streamType.raw.name}, @{streamType.simpleName}> conv = @{streamType.raw.simpleName}::newInstance;\n
-      @{rxName} = io.vertx.reactivex.RxHelper.to@{rxType}(delegate, conv);\n
+      @{rxName} = io.vertx.reactivex.core.RxHelper.to@{rxType}(delegate, conv);\n
 	@else{streamType.variable}
       java.util.function.Function<Object, @{streamType.simpleName}> conv = (java.util.function.Function<Object, @{streamType.simpleName}>) __typeArg_0.wrap;\n
-      @{rxName} = io.vertx.reactivex.RxHelper.to@{rxType}(delegate, conv);\n
+      @{rxName} = io.vertx.reactivex.core.RxHelper.to@{rxType}(delegate, conv);\n
 	@else{}
-      @{rxName} = io.vertx.reactivex.RxHelper.to@{rxType}(this.getDelegate());\n
+      @{rxName} = io.vertx.reactivex.core.RxHelper.to@{rxType}(this.getDelegate());\n
 	@end{}
     }\n
     return @{rxName};\n

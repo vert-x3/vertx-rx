@@ -2,7 +2,7 @@ package io.vertx.reactivex.test;
 
 import io.reactivex.Flowable;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.reactivex.RxHelper;
+import io.vertx.reactivex.core.RxHelper;
 import io.vertx.rx.java.test.ReadStreamAdapterBackPressureTest;
 import io.vertx.rx.java.test.stream.BufferReadStreamImpl;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
