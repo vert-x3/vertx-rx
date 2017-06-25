@@ -20,7 +20,19 @@ public class RxHelper {
    * @return the adapted observable
    */
   public static <T> Observable<T> toObservable(ReadStream<T> stream) {
-    throw new UnsupportedOperationException();
+    return new ObservableReadStream<T, T>(stream, Function.identity());
+  }
+
+  /**
+   * Adapts a Vert.x {@link ReadStream<T>} to an RxJava {@link Observable<T>}. After
+   * the stream is adapted to an observable, the original stream handlers should not be used anymore
+   * as they will be used by the observable adapter.<p>
+   *
+   * @param stream the stream to adapt
+   * @return the adapted observable
+   */
+  public static <T, U> Observable<U> toObservable(ReadStream<T> stream, Function<T, U> f) {
+    return new ObservableReadStream<T, U>(stream, f);
   }
 
   /**
@@ -32,7 +44,7 @@ public class RxHelper {
    * @return the adapted observable
    */
   public static <T, U> Flowable<U> toFlowable(ReadStream<T> stream, Function<T, U> f) {
-    return new FlowableReadStream<>(stream, 0, f);
+    return new FlowableReadStream<>(stream, FlowableReadStream.DEFAULT_MAX_BUFFER_SIZE, f);
   }
 
   /**

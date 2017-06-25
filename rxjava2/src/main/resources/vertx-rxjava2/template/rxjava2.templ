@@ -84,26 +84,33 @@
 }
 
 @declare{'genReadStream'}
+  io.reactivex.Observable<@{typeParams[0].name}> toObservable();\n\n
   io.reactivex.Flowable<@{typeParams[0].name}> toFlowable();\n\n
+@end{}
+
+@declare{'genToXXXAble'}
+  public synchronized io.reactivex.@{rxType}<@{streamType.simpleName}> to@{rxType}() {\n
+    if (@{rxName} == null) {\n
+	@if{streamType.kind == CLASS_API}
+      java.util.function.Function<@{streamType.raw.name}, @{streamType.simpleName}> conv = @{streamType.raw.simpleName}::newInstance;\n
+      @{rxName} = io.vertx.reactivex.RxHelper.to@{rxType}(delegate, conv);\n
+	@else{streamType.variable}
+      java.util.function.Function<Object, @{streamType.simpleName}> conv = (java.util.function.Function<Object, @{streamType.simpleName}>) __typeArg_0.wrap;\n
+      @{rxName} = io.vertx.reactivex.RxHelper.to@{rxType}(delegate, conv);\n
+	@else{}
+      @{rxName} = io.vertx.reactivex.RxHelper.to@{rxType}(this.getDelegate());\n
+	@end{}
+    }\n
+    return @{rxName};\n
+  }\n\n
 @end{}
 
 @declare{'genToObservable'}
 	@code{streamType=type.raw.readStreamArg}
+  private io.reactivex.Observable<@{streamType.simpleName}> observable;\n
   private io.reactivex.Flowable<@{streamType.simpleName}> flowable;\n\n
-  public synchronized io.reactivex.Flowable<@{streamType.simpleName}> toFlowable() {\n
-    if (flowable == null) {\n
-	@if{streamType.kind == CLASS_API}
-      java.util.function.Function<@{streamType.raw.name}, @{streamType.simpleName}> conv = @{streamType.raw.simpleName}::newInstance;\n
-      flowable = io.vertx.reactivex.RxHelper.toFlowable(delegate, conv);\n
-	@else{streamType.variable}
-      java.util.function.Function<Object, @{streamType.simpleName}> conv = (java.util.function.Function<Object, @{streamType.simpleName}>) __typeArg_0.wrap;\n
-      flowable = io.vertx.reactivex.RxHelper.toFlowable(delegate, conv);\n
-	@else{}
-      flowable = io.vertx.reactivex.RxHelper.toFlowable(this.getDelegate());\n
-	@end{}
-    }\n
-    return flowable;\n
-  }\n\n
+	@includeNamed{'genToXXXAble';rxType='Observable';rxName='observable'}
+	@includeNamed{'genToXXXAble';rxType='Flowable';rxName='flowable'}
 @end{}
 
 @declare{'genRxMethod'}

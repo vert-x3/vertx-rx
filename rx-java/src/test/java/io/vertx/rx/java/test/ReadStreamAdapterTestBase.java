@@ -67,10 +67,12 @@ public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
       }
       @Override
       public void onError(Throwable e) {
+        super.onError(e);
         fail();
       }
       @Override
       public void onCompleted() {
+        super.onCompleted();
         testComplete();
       }
     };
