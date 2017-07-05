@@ -18,15 +18,18 @@ package io.vertx.reactivex.core;
 import io.reactivex.Scheduler;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.plugins.RxJavaPlugins;
-import io.vertx.core.AsyncResult;
+import io.vertx.core.*;
 import io.vertx.core.Context;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.impl.WorkerExecutorInternal;
 import io.vertx.core.json.JsonObject;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import io.vertx.core.WorkerExecutor;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -41,6 +44,7 @@ public class ContextScheduler extends Scheduler {
   private final boolean blocking;
   private final boolean ordered;
   private final Context context;
+  private final WorkerExecutor workerExecutor;
 
   public ContextScheduler(Context context, boolean blocking) {
     this(context, blocking, true);
@@ -51,6 +55,7 @@ public class ContextScheduler extends Scheduler {
     this.context = context;
     this.blocking = blocking;
     this.ordered = ordered;
+    this.workerExecutor = null;
   }
 
   public ContextScheduler(Vertx vertx, boolean blocking) {
@@ -61,6 +66,20 @@ public class ContextScheduler extends Scheduler {
     this.vertx = vertx;
     this.context = null;
     this.blocking = blocking;
+    this.ordered = ordered;
+    this.workerExecutor = null;
+  }
+
+  public ContextScheduler(WorkerExecutor workerExecutor) {
+    this(workerExecutor, true);
+  }
+
+  public ContextScheduler(WorkerExecutor workerExecutor, boolean ordered) {
+    Objects.requireNonNull(workerExecutor, "workerExecutor is null");
+    this.vertx = ((WorkerExecutorInternal) workerExecutor).vertx();
+    this.context = null;
+    this.workerExecutor = workerExecutor;
+    this.blocking = true;
     this.ordered = ordered;
   }
 
@@ -135,10 +154,21 @@ public class ContextScheduler extends Scheduler {
       }
 
       private void execute(Object o) {
+        if (workerExecutor != null) {
+          workerExecutor.executeBlocking(fut -> {
+            run();
+            fut.complete();
+          }, ordered, null);
+          return;
+        }
+        Context ctx = context != null ? context : vertx.getOrCreateContext();
         if (blocking) {
-          context.executeBlocking(this::run, ordered, NOOP);
+          ctx.executeBlocking(fut -> {
+            run();
+            fut.complete();
+          }, ordered, null);
         } else {
-          context.runOnContext(this::run);
+          ctx.runOnContext(this::run);
         }
       }
 
