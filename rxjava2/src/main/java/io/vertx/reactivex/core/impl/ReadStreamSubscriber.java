@@ -1,9 +1,12 @@
-package io.vertx.rx.java;
+package io.vertx.reactivex.core.impl;
 
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.vertx.core.Handler;
 import io.vertx.core.streams.ReadStream;
-import rx.Observable;
-import rx.Subscriber;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 import java.util.ArrayDeque;
 import java.util.function.Function;
@@ -25,17 +28,21 @@ import java.util.function.Function;
  *
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStream<J> {
+public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> {
 
   private static final Runnable NOOP_ACTION = () -> {};
   private static final Throwable DONE_SENTINEL = new Throwable();
 
   public static final int BUFFER_SIZE = 16;
 
-  public static <R, J> ReadStream<J> asReadStream(Observable<R> observable, Function<R, J> adapter) {
+  public static <R, J> ReadStream<J> asReadStream(Flowable<R> flowable, Function<R, J> adapter) {
     ReadStreamSubscriber<R, J> observer = new ReadStreamSubscriber<>(adapter);
-    observable.subscribe(observer);
+    flowable.subscribe(observer);
     return observer;
+  }
+
+  public static <R, J> ReadStream<J> asReadStream(Observable<R> observable, Function<R, J> adapter) {
+    return asReadStream(observable.toFlowable(BackpressureStrategy.BUFFER), adapter);
   }
 
   private final Function<R, J> adapter;
@@ -46,10 +53,10 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
   private Throwable completed;
   private ArrayDeque<R> pending = new ArrayDeque<>();
   private int requested = 0;
+  private Subscription subscription;
 
   public ReadStreamSubscriber(Function<R, J> adapter) {
     this.adapter = adapter;
-    request(0);
   }
 
   @Override
@@ -76,6 +83,14 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
     }
     checkStatus();
     return this;
+  }
+
+  @Override
+  public void onSubscribe(Subscription s) {
+    synchronized (this) {
+      subscription = s;
+    }
+    checkStatus();
   }
 
   private void checkStatus() {
@@ -117,7 +132,7 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
             }
           } else if (elementHandler != null && requested < BUFFER_SIZE / 2) {
             int request = BUFFER_SIZE - requested;
-            action = () -> request(request);
+            action = () -> subscription.request(request);
             requested = BUFFER_SIZE;
           }
           break;
@@ -157,7 +172,7 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
   }
 
   @Override
-  public void onCompleted() {
+  public void onComplete() {
     onError(DONE_SENTINEL);
   }
 
