@@ -26,7 +26,6 @@ public abstract class UnmarshallerOperator<T, B> implements Observable.Operator<
     this.mappedType = mappedType;
     this.mapper = Json.mapper;
     this.mappedTypeRef = null;
-$
   }
 
   public UnmarshallerOperator(Class<T> mappedType, ObjectMapper mapper) {
