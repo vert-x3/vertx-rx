@@ -1,23 +1,13 @@
 package examples;
 
 import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.Single;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.file.OpenOptions;
-import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerOptions;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.streams.Pump;
-import io.vertx.core.streams.ReadStream;
 import io.vertx.reactivex.core.RxHelper;
-
-import java.util.concurrent.TimeUnit;
+import io.vertx.reactivex.core.json.ObservableUnmarshaller;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -132,7 +122,7 @@ public class NativeExamples {
     RxJavaHooks.setOnNewThreadScheduler(f -> hook.getNewThreadScheduler());
     RxJavaHooks.setOnComputationScheduler(f -> hook.getComputationScheduler());
   }
-
+*/
   private class MyPojo {
   }
 
@@ -140,12 +130,11 @@ public class NativeExamples {
     fileSystem.open("/data.txt", new OpenOptions(), result -> {
       AsyncFile file = result.result();
       Observable<Buffer> observable = RxHelper.toObservable(file);
-      observable.lift(RxHelper.unmarshaller(MyPojo.class)).subscribe(
+      observable.lift(ObservableUnmarshaller.of(MyPojo.class)).subscribe(
           mypojo -> {
             // Process the object
           }
       );
     });
   }
-*/
 }

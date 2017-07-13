@@ -40,44 +40,7 @@ public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapter
 
   @Override
   protected void subscribe(Flowable<Buffer> obs, SimpleSubscriber<Buffer> sub) {
-    obs.subscribe(new Subscriber<Buffer>() {
-      boolean unsubscribed;
-      @Override
-      public void onSubscribe(Subscription s) {
-        sub.onSubscribe(new SimpleSubscriber.Subscription() {
-          @Override
-          public void fetch(long val) {
-            if (val > 0) {
-              s.request(val);
-            }
-          }
-          @Override
-          public void unsubscribe() {
-            unsubscribed = true;
-            s.cancel();
-          }
-          @Override
-          public boolean isUnsubscribed() {
-            return unsubscribed;
-          }
-        });
-
-      }
-      @Override
-      public void onNext(Buffer buffer) {
-        sub.onNext(buffer);
-      }
-      @Override
-      public void onError(Throwable t) {
-        unsubscribed = true;
-        sub.onError(t);
-      }
-      @Override
-      public void onComplete() {
-        unsubscribed = true;
-        sub.onCompleted();
-      }
-    });
+    TestUtils.subscribe(obs, sub);
   }
 
   @Override

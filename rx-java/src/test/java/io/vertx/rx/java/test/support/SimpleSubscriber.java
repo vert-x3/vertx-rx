@@ -7,6 +7,9 @@ import rx.Subscriber;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
+import static org.junit.Assert.fail;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -115,6 +118,16 @@ public class SimpleSubscriber<T> {
     return assertEvent(expected);
   }
 
+  public SimpleSubscriber<T> assertError(Consumer<Throwable> checker) {
+    return assertEvent((obj) -> {
+      if (obj instanceof Throwable) {
+        checker.accept((Throwable) obj);
+      } else {
+        fail("Was expecting a throwable");
+      }
+    });
+  }
+
   public SimpleSubscriber<T> assertCompleted() {
     return assertEvent(completed);
   }
@@ -127,6 +140,18 @@ public class SimpleSubscriber<T> {
   }
 
   private SimpleSubscriber<T> assertEvent(Object expected) {
+    return assertEvent(event -> {
+      if (expected == completed) {
+        Assert.assertEquals(completed, event);
+      } else if (expected instanceof Throwable) {
+        Assert.assertEquals(expected, event);
+      } else {
+        assertEquals(expected, event);
+      }
+    });
+  }
+
+  private SimpleSubscriber<T> assertEvent(Consumer<Object> checker) {
     Object event;
     try {
       event = events.poll(1, TimeUnit.SECONDS);
@@ -134,15 +159,9 @@ public class SimpleSubscriber<T> {
       throw new AssertionError(e);
     }
     if (event == null) {
-      throw new AssertionError("Was expecting at least event " + expected);
+      throw new AssertionError("Was expecting at least one event");
     }
-    if (expected == completed) {
-      Assert.assertEquals(completed, event);
-    } else if (expected instanceof Throwable) {
-      Assert.assertEquals(expected, event);
-    } else {
-      assertEquals(expected, event);
-    }
+    checker.accept(event);
     return this;
   }
 

@@ -29,24 +29,7 @@ public class ObservableReadStreamAdapterTest extends ReadStreamAdapterTestBase<B
 
   @Override
   protected void subscribe(Observable<Buffer> obs, SimpleSubscriber<Buffer> sub) {
-    obs.subscribe(sub::onNext,
-      sub::onError,
-      sub::onCompleted,
-      disposable -> {
-      sub.onSubscribe(new SimpleSubscriber.Subscription() {
-        @Override
-        public void fetch(long val) {
-        }
-        @Override
-        public void unsubscribe() {
-          disposable.dispose();
-        }
-        @Override
-        public boolean isUnsubscribed() {
-          return disposable.isDisposed();
-        }
-      });
-    });
+    TestUtils.subscribe(obs, sub);
   }
 
   @Override
