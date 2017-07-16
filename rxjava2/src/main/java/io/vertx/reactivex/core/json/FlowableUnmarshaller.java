@@ -19,25 +19,17 @@ import static java.util.Objects.nonNull;
  */
 public class FlowableUnmarshaller<T, B> implements FlowableOperator<T, B> {
 
-  public static <T> FlowableOperator<T, Buffer> of(Class<T> mappedType) {
-    return new FlowableUnmarshaller<>(java.util.function.Function.identity(), mappedType);
-  }
-
-  public static <T> FlowableOperator<T, Buffer> of(TypeReference<T> mappedTypeRef) {
-    return new FlowableUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef);
-  }
-
   private final java.util.function.Function<B, Buffer> unwrap;
   private final Class<T> mappedType;
   private final TypeReference<T> mappedTypeRef;
 
-  protected FlowableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType) {
+  public FlowableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType) {
     this.unwrap = unwrap;
     this.mappedType = mappedType;
     this.mappedTypeRef = null;
   }
 
-  protected FlowableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef) {
+  public FlowableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef) {
     this.unwrap = unwrap;
     this.mappedType = null;
     this.mappedTypeRef = mappedTypeRef;

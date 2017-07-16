@@ -94,12 +94,12 @@ public class RxifiedExamples {
   }
 
   public void scheduler(Vertx vertx) {
-    Scheduler scheduler = io.vertx.reactivex.core.RxHelper.scheduler(vertx);
+    Scheduler scheduler = RxHelper.scheduler(vertx);
     Observable<Long> timer = Observable.interval(100, 100, TimeUnit.MILLISECONDS, scheduler);
   }
 
   public void scheduler(WorkerExecutor workerExecutor) {
-    Scheduler scheduler = io.vertx.reactivex.core.RxHelper.blockingScheduler(workerExecutor);
+    Scheduler scheduler = RxHelper.blockingScheduler(workerExecutor);
     Observable<Long> timer = Observable.interval(100, 100, TimeUnit.MILLISECONDS, scheduler);
   }
 

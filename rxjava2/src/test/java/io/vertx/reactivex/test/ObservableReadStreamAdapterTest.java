@@ -2,7 +2,6 @@ package io.vertx.reactivex.test;
 
 import io.reactivex.Observable;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.reactivex.core.RxHelper;
 import io.vertx.rx.java.test.ReadStreamAdapterTestBase;
 import io.vertx.rx.java.test.stream.BufferReadStreamImpl;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
@@ -14,7 +13,7 @@ public class ObservableReadStreamAdapterTest extends ReadStreamAdapterTestBase<B
 
   @Override
   protected Observable<Buffer> toObservable(BufferReadStreamImpl stream) {
-    return RxHelper.toObservable(stream);
+    return io.vertx.reactivex.RxHelper.toObservable(stream);
   }
 
   @Override

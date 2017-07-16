@@ -6,8 +6,8 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.file.OpenOptions;
+import io.vertx.reactivex.core.ObservableHelper;
 import io.vertx.reactivex.core.RxHelper;
-import io.vertx.reactivex.core.json.ObservableUnmarshaller;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -18,7 +18,7 @@ public class NativeExamples {
     FileSystem fileSystem = vertx.fileSystem();
     fileSystem.open("/data.txt", new OpenOptions(), result -> {
       AsyncFile file = result.result();
-      Observable<Buffer> observable = RxHelper.toObservable(file);
+      Observable<Buffer> observable = io.vertx.reactivex.RxHelper.toObservable(file);
       observable.forEach(data -> System.out.println("Read data: " + data.toString("UTF-8")));
     });
   }
@@ -129,8 +129,8 @@ public class NativeExamples {
   public void unmarshaller(FileSystem fileSystem) {
     fileSystem.open("/data.txt", new OpenOptions(), result -> {
       AsyncFile file = result.result();
-      Observable<Buffer> observable = RxHelper.toObservable(file);
-      observable.lift(ObservableUnmarshaller.of(MyPojo.class)).subscribe(
+      Observable<Buffer> observable = io.vertx.reactivex.RxHelper.toObservable(file);
+      observable.lift(ObservableHelper.unmarshaller(MyPojo.class)).subscribe(
           mypojo -> {
             // Process the object
           }

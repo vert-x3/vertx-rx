@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package io.vertx.reactivex.core;
+package io.vertx.reactivex;
 
 import io.reactivex.Scheduler;
 import io.reactivex.disposables.Disposable;

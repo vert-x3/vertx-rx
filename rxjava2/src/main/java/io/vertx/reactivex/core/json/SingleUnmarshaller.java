@@ -19,25 +19,17 @@ import static java.util.Objects.nonNull;
  */
 public class SingleUnmarshaller<T, B> implements SingleOperator<T, B> {
 
-  public static <T> SingleOperator<T, Buffer> of(Class<T> mappedType) {
-    return new SingleUnmarshaller<>(java.util.function.Function.identity(), mappedType);
-  }
-
-  public static <T> SingleOperator<T, Buffer> of(TypeReference<T> mappedTypeRef) {
-    return new SingleUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef);
-  }
-
   private final java.util.function.Function<B, Buffer> unwrap;
   private final Class<T> mappedType;
   private final TypeReference<T> mappedTypeRef;
 
-  protected SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType) {
+  public SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType) {
     this.unwrap = unwrap;
     this.mappedType = mappedType;
     this.mappedTypeRef = null;
   }
 
-  protected SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef) {
+  public SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef) {
     this.unwrap = unwrap;
     this.mappedType = null;
     this.mappedTypeRef = mappedTypeRef;

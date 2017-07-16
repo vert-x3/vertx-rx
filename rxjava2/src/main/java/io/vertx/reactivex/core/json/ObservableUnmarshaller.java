@@ -19,25 +19,17 @@ import static java.util.Objects.nonNull;
  */
 public class ObservableUnmarshaller<T, B> implements ObservableOperator<T, B> {
 
-  public static <T> ObservableOperator<T, Buffer> of(Class<T> mappedType) {
-    return new ObservableUnmarshaller<>(java.util.function.Function.identity(), mappedType);
-  }
-
-  public static <T> ObservableOperator<T, Buffer> of(TypeReference<T> mappedTypeRef) {
-    return new ObservableUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef);
-  }
-
   private final java.util.function.Function<B, Buffer> unwrap;
   private final Class<T> mappedType;
   private final TypeReference<T> mappedTypeRef;
 
-  protected ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType) {
+  public ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType) {
     this.unwrap = unwrap;
     this.mappedType = mappedType;
     this.mappedTypeRef = null;
   }
 
-  protected ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef) {
+  public ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef) {
     this.unwrap = unwrap;
     this.mappedType = null;
     this.mappedTypeRef = mappedTypeRef;

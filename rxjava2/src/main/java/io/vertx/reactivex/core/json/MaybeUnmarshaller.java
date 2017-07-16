@@ -19,25 +19,17 @@ import static java.util.Objects.nonNull;
  */
 public class MaybeUnmarshaller<T, B> implements MaybeOperator<T, B> {
 
-  public static <T> MaybeOperator<T, Buffer> of(Class<T> mappedType) {
-    return new MaybeUnmarshaller<>(java.util.function.Function.identity(), mappedType);
-  }
-
-  public static <T> MaybeOperator<T, Buffer> of(TypeReference<T> mappedTypeRef) {
-    return new MaybeUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef);
-  }
-
   private final java.util.function.Function<B, Buffer> unwrap;
   private final Class<T> mappedType;
   private final TypeReference<T> mappedTypeRef;
 
-  protected MaybeUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType) {
+  public MaybeUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType) {
     this.unwrap = unwrap;
     this.mappedType = mappedType;
     this.mappedTypeRef = null;
   }
 
-  protected MaybeUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef) {
+  public MaybeUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef) {
     this.unwrap = unwrap;
     this.mappedType = null;
     this.mappedTypeRef = mappedTypeRef;

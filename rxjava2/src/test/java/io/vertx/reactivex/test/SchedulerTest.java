@@ -7,7 +7,7 @@ import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.WorkerExecutor;
-import io.vertx.reactivex.core.ContextScheduler;
+import io.vertx.reactivex.ContextScheduler;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 
