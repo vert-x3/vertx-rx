@@ -1,14 +1,55 @@
 package io.vertx.reactivex;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import io.reactivex.Observable;
 import io.reactivex.ObservableOperator;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
+import io.vertx.reactivex.core.impl.ObservableReadStream;
+import io.vertx.reactivex.core.impl.ReadStreamSubscriber;
 import io.vertx.reactivex.core.json.ObservableUnmarshaller;
+
+import java.util.function.Function;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class ObservableHelper {
+
+  /**
+   * Adapts an RxJava {@link Observable<T>} to a Vert.x {@link io.vertx.core.streams.ReadStream<T>}. The returned
+   * readstream will be subscribed to the {@link Observable<T>}.<p>
+   *
+   * @param observable the observable to adapt
+   * @return the adapted stream
+   */
+  public static <T> ReadStream<T> toReadStream(Observable<T> observable) {
+    return ReadStreamSubscriber.asReadStream(observable, Function.identity());
+  }
+
+  /**
+   * Adapts a Vert.x {@link ReadStream <T>} to an RxJava {@link Observable <T>}. After
+   * the stream is adapted to an observable, the original stream handlers should not be used anymore
+   * as they will be used by the observable adapter.<p>
+   *
+   * @param stream the stream to adapt
+   * @return the adapted observable
+   */
+  public static <T> Observable<T> toObservable(ReadStream<T> stream) {
+    return new ObservableReadStream<T, T>(stream, Function.identity());
+  }
+
+  /**
+   * Adapts a Vert.x {@link ReadStream<T>} to an RxJava {@link Observable<T>}. After
+   * the stream is adapted to an observable, the original stream handlers should not be used anymore
+   * as they will be used by the observable adapter.<p>
+   *
+   * @param stream the stream to adapt
+   * @return the adapted observable
+   */
+  public static <T, U> Observable<U> toObservable(ReadStream<T> stream, Function<T, U> f) {
+    return new ObservableReadStream<T, U>(stream, f);
+  }
 
   public static <T> ObservableOperator<T, Buffer> unmarshaller(Class<T> mappedType) {
     return new ObservableUnmarshaller<>(java.util.function.Function.identity(), mappedType);
@@ -17,5 +58,4 @@ public class ObservableHelper {
   public static <T> ObservableOperator<T, Buffer> unmarshaller(TypeReference<T> mappedTypeRef) {
     return new ObservableUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef);
   }
-
 }

@@ -1,12 +1,23 @@
 package examples;
 
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.Vertx;
+import io.vertx.core.WorkerExecutor;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.file.OpenOptions;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
+import io.vertx.reactivex.FlowableHelper;
 import io.vertx.reactivex.ObservableHelper;
+import io.vertx.reactivex.RxHelper;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -17,23 +28,21 @@ public class NativeExamples {
     FileSystem fileSystem = vertx.fileSystem();
     fileSystem.open("/data.txt", new OpenOptions(), result -> {
       AsyncFile file = result.result();
-      Observable<Buffer> observable = io.vertx.reactivex.RxHelper.toObservable(file);
+      Flowable<Buffer> observable = FlowableHelper.toFlowable(file);
       observable.forEach(data -> System.out.println("Read data: " + data.toString("UTF-8")));
     });
   }
 
-  private Observable<Buffer> getObservable() {
+  private Flowable<Buffer> getFlowable() {
     throw new UnsupportedOperationException();
   }
 
-/*
-  public void toReadStream(io.vertx.reactivex.core.Vertx vertx, HttpServerResponse response) {
-    Observable<Buffer> observable = getObservable();
-    ReadStream<Buffer> readStream = RxHelper.toReadStream(observable);
+  public void toReadStream(HttpServerResponse response) {
+    Flowable<Buffer> observable = getFlowable();
+    ReadStream<Buffer> readStream = FlowableHelper.toReadStream(observable);
     Pump pump = Pump.pump(readStream, response);
     pump.start();
   }
-*/
 
 /*
   public void observableHandler(Vertx vertx) {
@@ -104,31 +113,31 @@ public class NativeExamples {
     Handler<AsyncResult<HttpServer>> handler2 = RxHelper.toFuture(onNext, onError);
     Handler<AsyncResult<HttpServer>> handler3 = RxHelper.toFuture(onNext, onError, onComplete);
   }
+*/
 
   public void scheduler(Vertx vertx) {
     Scheduler scheduler = RxHelper.scheduler(vertx);
-    Observable<Long> timer = Observable.timer(100, 100, TimeUnit.MILLISECONDS, scheduler);
+    Observable<Long> timer = Observable.interval(100, 100, TimeUnit.MILLISECONDS, scheduler);
   }
 
-  public void blockingScheduler(Vertx vertx, Observable<Integer> blockingObservable) {
-    Scheduler scheduler = RxHelper.blockingScheduler(vertx);
-    Observable<Integer> obs = blockingObservable.observeOn(scheduler);
+  public void scheduler(WorkerExecutor workerExecutor) {
+    Scheduler scheduler = RxHelper.blockingScheduler(workerExecutor);
+    Observable<Long> timer = Observable.interval(100, 100, TimeUnit.MILLISECONDS, scheduler);
   }
 
   public void schedulerHook(Vertx vertx) {
-    RxJavaSchedulersHook hook = RxHelper.schedulerHook(vertx);
-    RxJavaHooks.setOnIOScheduler(f -> hook.getIOScheduler());
-    RxJavaHooks.setOnNewThreadScheduler(f -> hook.getNewThreadScheduler());
-    RxJavaHooks.setOnComputationScheduler(f -> hook.getComputationScheduler());
+    RxJavaPlugins.setComputationSchedulerHandler(s -> RxHelper.scheduler(vertx));
+    RxJavaPlugins.setIoSchedulerHandler(s -> RxHelper.blockingScheduler(vertx));
+    RxJavaPlugins.setNewThreadSchedulerHandler(s -> RxHelper.scheduler(vertx));
   }
-*/
+
   private class MyPojo {
   }
 
   public void unmarshaller(FileSystem fileSystem) {
     fileSystem.open("/data.txt", new OpenOptions(), result -> {
       AsyncFile file = result.result();
-      Observable<Buffer> observable = io.vertx.reactivex.RxHelper.toObservable(file);
+      Observable<Buffer> observable = ObservableHelper.toObservable(file);
       observable.lift(ObservableHelper.unmarshaller(MyPojo.class)).subscribe(
           mypojo -> {
             // Process the object
