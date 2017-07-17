@@ -52,6 +52,14 @@
           adapterFunction = 'obj -> (' + param.type.args[0].raw.name + ')obj.getDelegate()';
         }
         ret += 'io.vertx.rx.java.ReadStreamSubscriber.asReadStream(' + param.name + ',' + adapterFunction + ').resume()';
+      } else if (param.type.parameterized && (param.type.raw.name == 'io.reactivex.Flowable' || param.type.raw.name == 'io.reactivex.Observable')) {
+        var adapterFunction = '';
+        if (param.type.args[0].variable) {
+          adapterFunction = 'java.util.function.Function.identity()';
+        } else {
+          adapterFunction = 'obj -> (' + param.type.args[0].raw.name + ')obj.getDelegate()';
+        }
+        ret += 'io.vertx.reactivex.core.impl.ReadStreamSubscriber.asReadStream(' + param.name + ',' + adapterFunction + ').resume()';
       } else {
         ret += genConvParam(param.type, param.name);
       }

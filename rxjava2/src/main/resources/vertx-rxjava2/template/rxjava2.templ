@@ -41,7 +41,7 @@
     return futMethod;
   }
 
-  def genOverloadedMethod(method) {
+  def genOverloadedMethod(method, streamType) {
     var params = null;
     var count = 0;
     for (param : method.params) {
@@ -50,7 +50,7 @@
           params = new java.util.ArrayList(method.params);
         }
         var paramType = new io.vertx.codegen.type.ParameterizedTypeInfo(
-          io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Flowable),
+          io.vertx.codegen.type.TypeReflectionFactory.create(streamType),
           false,
           java.util.Collections.singletonList(param.type.args[0])
         );
@@ -125,6 +125,7 @@
 @end{}
 
 @declare{'genRxImports'}
+import io.reactivex.Observable;\n
 import io.reactivex.Flowable;\n
 import io.reactivex.Single;\n
 import io.reactivex.Completable;\n
@@ -133,6 +134,14 @@ import io.reactivex.Maybe;\n
 
 @declare{'foobar'}
 	@includeNamed{'genMethod'}
+	@code{flowableOverload = genOverloadedMethod(method, io.reactivex.Flowable)}
+	@code{observableOverload = genOverloadedMethod(method, io.reactivex.Observable)}
+	@if{flowableOverload != null}
+		@includeNamed{'genMethod';method=flowableOverload}
+	@end{}
+	@if{observableOverload != null}
+		@includeNamed{'genMethod';method=observableOverload}
+	@end{}
 @end{}
 
 @includeNamed{'class.templ';rxid='reactivex';rxpkg='rx'}
