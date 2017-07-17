@@ -1,23 +1,19 @@
 package io.vertx.reactivex;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import io.reactivex.MaybeObserver;
-import io.reactivex.MaybeOperator;
+import io.reactivex.CompletableObserver;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.reactivex.core.json.MaybeUnmarshaller;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class MaybeHelper {
+public class CompletableHelper {
 
   /**
    * Adapts an Vert.x {@code Handler<AsyncResult<T>>} to an RxJava2 {@link SingleObserver}.
@@ -27,9 +23,9 @@ public class MaybeHelper {
    * @param handler the handler to adapt
    * @return the observer
    */
-  public static <T> MaybeObserver<T> toObserver(Handler<AsyncResult<T>> handler) {
+  public static <T> CompletableObserver toObserver(Handler<AsyncResult<T>> handler) {
     AtomicBoolean completed = new AtomicBoolean();
-    return new MaybeObserver<T>() {
+    return new CompletableObserver() {
       @Override
       public void onSubscribe(@NonNull Disposable d) {
       }
@@ -39,10 +35,9 @@ public class MaybeHelper {
           handler.handle(io.vertx.core.Future.succeededFuture());
         }
       }
-      @Override
-      public void onSuccess(@NonNull T item) {
+      public void onSuccess() {
         if (completed.compareAndSet(false, true)) {
-          handler.handle(io.vertx.core.Future.succeededFuture(item));
+          handler.handle(io.vertx.core.Future.succeededFuture());
         }
       }
       @Override
@@ -52,13 +47,5 @@ public class MaybeHelper {
         }
       }
     };
-  }
-
-  public static <T> MaybeOperator<T, Buffer> unmarshaller(Class<T> mappedType) {
-    return new MaybeUnmarshaller<>(java.util.function.Function.identity(), mappedType);
-  }
-
-  public static <T> MaybeOperator<T, Buffer> unmarshaller(TypeReference<T> mappedTypeRef) {
-    return new MaybeUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef);
   }
 }
