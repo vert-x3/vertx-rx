@@ -10,6 +10,7 @@ import io.vertx.core.Verticle;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.reactivex.core.ObservableHelper;
 import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.WorkerExecutor;
@@ -107,6 +108,21 @@ public class RxifiedExamples {
     RxJavaPlugins.setComputationSchedulerHandler(s -> RxHelper.scheduler(vertx));
     RxJavaPlugins.setIoSchedulerHandler(s -> RxHelper.blockingScheduler(vertx));
     RxJavaPlugins.setNewThreadSchedulerHandler(s -> RxHelper.scheduler(vertx));
+  }
+
+  private class MyPojo {
+  }
+
+  public void unmarshaller(FileSystem fileSystem) {
+    fileSystem.open("/data.txt", new OpenOptions(), result -> {
+      AsyncFile file = result.result();
+      Observable<Buffer> observable = file.toObservable();
+      observable.lift(ObservableHelper.unmarshaller((MyPojo.class))).subscribe(
+        mypojo -> {
+          // Process the object
+        }
+      );
+    });
   }
 
   public void deployVerticle(Vertx vertx, Verticle verticle) {

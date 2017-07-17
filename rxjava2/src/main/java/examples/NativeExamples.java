@@ -6,8 +6,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.file.OpenOptions;
-import io.vertx.reactivex.core.ObservableHelper;
-import io.vertx.reactivex.core.RxHelper;
+import io.vertx.reactivex.ObservableHelper;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
