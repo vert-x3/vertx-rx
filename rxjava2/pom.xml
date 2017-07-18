@@ -304,7 +304,7 @@
                 <processor>io.vertx.docgen.JavaDocGenProcessor</processor>
               </processors>
               <includes>
-                <include>io/vertx/rxjava/core/**/*.java</include>
+                <include>io/vertx/reactivex/**/*.java</include>
                 <include>examples/**/*.java</include>
               </includes>
               <optionMap>
@@ -337,8 +337,7 @@
               <reportOutputDirectory>${project.build.directory}/docs</reportOutputDirectory>
               <sourcepath>${project.basedir}/src/main/java:${project.build.directory}/generated-sources/annotations</sourcepath>
               <sourceFileIncludes>
-                <sourceFileInclude>io/vertx/rxjava/core/**/*.java</sourceFileInclude>
-                <sourceFileInclude>io/vertx/rx/java/**/*.java</sourceFileInclude>
+                <sourceFileInclude>io/vertx/reactivex/**/*.java</sourceFileInclude>
               </sourceFileIncludes>
             </configuration>
           </execution>
