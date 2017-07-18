@@ -52,16 +52,6 @@ public class NativeExamples {
     pump.start();
   }
 
-/*
-  public void observableHandler(Vertx vertx) {
-    ObservableHandler<Long> observable = RxHelper.observableHandler();
-    observable.subscribe(id -> {
-      // Fired
-    });
-    vertx.setTimer(1000, observable.toHandler());
-  }
-*/
-
   public <T> Handler<AsyncResult<T>> getHandler() {
     throw new UnsupportedOperationException();
   }
@@ -89,53 +79,6 @@ public class NativeExamples {
     // Subscribe to a Single
     Completable.complete().subscribe(CompletableHelper.toObserver(handler));
   }
-
-  /*
-  public void observableFuture(Vertx vertx) {
-    ObservableFuture<HttpServer> observable = RxHelper.observableFuture();
-    observable.subscribe(
-        server -> {
-          // Server is listening
-        },
-        failure -> {
-          // Server could not start
-        }
-    );
-    vertx.createHttpServer(new HttpServerOptions().
-        setPort(1234).
-        setHost("localhost")
-    ).listen(observable.toHandler());
-  }
-*/
-
-/*
-  public void observableToHandler() {
-    Observer<HttpServer> observer = new Observer<HttpServer>() {
-      @Override
-      public void onNext(HttpServer o) {
-      }
-      @Override
-      public void onError(Throwable e) {
-      }
-      @Override
-      public void onComplete() {
-      }
-    };
-    Handler<AsyncResult<HttpServer>> handler = RxHelper.toFuture(observer);
-  }
-*/
-
-/*
-  public void actionsToHandler() {
-    Action1<HttpServer> onNext = httpServer -> {};
-    Action1<Throwable> onError = httpServer -> {};
-    Action0 onComplete = () -> {};
-
-    Handler<AsyncResult<HttpServer>> handler1 = RxHelper.toFuture(onNext);
-    Handler<AsyncResult<HttpServer>> handler2 = RxHelper.toFuture(onNext, onError);
-    Handler<AsyncResult<HttpServer>> handler3 = RxHelper.toFuture(onNext, onError, onComplete);
-  }
-*/
 
   public void scheduler(Vertx vertx) {
     Scheduler scheduler = RxHelper.scheduler(vertx);
