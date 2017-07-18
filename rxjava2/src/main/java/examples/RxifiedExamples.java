@@ -1,5 +1,8 @@
 package examples;
 
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
@@ -15,6 +18,7 @@ import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.WorkerExecutor;
 import io.vertx.reactivex.core.buffer.Buffer;
+import io.vertx.reactivex.core.dns.DnsClient;
 import io.vertx.reactivex.core.eventbus.EventBus;
 import io.vertx.reactivex.core.eventbus.Message;
 import io.vertx.reactivex.core.eventbus.MessageConsumer;
@@ -39,11 +43,11 @@ import java.util.stream.Collectors;
  */
 public class RxifiedExamples {
 
-  public void toObservable(Vertx vertx) {
+  public void toFlowable(Vertx vertx) {
     FileSystem fs = vertx.fileSystem();
     fs.open("/data.txt", new OpenOptions(), result -> {
       AsyncFile file = result.result();
-      Observable<Buffer> observable = file.toObservable();
+      Flowable<Buffer> observable = file.toFlowable();
       observable.forEach(data -> System.out.println("Read data: " + data.toString("UTF-8")));
     });
   }
@@ -52,7 +56,7 @@ public class RxifiedExamples {
     throw new UnsupportedOperationException();
   }
 
-  public void delayToObservable(HttpServer server) {
+  public void delayFlowable(HttpServer server) {
     server.requestHandler(request -> {
       if (request.method() == HttpMethod.POST) {
 
@@ -65,8 +69,8 @@ public class RxifiedExamples {
           request.resume();
 
           if (res.succeeded()) {
-            Observable<Buffer> observable = request.toObservable();
-            observable.subscribe(buff -> {
+            Flowable<Buffer> flowable = request.toFlowable();
+            flowable.subscribe(buff -> {
               // Get buffers
             });
           }
@@ -92,6 +96,45 @@ public class RxifiedExamples {
               // Server could not start
             }
         );
+  }
+
+  public void maybe(Vertx vertx, int dnsPort, String dnsHost, String ipAddress) {
+
+    DnsClient client = vertx.createDnsClient(dnsPort, dnsHost);
+
+    // Obtain a maybe that performs the actual reverse lookup on subscribe
+    Maybe<String> maybe = client.rxReverseLookup(ipAddress);
+
+    // Subscribe to perform the lookup
+    maybe.
+      subscribe(
+        name -> {
+          // Lookup produced a result
+        },
+        failure -> {
+          // Lookup failed
+        },
+        () -> {
+          // Lookup produced no result
+        }
+      );
+  }
+
+  public void completable(HttpServer server) {
+
+    // Obtain a completable that performs the actual close on subscribe
+    Completable single = server.rxClose();
+
+    // Subscribe to bind the server
+    single.
+      subscribe(
+        () -> {
+          // Server is closed
+        },
+        failure -> {
+          // Server closed but encoutered issue
+        }
+      );
   }
 
   public void scheduler(Vertx vertx) {
@@ -194,7 +237,7 @@ public class RxifiedExamples {
     );
   }
 
-  public void websocketServerBuffer(Observable<ServerWebSocket> socketObservable) {
+  public void websocketServerBuffer(Flowable<ServerWebSocket> socketObservable) {
     socketObservable.subscribe(
         socket -> {
           Observable<Buffer> dataObs = socket.toObservable();
@@ -217,10 +260,10 @@ public class RxifiedExamples {
     );
   }
 
-  public void websocketClientBuffer(Observable<WebSocket> socketObservable) {
+  public void websocketClientBuffer(Flowable<WebSocket> socketObservable) {
     socketObservable.subscribe(
         socket -> {
-          Observable<Buffer> dataObs = socket.toObservable();
+          Flowable<Buffer> dataObs = socket.toFlowable();
           dataObs.subscribe(buffer -> {
             System.out.println("Got message " + buffer.toString("UTF-8"));
           });
@@ -277,6 +320,15 @@ public class RxifiedExamples {
     Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
     requestObservable.subscribe(request -> {
       Observable<Buffer> observable = request.toObservable();
+    });
+  }
+
+  public void httpServerRequestObservableUnmarshall(HttpServer server) {
+    Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
+    requestObservable.subscribe(request -> {
+      Observable<MyPojo> observable = request.
+        toObservable().
+        lift(io.vertx.reactivex.core.ObservableHelper.unmarshaller(MyPojo.class));
     });
   }
 
