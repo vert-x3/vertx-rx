@@ -41,7 +41,7 @@
  * RxJava `Flowable` is a perfect match for Vert.x `ReadStream` class : both provide a flow of items.
  *
  * The {@link io.vertx.reactivex.FlowableHelper#toFlowable(io.vertx.core.streams.ReadStream)} static methods convert
- * a Vert.x read stream to an `rx.Observable`:
+ * a Vert.x read stream to a `Flowable`:
  *
  * [source,java]
  * ----
@@ -80,7 +80,7 @@
  * {@link examples.RxifiedExamples#delayFlowable}
  * ----
  *
- * Likewise it is possible to turn an existing `Observable` into a Vert.x `ReadStream`.
+ * Likewise it is possible to turn an existing `Flowable` into a Vert.x `ReadStream`.
  *
  * The {@link io.vertx.reactivex.FlowableHelper#toReadStream(io.reactivex.Flowable)}  static methods convert
  * a `Flowable` to a Vert.x read stream:
@@ -138,7 +138,7 @@
  *
  * The reactive extension sometimes needs to schedule actions, for instance `Flowable#timer` creates and returns
  * a timer that emit periodic events. By default, scheduled actions are managed by RxJava, it means that the
- * timer threads are not Vert.x threads and therefore not executing in a Vert.x event loop.
+ * timer threads are not Vert.x threads and therefore not executing in a Vert.x event loop nor on a Vert.x worker thread.
  *
  * When an RxJava method deals with a scheduler, it accepts an overloaded method accepting an extra `io.reactivex.Scheduler`,
  * the {@link io.vertx.reactivex.RxHelper#scheduler(io.vertx.core.Vertx)}  method will return a scheduler that can be used
@@ -164,7 +164,7 @@
  * {@link examples.NativeExamples#schedulerHook(io.vertx.core.Vertx)}
  * ----
  *
- * NOTE: RxJava uses the words `computation schedule` for non-blocking tasks and `io schedule` for blocking tasks
+ * CAUTION: RxJava uses the words _computation_ for non-blocking tasks and _io_ for blocking tasks
  * which is the opposite of the Vert.x terminology
  *
  * The _Rxified_ Vert.x API provides also similar method on the {@link io.vertx.reactivex.core.RxHelper} class:
