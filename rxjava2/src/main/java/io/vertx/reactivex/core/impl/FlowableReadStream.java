@@ -43,8 +43,8 @@ public class FlowableReadStream<T, U> extends Flowable<U> {
       return;
     }
     p.subscribe(new FlowableSubscriber<U>() {
-      public void onSubscribe(Subscription _) {
-        BasicIntQueueSubscription<U> sub = (BasicIntQueueSubscription<U>) _;
+      public void onSubscribe(Subscription s) {
+        BasicIntQueueSubscription<U> sub = (BasicIntQueueSubscription<U>) s;
         BasicIntQueueSubscription basic = new BasicIntQueueSubscription<U>() {
           public int requestFusion(int mode) {
             return sub.requestFusion(mode);
