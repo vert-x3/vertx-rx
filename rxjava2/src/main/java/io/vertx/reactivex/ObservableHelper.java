@@ -40,15 +40,10 @@ public class ObservableHelper {
   }
 
   /**
-   * Adapts a Vert.x {@link ReadStream<T>} to an RxJava {@link Observable<T>}. After
-   * the stream is adapted to an observable, the original stream handlers should not be used anymore
-   * as they will be used by the observable adapter.<p>
-   *
-   * @param stream the stream to adapt
-   * @return the adapted observable
+   * Like {@link #toObservable(ReadStream)} but with a {@code mapping} function
    */
-  public static <T, U> Observable<U> toObservable(ReadStream<T> stream, Function<T, U> f) {
-    return new ObservableReadStream<T, U>(stream, f);
+  public static <T, U> Observable<U> toObservable(ReadStream<T> stream, Function<T, U> mapping) {
+    return new ObservableReadStream<>(stream, mapping);
   }
 
   public static <T> ObservableOperator<T, Buffer> unmarshaller(Class<T> mappedType) {
