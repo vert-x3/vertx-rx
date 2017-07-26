@@ -111,8 +111,6 @@ public class FlowableReadStream<T, U> extends Flowable<U> {
           stream.endHandler(null);
           stream.handler(null);
         } catch (Exception ignore) {
-          // Todo : handle this case
-          // happens with testObservableWebSocket
         }
         if (paused) {
           paused = false;
