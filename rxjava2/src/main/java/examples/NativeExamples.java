@@ -85,8 +85,8 @@ public class NativeExamples {
     Observable<Long> timer = Observable.interval(100, 100, TimeUnit.MILLISECONDS, scheduler);
   }
 
-  public void blockingScheduler(WorkerExecutor workerExecutor) {
-    Scheduler scheduler = RxHelper.blockingScheduler(workerExecutor);
+  public void blockingScheduler(Vertx vertx) {
+    Scheduler scheduler = RxHelper.blockingScheduler(vertx);
     Observable<Long> timer = Observable.interval(100, 100, TimeUnit.MILLISECONDS, scheduler);
   }
 
