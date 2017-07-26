@@ -3,6 +3,7 @@ package io.vertx.reactivex.test;
 import io.reactivex.Flowable;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.reactivex.FlowableHelper;
+import io.vertx.rx.java.ObservableReadStream;
 import io.vertx.rx.java.test.ReadStreamAdapterBackPressureTest;
 import io.vertx.rx.java.test.stream.BufferReadStreamImpl;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
@@ -14,12 +15,6 @@ import java.util.function.Function;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapterBackPressureTest<Flowable<Buffer>> {
-
-  @Test
-  @Override
-  public void testReact() {
-    super.testReact();
-  }
 
   @Override
   protected Flowable<Buffer> toObservable(BufferReadStreamImpl stream, int maxBufferSize) {
@@ -44,5 +39,19 @@ public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapter
   @Override
   protected Flowable<Buffer> concat(Flowable<Buffer> obs1, Flowable<Buffer> obs2) {
     return Flowable.concat(obs1, obs2);
+  }
+
+  @Test
+  public void testSubscribeTwice() {
+    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    Flowable<Buffer> observable = toObservable(stream);
+    SimpleSubscriber<Buffer> subscriber1 = new SimpleSubscriber<Buffer>().prefetch(0);
+    SimpleSubscriber<Buffer> subscriber2 = new SimpleSubscriber<Buffer>().prefetch(0);
+    subscribe(observable, subscriber1);
+    subscribe(observable, subscriber2);
+    subscriber2.assertError(err -> {
+      assertTrue(err instanceof IllegalStateException);
+    });
+    subscriber2.assertEmpty();
   }
 }

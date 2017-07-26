@@ -3,6 +3,7 @@ package io.vertx.reactivex.core.impl;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableSubscriber;
 import io.reactivex.internal.subscriptions.BasicIntQueueSubscription;
+import io.reactivex.internal.subscriptions.EmptySubscription;
 import io.reactivex.processors.UnicastProcessor;
 import io.vertx.core.streams.ReadStream;
 import org.reactivestreams.Subscriber;
@@ -38,6 +39,7 @@ public class FlowableReadStream<T, U> extends Flowable<U> {
   protected void subscribeActual(Subscriber<? super U> subscriber) {
     UnicastProcessor<U> p = UnicastProcessor.create();
     if (!processor.compareAndSet(null, p)) {
+      EmptySubscription.error(new IllegalStateException("This processor allows only a single Subscriber"), subscriber);
       return;
     }
     p.subscribe(new FlowableSubscriber<U>() {
