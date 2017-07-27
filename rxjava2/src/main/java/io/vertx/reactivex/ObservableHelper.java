@@ -3,6 +3,7 @@ package io.vertx.reactivex;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOperator;
+import io.reactivex.ObservableTransformer;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.reactivex.core.impl.ObservableReadStream;
@@ -46,11 +47,11 @@ public class ObservableHelper {
     return new ObservableReadStream<>(stream, mapping);
   }
 
-  public static <T> ObservableOperator<T, Buffer> unmarshaller(Class<T> mappedType) {
+  public static <T> ObservableTransformer<Buffer, T> unmarshaller(Class<T> mappedType) {
     return new ObservableUnmarshaller<>(java.util.function.Function.identity(), mappedType);
   }
 
-  public static <T> ObservableOperator<T, Buffer> unmarshaller(TypeReference<T> mappedTypeRef) {
+  public static <T> ObservableTransformer<Buffer, T> unmarshaller(TypeReference<T> mappedTypeRef) {
     return new ObservableUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef);
   }
 }

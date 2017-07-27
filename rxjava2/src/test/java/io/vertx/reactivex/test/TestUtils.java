@@ -80,6 +80,6 @@ public class TestUtils {
   }
 
   public static <T> void subscribe(Maybe<T> obs, SimpleSubscriber<T> sub) {
-    obs.subscribe(sub::onNext, sub::onError);
+    obs.subscribe(sub::onNext, sub::onError, sub::onCompleted);
   }
 }

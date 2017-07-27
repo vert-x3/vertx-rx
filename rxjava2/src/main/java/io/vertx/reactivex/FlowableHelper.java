@@ -2,7 +2,7 @@ package io.vertx.reactivex;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.reactivex.Flowable;
-import io.reactivex.FlowableOperator;
+import io.reactivex.FlowableTransformer;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.reactivex.core.impl.FlowableReadStream;
@@ -58,11 +58,11 @@ public class FlowableHelper {
     return new FlowableReadStream<>(stream, maxBufferSize, Function.identity());
   }
 
-  public static <T> FlowableOperator<T, Buffer> unmarshaller(Class<T> mappedType) {
+  public static <T> FlowableTransformer<Buffer, T> unmarshaller(Class<T> mappedType) {
     return new FlowableUnmarshaller<>(java.util.function.Function.identity(), mappedType);
   }
 
-  public static <T> FlowableOperator<T, Buffer> unmarshaller(TypeReference<T> mappedTypeRef) {
+  public static <T> FlowableTransformer<Buffer, T>unmarshaller(TypeReference<T> mappedTypeRef) {
     return new FlowableUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef);
   }
 }

@@ -10,7 +10,6 @@ import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.WorkerExecutor;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.FileSystem;
@@ -21,7 +20,6 @@ import io.vertx.core.streams.ReadStream;
 import io.vertx.reactivex.CompletableHelper;
 import io.vertx.reactivex.FlowableHelper;
 import io.vertx.reactivex.MaybeHelper;
-import io.vertx.reactivex.ObservableHelper;
 import io.vertx.reactivex.RxHelper;
 import io.vertx.reactivex.SingleHelper;
 
@@ -103,7 +101,7 @@ public class NativeExamples {
     fileSystem.open("/data.txt", new OpenOptions(), result -> {
       AsyncFile file = result.result();
       Flowable<Buffer> observable = FlowableHelper.toFlowable(file);
-      observable.lift(FlowableHelper.unmarshaller(MyPojo.class)).subscribe(
+      observable.compose(FlowableHelper.unmarshaller(MyPojo.class)).subscribe(
           mypojo -> {
             // Process the object
           }

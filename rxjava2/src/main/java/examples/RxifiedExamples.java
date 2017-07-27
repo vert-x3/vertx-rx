@@ -160,7 +160,7 @@ public class RxifiedExamples {
     fileSystem.open("/data.txt", new OpenOptions(), result -> {
       AsyncFile file = result.result();
       Observable<Buffer> observable = file.toObservable();
-      observable.lift(ObservableHelper.unmarshaller((MyPojo.class))).subscribe(
+      observable.compose(ObservableHelper.unmarshaller((MyPojo.class))).subscribe(
         mypojo -> {
           // Process the object
         }
@@ -328,7 +328,7 @@ public class RxifiedExamples {
     requestObservable.subscribe(request -> {
       Observable<MyPojo> observable = request.
         toObservable().
-        lift(io.vertx.reactivex.core.ObservableHelper.unmarshaller(MyPojo.class));
+        compose(io.vertx.reactivex.core.ObservableHelper.unmarshaller(MyPojo.class));
     });
   }
 

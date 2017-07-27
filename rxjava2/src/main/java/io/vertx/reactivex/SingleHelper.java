@@ -2,8 +2,8 @@ package io.vertx.reactivex;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.reactivex.SingleObserver;
-import io.reactivex.SingleOperator;
 import io.reactivex.Single;
+import io.reactivex.SingleTransformer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.vertx.core.AsyncResult;
@@ -48,11 +48,11 @@ public class SingleHelper {
     };
   }
 
-  public static <T> SingleOperator<T, Buffer> unmarshaller(Class<T> mappedType) {
+  public static <T> SingleTransformer<Buffer, T> unmarshaller(Class<T> mappedType) {
     return new SingleUnmarshaller<>(java.util.function.Function.identity(), mappedType);
   }
 
-  public static <T> SingleOperator<T, Buffer> unmarshaller(TypeReference<T> mappedTypeRef) {
+  public static <T> SingleTransformer<Buffer, T> unmarshaller(TypeReference<T> mappedTypeRef) {
     return new SingleUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef);
   }
 }

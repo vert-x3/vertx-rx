@@ -31,7 +31,7 @@ public class BufferTest {
   @Test
   public void testFlowableMapPojoFromBuffer() throws Exception {
     Flowable<Buffer> stream = Flowable.just(Buffer.buffer("{\"foo\""), Buffer.buffer(":\"bar\"}"));
-    Flowable<SimplePojo> mapped = stream.lift(FlowableHelper.unmarshaller(SimplePojo.class));
+    Flowable<SimplePojo> mapped = stream.compose(FlowableHelper.unmarshaller(SimplePojo.class));
     SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<SimplePojo>().prefetch(0);
     TestUtils.subscribe(mapped, subscriber);
     subscriber
@@ -45,7 +45,7 @@ public class BufferTest {
   @Test
   public void testObservableMapPojoFromBuffer() throws Exception {
     Observable<Buffer> stream = Observable.just(Buffer.buffer("{\"foo\""), Buffer.buffer(":\"bar\"}"));
-    Observable<SimplePojo> mapped = stream.lift(ObservableHelper.unmarshaller(SimplePojo.class));
+    Observable<SimplePojo> mapped = stream.compose(ObservableHelper.unmarshaller(SimplePojo.class));
     SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<SimplePojo>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
@@ -57,7 +57,7 @@ public class BufferTest {
   @Test
   public void testSingleMapPojoFromBuffer() throws Exception {
     Single<Buffer> stream = Single.just(Buffer.buffer("{\"foo\":\"bar\"}"));
-    Single<SimplePojo> mapped = stream.lift(SingleHelper.unmarshaller(SimplePojo.class));
+    Single<SimplePojo> mapped = stream.compose(SingleHelper.unmarshaller(SimplePojo.class));
     SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
@@ -68,7 +68,7 @@ public class BufferTest {
   @Test
   public void testMaybeMapPojoFromBuffer() throws Exception {
     Maybe<Buffer> stream = Maybe.just(Buffer.buffer("{\"foo\":\"bar\"}"));
-    Maybe<SimplePojo> mapped = stream.lift(MaybeHelper.unmarshaller(SimplePojo.class));
+    Maybe<SimplePojo> mapped = stream.compose(MaybeHelper.unmarshaller(SimplePojo.class));
     SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
@@ -79,11 +79,10 @@ public class BufferTest {
   @Test
   public void testFlowableMapPojoFromBufferFailure() throws Exception {
     Flowable<Buffer> stream = Flowable.just(Buffer.buffer("{\"foo\""));
-    Flowable<SimplePojo> mapped = stream.lift(FlowableHelper.unmarshaller(SimplePojo.class));
+    Flowable<SimplePojo> mapped = stream.compose(FlowableHelper.unmarshaller(SimplePojo.class));
     SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<SimplePojo>().prefetch(0);
     TestUtils.subscribe(mapped, subscriber);
     subscriber
-      .assertEmpty()
       .request(1)
       .assertError(err -> assertTrue(err instanceof JsonParseException))
       .assertEmpty();
@@ -92,7 +91,7 @@ public class BufferTest {
   @Test
   public void testObservableMapPojoFromBufferFailure() throws Exception {
     Observable<Buffer> stream = Observable.just(Buffer.buffer("{\"foo\""));
-    Observable<SimplePojo> mapped = stream.lift(ObservableHelper.unmarshaller(SimplePojo.class));
+    Observable<SimplePojo> mapped = stream.compose(ObservableHelper.unmarshaller(SimplePojo.class));
     SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<SimplePojo>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
@@ -103,7 +102,7 @@ public class BufferTest {
   @Test
   public void testSingleMapPojoFromBufferFailure() throws Exception {
     Single<Buffer> stream = Single.just(Buffer.buffer("{\"foo\""));
-    Single<SimplePojo> mapped = stream.lift(SingleHelper.unmarshaller(SimplePojo.class));
+    Single<SimplePojo> mapped = stream.compose(SingleHelper.unmarshaller(SimplePojo.class));
     SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
@@ -114,7 +113,7 @@ public class BufferTest {
   @Test
   public void testMaybeMapPojoFromBufferFailure() throws Exception {
     Maybe<Buffer> stream = Maybe.just(Buffer.buffer("{\"foo\""));
-    Maybe<SimplePojo> mapped = stream.lift(MaybeHelper.unmarshaller(SimplePojo.class));
+    Maybe<SimplePojo> mapped = stream.compose(MaybeHelper.unmarshaller(SimplePojo.class));
     SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
@@ -125,7 +124,7 @@ public class BufferTest {
   @Test
   public void testFlowableMapObjectNodeFromBuffer() throws Exception {
     Flowable<Buffer> stream = Flowable.just(Buffer.buffer("{\"foo\""), Buffer.buffer(":\"bar\"}"));
-    Flowable<JsonNode> mapped = stream.lift(FlowableHelper.unmarshaller(JsonNode.class));
+    Flowable<JsonNode> mapped = stream.compose(FlowableHelper.unmarshaller(JsonNode.class));
     SimpleSubscriber<JsonNode> subscriber = new SimpleSubscriber<JsonNode>().prefetch(0);
     TestUtils.subscribe(mapped, subscriber);
     subscriber
@@ -139,7 +138,7 @@ public class BufferTest {
   @Test
   public void testObservableMapObjectNodeFromBuffer() throws Exception {
     Observable<Buffer> stream = Observable.just(Buffer.buffer("{\"foo\""), Buffer.buffer(":\"bar\"}"));
-    Observable<JsonNode> mapped = stream.lift(ObservableHelper.unmarshaller(JsonNode.class));
+    Observable<JsonNode> mapped = stream.compose(ObservableHelper.unmarshaller(JsonNode.class));
     SimpleSubscriber<JsonNode> subscriber = new SimpleSubscriber<JsonNode>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
@@ -151,7 +150,7 @@ public class BufferTest {
   @Test
   public void testSingleMapObjectNodeFromBuffer() throws Exception {
     Single<Buffer> stream = Single.just(Buffer.buffer("{\"foo\":\"bar\"}"));
-    Single<JsonNode> mapped = stream.lift(SingleHelper.unmarshaller(JsonNode.class));
+    Single<JsonNode> mapped = stream.compose(SingleHelper.unmarshaller(JsonNode.class));
     SimpleSubscriber<JsonNode> subscriber = new SimpleSubscriber<>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
@@ -162,7 +161,7 @@ public class BufferTest {
   @Test
   public void testMaybeMapObjectNodeFromBuffer() throws Exception {
     Maybe<Buffer> stream = Maybe.just(Buffer.buffer("{\"foo\":\"bar\"}"));
-    Maybe<JsonNode> mapped = stream.lift(MaybeHelper.unmarshaller(JsonNode.class));
+    Maybe<JsonNode> mapped = stream.compose(MaybeHelper.unmarshaller(JsonNode.class));
     SimpleSubscriber<JsonNode> subscriber = new SimpleSubscriber<>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
@@ -173,7 +172,7 @@ public class BufferTest {
   @Test
   public void testFlowableMapPojoListFromBuffer() throws Exception {
     Flowable<Buffer> stream = Flowable.just(Buffer.buffer("[{\"foo\":\"bar\"}]"));
-    Flowable<List<SimplePojo>> mapped = stream.lift(FlowableHelper.unmarshaller(new TypeReference<List<SimplePojo>>(){}));
+    Flowable<List<SimplePojo>> mapped = stream.compose(FlowableHelper.unmarshaller(new TypeReference<List<SimplePojo>>(){}));
     SimpleSubscriber<List<SimplePojo>> subscriber = new SimpleSubscriber<List<SimplePojo>>().prefetch(0);
     TestUtils.subscribe(mapped, subscriber);
     subscriber
@@ -187,7 +186,7 @@ public class BufferTest {
   @Test
   public void testObservableMapPojoListFromBuffer() throws Exception {
     Observable<Buffer> stream = Observable.just(Buffer.buffer("[{\"foo\":\"bar\"}]"));
-    Observable<List<SimplePojo>> mapped = stream.lift(ObservableHelper.unmarshaller(new TypeReference<List<SimplePojo>>(){}));
+    Observable<List<SimplePojo>> mapped = stream.compose(ObservableHelper.unmarshaller(new TypeReference<List<SimplePojo>>(){}));
     SimpleSubscriber<List<SimplePojo>> subscriber = new SimpleSubscriber<List<SimplePojo>>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
@@ -199,7 +198,7 @@ public class BufferTest {
   @Test
   public void testSingleMapPojoListFromBuffer() throws Exception {
     Single<Buffer> stream = Single.just(Buffer.buffer("[{\"foo\":\"bar\"}]"));
-    Single<List<SimplePojo>> mapped = stream.lift(SingleHelper.unmarshaller(new TypeReference<List<SimplePojo>>(){}));
+    Single<List<SimplePojo>> mapped = stream.compose(SingleHelper.unmarshaller(new TypeReference<List<SimplePojo>>(){}));
     SimpleSubscriber<List<SimplePojo>> subscriber = new SimpleSubscriber<>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
@@ -210,11 +209,44 @@ public class BufferTest {
   @Test
   public void testMaybeMapPojoListFromBuffer() throws Exception {
     Maybe<Buffer> stream = Maybe.just(Buffer.buffer("[{\"foo\":\"bar\"}]"));
-    Maybe<List<SimplePojo>> mapped = stream.lift(MaybeHelper.unmarshaller(new TypeReference<List<SimplePojo>>(){}));
+    Maybe<List<SimplePojo>> mapped = stream.compose(MaybeHelper.unmarshaller(new TypeReference<List<SimplePojo>>(){}));
     SimpleSubscriber<List<SimplePojo>> subscriber = new SimpleSubscriber<>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .assertItem(Arrays.asList(new SimplePojo("bar")))
+      .assertEmpty();
+  }
+
+  @Test
+  public void testFlowableMapFromEmptyBuffer() throws Exception {
+    Flowable<Buffer> stream = Flowable.empty();
+    Flowable<SimplePojo> mapped = stream.compose(FlowableHelper.unmarshaller(SimplePojo.class));
+    SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<SimplePojo>().prefetch(0);
+    TestUtils.subscribe(mapped, subscriber);
+    subscriber
+      .assertCompleted()
+      .assertEmpty();
+  }
+
+  @Test
+  public void testObservableMapFromEmptyBuffer() throws Exception {
+    Observable<Buffer> stream = Observable.empty();
+    Observable<SimplePojo> mapped = stream.compose(ObservableHelper.unmarshaller(SimplePojo.class));
+    SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<SimplePojo>().prefetch(0);
+    TestUtils.subscribe(mapped, subscriber);
+    subscriber
+      .assertCompleted()
+      .assertEmpty();
+  }
+
+  @Test
+  public void testMaybeMapFromEmptyBuffer() throws Exception {
+    Maybe<Buffer> stream = Maybe.empty();
+    Maybe<SimplePojo> mapped = stream.compose(MaybeHelper.unmarshaller(SimplePojo.class));
+    SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<SimplePojo>().prefetch(0);
+    TestUtils.subscribe(mapped, subscriber);
+    subscriber
+      .assertCompleted()
       .assertEmpty();
   }
 

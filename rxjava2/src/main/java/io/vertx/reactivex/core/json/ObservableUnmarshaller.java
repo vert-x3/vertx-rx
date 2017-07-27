@@ -1,10 +1,12 @@
 package io.vertx.reactivex.core.json;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.reactivex.ObservableOperator;
-import io.reactivex.Observer;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
 import io.vertx.core.buffer.Buffer;
 
 import java.io.IOException;
@@ -17,7 +19,7 @@ import static java.util.Objects.nonNull;
  *
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class ObservableUnmarshaller<T, B> implements ObservableOperator<T, B> {
+public class ObservableUnmarshaller<T, B> implements ObservableTransformer<B, T> {
 
   private final java.util.function.Function<B, Buffer> unwrap;
   private final Class<T> mappedType;
@@ -36,35 +38,22 @@ public class ObservableUnmarshaller<T, B> implements ObservableOperator<T, B> {
   }
 
   @Override
-  public Observer<? super B> apply(@NonNull Observer<? super T> observer) throws Exception {
-    final Buffer buffer = Buffer.buffer();
-    return new Observer<B>() {
-      @Override
-      public void onSubscribe(@NonNull Disposable d) {
-        observer.onSubscribe(d);
-      }
-      @Override
-      public void onNext(B item) {
-        buffer.appendBuffer(unwrap.apply(item));
-      }
-      @Override
-      public void onError(Throwable t) {
-        observer.onError(t);
-      }
-      @Override
-      public void onComplete() {
+  public ObservableSource<T> apply(@NonNull Observable<B> upstream) {
+    Observable<Buffer> unwrapped = upstream.map(unwrap::apply);
+    Single<Buffer> aggregated = unwrapped.collect(Buffer::buffer, Buffer::appendBuffer);
+    Maybe<T> unmarshalled = aggregated.toMaybe().concatMap(buffer -> {
+      if (buffer.length() > 0) {
         try {
-          T obj = null;
-          if (buffer.length() > 0) {
-            obj = nonNull(mappedType) ? mapper.readValue(buffer.getBytes(), mappedType) :
-              mapper.readValue(buffer.getBytes(), mappedTypeRef);
-          }
-          observer.onNext(obj);
-          observer.onComplete();
+          T obj = nonNull(mappedType) ? mapper.readValue(buffer.getBytes(), mappedType) :
+            mapper.readValue(buffer.getBytes(), mappedTypeRef);
+          return Maybe.just(obj);
         } catch (IOException e) {
-          onError(e);
+          return Maybe.error(e);
         }
+      } else {
+        return Maybe.empty();
       }
-    };
+    });
+    return unmarshalled.toObservable();
   }
 }

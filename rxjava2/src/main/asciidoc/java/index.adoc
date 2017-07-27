@@ -272,7 +272,7 @@ transforms an `Flowable<Buffer>` in json format into an object flowable:
 fileSystem.open("/data.txt", new OpenOptions(), result -> {
   AsyncFile file = result.result();
   Flowable<Buffer> observable = FlowableHelper.toFlowable(file);
-  observable.lift(FlowableHelper.unmarshaller(MyPojo.class)).subscribe(
+  observable.compose(FlowableHelper.unmarshaller(MyPojo.class)).subscribe(
       mypojo -> {
         // Process the object
       }
@@ -287,7 +287,7 @@ The same can be done with the _Rxified_ helper:
 fileSystem.open("/data.txt", new OpenOptions(), result -> {
   AsyncFile file = result.result();
   Observable<Buffer> observable = file.toObservable();
-  observable.lift(ObservableHelper.unmarshaller((MyPojo.class))).subscribe(
+  observable.compose(ObservableHelper.unmarshaller((MyPojo.class))).subscribe(
     mypojo -> {
       // Process the object
     }
@@ -478,7 +478,7 @@ Observable<HttpServerRequest> requestObservable = server.requestStream().toObser
 requestObservable.subscribe(request -> {
   Observable<MyPojo> observable = request.
     toObservable().
-    lift(io.vertx.reactivex.core.ObservableHelper.unmarshaller(MyPojo.class));
+    compose(io.vertx.reactivex.core.ObservableHelper.unmarshaller(MyPojo.class));
 });
 ----
 

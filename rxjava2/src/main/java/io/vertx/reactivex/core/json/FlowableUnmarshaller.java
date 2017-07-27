@@ -1,11 +1,13 @@
 package io.vertx.reactivex.core.json;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.reactivex.FlowableOperator;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableTransformer;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.vertx.core.buffer.Buffer;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
+import org.reactivestreams.Publisher;
 
 import java.io.IOException;
 
@@ -17,7 +19,7 @@ import static java.util.Objects.nonNull;
  *
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class FlowableUnmarshaller<T, B> implements FlowableOperator<T, B> {
+public class FlowableUnmarshaller<T, B> implements FlowableTransformer<B, T> {
 
   private final java.util.function.Function<B, Buffer> unwrap;
   private final Class<T> mappedType;
@@ -36,47 +38,22 @@ public class FlowableUnmarshaller<T, B> implements FlowableOperator<T, B> {
   }
 
   @Override
-  public Subscriber<? super B> apply(@NonNull Subscriber<? super T> subscriber) throws Exception {
-    final Buffer buffer = Buffer.buffer();
-    return new Subscriber<B>() {
-      @Override
-      public void onSubscribe(Subscription s) {
-        subscriber.onSubscribe(new Subscription() {
-          @Override
-          public void request(long n) {
-            s.request(Long.MAX_VALUE);
-          }
-          @Override
-          public void cancel() {
-            s.cancel();
-          }
-        });
-      }
-
-      @Override
-      public void onNext(B item) {
-        buffer.appendBuffer(unwrap.apply(item));
-      }
-
-      @Override
-      public void onError(Throwable t) {
-        subscriber.onError(t);
-      }
-
-      @Override
-      public void onComplete() {
+  public Publisher<T> apply(@NonNull Flowable<B> upstream) {
+    Flowable<Buffer> unwrapped = upstream.map(unwrap::apply);
+    Single<Buffer> aggregated = unwrapped.collect(Buffer::buffer, Buffer::appendBuffer);
+    Maybe<T> unmarshalled = aggregated.toMaybe().concatMap(buffer -> {
+      if (buffer.length() > 0) {
         try {
-          T obj = null;
-          if (buffer.length() > 0) {
-            obj = nonNull(mappedType) ? mapper.readValue(buffer.getBytes(), mappedType) :
-              mapper.readValue(buffer.getBytes(), mappedTypeRef);
-          }
-          subscriber.onNext(obj);
-          subscriber.onComplete();
+          T obj = nonNull(mappedType) ? mapper.readValue(buffer.getBytes(), mappedType) :
+            mapper.readValue(buffer.getBytes(), mappedTypeRef);
+          return Maybe.just(obj);
         } catch (IOException e) {
-          onError(e);
+          return Maybe.error(e);
         }
+      } else {
+        return Maybe.empty();
       }
-    };
+    });
+    return unmarshalled.toFlowable();
   }
 }

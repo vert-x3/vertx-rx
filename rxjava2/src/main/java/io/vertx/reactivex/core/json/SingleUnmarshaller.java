@@ -1,10 +1,10 @@
 package io.vertx.reactivex.core.json;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.reactivex.SingleObserver;
-import io.reactivex.SingleOperator;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.SingleTransformer;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
 import io.vertx.core.buffer.Buffer;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ import static java.util.Objects.nonNull;
  *
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class SingleUnmarshaller<T, B> implements SingleOperator<T, B> {
+public class SingleUnmarshaller<T, B> implements SingleTransformer<B, T> {
 
   private final java.util.function.Function<B, Buffer> unwrap;
   private final Class<T> mappedType;
@@ -36,31 +36,17 @@ public class SingleUnmarshaller<T, B> implements SingleOperator<T, B> {
   }
 
   @Override
-  public SingleObserver<? super B> apply(@NonNull SingleObserver<? super T> observer) throws Exception {
-    return new SingleObserver<B>() {
-      @Override
-      public void onSubscribe(@NonNull Disposable d) {
-        observer.onSubscribe(d);
+  public SingleSource<T> apply(@NonNull Single<B> upstream) {
+    Single<Buffer> unwrapped = upstream.map(unwrap::apply);
+    Single<T> unmarshalled = unwrapped.flatMap(buffer -> {
+      try {
+        T obj = nonNull(mappedType) ? mapper.readValue(buffer.getBytes(), mappedType) :
+          mapper.readValue(buffer.getBytes(), mappedTypeRef);
+        return Single.just(obj);
+      } catch (IOException e) {
+        return Single.error(e);
       }
-      @Override
-      public void onSuccess(@NonNull B b) {
-        try {
-          Buffer buffer = unwrap.apply(b);
-          T obj = null;
-          if (buffer.length() > 0) {
-            obj = nonNull(mappedType) ? mapper.readValue(buffer.getBytes(), mappedType) :
-              mapper.readValue(buffer.getBytes(), mappedTypeRef);
-          }
-          observer.onSuccess(obj);
-        } catch (IOException e) {
-          onError(e);
-        }
-      }
-
-      @Override
-      public void onError(Throwable t) {
-        observer.onError(t);
-      }
-    };
+    });
+    return unmarshalled;
   }
 }
