@@ -1,8 +1,7 @@
 package io.vertx.reactivex.core.impl;
 
+import io.reactivex.Maybe;
 import io.reactivex.MaybeObserver;
-import io.reactivex.MaybeSource;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -12,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class AsyncResultMaybe<T> implements MaybeSource<T> {
+public class AsyncResultMaybe<T> extends Maybe<T> {
 
   private final Handler<Handler<AsyncResult<T>>> method;
 
@@ -21,7 +20,7 @@ public class AsyncResultMaybe<T> implements MaybeSource<T> {
   }
 
   @Override
-  public void subscribe(@NonNull MaybeObserver<? super T> observer) {
+  protected void subscribeActual(MaybeObserver<? super T> observer) {
     AtomicBoolean disposed = new AtomicBoolean();
     observer.onSubscribe(new Disposable() {
       @Override

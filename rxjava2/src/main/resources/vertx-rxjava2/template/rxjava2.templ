@@ -118,9 +118,9 @@
 	@code{adapterType='io.vertx.reactivex.core.impl.AsyncResult' + futMeth.returnType.simpleName}
 	@code{rxType=futMeth.returnType.raw.name}
 	@includeNamed{'startMethodTemplate';meth=futMeth;deprecated=''} { \n
-    return @{rxType}.unsafeCreate(new @{adapterType}(handler -> {\n
+    return new @{adapterType}(handler -> {\n
       @{method.name}(@foreach{param:futMeth.params}@{param.name}@end{', '}@if{futMeth.params.size() > 0}, @end{}handler);\n
-    }));\n
+    });\n
   }\n\n
 @end{}
 

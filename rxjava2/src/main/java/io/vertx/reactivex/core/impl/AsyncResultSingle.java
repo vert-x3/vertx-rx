@@ -1,7 +1,8 @@
 package io.vertx.reactivex.core.impl;
 
+import io.reactivex.Single;
 import io.reactivex.SingleObserver;
-import io.reactivex.SingleSource;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -11,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class AsyncResultSingle<T> implements SingleSource<T> {
+public class AsyncResultSingle<T> extends Single<T> {
 
   private final Handler<Handler<AsyncResult<T>>> method;
 
@@ -20,7 +21,7 @@ public class AsyncResultSingle<T> implements SingleSource<T> {
   }
 
   @Override
-  public void subscribe(SingleObserver<? super T> observer) {
+  protected void subscribeActual(@NonNull SingleObserver<? super T> observer) {
     AtomicBoolean disposed = new AtomicBoolean();
     observer.onSubscribe(new Disposable() {
       @Override

@@ -1,7 +1,7 @@
 package io.vertx.reactivex.core.impl;
 
+import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
-import io.reactivex.CompletableSource;
 import io.reactivex.disposables.Disposable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class AsyncResultCompletable implements CompletableSource {
+public class AsyncResultCompletable extends Completable {
 
   private final Handler<Handler<AsyncResult<Void>>> method;
 
@@ -20,7 +20,7 @@ public class AsyncResultCompletable implements CompletableSource {
   }
 
   @Override
-  public void subscribe(CompletableObserver observer) {
+  protected void subscribeActual(CompletableObserver observer) {
     AtomicBoolean disposed = new AtomicBoolean();
     observer.onSubscribe(new Disposable() {
       @Override
