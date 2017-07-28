@@ -35,7 +35,7 @@ public class AsyncResultSingle<T> extends Single<T> {
     });
     if (!disposed.get()) {
       method.handle(ar -> {
-        if (!disposed.getAndSet(false)) {
+        if (!disposed.getAndSet(true)) {
           if (ar.succeeded()) {
             try {
               observer.onSuccess(ar.result());

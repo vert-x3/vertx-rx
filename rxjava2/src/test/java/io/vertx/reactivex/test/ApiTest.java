@@ -3,19 +3,22 @@ package io.vertx.reactivex.test;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.vertx.codegen.annotations.Nullable;
 import io.vertx.codegen.testmodel.NullableTCKImpl;
 import io.vertx.codegen.testmodel.TestInterfaceImpl;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.reactivex.codegen.rxjava2.MethodWithMultiCallback;
 import io.vertx.reactivex.codegen.testmodel.NullableTCK;
 import io.vertx.reactivex.codegen.testmodel.TestInterface;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -72,5 +75,33 @@ public class ApiTest {
     assertEquals(Collections.emptyList(), failure);
     assertEquals(1, completions.get());
     result.clear();
+  }
+
+  @Test
+  public void testMultiCompletions() {
+    MethodWithMultiCallback objectMethodWithMultiCompletable = MethodWithMultiCallback.newInstance(new io.vertx.codegen.rxjava2.MethodWithMultiCallback() {
+      @Override
+      public void multiCompletable(Handler<AsyncResult<Void>> handler) {
+        handler.handle(Future.succeededFuture());
+        handler.handle(Future.succeededFuture());
+      }
+      @Override
+      public void multiMaybe(Handler<AsyncResult<@Nullable String>> handler) {
+        handler.handle(Future.succeededFuture());
+        handler.handle(Future.succeededFuture("foo"));
+      }
+      @Override
+      public void multiSingle(Handler<AsyncResult<String>> handler) {
+        handler.handle(Future.succeededFuture("foo"));
+        handler.handle(Future.succeededFuture("foo"));
+      }
+    });
+    AtomicInteger count = new AtomicInteger();
+    objectMethodWithMultiCompletable.rxMultiCompletable().subscribe(count::incrementAndGet);
+    assertEquals(1, count.getAndSet(0));
+    objectMethodWithMultiCompletable.rxMultiMaybe().subscribe(s -> count.incrementAndGet(), err -> {}, count::incrementAndGet);
+    assertEquals(1, count.getAndSet(0));
+    objectMethodWithMultiCompletable.rxMultiSingle().subscribe(s -> count.incrementAndGet());
+    assertEquals(1, count.getAndSet(0));
   }
 }

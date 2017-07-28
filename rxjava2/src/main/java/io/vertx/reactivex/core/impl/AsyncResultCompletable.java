@@ -34,7 +34,7 @@ public class AsyncResultCompletable extends Completable {
     });
     if (!disposed.get()) {
       method.handle(ar -> {
-        if (!disposed.getAndSet(false)) {
+        if (!disposed.getAndSet(true)) {
           if (ar.succeeded()) {
             try {
               observer.onComplete();

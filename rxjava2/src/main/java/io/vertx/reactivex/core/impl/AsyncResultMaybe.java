@@ -34,7 +34,7 @@ public class AsyncResultMaybe<T> extends Maybe<T> {
     });
     if (!disposed.get()) {
       method.handle(ar -> {
-        if (!disposed.getAndSet(false)) {
+        if (!disposed.getAndSet(true)) {
           if (ar.succeeded()) {
             try {
               T val = ar.result();
