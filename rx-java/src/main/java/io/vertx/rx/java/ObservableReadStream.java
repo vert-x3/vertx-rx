@@ -23,7 +23,6 @@ import java.util.function.Function;
 public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
 
   private static final Throwable COMPLETED_SENTINEL = new Throwable();
-  private static final Object RESUME = new Object(), PAUSE = new Object();
   private static final Object NO_ITEM = new Object();
   public static final long DEFAULT_MAX_BUFFER_SIZE = 256;
 
@@ -246,34 +245,43 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
           break;
         }
       }
-      Object action = null;
+      boolean pause = false;
+      boolean resume = false;
+      Object completion = null;
       synchronized (ObservableReadStream.this) {
         if (completed != null) {
           if (pending.size() == 0) {
-            action = completed;
+            completion = completed;
+            if (paused && pending.size() < lowWaterMark) {
+              pause = false;
+              resume = true;
+            }
           }
         } else {
           if (paused && pending.size() < lowWaterMark) {
             paused = false;
-            action = RESUME;
+            resume = true;
+            pause = false;
           } else
           if (!paused && pending.size() >= highWaterMark) {
             paused = true;
-            action = PAUSE;
+            resume = false;
+            pause = true;
           }
         }
         draining = false;
       }
-      if (action != null) {
-        if (action == RESUME) {
-          stream.resume();
-        } else if (action == PAUSE) {
-          stream.pause();
-        } else if (action == COMPLETED_SENTINEL) {
+      if (completion != null) {
+        if (completion == COMPLETED_SENTINEL) {
           subscriber.onCompleted();
         } else {
-          subscriber.onError((Throwable) action);
+          subscriber.onError((Throwable) completion);
         }
+      }
+      if (pause) {
+        stream.pause();
+      } else if (resume) {
+        stream.resume();
       }
     }
 

@@ -115,7 +115,7 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
                 }
               };
             }
-          } else if (requested < BUFFER_SIZE / 2) {
+          } else if (elementHandler != null && requested < BUFFER_SIZE / 2) {
             int request = BUFFER_SIZE - requested;
             action = () -> request(request);
             requested = BUFFER_SIZE;

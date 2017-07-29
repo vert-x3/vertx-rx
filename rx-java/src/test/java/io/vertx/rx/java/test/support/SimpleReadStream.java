@@ -32,6 +32,11 @@ public class SimpleReadStream<T> implements ReadStream<T> {
       this.kind = kind;
       this.action = null;
     }
+
+    @Override
+    public String toString() {
+      return "Expected[kind=" + kind.name() + "]";
+    }
   }
 
   private static final Expect RESUME = new Expect(Kind.RESUME);
