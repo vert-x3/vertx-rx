@@ -103,6 +103,16 @@ transforms an `Observable<Buffer>` in json format into an object observable:
 include::unmarshaller.groovy[tags=example]
 ----
 
+== Yaml unmarshalling
+The `io.vertx.rx.groovy.RxHelper#unmarshaller(java.lang.Class, ObjectMapper)}` creates an `rx.Observable.Operator` that
+transforms an `Observable<Buffer>` in a format the mapper can parse  into an object observable. In order to use it
+to parse YAML you can do the following:
+
+[source,groovy]
+----
+include::unmarhsallYaml.groovy[tags=example]
+----
+
 == Api examples
 
 Let's study now a few examples of using Vert.x with RxJava.
