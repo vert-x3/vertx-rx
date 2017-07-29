@@ -17,10 +17,11 @@
     }
     var futParam = method.params[size];
     var futType = futParam.type.args[0].args[0];
+    var futUnresolvedType = futParam.unresolvedType.args[0].args[0];
     var futReturnType;
-    if (futType.kind == CLASS_VOID) {
+    if (futUnresolvedType.kind == CLASS_VOID) {
       futReturnType = io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Completable);
-    } else if (futType.nullable) {
+    } else if (futUnresolvedType.nullable) {
       futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Maybe), false, java.util.Collections.singletonList(futType));
     } else {
       futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Single), false, java.util.Collections.singletonList(futType));

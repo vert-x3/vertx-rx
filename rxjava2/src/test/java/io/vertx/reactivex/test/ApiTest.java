@@ -10,6 +10,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.codegen.rxjava2.MethodWithMultiCallback;
+import io.vertx.reactivex.codegen.rxjava2.MethodWithNullableTypeVariableParamByVoidArg;
 import io.vertx.reactivex.codegen.testmodel.NullableTCK;
 import io.vertx.reactivex.codegen.testmodel.TestInterface;
 import org.junit.Assert;
@@ -103,5 +104,14 @@ public class ApiTest {
     assertEquals(1, count.getAndSet(0));
     objectMethodWithMultiCompletable.rxMultiSingle().subscribe(s -> count.incrementAndGet());
     assertEquals(1, count.getAndSet(0));
+  }
+
+  @Test
+  public void testNullableTypeVariableParamByVoidArg() {
+    MethodWithNullableTypeVariableParamByVoidArg abc = MethodWithNullableTypeVariableParamByVoidArg.newInstance(handler -> handler.handle(Future.succeededFuture()));
+    Maybe<Void> maybe = abc.rxDoSomethingWithMaybeResult();
+    AtomicInteger count = new AtomicInteger();
+    maybe.subscribe(o -> fail(), err -> fail(err.getMessage()), count::incrementAndGet);
+    assertEquals(1, count.get());
   }
 }
