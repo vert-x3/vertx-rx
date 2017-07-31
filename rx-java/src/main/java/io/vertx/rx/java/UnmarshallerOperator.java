@@ -40,6 +40,12 @@ public abstract class UnmarshallerOperator<T, B> implements Observable.Operator<
     this.mappedTypeRef = mappedTypeRef;
   }
 
+  public UnmarshallerOperator(TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+    this.mappedType = null;
+    this.mapper = mapper;
+    this.mappedTypeRef = mappedTypeRef;
+  }
+
   public abstract Buffer unwrap(B buffer);
 
   @Override
