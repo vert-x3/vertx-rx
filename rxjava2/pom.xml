@@ -214,7 +214,7 @@
               io.vertx.core.spi.metrics,\
               io.vertx.core.streams,\
               *
-           -exportcontents: !*impl,!examples,!io.vertx.core.*, *
+           -exportcontents: !examples,!io.vertx.core.*, *
           ]]></bnd>
         </configuration>
       </plugin>
