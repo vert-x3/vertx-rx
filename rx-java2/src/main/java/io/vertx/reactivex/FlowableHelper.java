@@ -1,6 +1,7 @@
 package io.vertx.reactivex;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
 import io.vertx.core.buffer.Buffer;
@@ -64,5 +65,13 @@ public class FlowableHelper {
 
   public static <T> FlowableTransformer<Buffer, T>unmarshaller(TypeReference<T> mappedTypeRef) {
     return new FlowableUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef);
+  }
+
+  public static <T> FlowableTransformer<Buffer, T> unmarshaller(Class<T> mappedType, ObjectMapper mapper) {
+    return new FlowableUnmarshaller<>(java.util.function.Function.identity(), mappedType, mapper);
+  }
+
+  public static <T> FlowableTransformer<Buffer, T>unmarshaller(TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+    return new FlowableUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef, mapper);
   }
 }
