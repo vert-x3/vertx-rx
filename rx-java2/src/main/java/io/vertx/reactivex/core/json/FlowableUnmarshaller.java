@@ -43,7 +43,7 @@ public class FlowableUnmarshaller<T, B> implements FlowableTransformer<B, T> {
     this(unwrap, null, mappedTypeRef, mapper);
   }
 
-  public FlowableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+  private FlowableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
     this.unwrap = unwrap;
     this.mappedType = mappedType;
     this.mappedTypeRef = mappedTypeRef;

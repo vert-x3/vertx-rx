@@ -27,17 +27,27 @@ public class SingleUnmarshaller<T, B> implements SingleTransformer<B, T> {
 
 
   public SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType) {
-    this.unwrap = unwrap;
-    this.mappedType = mappedType;
-    this.mappedTypeRef = null;
-    this.mapper = Json.mapper;
+    this(unwrap, mappedType,null,  Json.mapper);
+
   }
 
   public SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef) {
+    this(unwrap, null, mappedTypeRef, Json.mapper);
+  }
+
+  public SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, ObjectMapper mapper) {
+    this(unwrap, mappedType,null,  mapper);
+  }
+
+  public SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+    this(unwrap, null, mappedTypeRef, mapper);
+  }
+
+  private SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
     this.unwrap = unwrap;
-    this.mappedType = null;
+    this.mappedType = mappedType;
     this.mappedTypeRef = mappedTypeRef;
-    this.mapper = Json.mapper;
+    this.mapper = mapper;
   }
 
   @Override

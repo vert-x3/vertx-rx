@@ -41,7 +41,7 @@ public class MaybeUnmarshaller<T, B> implements MaybeTransformer<B, T> {
     this(unwrap, null, mappedTypeRef, mapper);
   }
 
-  public MaybeUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+  private MaybeUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
     this.unwrap = unwrap;
     this.mappedType = mappedType;
     this.mappedTypeRef = mappedTypeRef;
