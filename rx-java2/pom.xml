@@ -308,7 +308,7 @@
                 <include>examples/**/*.java</include>
               </includes>
               <optionMap>
-                <docgen.output>${asciidoc.dir}/java</docgen.output>
+                <docgen.output>${asciidoc.dir}/java2</docgen.output>
               </optionMap>
             </configuration>
           </execution>
