@@ -12,6 +12,7 @@ var observer = Rx.Observer.create(
       test.assertEquals("msg1", events[0]);
       test.assertEquals("msg2", events[1]);
       test.assertEquals("msg3", events[2]);
+      this.dispose();
       test.testComplete();
     }
   },
@@ -19,7 +20,7 @@ var observer = Rx.Observer.create(
     test.fail(err);
   },
   function () {
-    test.fail(err);
+    test.fail("unexpected");
   }
 );
 

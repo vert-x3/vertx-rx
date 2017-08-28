@@ -9,6 +9,7 @@ var observer = Rx.Observer.create(
   function (evt) {
     test.assertEquals(initContext._jdel, Vertx.currentContext()._jdel);
     test.assertEquals("msg1msg2msg3", evt);
+    this.dispose();
     test.testComplete();
   },
   function (err) {

@@ -5,13 +5,14 @@ var consumer = eb.localConsumer("the-address");
 var observer = Rx.Observer.create(
   function (evt) {
     test.assertEquals("object", typeof evt._jdel);
+    this.dispose();
     test.testComplete();
   },
   function (err) {
     test.fail(err);
   },
   function () {
-    test.fail(err);
+    test.fail("unexpected");
   }
 );
 var observable = Rx.Observable.fromReadStream(consumer);

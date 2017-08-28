@@ -166,6 +166,29 @@ public class CoreApiTest extends VertxTestBase {
   }
 
   @Test
+  public void testUnregisterConsumer() {
+    EventBus eb = vertx.eventBus();
+    MessageConsumer<String> consumer = eb.<String>consumer("the-address");
+    Observable<String> obs = consumer.bodyStream().toObservable();
+    obs.subscribe(new Subscriber<String>() {
+      @Override
+      public void onCompleted() {
+        testComplete();
+      }
+      @Override
+      public void onError(Throwable e) {
+        fail(e.getMessage());
+      }
+      @Override
+      public void onNext(String str) {
+        fail();
+      }
+    });
+    consumer.unregister();
+    await();
+  }
+
+  @Test
   public void testConcatReplies() {
     EventBus eb = vertx.eventBus();
     eb.<String>consumer("the-address", msg -> {
