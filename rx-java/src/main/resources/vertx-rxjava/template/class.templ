@@ -76,15 +76,39 @@ public @if{concrete}class@else{}interface@end{} @{helper.getSimpleName(ifaceFQCN
 @if{concrete}
 
 	@if{type.name == 'io.vertx.core.buffer.Buffer'}
-	    public void writeToBuffer(io.vertx.core.buffer.Buffer buffer) {\n
-	      delegate.writeToBuffer(buffer);\n
-	    }\n
+	  @Override\n
+	  public void writeToBuffer(io.vertx.core.buffer.Buffer buffer) {\n
+	    delegate.writeToBuffer(buffer);\n
+	  }\n
 	\n
-	    public int readFromBuffer(int pos, io.vertx.core.buffer.Buffer buffer) {\n
-	      return delegate.readFromBuffer(pos, buffer);\n
-	    }\n
+	  @Override\n
+	  public int readFromBuffer(int pos, io.vertx.core.buffer.Buffer buffer) {\n
+	    return delegate.readFromBuffer(pos, buffer);\n
+	  }\n
 	\n
 	@end{}
+
+	@if{!hasToString(methods)}
+	  @Override\n
+	  public String toString() {\n
+	    return delegate.toString();\n
+	  }\n
+	\n
+	@end{}
+
+	  @Override\n
+	  public boolean equals(Object o) {\n
+	    if (this == o) return true;\n
+	    if (o == null || getClass() != o.getClass()) return false;\n
+	    @{type.simpleName} that = (@{type.simpleName}) o;\n
+	    return delegate.equals(that.delegate);\n
+	  }\n
+	  \n
+	  @Override\n
+	  public int hashCode() {\n
+	    return delegate.hashCode();\n
+	  }\n
+	\n
 
 	@includeNamed{'classbody.templ';constructor=ifaceSimpleName}
 

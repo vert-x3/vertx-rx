@@ -238,6 +238,15 @@
       return deflt;
     }
   }
+
+  def hasToString(methods) {
+    for (method : methods) {
+      if (method.name == 'toString' && method.params.isEmpty()) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
 
 @declare{'startMethodTemplate'}
