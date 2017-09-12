@@ -56,9 +56,15 @@ public class RxHelper {
    * @return the response observable
    */
   public static Single<String> deployVerticle(Vertx vertx, Verticle verticle, DeploymentOptions options) {
-    return Single.unsafeCreate(new io.vertx.reactivex.core.impl.AsyncResultSingle<String>(handler -> {
-      vertx.getDelegate().deployVerticle(verticle, options, handler);
-    }));
+    return Single.create(emitter -> {
+      vertx.getDelegate().deployVerticle(verticle, options, ar -> {
+        if (ar.succeeded()) {
+          emitter.onSuccess(ar.result());
+        } else {
+          emitter.onError(ar.cause());
+        }
+      });
+    });
   }
 
   /**
