@@ -19,6 +19,7 @@ package io.vertx.reactivex.test;
 import io.reactivex.Single;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.RxHelper;
@@ -26,6 +27,7 @@ import io.vertx.reactivex.core.Vertx;
 import org.junit.After;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 /**
@@ -61,14 +63,46 @@ public class RxHelperTest {
     assertEquals(expected, verticle.config);
   }
 
-  public static class CoreVerticle extends AbstractVerticle {
-
-    private volatile JsonObject config;
-
-    @Override
-    public void start() throws Exception {
-      config = config();
+  @Test
+  public void deployVerticleFailure() throws Exception {
+    CoreVerticle verticle = new CoreVerticle(true);
+    Single<String> single = RxHelper.deployVerticle(vertx, verticle);
+    assertNull(verticle.config);
+    try {
+      single.blockingGet();
+      fail("Verticle deployment should fail");
+    } catch (RuntimeException e) {
+      assertThat(e.getCause(), instanceOf(MyException.class));
+      assertNotNull(verticle.config);
+      assertTrue(verticle.config.isEmpty());
     }
   }
 
-}
+  public static class CoreVerticle extends AbstractVerticle {
+
+    private final boolean failDeployment;
+    private volatile JsonObject config;
+
+    public CoreVerticle() {
+      failDeployment = false;
+    }
+
+    public CoreVerticle(boolean failDeployment) {
+      this.failDeployment = failDeployment;
+    }
+
+    @Override
+    public void start(Future<Void> startFuture) throws Exception {
+      config = config();
+      if (failDeployment) {
+        startFuture.fail(new MyException());
+      } else {
+        startFuture.complete();
+      }
+    }
+
+  }
+
+  static class MyException extends Exception {
+  }
+  }
