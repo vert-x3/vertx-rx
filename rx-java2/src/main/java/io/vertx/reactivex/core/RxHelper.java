@@ -4,6 +4,7 @@ import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Verticle;
+import io.vertx.reactivex.core.impl.AsyncResultSingle;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -56,15 +57,7 @@ public class RxHelper {
    * @return the response observable
    */
   public static Single<String> deployVerticle(Vertx vertx, Verticle verticle, DeploymentOptions options) {
-    return Single.create(emitter -> {
-      vertx.getDelegate().deployVerticle(verticle, options, ar -> {
-        if (ar.succeeded()) {
-          emitter.onSuccess(ar.result());
-        } else {
-          emitter.onError(ar.cause());
-        }
-      });
-    });
+    return new AsyncResultSingle<>(handler -> vertx.getDelegate().deployVerticle(verticle, options, handler));
   }
 
   /**
