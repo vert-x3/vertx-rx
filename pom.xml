@@ -5,7 +5,7 @@
   <parent>
     <groupId>io.vertx</groupId>
     <artifactId>vertx-parent</artifactId>
-    <version>10</version>
+    <version>11</version>
   </parent>
 
   <artifactId>vertx-rx</artifactId>
@@ -17,7 +17,6 @@
   <modules>
     <module>rx-java</module>
     <module>rx-java2</module>
-    <module>rx-groovy</module>
     <module>rx-js</module>
   </modules>
 
@@ -122,5 +121,20 @@
 
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>java-8</id>
+      <activation>
+        <jdk>1.8</jdk>
+      </activation>
+      <modules>
+        <module>rx-java</module>
+        <module>rx-java2</module>
+        <module>rx-groovy</module>
+        <module>rx-js</module>
+      </modules>
+    </profile>
+  </profiles>
 
 </project>
