@@ -245,6 +245,7 @@
             <configuration>
               <processors>
                 <processor>io.vertx.docgen.JavaDocGenProcessor</processor>
+                <processor>io.vertx.docgen.DocGenProcessor</processor>
               </processors>
               <includes>
                 <include>io/vertx/rxjava/core/**/*.java</include>
@@ -252,6 +253,9 @@
               </includes>
               <optionMap>
                 <docgen.output>${asciidoc.dir}/java</docgen.output>
+                <maven.groupId>${project.groupId}</maven.groupId>
+                <maven.artifactId>${project.artifactId}</maven.artifactId>
+                <maven.version>${project.version}</maven.version>
               </optionMap>
             </configuration>
           </execution>

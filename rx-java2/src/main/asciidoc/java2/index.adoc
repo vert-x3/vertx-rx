@@ -9,10 +9,32 @@ observable sequences for the Java VM.
 Vert.x integrates naturally with RxJava, allowing to use
 observable wherever you can use streams or asynchronous results.
 
-There are two ways for using the RxJava API with Vert.x:
+=== Using Vert.x API for RxJava2
+
+To use Vert.x API for RxJava2, add the following dependency to the _dependencies_ section of your build descriptor:
+
+* Maven (in your `pom.xml`):
+
+[source,xml,subs="+attributes"]
+----
+<dependency>
+  <groupId>io.vertx</groupId>
+  <artifactId>vertx-rx-java2</artifactId>
+  <version>3.5.1-SNAPSHOT</version>
+</dependency>
+----
+
+* Gradle (in your `build.gradle` file):
+
+[source,groovy,subs="+attributes"]
+----
+compile 'io.vertx:vertx-rx-java2:3.5.1-SNAPSHOT'
+----
+
+There are two ways for using the RxJava 2 API with Vert.x:
 
 * via the original Vert.x API with helpers class that provides static methods for converting objects between Vert.x core
-API and RxJava API
+API and RxJava 2 API
 ** `link:../../apidocs/io/vertx/reactivex/RxHelper.html[RxHelper]`
 ** `link:../../apidocs/io/vertx/reactivex/ObservableHelper.html[ObservableHelper]`
 ** `link:../../apidocs/io/vertx/reactivex/FlowableHelper.html[FlowableHelper]`
