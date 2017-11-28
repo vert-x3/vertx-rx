@@ -33,21 +33,30 @@ public class AsyncResultCompletable extends Completable {
       }
     });
     if (!disposed.get()) {
-      method.handle(ar -> {
-        if (!disposed.getAndSet(true)) {
-          if (ar.succeeded()) {
-            try {
-              observer.onComplete();
-            } catch (Throwable ignore) {
-            }
-          } else {
-            try {
-              observer.onError(ar.cause());
-            } catch (Throwable ignore) {
+      try {
+        method.handle(ar -> {
+          if (!disposed.getAndSet(true)) {
+            if (ar.succeeded()) {
+              try {
+                observer.onComplete();
+              } catch (Throwable ignore) {
+              }
+            } else {
+              try {
+                observer.onError(ar.cause());
+              } catch (Throwable ignore) {
+              }
             }
           }
+        });
+      } catch (Exception e) {
+        if (!disposed.getAndSet(true)) {
+          try {
+            observer.onError(e);
+          } catch (Throwable ignore) {
+          }
         }
-      });
+      }
     }
   }
 }
