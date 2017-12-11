@@ -79,7 +79,9 @@ public class RxHelper {
   }
 
   /**
-   * Returns a json unmarshaller for the specified java type as a {@link rx.Observable.Operator} instance.<p/>
+   *
+   * Returns a unmarshaller for the specified java type as a {@link rx.Observable.Operator} instance given the
+   * the provided {@link com.fasterxml.jackson.databind.ObjectMapper}<p/>
    *
    * The marshaller can be used with the {@link rx.Observable#lift(rx.Observable.Operator)} method to transform
    * a {@literal Observable<Buffer>} into a {@literal Observable<T>}.<p/>
@@ -102,7 +104,8 @@ public class RxHelper {
   }
 
   /**
-   * Returns a json unmarshaller for the specified java type as a {@link rx.Observable.Operator} instance.<p/>
+   * Returns a unmarshaller for the specified java type as a {@link rx.Observable.Operator} instance given the
+   * the provided {@link com.fasterxml.jackson.databind.ObjectMapper}<p/>
    *
    * The marshaller can be used with the {@link rx.Observable#lift(rx.Observable.Operator)} method to transform
    * a {@literal Observable<Buffer>} into a {@literal Observable<T>}.<p/>
