@@ -1,6 +1,7 @@
 package io.vertx.reactivex;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.MaybeObserver;
 import io.reactivex.MaybeOperator;
 import io.reactivex.MaybeTransformer;
@@ -61,5 +62,13 @@ public class MaybeHelper {
 
   public static <T> MaybeTransformer<Buffer, T> unmarshaller(TypeReference<T> mappedTypeRef) {
     return new MaybeUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef);
+  }
+
+  public static <T> MaybeTransformer<Buffer, T> unmarshaller(Class<T> mappedType, ObjectMapper mapper) {
+    return new MaybeUnmarshaller<>(java.util.function.Function.identity(), mappedType, mapper);
+  }
+
+  public static <T> MaybeTransformer<Buffer, T> unmarshaller(TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+    return new MaybeUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef, mapper);
   }
 }

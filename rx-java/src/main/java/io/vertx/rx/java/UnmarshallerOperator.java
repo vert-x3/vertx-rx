@@ -1,13 +1,14 @@
 package io.vertx.rx.java;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.Json;
 import rx.Observable;
 import rx.Subscriber;
 
-import static io.vertx.core.json.Json.mapper;
 import static java.util.Objects.nonNull;
 
 /**
@@ -19,14 +20,29 @@ public abstract class UnmarshallerOperator<T, B> implements Observable.Operator<
 
   private final Class<T> mappedType;
   private final TypeReference<T> mappedTypeRef;
+  private ObjectMapper mapper;
 
   public UnmarshallerOperator(Class<T> mappedType) {
     this.mappedType = mappedType;
+    this.mapper = Json.mapper;
+    this.mappedTypeRef = null;
+  }
+
+  public UnmarshallerOperator(Class<T> mappedType, ObjectMapper mapper) {
+    this.mappedType = mappedType;
+    this.mapper = mapper;
     this.mappedTypeRef = null;
   }
 
   public UnmarshallerOperator(TypeReference<T> mappedTypeRef) {
     this.mappedType = null;
+    this.mapper = Json.mapper;
+    this.mappedTypeRef = mappedTypeRef;
+  }
+
+  public UnmarshallerOperator(TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+    this.mappedType = null;
+    this.mapper = mapper;
     this.mappedTypeRef = mappedTypeRef;
   }
 

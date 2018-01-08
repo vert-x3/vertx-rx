@@ -1,6 +1,7 @@
 package io.vertx.reactivex.core.json;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -8,10 +9,10 @@ import io.reactivex.ObservableTransformer;
 import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.Json;
 
 import java.io.IOException;
 
-import static io.vertx.core.json.Json.mapper;
 import static java.util.Objects.nonNull;
 
 /**
@@ -24,17 +25,32 @@ public class ObservableUnmarshaller<T, B> implements ObservableTransformer<B, T>
   private final java.util.function.Function<B, Buffer> unwrap;
   private final Class<T> mappedType;
   private final TypeReference<T> mappedTypeRef;
+  private ObjectMapper mapper;
 
   public ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType) {
-    this.unwrap = unwrap;
-    this.mappedType = mappedType;
-    this.mappedTypeRef = null;
+    this(unwrap, mappedType, null, Json.mapper);
+
   }
 
   public ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef) {
+    this(unwrap, null, mappedTypeRef, Json.mapper);
+  }
+
+  public ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, ObjectMapper mapper) {
+    this(unwrap, mappedType, null, mapper);
+
+  }
+
+  public ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+    this(unwrap, null, mappedTypeRef, mapper);
+  }
+
+  private ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
     this.unwrap = unwrap;
-    this.mappedType = null;
+    this.mappedType = mappedType;
     this.mappedTypeRef = mappedTypeRef;
+    this.mapper = mapper;
+
   }
 
   @Override
