@@ -26,6 +26,7 @@ public class SimpleSubscriber<T> {
   private long prefetch = Long.MAX_VALUE;
   private final ArrayBlockingQueue<Object> events = new ArrayBlockingQueue<>(100);
   private Subscription subscription;
+  private long requested;
 
   public static <B> void subscribe(Observable<B> observable, SimpleSubscriber<B> subscriber) {
     observable.subscribe(subscriber.toObserver());
@@ -33,7 +34,7 @@ public class SimpleSubscriber<T> {
 
   public void onSubscribe(Subscription sub) {
     subscription = sub;
-    sub.fetch(prefetch);
+    request(prefetch);
   }
 
   public interface Subscription {
@@ -91,6 +92,13 @@ public class SimpleSubscriber<T> {
   }
 
   public SimpleSubscriber<T> request(long val) {
+    if (val < 0) {
+      throw new IllegalArgumentException();
+    }
+    requested += val;
+    if (requested < 0L) {
+      requested = Long.MAX_VALUE;
+    }
     subscription.fetch(val);
     return this;
   }
@@ -101,7 +109,14 @@ public class SimpleSubscriber<T> {
     events.add(e);
   }
 
-  public void onNext(T t) { events.add(t); }
+  public void onNext(T t) {
+    if (requested < Long.MAX_VALUE) {
+      if (requested < 1) {
+        throw new IllegalStateException("Cannot handle non requested item");
+      }
+    }
+    events.add(t);
+  }
 
   public SimpleSubscriber<T> assertItem(T expected) {
     return assertEvent(expected);

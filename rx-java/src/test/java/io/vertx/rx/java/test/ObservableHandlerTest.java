@@ -6,6 +6,11 @@ import io.vertx.rx.java.RxHelper;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 /**
@@ -113,9 +118,9 @@ public class ObservableHandlerTest {
 
   @Test
   public void testFulfillAdaptedFunctions1() {
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    Handler<String> o = RxHelper.toHandler(subscriber::onNext);
+    List<String> items = new ArrayList<>();
+    Handler<String> o = RxHelper.toHandler(items::add);
     o.handle("abc");
-    subscriber.assertItem("abc").assertEmpty();
+    assertEquals(Collections.singletonList("abc"), items);
   }
 }

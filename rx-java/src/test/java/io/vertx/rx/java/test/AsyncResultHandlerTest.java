@@ -9,6 +9,11 @@ import io.vertx.rx.java.test.support.SimpleSubscriber;
 import org.junit.Test;
 import rx.exceptions.OnErrorNotImplementedException;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static io.vertx.rx.java.test.support.SimpleSubscriber.subscribe;
 import static org.junit.Assert.*;
 
@@ -107,26 +112,32 @@ import static org.junit.Assert.*;
 
   @Test
   public void testFulfillAdaptedFunctions1() {
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    Handler<AsyncResult<String>> o = RxHelper.toFuture(subscriber::onNext);
+    List<String> items = new ArrayList<>();
+    Handler<AsyncResult<String>> o = RxHelper.toFuture(items::add);
     o.handle(Future.succeededFuture("abc"));
-    subscriber.assertItem("abc").assertEmpty();
+    assertEquals(Collections.singletonList("abc"), items);
   }
 
   @Test
   public void testFulfillAdaptedFunctions2() {
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    Handler<AsyncResult<String>> o = RxHelper.toFuture(subscriber::onNext, subscriber::onError);
+    List<String> items = new ArrayList<>();
+    List<Throwable> errors = new ArrayList<>();
+    Handler<AsyncResult<String>> o = RxHelper.toFuture(items::add, errors::add);
     o.handle(Future.succeededFuture("abc"));
-    subscriber.assertItem("abc").assertEmpty();
+    assertEquals(Collections.singletonList("abc"), items);
+    assertEquals(Collections.emptyList(), errors);
   }
 
   @Test
   public void testFulfillAdaptedFunctions3() {
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    Handler<AsyncResult<String>> o = RxHelper.toFuture(subscriber::onNext, subscriber::onError, subscriber::onCompleted);
+    List<String> items = new ArrayList<>();
+    List<Throwable> errors = new ArrayList<>();
+    AtomicInteger completions = new AtomicInteger();
+    Handler<AsyncResult<String>> o = RxHelper.toFuture(items::add, errors::add, completions::incrementAndGet);
     o.handle(Future.succeededFuture("abc"));
-    subscriber.assertItem("abc").assertCompleted().assertEmpty();
+    assertEquals(Collections.singletonList("abc"), items);
+    assertEquals(Collections.emptyList(), errors);
+    assertEquals(1, completions.get());
   }
 
   @Test
