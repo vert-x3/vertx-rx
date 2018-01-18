@@ -96,6 +96,8 @@
               <configuration>
                 <excludes>
                   <exclude>io/vertx/core/**</exclude>
+                  <exclude>/docoverride/**</exclude>
+                  <exclude>/examples/**</exclude>
                 </excludes>
               </configuration>
             </execution>
