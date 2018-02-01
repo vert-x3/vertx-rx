@@ -1,14 +1,15 @@
 package io.vertx.reactivex.test;
 
 import io.reactivex.Flowable;
+import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.reactivex.FlowableHelper;
-import io.vertx.rx.java.ObservableReadStream;
 import io.vertx.rx.java.test.ReadStreamAdapterBackPressureTest;
 import io.vertx.rx.java.test.stream.BufferReadStreamImpl;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 /**
@@ -53,5 +54,23 @@ public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapter
       assertTrue(err instanceof IllegalStateException);
     });
     subscriber2.assertEmpty();
+  }
+
+  @Test
+  public void testHandletIsSetInDoOnSubscribe() {
+    AtomicBoolean hanlderSet = new AtomicBoolean();
+    BufferReadStreamImpl stream = new BufferReadStreamImpl() {
+      @Override
+      public BufferReadStreamImpl handler(Handler<Buffer> handler) {
+        hanlderSet.set(true);
+        return super.handler(handler);
+      }
+    };
+    Flowable<Buffer> observable = toObservable(stream).doOnSubscribe(disposable -> {
+      assertTrue(hanlderSet.get());
+    });
+    SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<>();
+    subscribe(observable, subscriber);
+    subscriber.assertEmpty();
   }
 }
