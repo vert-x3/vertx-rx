@@ -6,6 +6,8 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -13,6 +15,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class AsyncResultSingle<T> extends Single<T> {
+
+  private static final Logger log = LoggerFactory.getLogger(AsyncResultSingle.class);
 
   private final Handler<Handler<AsyncResult<T>>> method;
 
@@ -40,12 +44,14 @@ public class AsyncResultSingle<T> extends Single<T> {
             if (ar.succeeded()) {
               try {
                 observer.onSuccess(ar.result());
-              } catch (Throwable ignore) {
+              } catch (Exception err) {
+                log.error("Unexpected error", err);
               }
             } else if (ar.failed()) {
               try {
                 observer.onError(ar.cause());
-              } catch (Throwable ignore) {
+              } catch (Exception err) {
+                log.error("Unexpected error", err);
               }
             }
           }
@@ -54,7 +60,8 @@ public class AsyncResultSingle<T> extends Single<T> {
         if (!disposed.getAndSet(true)) {
           try {
             observer.onError(e);
-          } catch (Throwable ignore) {
+          } catch (Exception err) {
+            log.error("Unexpected error", err);
           }
         }
       }
