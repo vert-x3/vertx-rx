@@ -5,9 +5,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>vertx-rx</artifactId>
+    <artifactId>vertx-base-stack</artifactId>
     <groupId>io.vertx</groupId>
     <version>3.6.0-SNAPSHOT</version>
+    <relativePath></relativePath>
   </parent>
 
   <artifactId>vertx-rx-java</artifactId>
@@ -26,34 +27,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.reactivex</groupId>
-      <artifactId>rxjava</artifactId>
-    </dependency>
-    <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-codegen</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-docgen</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-core</artifactId>
-      <classifier>sources</classifier>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-codegen</artifactId>
-      <classifier>tck-sources</classifier>
-      <scope>test</scope>
+      <artifactId>vertx-rx-java-codegen</artifactId>
+      <version>3.6.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -67,12 +43,40 @@
       <version>4.12</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-rx-java-codegen</artifactId>
+      <type>test-jar</type>
+      <version>3.6.0-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>2.3.4</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.3.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.jayway.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>1.7.0</version>
+      <scope>test</scope>
+    </dependency>
 
   </dependencies>
 
   <build>
+
+
     <pluginManagement>
       <plugins>
+        <!--
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
           <executions>
@@ -103,9 +107,62 @@
             </execution>
           </executions>
         </plugin>
+        -->
       </plugins>
     </pluginManagement>
     <plugins>
+
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <!-- Unpack sources to target/sources -->
+          <execution>
+            <id>unpack-java</id>
+          </execution>
+          <execution>
+            <id>unpack-asciidoc</id>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.bsc.maven</groupId>
+        <artifactId>maven-processor-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>generate-sources</id>
+            <configuration>
+              <optionMap>
+                <codegen.output>${project.basedir}/src/main</codegen.output>
+                <codegen.rxjava.deprecated>true</codegen.rxjava.deprecated>
+              </optionMap>
+            </configuration>
+          </execution>
+          <execution>
+            <id>generate-doc</id>
+          </execution>
+          <execution>
+            <id>generate-test-sources</id>
+            <goals>
+              <goal>process-test</goal>
+            </goals>
+            <phase>generate-test-sources</phase>
+            <configuration>
+              <processors>
+                <processor>io.vertx.codegen.CodeGenProcessor</processor>
+              </processors>
+              <optionMap>
+                <outputDirectory>${project.basedir}/src/test</outputDirectory>
+              </optionMap>
+              <defaultOutputDirectory>${project.build.directory}/generated-test-sources/test-annotations</defaultOutputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!--
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -162,7 +219,10 @@
         </configuration>
       </plugin>
 
+      -->
+
       <!-- Configure the execution of the compiler to execute the codegen processor -->
+      <!--
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <executions>
@@ -182,25 +242,13 @@
               </compilerArgs>
             </configuration>
           </execution>
-          <execution>
-            <id>default-testCompile</id>
-            <configuration>
-              <annotationProcessors>
-                <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
-              </annotationProcessors>
-              <compilerArgs>
-                <arg>-Acodegen.output=${project.basedir}/src/test</arg>
-                <arg>-Acodegen.generators=RxJava</arg>
-                <arg>-Acodegen.rxjava.deprecated=true</arg>
-              </compilerArgs>
-            </configuration>
-          </execution>
         </executions>
       </plugin>
+      -->
+      <!--
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
-          <!-- Unpack vertx-core source code to src/main/java -->
           <execution>
             <id>unpack-vertx-core</id>
             <phase>generate-sources</phase>
@@ -215,21 +263,6 @@
               <includes>io/vertx/core/**/*.java</includes>
               <excludes>**/impl/**/*.java,**/logging/*.java</excludes>
               <outputDirectory>${basedir}/src/main/java</outputDirectory>
-            </configuration>
-          </execution>
-          <!-- Unpack codegen source code to src/test/java -->
-          <execution>
-            <id>unpack-codegen</id>
-            <phase>generate-test-sources</phase>
-            <goals>
-              <goal>unpack-dependencies</goal>
-            </goals>
-            <configuration>
-              <includeGroupIds>io.vertx</includeGroupIds>
-              <includeArtifactIds>vertx-codegen</includeArtifactIds>
-              <includeTypes>jar</includeTypes>
-              <includeClassifiers>tck-sources</includeClassifiers>
-              <outputDirectory>${basedir}/src/test/java</outputDirectory>
             </configuration>
           </execution>
         </executions>
@@ -263,8 +296,10 @@
           </execution>
         </executions>
       </plugin>
+      -->
 
       <!-- Doc generation -->
+      <!--
       <plugin>
         <groupId>org.asciidoctor</groupId>
         <artifactId>asciidoctor-maven-plugin</artifactId>
@@ -315,6 +350,7 @@
           </execution>
         </executions>
       </plugin>
+      -->
     </plugins>
   </build>
 

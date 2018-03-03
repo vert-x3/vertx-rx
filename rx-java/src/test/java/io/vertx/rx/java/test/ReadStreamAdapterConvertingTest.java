@@ -1,6 +1,8 @@
 package io.vertx.rx.java.test;
 
-import io.vertx.rx.java.test.stream.BufferReadStreamImpl;
+import io.vertx.core.Handler;
+import io.vertx.rx.java.test.stream.BufferReadStream;
+import io.vertx.rx.java.test.support.SimpleReadStream;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
 import io.vertx.rxjava.core.buffer.Buffer;
 import rx.Observable;
@@ -11,8 +13,34 @@ import rx.Observable;
 public class ReadStreamAdapterConvertingTest extends ReadStreamAdapterTestBase<Buffer, Observable<Buffer>> {
 
   @Override
-  protected Observable<Buffer> toObservable(BufferReadStreamImpl stream) {
-    return new io.vertx.rxjava.rx.java.test.stream.BufferReadStream(stream).toObservable();
+  protected Observable<Buffer> toObservable(SimpleReadStream<io.vertx.core.buffer.Buffer> stream) {
+    return new io.vertx.rxjava.rx.java.test.stream.BufferReadStream(new BufferReadStream() {
+      @Override
+      public BufferReadStream exceptionHandler(Handler<Throwable> handler) {
+        stream.exceptionHandler(handler);
+        return this;
+      }
+      @Override
+      public BufferReadStream handler(Handler<io.vertx.core.buffer.Buffer> handler) {
+        stream.handler(handler);
+        return this;
+      }
+      @Override
+      public BufferReadStream pause() {
+        stream.pause();
+        return this;
+      }
+      @Override
+      public BufferReadStream resume() {
+        stream.resume();
+        return this;
+      }
+      @Override
+      public BufferReadStream endHandler(Handler<Void> endHandler) {
+        stream.endHandler(endHandler);
+        return this;
+      }
+    }).toObservable();
   }
 
   @Override
