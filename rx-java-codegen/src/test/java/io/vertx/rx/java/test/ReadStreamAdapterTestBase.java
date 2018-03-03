@@ -2,7 +2,7 @@ package io.vertx.rx.java.test;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.rx.java.test.stream.BufferReadStreamImpl;
+import io.vertx.rx.java.test.support.SimpleReadStream;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
@@ -12,7 +12,7 @@ import org.junit.Test;
  */
 public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
 
-  protected abstract O toObservable(BufferReadStreamImpl stream);
+  protected abstract O toObservable(SimpleReadStream<Buffer> stream);
   protected abstract B buffer(String s);
   protected abstract String string(B buffer);
   protected abstract void subscribe(O obs, SimpleSubscriber<B> sub);
@@ -20,7 +20,7 @@ public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
 
   @Test
   public void testReact() {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     O observable = toObservable(stream);
     SimpleSubscriber<B> subscriber = new SimpleSubscriber<B>() {
       @Override
@@ -42,8 +42,8 @@ public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
 
   @Test
   public void testConcat() {
-    BufferReadStreamImpl stream1 = new BufferReadStreamImpl();
-    BufferReadStreamImpl stream2 = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream1 = new SimpleReadStream<>();
+    SimpleReadStream<Buffer> stream2 = new SimpleReadStream<>();
     O observable1 = toObservable(stream1);
     O observable2 = toObservable(stream2);
     O observable = concat(observable1, observable2);
@@ -87,9 +87,9 @@ public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
 
   @Test
   public void testDataHandlerShouldBeSetAndUnsetAfterOtherHandlers() {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl() {
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<Buffer>() {
       @Override
-      public BufferReadStreamImpl handler(Handler<Buffer> handler) {
+      public SimpleReadStream<Buffer> handler(Handler<Buffer> handler) {
         if (handler == null) {
           assertHasNoExceptionHandler();
           assertHasNoEndHandler();
@@ -108,9 +108,9 @@ public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
 
   @Test
   public void testOnSubscribeHandlerIsSetLast() {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl() {
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<Buffer>() {
       @Override
-      public BufferReadStreamImpl handler(Handler<Buffer> handler) {
+      public SimpleReadStream<Buffer> handler(Handler<Buffer> handler) {
         assertHasExceptionHandler();
         assertHasEndHandler();
         return super.handler(handler);
@@ -123,7 +123,7 @@ public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
 
   @Test
   public void testHandlers() {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     O observable = toObservable(stream);
     SimpleSubscriber<B> subscriber = new SimpleSubscriber<>();
     subscribe(observable, subscriber);

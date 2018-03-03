@@ -2,7 +2,7 @@ package io.vertx.rx.java.test;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.rx.java.ObservableReadStream;
-import io.vertx.rx.java.test.stream.BufferReadStreamImpl;
+import io.vertx.rx.java.test.support.SimpleReadStream;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ import java.util.function.Function;
  */
 public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAdapterTestBase<Buffer, O> {
 
-  protected abstract O toObservable(BufferReadStreamImpl stream, int maxBufferSize);
+  protected abstract O toObservable(SimpleReadStream<Buffer> stream, int maxBufferSize);
 
   protected abstract O flatMap(O obs, Function<Buffer, O> f);
 
@@ -31,7 +31,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
 
   @Test
   public void testPause() {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     O observable = toObservable(stream);
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
     subscribe(observable, subscriber);
@@ -48,7 +48,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
 
   @Test
   public void testNoPauseWhenRequestingOne() {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>() {
       @Override
       public void onNext(Buffer buffer) {
@@ -65,7 +65,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   @Test
   public void testUnsubscribeOnFirstItemFromBufferedDeliveredWhileRequesting() {
     for (int i = 1;i <= 3;i++) {
-      BufferReadStreamImpl stream = new BufferReadStreamImpl();
+      SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
       stream.expectPause();
       stream.expectResume();
       SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>() {
@@ -96,7 +96,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   }
 
   private void testEndOrFailWithoutRequest(Throwable err) {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
@@ -114,7 +114,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   @Test
   public void testNoResumeWhenRequestingBuffered() {
     AtomicBoolean resumed = new AtomicBoolean();
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     stream.expectPause();
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
     O observable = toObservable(stream, 2);
@@ -128,7 +128,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   @Test
   public void testEndDuringRequestResume() {
     int num = 10;
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     stream.expectPause();
     stream.expectResume(stream::end);
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
@@ -156,7 +156,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   }
 
   private void testDeliverEndOrFailWhenPaused(Throwable err) {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     stream.expectPause();
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
     O observable = toObservable(stream, 2);
@@ -192,7 +192,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   }
 
   private void testEndOrFailWhenPaused(Throwable err) {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     stream.expectPause();
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
     O observable = toObservable(stream, 2);
@@ -218,7 +218,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
 
   @Test
   public void testRequestDuringOnNext() {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>() {
       @Override
       public void onNext(Buffer buffer) {
@@ -241,7 +241,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   @Test
   public void testDeliverDuringResume() {
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     stream.expectPause();
     stream.expectResume(() -> stream.emit(buffer("2")));
     O observable = toObservable(stream, 2);
@@ -257,7 +257,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   public void testEndDuringResume() {
     int num = 4;
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     stream.expectPause();
     stream.expectResume(() -> {
       stream.end();
@@ -278,7 +278,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   @Test
   public void testBufferDuringResume() {
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     stream.expectPause();
     stream.expectResume(() -> stream.emit(buffer("2"), buffer("3")));
     stream.expectPause();
@@ -293,7 +293,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   @Test
   public void testFoo() {
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     O observable = toObservable(stream);
     subscribe(observable, subscriber);
     stream.emit(buffer("0"));
@@ -305,7 +305,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   @Test
   public void testBar() {
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     stream.expectPause();
     O observable = toObservable(stream);
     subscribe(observable, subscriber);
@@ -326,7 +326,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
         unsubscribe();
       }
     };
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     O observable = toObservable(stream);
     subscribe(observable, subscriber);
     stream.emit(buffer("0"));
@@ -335,7 +335,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   @Test
   public void testResubscribe() {
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
     stream.expectPause();
@@ -367,7 +367,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
 
   @Test
   public void testBackPressureBuffer() {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     O observable = toObservable(stream, 20);
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>() {
       @Override
@@ -402,7 +402,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
 
   @Test
   public void testChained() throws Exception {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     O observable = toObservable(stream);
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<>();
     subscriber.prefetch(1);
@@ -416,9 +416,9 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
 
   @Test
   public void testFlatMap() {
-    BufferReadStreamImpl stream1 = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream1 = new SimpleReadStream<>();
     O obs1 = toObservable(stream1);
-    BufferReadStreamImpl stream2 = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream2 = new SimpleReadStream<>();
     O obs2 = toObservable(stream2);
     O obs3 = flatMap(obs1, s -> obs2);
     SimpleSubscriber<Buffer> sub = new SimpleSubscriber<>();
@@ -435,7 +435,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   @Test
   public void testCancelWhenSubscribedPropagatesToStream() {
     Buffer expected = buffer("something");
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     O observable = toObservable(stream);
     SimpleSubscriber<Buffer> sub = new SimpleSubscriber<Buffer>() {
       @Override

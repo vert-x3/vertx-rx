@@ -1,7 +1,6 @@
 package io.vertx.codegen.extra;
 
 import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 
 import java.util.function.Function;
@@ -11,5 +10,5 @@ import java.util.function.Function;
  */
 @VertxGen
 public interface MethodWithGenericFunctionArg<T> {
-  MethodWithGenericFunctionArg<T> doSomething(Function<Message<JsonObject>, T> theFunction );
+  MethodWithGenericFunctionArg<T> doSomething(Function<Generic<JsonObject>, T> theFunction );
 }
