@@ -1,0 +1,310 @@
+@includeNamed{'/vertx-java/template/common-lib.templ'}
+@code{
+
+  /**
+   * Render a tag link to an html link, this function is used as parameter of the
+   * renderDocToHtml function when it needs to render tag links.
+   */
+  def renderLinkToHtml(link) {
+    var rawType = link.targetType.raw;
+    if (rawType.module != null) {
+      var label = link.label.trim();
+      if (rawType.kind == CLASS_DATA_OBJECT) {
+        return "{@link " + rawType.name + "}";
+      } else {
+        if (type.kind == CLASS_API) {
+          var elt = link.targetElement;
+          var eltKind = elt.getKind().name();
+          var ret = "{@link " + rawType.translateName(rxid);
+          if (eltKind == "METHOD") {
+            /* todo find a way for translating the complete signature */
+            ret += "#" + elt.getSimpleName().toString();
+          }
+          if (label.length() > 0) {
+            ret += " " + label;
+          }
+          ret += "}";
+          return ret;
+        }
+      }
+    }
+    return "{@link " + rawType.name + "}";
+  }
+
+  function genInvokeDelegate(method) {
+    var ret = '';
+    if (method.staticMethod) {
+      ret = helper.getNonGenericType(ifaceFQCN);
+    } else {
+      ret = 'delegate';
+    }
+    ret += '.' + method.name + '(';
+    var index = 0;
+    for (param : method.params) {
+      if (index > 0) {
+        ret += ', ';
+      }
+      if (param.type.parameterized && param.type.raw.name == 'rx.Observable') {
+        var adapterFunction = '';
+        if (param.type.args[0].variable) {
+          adapterFunction = 'java.util.function.Function.identity()';
+        } else {
+          adapterFunction = 'obj -> (' + param.type.args[0].raw.name + ')obj.getDelegate()';
+        }
+        ret += 'io.vertx.rx.java.ReadStreamSubscriber.asReadStream(' + param.name + ',' + adapterFunction + ').resume()';
+      } else if (param.type.parameterized && (param.type.raw.name == 'io.reactivex.Flowable' || param.type.raw.name == 'io.reactivex.Observable')) {
+        var adapterFunction = '';
+        if (param.type.args[0].variable) {
+          adapterFunction = 'java.util.function.Function.identity()';
+        } else {
+          adapterFunction = 'obj -> (' + param.type.args[0].raw.name + ')obj.getDelegate()';
+        }
+        ret += 'io.vertx.reactivex.core.impl.ReadStreamSubscriber.asReadStream(' + param.name + ',' + adapterFunction + ').resume()';
+      } else {
+        ret += genConvParam(param.type, param.name);
+      }
+      index = index + 1;
+    }
+    ret += ')';
+    return ret;
+  }
+
+  function isSameType(type) {
+    var kind = type.kind;
+    if (kind.basic || kind.json || (kind == CLASS_OBJECT && !type.variable) || kind == CLASS_DATA_OBJECT || kind == CLASS_ENUM || kind == CLASS_OTHER || kind == CLASS_THROWABLE || kind == CLASS_VOID) {
+      return true;
+    } else if (kind == CLASS_LIST || kind == CLASS_SET || kind == CLASS_ASYNC_RESULT) {
+      return isSameType(type.args[0]);
+    } else if (kind == CLASS_MAP) {
+      return isSameType(type.args[1]);
+    }
+    return false;
+  }
+
+  function genConvParam(type, expr) {
+    var kind = type.kind;
+    if (isSameType(type)) {
+      return expr;
+    } else if (kind == CLASS_OBJECT) {
+      if (type.variable) {
+        var typeArg = genTypeArg(type);
+        if (typeArg != null) {
+          return typeArg + '.unwrap(' + expr + ')';
+        }
+      }
+      return expr;
+    } else if (kind == CLASS_HANDLER) {
+      var eventType = type.args[0];
+      if (isSameType(eventType)) {
+        return expr;
+      }
+      var eventKind = eventType.kind;
+      if (eventKind == CLASS_ASYNC_RESULT) {
+        var resultType = eventType.args[0];
+        return 'new Handler<AsyncResult<' + resultType.name + '>>() {\n' +
+               '      public void handle(AsyncResult<' + resultType.name + '> ar) {\n' +
+               '        if (ar.succeeded()) {\n' +
+               '          ' + expr + '.handle(io.vertx.core.Future.succeededFuture(' + genConvReturn(resultType, 'ar.result()') + '));\n' +
+               '        } else {\n' +
+               '          ' + expr + '.handle(io.vertx.core.Future.failedFuture(ar.cause()));\n' +
+               '        }\n' +
+               '      }\n' +
+               '    }';
+      } else {
+        return 'new Handler<' + eventType.name + '>() {\n' +
+               '      public void handle(' + eventType.name + ' event) {\n' +
+               '        ' + expr + '.handle(' + genConvReturn(eventType, 'event') + ');\n' +
+               '      }\n' +
+               '    }';
+      }
+    } else if (kind == CLASS_FUNCTION) {
+      var argType = type.args[0];
+      var retType = type.args[1];
+      return 'new java.util.function.Function<' + argType.name + ',' + retType.name + '>() {\n' +
+             '      public ' + retType.name + ' apply(' + argType.name + ' arg) {\n' +
+             '        ' + retType.simpleName + ' ret = ' + expr + '.apply(' + genConvReturn(argType, 'arg') + ');\n' +
+             '        return ' + genConvParam(retType, 'ret') + ';\n' +
+             '      }\n' +
+             '    }';
+    } else if (kind == CLASS_API) {
+      return expr + '.getDelegate()';
+    } else if (kind == CLASS_LIST || kind == CLASS_SET) {
+      return expr + '.stream().map(elt -> ' + genConvParam(type.args[0], 'elt') + ').collect(java.util.stream.Collectors.to' + type.raw.simpleName + '())';
+    } else if (kind == CLASS_MAP) {
+      return expr + '.entrySet().stream().collect(java.util.stream.Collectors.toMap(e -> e.getKey(), e -> ' + genConvParam(type.args[1], 'e.getValue()') + '))';
+    } else if (kind == CLASS_CLASS_TYPE) {
+      return 'io.vertx.lang.' + rxid +  '.Helper.unwrap(' + expr + ')';
+    }
+    return expr;
+  }
+
+  function genTypeArg(typeVar) {
+    if (typeVar.classParam) {
+      return '__typeArg_' + typeVar.param.index + '';
+    } else {
+      var typeArg = method.resolveTypeArg(typeVar);
+      if (typeArg != null) {
+        if (typeArg.classType) {
+          return 'io.vertx.lang.' + rxid + '.TypeArg.of(' + typeArg.param.name + ')';
+        } else {
+          return typeArg.param.name + '.__typeArg_' + typeArg.index;
+        }
+      }
+    }
+    return null;
+  }
+
+  function genConvReturn(type, expr) {
+    if (type.kind == CLASS_OBJECT) {
+      if (type.variable) {
+        var typeArg = genTypeArg(type);
+        if (typeArg != null) {
+          return '(' + type.name + ')' + typeArg + '.wrap(' + expr + ')';
+        }
+      }
+      return '(' + type.simpleName + ') ' + expr;
+    } else if (isSameType(type)) {
+      return expr;
+    } else if (type.kind == CLASS_API) {
+      var tmp = new StringBuilder(type.raw.simpleName);
+      tmp.append('.newInstance(');
+      tmp.append(expr);
+      if (type.parameterized) {
+        for (arg : type.args) {
+          tmp.append(', ');
+          if (arg.kind == CLASS_API) {
+            tmp.append(arg.translateName(rxid)).append('.__TYPE_ARG');
+          } else {
+            var typeArg = 'io.vertx.lang.' + rxid + '.TypeArg.unknown()';
+            if (arg.kind == CLASS_OBJECT && arg.variable) {
+              var resolved = genTypeArg(arg);
+              if (resolved != null) {
+                typeArg = resolved;
+              }
+            }
+            tmp.append(typeArg);
+          }
+        }
+      }
+      tmp.append(')');
+      return tmp.toString();
+    } else if (type.kind == CLASS_HANDLER) {
+      var abc = type.args[0];
+      if (abc.kind == CLASS_ASYNC_RESULT) {
+        var tutu = abc.args[0];
+        return 'new Handler<AsyncResult<' + tutu.simpleName + '>>() {\n' +
+               '      public void handle(AsyncResult<' + tutu.simpleName + '> ar) {\n' +
+               '        if (ar.succeeded()) {\n' +
+               '          ' + expr + '.handle(io.vertx.core.Future.succeededFuture(' + genConvParam(tutu, 'ar.result()') + '));\n' +
+               '        } else {\n' +
+               '          ' + expr + '.handle(io.vertx.core.Future.failedFuture(ar.cause()));\n' +
+               '        }\n' +
+               '      }\n' +
+               '    }';
+      } else {
+        return 'new Handler<' + abc.simpleName + '>() {\n' +
+               '      public void handle(' + abc.simpleName + ' event) {\n' +
+               '          ' + expr + '.handle(' + genConvParam(abc, 'event') + ');\n' +
+               '      }\n' +
+               '    }';
+      }
+    } else if (type.kind == CLASS_LIST || type.kind == CLASS_SET) {
+      return expr + '.stream().map(elt -> ' + genConvReturn(type.args[0], 'elt') + ').collect(java.util.stream.Collectors.to' + type.raw.simpleName + '())';
+    }
+    return expr;
+  }
+
+  def hasReadStream(method) {
+    for (param : method.params) {
+      if (param.type.parameterized && param.type.raw.name == 'io.vertx.core.streams.ReadStream') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  def genOptTypeParamsDecl(type, deflt) {
+    if (type.params.size() > 0) {
+      var s = new java.lang.StringBuilder();
+      var sep = '<';
+      for (param : type.params) {
+        s.append(sep);
+        s.append(param.name);
+        sep = ',';
+      }
+      s.append('>');
+      return s.toString();
+    } else {
+      return deflt;
+    }
+  }
+
+  def hasToString(methods) {
+    for (method : methods) {
+      if (method.name == 'toString' && method.params.isEmpty()) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
+@declare{'startMethodTemplate'}
+	@if{meth.doc != null}
+	  /**\n
+	@{renderDocToHtml("   *", meth.doc, renderLinkToHtml)}
+	@foreach{param: meth.params}
+	   * @param @{param.name} @if{param.description != null}@{renderTokensToHtml("", param.description.tokens, renderLinkToHtml, "")}@end{}\n
+	@end{}
+	@if{!meth.returnType.name.equals("void")}
+	   * @return @if{meth.returnDescription != null}@{renderTokensToHtml("", meth.returnDescription.tokens, renderLinkToHtml, "")}@end{}\n
+	@end{}
+	@if{deprecated != null && deprecated.length() > 0}
+	   * @deprecated @{deprecated}\n
+	@end{}
+	   */\n
+	@end{}
+	@if{deprecated != null && deprecated.length() > 0}
+  @Deprecated()\n
+	@end{}
+  public @if{meth.staticMethod}static @end{}@if{meth.typeParams.size() > 0}<@foreach{typeParam:meth.typeParams}@{typeParam.name}@end{', '}> @end{}@{meth.returnType.simpleName} @{meth.name}(@foreach{param: meth.params}@{param.type.simpleName} @{param.name}@end{', '})
+@end{}
+
+@declare{'genSimpleMethod'}
+	@includeNamed{'startMethodTemplate';meth=method;deprecated=''} { \n
+	@if{method.fluent}
+	    @{genInvokeDelegate(method)};\n
+			@if{method.returnType.variable}
+	    return (@{method.returnType.name}) this;\n
+			@else{}
+	    return this;\n
+			@end{}
+	@else{method.returnType.name.equals('void')}
+	    @{genInvokeDelegate(method)};\n
+	@else{}
+		@if{method.cacheReturn}
+		    if (cached_@{cacheDecls.size()} != null) {\n
+		      return cached_@{cacheDecls.size()};\n
+		    }\n
+		@end{}
+		@if{method.returnType.kind == CLASS_PRIMITIVE}
+			@code{cachedType=method.returnType.boxed.name}
+		@else{}
+			@code{cachedType=method.returnType.simpleName}
+		@end{}
+		    @{method.returnType.simpleName} ret = @{genConvReturn(method.returnType, genInvokeDelegate(method))};\n
+		@if{method.cacheReturn}
+		    cached_@{cacheDecls.size()} = ret;\n
+			@code{cacheDecls.add('private' + (method.staticMethod ? ' static' : '') + ' ' + cachedType + ' cached_' + cacheDecls.size())}
+		@end{}
+		    return ret;\n
+		@end{}
+	  }\n\n
+@end{}
+
+@declare{'genMethod'}
+	@includeNamed{'genSimpleMethod'}
+	@if{method.kind == METHOD_FUTURE}
+		@includeNamed{'genRxMethod'}
+	@end{}
+@end{}

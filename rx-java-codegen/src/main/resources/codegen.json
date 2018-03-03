@@ -1,0 +1,8 @@
+{
+  "name": "RxJava",
+  "generators": [ {
+    "kind": "class",
+    "fileName": "module.translateQualifiedName(fqn, 'rxjava') + '.java'",
+    "templateFileName": "vertx-rxjava/template/rxjava.templ"
+  }]
+}
