@@ -5,7 +5,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.reactivex.FlowableHelper;
 import io.vertx.rx.java.test.ReadStreamAdapterBackPressureTest;
-import io.vertx.rx.java.test.stream.BufferReadStreamImpl;
+import io.vertx.rx.java.test.support.SimpleReadStream;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
 import org.junit.Test;
 
@@ -18,12 +18,12 @@ import java.util.function.Function;
 public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapterBackPressureTest<Flowable<Buffer>> {
 
   @Override
-  protected Flowable<Buffer> toObservable(BufferReadStreamImpl stream, int maxBufferSize) {
+  protected Flowable<Buffer> toObservable(SimpleReadStream<Buffer> stream, int maxBufferSize) {
     return FlowableHelper.toFlowable(stream, maxBufferSize);
   }
 
   @Override
-  protected Flowable<Buffer> toObservable(BufferReadStreamImpl stream) {
+  protected Flowable<Buffer> toObservable(SimpleReadStream<Buffer> stream) {
     return FlowableHelper.toFlowable(stream);
   }
 
@@ -44,7 +44,7 @@ public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapter
 
   @Test
   public void testSubscribeTwice() {
-    BufferReadStreamImpl stream = new BufferReadStreamImpl();
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     Flowable<Buffer> observable = toObservable(stream);
     SimpleSubscriber<Buffer> subscriber1 = new SimpleSubscriber<Buffer>().prefetch(0);
     SimpleSubscriber<Buffer> subscriber2 = new SimpleSubscriber<Buffer>().prefetch(0);
@@ -59,9 +59,9 @@ public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapter
   @Test
   public void testHandletIsSetInDoOnSubscribe() {
     AtomicBoolean hanlderSet = new AtomicBoolean();
-    BufferReadStreamImpl stream = new BufferReadStreamImpl() {
+    SimpleReadStream<Buffer> stream = new SimpleReadStream<Buffer>() {
       @Override
-      public BufferReadStreamImpl handler(Handler<Buffer> handler) {
+      public SimpleReadStream<Buffer> handler(Handler<Buffer> handler) {
         hanlderSet.set(true);
         return super.handler(handler);
       }

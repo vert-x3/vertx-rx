@@ -78,6 +78,13 @@
       <version>3.6.0-SNAPSHOT</version>
     </dependency>
     <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-rx-java-codegen</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+      <version>3.6.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
@@ -143,7 +150,7 @@
               <outputDirectory>${project.build.outputDirectory}/vertx-rxjava2/template</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${project.basedir}/../rx-java/src/main/resources/vertx-rxjava/template</directory>
+                  <directory>${project.basedir}/../rx-java-codegen/src/main/resources/vertx-rxjava/template</directory>
                   <includes>
                     <include>class.templ</include>
                     <include>classbody.templ</include>
