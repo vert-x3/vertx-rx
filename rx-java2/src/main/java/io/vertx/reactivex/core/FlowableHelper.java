@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.FlowableTransformer;
 import io.vertx.reactivex.core.buffer.Buffer;
-import io.vertx.reactivex.core.json.FlowableUnmarshaller;
+import io.vertx.reactivex.impl.FlowableUnmarshaller;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>

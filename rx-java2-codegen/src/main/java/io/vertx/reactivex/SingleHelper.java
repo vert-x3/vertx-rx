@@ -11,7 +11,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.reactivex.core.json.SingleUnmarshaller;
+import io.vertx.reactivex.impl.SingleUnmarshaller;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

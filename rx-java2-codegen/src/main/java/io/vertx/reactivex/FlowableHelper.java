@@ -6,9 +6,9 @@ import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
-import io.vertx.reactivex.core.impl.FlowableReadStream;
-import io.vertx.reactivex.core.impl.ReadStreamSubscriber;
-import io.vertx.reactivex.core.json.FlowableUnmarshaller;
+import io.vertx.reactivex.impl.FlowableReadStream;
+import io.vertx.reactivex.impl.ReadStreamSubscriber;
+import io.vertx.reactivex.impl.FlowableUnmarshaller;
 
 import java.util.function.Function;
 

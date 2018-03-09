@@ -36,7 +36,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
   public static final int BUFFER_SIZE = 16;
 
   public static <R, J> ReadStream<J> asReadStream(Flowable<R> flowable, Function<R, J> adapter) {
-    ReadStreamSubscriber<R, J> observer = new ReadStreamSubscriber<>(adapter);
+    io.vertx.reactivex.impl.ReadStreamSubscriber<R, J> observer = new io.vertx.reactivex.impl.ReadStreamSubscriber<>(adapter);
     flowable.subscribe(observer);
     return observer;
   }

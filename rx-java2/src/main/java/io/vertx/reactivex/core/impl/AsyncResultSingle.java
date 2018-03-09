@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class AsyncResultSingle<T> extends Single<T> {
 
-  private static final Logger log = LoggerFactory.getLogger(AsyncResultSingle.class);
+  private static final Logger log = LoggerFactory.getLogger(io.vertx.reactivex.impl.AsyncResultSingle.class);
 
   private final Handler<Handler<AsyncResult<T>>> method;
 

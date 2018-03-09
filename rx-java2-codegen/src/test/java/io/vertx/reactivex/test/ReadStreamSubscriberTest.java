@@ -1,5 +1,6 @@
 package io.vertx.reactivex.test;
 
+import io.vertx.reactivex.impl.ReadStreamSubscriber;
 import io.vertx.rx.java.test.ReadStreamSubscriberTestBase;
 import org.reactivestreams.Subscription;
 
@@ -14,7 +15,7 @@ public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
   protected Sender sender() {
     return new Sender() {
 
-      private io.vertx.reactivex.core.impl.ReadStreamSubscriber<String, String> subscriber = new io.vertx.reactivex.core.impl.ReadStreamSubscriber<>(Function.identity());
+      private ReadStreamSubscriber<String, String> subscriber = new ReadStreamSubscriber<>(Function.identity());
 
       {
         stream = subscriber;

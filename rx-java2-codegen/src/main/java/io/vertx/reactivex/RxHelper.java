@@ -1,16 +1,9 @@
 package io.vertx.reactivex;
 
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.WorkerExecutor;
-import io.vertx.core.streams.ReadStream;
-import io.vertx.reactivex.core.impl.FlowableReadStream;
-import io.vertx.reactivex.core.impl.ObservableReadStream;
-
-import java.util.function.Function;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>

@@ -1,4 +1,4 @@
-package io.vertx.reactivex.core.json;
+package io.vertx.reactivex.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

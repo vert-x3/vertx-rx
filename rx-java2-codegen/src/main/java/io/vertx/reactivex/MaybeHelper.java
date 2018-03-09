@@ -3,7 +3,6 @@ package io.vertx.reactivex;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.MaybeObserver;
-import io.reactivex.MaybeOperator;
 import io.reactivex.MaybeTransformer;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
@@ -12,7 +11,7 @@ import io.reactivex.disposables.Disposable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.reactivex.core.json.MaybeUnmarshaller;
+import io.vertx.reactivex.impl.MaybeUnmarshaller;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

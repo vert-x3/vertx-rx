@@ -1,31 +1,26 @@
-package io.vertx.reactivex.core.impl;
+package io.vertx.reactivex.impl;
 
-import io.reactivex.Single;
-import io.reactivex.SingleObserver;
-import io.reactivex.annotations.NonNull;
+import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class AsyncResultSingle<T> extends Single<T> {
+public class AsyncResultCompletable extends Completable {
 
-  private static final Logger log = LoggerFactory.getLogger(AsyncResultSingle.class);
+  private final Handler<Handler<AsyncResult<Void>>> method;
 
-  private final Handler<Handler<AsyncResult<T>>> method;
-
-  public AsyncResultSingle(Handler<Handler<AsyncResult<T>>> method) {
+  public AsyncResultCompletable(Handler<Handler<AsyncResult<Void>>> method) {
     this.method = method;
   }
 
   @Override
-  protected void subscribeActual(@NonNull SingleObserver<? super T> observer) {
+  protected void subscribeActual(CompletableObserver observer) {
     AtomicBoolean disposed = new AtomicBoolean();
     observer.onSubscribe(new Disposable() {
       @Override
@@ -43,15 +38,13 @@ public class AsyncResultSingle<T> extends Single<T> {
           if (!disposed.getAndSet(true)) {
             if (ar.succeeded()) {
               try {
-                observer.onSuccess(ar.result());
-              } catch (Exception err) {
-                log.error("Unexpected error", err);
+                observer.onComplete();
+              } catch (Throwable ignore) {
               }
-            } else if (ar.failed()) {
+            } else {
               try {
                 observer.onError(ar.cause());
-              } catch (Exception err) {
-                log.error("Unexpected error", err);
+              } catch (Throwable ignore) {
               }
             }
           }
@@ -60,8 +53,7 @@ public class AsyncResultSingle<T> extends Single<T> {
         if (!disposed.getAndSet(true)) {
           try {
             observer.onError(e);
-          } catch (Exception err) {
-            log.error("Unexpected error", err);
+          } catch (Throwable ignore) {
           }
         }
       }

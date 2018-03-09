@@ -1,4 +1,4 @@
-package io.vertx.reactivex.core.impl;
+package io.vertx.reactivex.impl;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;

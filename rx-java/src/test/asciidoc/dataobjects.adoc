@@ -14,6 +14,31 @@
 |[[buffer]]`buffer`|`Buffer`|-
 |===
 
+[[DataObjectWithListAdders]]
+== DataObjectWithListAdders
+
+++++
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[booleanValues]]`booleanValues`|`Array of Boolean`|-
+|[[dataObjectValues]]`dataObjectValues`|`Array of link:dataobjects.html#TestDataObject[TestDataObject]`|-
+|[[doubleValues]]`doubleValues`|`Array of Number (Double)`|-
+|[[enumValues]]`enumValues`|`Array of link:enums.html#TestEnum[TestEnum]`|-
+|[[floatValues]]`floatValues`|`Array of Number (Float)`|-
+|[[genEnumValues]]`genEnumValues`|`Array of link:enums.html#TestGenEnum[TestGenEnum]`|-
+|[[integerValues]]`integerValues`|`Array of Number (Integer)`|-
+|[[jsonArrayValues]]`jsonArrayValues`|`Array of Json array`|-
+|[[jsonObjectValues]]`jsonObjectValues`|`Array of Json object`|-
+|[[longValues]]`longValues`|`Array of Number (Long)`|-
+|[[shortValues]]`shortValues`|`Array of Number (Short)`|-
+|[[stringValues]]`stringValues`|`Array of String`|-
+|===
+
 [[DataObjectWithLists]]
 == DataObjectWithLists
 
@@ -37,6 +62,31 @@
 |[[longValues]]`longValues`|`Array of Number (Long)`|-
 |[[shortValues]]`shortValues`|`Array of Number (Short)`|-
 |[[stringValues]]`stringValues`|`Array of String`|-
+|===
+
+[[DataObjectWithMapAdders]]
+== DataObjectWithMapAdders
+
+++++
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[booleanValues]]`booleanValues`|`Boolean`|-
+|[[dataObjectValues]]`dataObjectValues`|`link:dataobjects.html#TestDataObject[TestDataObject]`|-
+|[[doubleValues]]`doubleValues`|`Number (Double)`|-
+|[[enumValues]]`enumValues`|`link:enums.html#TestEnum[TestEnum]`|-
+|[[floatValues]]`floatValues`|`Number (Float)`|-
+|[[genEnumValues]]`genEnumValues`|`link:enums.html#TestGenEnum[TestGenEnum]`|-
+|[[integerValues]]`integerValues`|`Number (Integer)`|-
+|[[jsonArrayValues]]`jsonArrayValues`|`Json array`|-
+|[[jsonObjectValues]]`jsonObjectValues`|`Json object`|-
+|[[longValues]]`longValues`|`Number (Long)`|-
+|[[shortValues]]`shortValues`|`Number (Short)`|-
+|[[stringValues]]`stringValues`|`String`|-
 |===
 
 [[DataObjectWithMaps]]
@@ -92,6 +142,32 @@
 |===
 ^|Name | Type ^| Description
 |[[foo]]`foo`|`String`|-
+|===
+
+[[DataObjectWithRecursion]]
+== DataObjectWithRecursion
+
+++++
+++++
+'''
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[data]]`data`|`String`|-
+|[[next]]`next`|`link:dataobjects.html#DataObjectWithRecursion[DataObjectWithRecursion]`|-
+|===
+
+[[DataObjectWithSelf]]
+== DataObjectWithSelf
+
+
+[cols=">25%,^25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[self]]`self`|`link:dataobjects.html#DataObjectWithSelf[DataObjectWithSelf]`|-
 |===
 
 [[DataObjectWithValues]]

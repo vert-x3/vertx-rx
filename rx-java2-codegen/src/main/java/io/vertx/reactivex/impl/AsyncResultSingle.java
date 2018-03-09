@@ -1,26 +1,31 @@
-package io.vertx.reactivex.core.impl;
+package io.vertx.reactivex.impl;
 
-import io.reactivex.Completable;
-import io.reactivex.CompletableObserver;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class AsyncResultCompletable extends Completable {
+public class AsyncResultSingle<T> extends Single<T> {
 
-  private final Handler<Handler<AsyncResult<Void>>> method;
+  private static final Logger log = LoggerFactory.getLogger(AsyncResultSingle.class);
 
-  public AsyncResultCompletable(Handler<Handler<AsyncResult<Void>>> method) {
+  private final Handler<Handler<AsyncResult<T>>> method;
+
+  public AsyncResultSingle(Handler<Handler<AsyncResult<T>>> method) {
     this.method = method;
   }
 
   @Override
-  protected void subscribeActual(CompletableObserver observer) {
+  protected void subscribeActual(@NonNull SingleObserver<? super T> observer) {
     AtomicBoolean disposed = new AtomicBoolean();
     observer.onSubscribe(new Disposable() {
       @Override
@@ -38,13 +43,15 @@ public class AsyncResultCompletable extends Completable {
           if (!disposed.getAndSet(true)) {
             if (ar.succeeded()) {
               try {
-                observer.onComplete();
-              } catch (Throwable ignore) {
+                observer.onSuccess(ar.result());
+              } catch (Exception err) {
+                log.error("Unexpected error", err);
               }
-            } else {
+            } else if (ar.failed()) {
               try {
                 observer.onError(ar.cause());
-              } catch (Throwable ignore) {
+              } catch (Exception err) {
+                log.error("Unexpected error", err);
               }
             }
           }
@@ -53,7 +60,8 @@ public class AsyncResultCompletable extends Completable {
         if (!disposed.getAndSet(true)) {
           try {
             observer.onError(e);
-          } catch (Throwable ignore) {
+          } catch (Exception err) {
+            log.error("Unexpected error", err);
           }
         }
       }

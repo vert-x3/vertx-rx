@@ -3,13 +3,12 @@ package io.vertx.reactivex;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.Observable;
-import io.reactivex.ObservableOperator;
 import io.reactivex.ObservableTransformer;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
-import io.vertx.reactivex.core.impl.ObservableReadStream;
-import io.vertx.reactivex.core.impl.ReadStreamSubscriber;
-import io.vertx.reactivex.core.json.ObservableUnmarshaller;
+import io.vertx.reactivex.impl.ObservableReadStream;
+import io.vertx.reactivex.impl.ReadStreamSubscriber;
+import io.vertx.reactivex.impl.ObservableUnmarshaller;
 
 import java.util.function.Function;
 
