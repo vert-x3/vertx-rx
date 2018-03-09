@@ -5,9 +5,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>vertx-rx</artifactId>
+    <artifactId>vertx-base-stack</artifactId>
     <groupId>io.vertx</groupId>
     <version>3.6.0-SNAPSHOT</version>
+    <relativePath></relativePath>
   </parent>
 
   <artifactId>vertx-rx-java2</artifactId>
@@ -26,16 +27,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.reactivex.rxjava2</groupId>
-      <artifactId>rxjava</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.reactivestreams</groupId>
-      <artifactId>reactive-streams</artifactId>
-    </dependency>
-    <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-core</artifactId>
+      <artifactId>vertx-rx-java2-codegen</artifactId>
+      <version>3.6.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -49,14 +43,9 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-core</artifactId>
-      <classifier>sources</classifier>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-codegen</artifactId>
-      <classifier>tck-sources</classifier>
+      <artifactId>vertx-rx-java2-codegen</artifactId>
+      <version>3.6.0-SNAPSHOT</version>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -90,18 +79,13 @@
       <version>4.12</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.dataformat</groupId>
-      <artifactId>jackson-dataformat-yaml</artifactId>
-      <version>2.9.0</version>
-      <scope>test</scope>
-    </dependency>
 
   </dependencies>
 
   <build>
     <pluginManagement>
       <plugins>
+        <!--
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
           <executions>
@@ -132,6 +116,7 @@
             </execution>
           </executions>
         </plugin>
+        -->
       </plugins>
     </pluginManagement>
     <plugins>
@@ -271,38 +256,14 @@
       </plugin>
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.0.2</version>
         <executions>
-          <!-- Unpack vertx-core source code to src/main/java -->
+          <!-- Unpack sources to target/sources -->
           <execution>
-            <id>unpack-vertx-core</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>unpack-dependencies</goal>
-            </goals>
-            <configuration>
-              <includeGroupIds>io.vertx</includeGroupIds>
-              <includeArtifactIds>vertx-core</includeArtifactIds>
-              <includeTypes>jar</includeTypes>
-              <includeClassifiers>sources</includeClassifiers>
-              <includes>io/vertx/core/**/*.java</includes>
-              <excludes>**/impl/**/*.java,**/logging/*.java</excludes>
-              <outputDirectory>${basedir}/src/main/java</outputDirectory>
-            </configuration>
+            <id>unpack-java</id>
           </execution>
-          <!-- Unpack codegen source code to src/test/java -->
           <execution>
-            <id>unpack-codegen</id>
-            <phase>generate-test-sources</phase>
-            <goals>
-              <goal>unpack-dependencies</goal>
-            </goals>
-            <configuration>
-              <includeGroupIds>io.vertx</includeGroupIds>
-              <includeArtifactIds>vertx-codegen</includeArtifactIds>
-              <includeTypes>jar</includeTypes>
-              <includeClassifiers>tck-sources</includeClassifiers>
-              <outputDirectory>${basedir}/src/test/java</outputDirectory>
-            </configuration>
+            <id>unpack-asciidoc</id>
           </execution>
         </executions>
       </plugin>
@@ -312,31 +273,38 @@
         <version>3.1.0</version>
         <executions>
           <execution>
+            <id>generate-sources</id>
+            <configuration>
+              <optionMap>
+                <codegen.output>${project.basedir}/src/main</codegen.output>
+                <codegen.rxjava.deprecated>true</codegen.rxjava.deprecated>
+              </optionMap>
+            </configuration>
+          </execution>
+          <execution>
+            <id>generate-doc</id>
+          </execution>
+          <execution>
+            <id>generate-test-sources</id>
             <goals>
-              <goal>process</goal>
+              <goal>process-test</goal>
             </goals>
-            <phase>process-classes</phase>
+            <phase>generate-test-sources</phase>
             <configuration>
               <processors>
-                <processor>io.vertx.docgen.JavaDocGenProcessor</processor>
-                <processor>io.vertx.docgen.DocGenProcessor</processor>
+                <processor>io.vertx.codegen.CodeGenProcessor</processor>
               </processors>
-              <includes>
-                <include>io/vertx/reactivex/**/*.java</include>
-                <include>examples/**/*.java</include>
-              </includes>
               <optionMap>
-                <docgen.output>${asciidoc.dir}/java2</docgen.output>
-                <maven.groupId>${project.groupId}</maven.groupId>
-                <maven.artifactId>${project.artifactId}</maven.artifactId>
-                <maven.version>${project.version}</maven.version>
+                <outputDirectory>${project.basedir}/src/test</outputDirectory>
               </optionMap>
+              <defaultOutputDirectory>${project.build.directory}/generated-test-sources/test-annotations</defaultOutputDirectory>
             </configuration>
           </execution>
         </executions>
       </plugin>
 
       <!-- Doc generation -->
+      <!--
       <plugin>
         <groupId>org.asciidoctor</groupId>
         <artifactId>asciidoctor-maven-plugin</artifactId>
@@ -386,6 +354,7 @@
           </execution>
         </executions>
       </plugin>
+      -->
     </plugins>
   </build>
 
