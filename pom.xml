@@ -132,6 +132,7 @@
         <jdk>1.8</jdk>
       </activation>
       <modules>
+        <module>rx-java-codegen</module>
         <module>rx-java</module>
         <module>rx-java2</module>
         <module>rx-groovy</module>
