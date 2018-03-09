@@ -23,6 +23,10 @@
          because of BSC plugin, also the source is messy because we keep a version of vert.x core
          so better use the assembly plugin instead -->
     <source.skip>true</source.skip>
+
+    <!-- The path to the assembly jar descriptor -->
+    <assembly.jar.descriptor>${basedir}/src/main/assembly/jar.xml</assembly.jar.descriptor>
+
   </properties>
 
   <dependencies>
@@ -351,6 +355,27 @@
         </executions>
       </plugin>
       -->
+
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>package-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <attach>true</attach>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptors>
+                <descriptor>${assembly.jar.descriptor}</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
 
