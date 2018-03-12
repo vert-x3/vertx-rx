@@ -80,7 +80,6 @@
               <compilerArgs>
                 <arg>-Acodegen.output=${project.basedir}/src/test</arg>
                 <arg>-Acodegen.generators=RxJava</arg>
-                <arg>-Acodegen.rxjava.deprecated=true</arg>
               </compilerArgs>
             </configuration>
           </execution>

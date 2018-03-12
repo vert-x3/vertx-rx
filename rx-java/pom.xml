@@ -140,7 +140,6 @@
             <configuration>
               <optionMap>
                 <codegen.output>${project.basedir}/src/main</codegen.output>
-                <codegen.rxjava.deprecated>true</codegen.rxjava.deprecated>
               </optionMap>
             </configuration>
           </execution>

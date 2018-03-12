@@ -100,7 +100,24 @@
 @end{}
 
 @declare{'genRxMethod'}
-	@if{options.get('codegen.' + rxid + '.deprecated') == 'true'}
+  @if{type.packageName.startsWith('io.vertx.codegen') ||
+      type.packageName.startsWith('io.vertx.core') ||
+      type.packageName.startsWith('io.vertx.ext.web') ||
+      type.packageName.startsWith('io.vertx.ext.sql') ||
+      type.packageName.startsWith('io.vertx.ext.jdbc') ||
+      type.packageName.startsWith('io.vertx.ext.mongo') ||
+      type.packageName.startsWith('io.vertx.ext.auth') ||
+      type.packageName.startsWith('io.vertx.ext.jwt') ||
+      type.packageName.startsWith('io.vertx.redis') ||
+      type.packageName.startsWith('io.vertx.ext.mail') ||
+      type.packageName.startsWith('io.vertx.ext.asyncsql') ||
+      type.packageName.startsWith('io.vertx.ext.stomp') ||
+      type.packageName.startsWith('io.vertx.ext.shell') ||
+      type.packageName.startsWith('io.vertx.ext.dropwizard') ||
+      type.packageName.startsWith('io.vertx.amqpbridge') ||
+      type.packageName.startsWith('io.vertx.rabbitmq') ||
+      type.packageName.startsWith('io.vertx.ext.unit')
+  }
 		@code{methodName=method.name}
 		@code{futureParams=new java.util.ArrayList(method.params)}
 		@code{futureParam=futureParams.remove(futureParams.size()-1)}
