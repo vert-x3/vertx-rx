@@ -4,7 +4,7 @@ import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Verticle;
-import io.vertx.reactivex.core.impl.AsyncResultSingle;
+import io.vertx.reactivex.impl.AsyncResultSingle;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>

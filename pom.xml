@@ -15,7 +15,9 @@
   <name>Vert.x Reactive Extensions</name>
 
   <modules>
+    <module>rx-java-codegen</module>
     <module>rx-java</module>
+    <module>rx-java2-codegen</module>
     <module>rx-java2</module>
     <!--
     <module>rx-js</module>
@@ -131,7 +133,9 @@
         <jdk>1.8</jdk>
       </activation>
       <modules>
+        <module>rx-java-codegen</module>
         <module>rx-java</module>
+        <module>rx-java2-codegen</module>
         <module>rx-java2</module>
         <module>rx-groovy</module>
         <!--

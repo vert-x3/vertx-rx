@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.MaybeTransformer;
 import io.vertx.reactivex.core.buffer.Buffer;
-import io.vertx.reactivex.core.json.MaybeUnmarshaller;
+import io.vertx.reactivex.impl.MaybeUnmarshaller;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
