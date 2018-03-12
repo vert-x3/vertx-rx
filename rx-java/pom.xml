@@ -25,7 +25,7 @@
     <source.skip>true</source.skip>
 
     <!-- The path to the assembly jar descriptor -->
-    <assembly.jar.descriptor>${basedir}/src/main/assembly/jar.xml</assembly.jar.descriptor>
+    <rxjava.descriptor>${basedir}/src/main/assembly/artifact.xml</rxjava.descriptor>
 
   </properties>
 
@@ -369,7 +369,7 @@
               <attach>true</attach>
               <appendAssemblyId>false</appendAssemblyId>
               <descriptors>
-                <descriptor>${assembly.jar.descriptor}</descriptor>
+                <descriptor>${rxjava.descriptor}</descriptor>
               </descriptors>
             </configuration>
           </execution>

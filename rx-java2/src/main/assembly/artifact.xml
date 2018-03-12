@@ -11,7 +11,7 @@
       <directory>${project.build.outputDirectory}</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>io/vertx/rxjava/**</include>
+        <include>io/vertx/reactivex/**</include>
       </includes>
     </fileSet>
   </fileSets>
