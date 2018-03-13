@@ -3,9 +3,10 @@
           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.1 http://maven.apache.org/xsd/assembly-1.1.1.xsd">
   <id>docs</id>
   <includeBaseDirectory>false</includeBaseDirectory>
-  <files>
-    <file>
-      <source>pom.xml</source>
-    </file>
-  </files>
+  <fileSets>
+    <fileSet>
+      <directory>${project.build.directory}/asciidoc</directory>
+      <outputDirectory>./</outputDirectory>
+    </fileSet>
+  </fileSets>
 </assembly>

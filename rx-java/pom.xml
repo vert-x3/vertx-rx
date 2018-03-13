@@ -135,15 +135,27 @@
         <version>3.1.0</version>
         <executions>
           <execution>
-            <id>generate-sources</id>
+            <id>generate-api</id>
             <configuration>
               <optionMap>
-                <codegen.output>${project.basedir}/src/main</codegen.output>
+                <codegen.generators>RxJava</codegen.generators>
               </optionMap>
             </configuration>
           </execution>
           <execution>
             <id>generate-doc</id>
+            <configuration>
+              <processors>
+                <processor>io.vertx.docgen.JavaDocGenProcessor</processor>
+              </processors>
+              <additionalSourceDirectories>
+                <additionalSourceDirectory>${project.basedir}/src/main/java/</additionalSourceDirectory>
+                <additionalSourceDirectory>${project.build.directory}/generated-sources/apt/</additionalSourceDirectory>
+              </additionalSourceDirectories>
+              <optionMap>
+                <docgen.source>${project.basedir}/src/main/asciidoc</docgen.source>
+              </optionMap>
+            </configuration>
           </execution>
           <execution>
             <id>generate-test-sources</id>

@@ -1,0 +1,8 @@
+== RxJava API
+
+The Kafka client provides an Rxified version of the original API.
+
+[source,$lang]
+----
+{@link examples.KafkaClientExamples#consumer(io.vertx.rxjava.kafka.client.consumer.KafkaConsumer)}
+----
