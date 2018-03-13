@@ -120,12 +120,25 @@
         <artifactId>maven-dependency-plugin</artifactId>
         <version>3.0.2</version>
         <executions>
-          <!-- Unpack sources to target/sources -->
           <execution>
             <id>unpack-java</id>
           </execution>
           <execution>
             <id>unpack-asciidoc</id>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <id>rename-asciidoc</id>
+          </execution>
+          <execution>
+            <id>copy-asciidoc-override</id>
           </execution>
         </executions>
       </plugin>
