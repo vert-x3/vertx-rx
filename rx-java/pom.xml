@@ -130,20 +130,6 @@
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <id>rename-asciidoc</id>
-          </execution>
-          <execution>
-            <id>copy-asciidoc-override</id>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
         <groupId>org.bsc.maven</groupId>
         <artifactId>maven-processor-plugin</artifactId>
         <version>3.1.0</version>
