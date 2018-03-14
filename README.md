@@ -6,18 +6,40 @@ Vert.x module adding support for Reactive Extensions (Rx) using the Rx libraries
 allows Vert.x developers to use the Rx type-safe composable API to build Vert.x verticles.
 This module provides helpers for adapting Vert.x stream and future constructs to Rx observables.
 
-## RxJava 1
+## Documentation
 
-See https://github.com/vert-x3/vertx-rx/tree/master/rx-java/src/main/asciidoc/java/index.adoc
+* [http://vertx.io/docs/vertx-rx/java/](RxJava Documentation)
+* [http://vertx.io/docs/vertx-rx/java2/](RxJava 2 Documentation)
+* [http://vertx.io/docs/vertx-rx/js/](RxJS Documentation)
+* [http://vertx.io/docs/vertx-rx/groovy/](RxGroovy Documentation)
 
-## RxJava 2
+## Stack integration
 
-See https://github.com/vert-x3/vertx-rx/tree/master/rx-java2/src/main/asciidoc/java2/index.adoc
+RxJava and RxJava2 are integrated with the Vert.x stack.
 
-## RxJS
+Integration tests are placed here:
 
-See https://github.com/vert-x3/vertx-rx/tree/master/rx-js/src/main/asciidoc/js/index.adoc
+* [https://github.com/vert-x3/vertx-rx/tree/master/rx-java/src/test/java/io/vertx/it](RxJava)
+* [https://github.com/vert-x3/vertx-rx/tree/master/rx-java2/src/test/java/io/vertx/it](RxJava 2)
 
-## RxGroovy
+Integration docs are placed here:
 
-See https://github.com/vert-x3/vertx-rx/tree/master/rx-groovy/src/main/asciidoc/groovy/index.adoc
+* [https://github.com/vert-x3/vertx-rx/tree/master/rx-java/src/main/asciidoc](RxJava)
+* [https://github.com/vert-x3/vertx-rx/tree/master/rx-java2/src/main/asciidoc](RxJava 2)
+
+The corresponding component uses an asciidoctor [https://asciidoctor.org/docs/user-manual/#include-directive](include) directive
+to embed the doc snippet:
+
+```
+ifdef::java[]
+include::override/rxjava.adoc[]
+endif::[]
+```
+
+Vert.x Web Client example:
+
+* https://github.com/vert-x3/vertx-web/blob/master/vertx-web-client/src/main/asciidoc/override/rxjava.adoc
+
+is replaced by
+
+* https://github.com/vert-x3/vertx-rx/blob/master/rx-java/src/main/asciidoc/vertx-web-client/java/override/rxjava.adoc
