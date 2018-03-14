@@ -94,44 +94,6 @@
   </dependencies>
 
   <build>
-
-
-    <pluginManagement>
-      <plugins>
-        <!--
-        <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>default-clean</id>
-              <configuration>
-                <filesets>
-                  <fileset>
-                    <directory>src/main/java/io/vertx/core</directory>
-                  </fileset>
-                </filesets>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>default-jar</id>
-              <configuration>
-                <excludes>
-                  <exclude>io/vertx/core/**</exclude>
-                  <exclude>/docoverride/**</exclude>
-                  <exclude>/examples/**</exclude>
-                </excludes>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-        -->
-      </plugins>
-    </pluginManagement>
     <plugins>
 
       <plugin>
@@ -306,31 +268,6 @@
           </execution>
         </executions>
       </plugin>
-
-      <!-- Doc generation -->
-      <!--
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>package-docs</id>
-          </execution>
-          <execution>
-            <id>package-sources</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <attach>true</attach>
-              <descriptors>
-                <descriptor>src/main/assembly/sources.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      -->
 
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
