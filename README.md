@@ -8,10 +8,10 @@ This module provides helpers for adapting Vert.x stream and future constructs to
 
 ## Documentation
 
-* [http://vertx.io/docs/vertx-rx/java/](RxJava Documentation)
-* [http://vertx.io/docs/vertx-rx/java2/](RxJava 2 Documentation)
-* [http://vertx.io/docs/vertx-rx/js/](RxJS Documentation)
-* [http://vertx.io/docs/vertx-rx/groovy/](RxGroovy Documentation)
+* [RxJava Documentation](http://vertx.io/docs/vertx-rx/java/)
+* [RxJava 2 Documentation](http://vertx.io/docs/vertx-rx/java2/)
+* [RxJS Documentation](http://vertx.io/docs/vertx-rx/js/)
+* [RxGroovy Documentation](http://vertx.io/docs/vertx-rx/groovy/)
 
 ## Stack integration
 
@@ -19,13 +19,13 @@ RxJava and RxJava2 are integrated with the Vert.x stack.
 
 Integration tests are placed here:
 
-* [https://github.com/vert-x3/vertx-rx/tree/master/rx-java/src/test/java/io/vertx/it](RxJava)
-* [https://github.com/vert-x3/vertx-rx/tree/master/rx-java2/src/test/java/io/vertx/it](RxJava 2)
+* [RxJava](https://github.com/vert-x3/vertx-rx/tree/master/rx-java/src/test/java/io/vertx/it)
+* [RxJava 2](https://github.com/vert-x3/vertx-rx/tree/master/rx-java2/src/test/java/io/vertx/it)
 
 Integration docs are placed here:
 
-* [https://github.com/vert-x3/vertx-rx/tree/master/rx-java/src/main/asciidoc](RxJava)
-* [https://github.com/vert-x3/vertx-rx/tree/master/rx-java2/src/main/asciidoc](RxJava 2)
+* [RxJava](https://github.com/vert-x3/vertx-rx/tree/master/rx-java/src/main/asciidoc)
+* [RxJava 2](https://github.com/vert-x3/vertx-rx/tree/master/rx-java2/src/main/asciidoc)
 
 The corresponding component uses an asciidoctor [https://asciidoctor.org/docs/user-manual/#include-directive](include) directive
 to embed the doc snippet:
