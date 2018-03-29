@@ -127,7 +127,7 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
     /**
      * Request n items
      *
-     * @param n the number o fitems
+     * @param n the number of items
      */
     void request(long n) {
       synchronized (ObservableReadStream.this) {
