@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.Observable;
 import io.reactivex.ObservableTransformer;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.reactivex.impl.ObservableReadStream;
@@ -37,14 +38,14 @@ public class ObservableHelper {
    * @return the adapted observable
    */
   public static <T> Observable<T> toObservable(ReadStream<T> stream) {
-    return new ObservableReadStream<T, T>(stream, Function.identity());
+    return RxJavaPlugins.onAssembly(new ObservableReadStream<T, T>(stream, Function.identity()));
   }
 
   /**
    * Like {@link #toObservable(ReadStream)} but with a {@code mapping} function
    */
   public static <T, U> Observable<U> toObservable(ReadStream<T> stream, Function<T, U> mapping) {
-    return new ObservableReadStream<>(stream, mapping);
+    return RxJavaPlugins.onAssembly(new ObservableReadStream<>(stream, mapping));
   }
 
   public static <T> ObservableTransformer<Buffer, T> unmarshaller(Class<T> mappedType) {

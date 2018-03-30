@@ -3,20 +3,26 @@ package io.vertx.reactivex.impl;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeObserver;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class AsyncResultMaybe<T> extends Maybe<T> {
 
-  private final Handler<Handler<AsyncResult<T>>> method;
+  private final Consumer<Handler<AsyncResult<T>>> subscriptionConsumer;
 
-  public AsyncResultMaybe(Handler<Handler<AsyncResult<T>>> method) {
-    this.method = method;
+  public static <T> Maybe<T> toMaybe(Consumer<Handler<AsyncResult<T>>> subscriptionConsumer) {
+    return RxJavaPlugins.onAssembly(new AsyncResultMaybe<T>(subscriptionConsumer));
+  }
+
+  public AsyncResultMaybe(Consumer<Handler<AsyncResult<T>>> subscriptionConsumer) {
+    this.subscriptionConsumer = subscriptionConsumer;
   }
 
   @Override
@@ -34,7 +40,7 @@ public class AsyncResultMaybe<T> extends Maybe<T> {
     });
     if (!disposed.get()) {
       try {
-        method.handle(ar -> {
+        subscriptionConsumer.accept(ar -> {
           if (!disposed.getAndSet(true)) {
             if (ar.succeeded()) {
               try {
