@@ -3,20 +3,26 @@ package io.vertx.reactivex.impl;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class AsyncResultCompletable extends Completable {
 
-  private final Handler<Handler<AsyncResult<Void>>> method;
+  private final Consumer<Handler<AsyncResult<Void>>> subscriptionConsumer;
 
-  public AsyncResultCompletable(Handler<Handler<AsyncResult<Void>>> method) {
-    this.method = method;
+  public static Completable toCompletable(Consumer<Handler<AsyncResult<Void>>> subscriptionConsumer) {
+    return RxJavaPlugins.onAssembly(new AsyncResultCompletable(subscriptionConsumer));
+  }
+
+  public AsyncResultCompletable(Consumer<Handler<AsyncResult<Void>>> subscriptionConsumer) {
+    this.subscriptionConsumer = subscriptionConsumer;
   }
 
   @Override
@@ -34,7 +40,7 @@ public class AsyncResultCompletable extends Completable {
     });
     if (!disposed.get()) {
       try {
-        method.handle(ar -> {
+        subscriptionConsumer.accept(ar -> {
           if (!disposed.getAndSet(true)) {
             if (ar.succeeded()) {
               try {

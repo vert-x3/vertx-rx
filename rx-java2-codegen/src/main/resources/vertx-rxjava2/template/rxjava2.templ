@@ -116,10 +116,10 @@
 
 @declare{'genRxMethod'}
 	@code{futMeth = genFutureMethod(method)}
-	@code{adapterType='io.vertx.reactivex.impl.AsyncResult' + futMeth.returnType.simpleName}
+	@code{adapterType='io.vertx.reactivex.impl.AsyncResult' + futMeth.returnType.raw.simpleName + '.to' + futMeth.returnType.raw.simpleName}
 	@code{rxType=futMeth.returnType.raw.name}
 	@includeNamed{'startMethodTemplate';meth=futMeth;deprecated=''} { \n
-    return new @{adapterType}(handler -> {\n
+    return @{adapterType}(handler -> {\n
       @{method.name}(@foreach{param:futMeth.params}@{param.name}@end{', '}@if{futMeth.params.size() > 0}, @end{}handler);\n
     });\n
   }\n\n

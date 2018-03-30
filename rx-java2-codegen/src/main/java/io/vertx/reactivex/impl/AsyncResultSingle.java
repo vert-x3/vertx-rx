@@ -4,12 +4,14 @@ import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -18,10 +20,14 @@ public class AsyncResultSingle<T> extends Single<T> {
 
   private static final Logger log = LoggerFactory.getLogger(AsyncResultSingle.class);
 
-  private final Handler<Handler<AsyncResult<T>>> method;
+  public static <T> Single<T> toSingle(Consumer<Handler<AsyncResult<T>>> subscriptionConsumer) {
+    return RxJavaPlugins.onAssembly(new AsyncResultSingle<T>(subscriptionConsumer));
+  }
 
-  public AsyncResultSingle(Handler<Handler<AsyncResult<T>>> method) {
-    this.method = method;
+  private final Consumer<Handler<AsyncResult<T>>> subscriptionConsumer;
+
+  public AsyncResultSingle(Consumer<Handler<AsyncResult<T>>> subscriptionConsumer) {
+    this.subscriptionConsumer = subscriptionConsumer;
   }
 
   @Override
@@ -39,7 +45,7 @@ public class AsyncResultSingle<T> extends Single<T> {
     });
     if (!disposed.get()) {
       try {
-        method.handle(ar -> {
+        subscriptionConsumer.accept(ar -> {
           if (!disposed.getAndSet(true)) {
             if (ar.succeeded()) {
               try {
