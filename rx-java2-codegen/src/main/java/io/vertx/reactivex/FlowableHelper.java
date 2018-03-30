@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.reactivex.impl.FlowableReadStream;
@@ -32,7 +33,7 @@ public class FlowableHelper {
    * Like {@link #toFlowable(ReadStream)} but with a {@code mapping} function
    */
   public static <T, U> Flowable<U> toFlowable(ReadStream<T> stream, Function<T, U> mapping) {
-    return new FlowableReadStream<>(stream, FlowableReadStream.DEFAULT_MAX_BUFFER_SIZE, mapping);
+    return RxJavaPlugins.onAssembly(new FlowableReadStream<>(stream, FlowableReadStream.DEFAULT_MAX_BUFFER_SIZE, mapping));
   }
 
   /**
@@ -44,7 +45,7 @@ public class FlowableHelper {
    * @return the adapted observable
    */
   public static <T> Flowable<T> toFlowable(ReadStream<T> stream) {
-    return new FlowableReadStream<>(stream, FlowableReadStream.DEFAULT_MAX_BUFFER_SIZE, Function.identity());
+    return RxJavaPlugins.onAssembly(new FlowableReadStream<>(stream, FlowableReadStream.DEFAULT_MAX_BUFFER_SIZE, Function.identity()));
   }
 
   /**
@@ -56,7 +57,7 @@ public class FlowableHelper {
    * @return the adapted observable
    */
   public static <T> Flowable<T> toFlowable(ReadStream<T> stream, long maxBufferSize) {
-    return new FlowableReadStream<>(stream, maxBufferSize, Function.identity());
+    return RxJavaPlugins.onAssembly(new FlowableReadStream<>(stream, maxBufferSize, Function.identity()));
   }
 
   public static <T> FlowableTransformer<Buffer, T> unmarshaller(Class<T> mappedType) {

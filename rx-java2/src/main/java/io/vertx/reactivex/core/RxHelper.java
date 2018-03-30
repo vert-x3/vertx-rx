@@ -2,6 +2,7 @@ package io.vertx.reactivex.core;
 
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Verticle;
 import io.vertx.reactivex.impl.AsyncResultSingle;
@@ -57,7 +58,7 @@ public class RxHelper {
    * @return the response observable
    */
   public static Single<String> deployVerticle(Vertx vertx, Verticle verticle, DeploymentOptions options) {
-    return new AsyncResultSingle<>(handler -> vertx.getDelegate().deployVerticle(verticle, options, handler));
+    return RxJavaPlugins.onAssembly(new AsyncResultSingle<>(handler -> vertx.getDelegate().deployVerticle(verticle, options, handler)));
   }
 
   /**
