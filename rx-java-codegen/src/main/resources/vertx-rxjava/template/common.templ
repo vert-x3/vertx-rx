@@ -59,7 +59,7 @@
         } else {
           adapterFunction = 'obj -> (' + param.type.args[0].raw.name + ')obj.getDelegate()';
         }
-        ret += 'io.vertx.reactivex.core.impl.ReadStreamSubscriber.asReadStream(' + param.name + ',' + adapterFunction + ').resume()';
+        ret += 'io.vertx.reactivex.impl.ReadStreamSubscriber.asReadStream(' + param.name + ',' + adapterFunction + ').resume()';
       } else {
         ret += genConvParam(param.type, param.name);
       }
