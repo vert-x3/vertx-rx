@@ -68,16 +68,20 @@ public class ContextScheduler extends Scheduler {
   }
 
   @Override
-  public Worker createWorker() {
-    return new WorkerImpl();
+  public ContextWorker createWorker() {
+    return new ContextWorker();
   }
 
   private static final Object DUMB = new JsonObject();
 
-  private class WorkerImpl extends Worker {
+  public class ContextWorker extends Worker {
 
     private final ConcurrentHashMap<TimedAction, Object> actions = new ConcurrentHashMap<>();
     private final AtomicBoolean cancelled = new AtomicBoolean();
+
+    public int countActions() {
+      return actions.size();
+    }
 
     @Override
     public Subscription schedule(Action0 action) {
@@ -87,16 +91,20 @@ public class ContextScheduler extends Scheduler {
     @Override
     public Subscription schedule(Action0 action, long delayTime, TimeUnit unit) {
       action = schedulersHook.onSchedule(action);
-      TimedAction timed = new TimedAction(action, unit.toMillis(delayTime), 0);
+      long delayMillis = unit.toMillis(delayTime);
+      TimedAction timed = new TimedAction(action, 0);
       actions.put(timed, DUMB);
+      timed.schedule(delayMillis);
       return timed;
     }
 
     @Override
     public Subscription schedulePeriodically(Action0 action, long initialDelay, long period, TimeUnit unit) {
       action = schedulersHook.onSchedule(action);
-      TimedAction timed = new TimedAction(action, unit.toMillis(initialDelay), unit.toMillis(period));
+      long delayMillis = unit.toMillis(initialDelay);
+      TimedAction timed = new TimedAction(action, unit.toMillis(period));
       actions.put(timed, DUMB);
+      timed.schedule(delayMillis);
       return timed;
     }
 
@@ -112,79 +120,80 @@ public class ContextScheduler extends Scheduler {
       return cancelled.get();
     }
 
-    class TimedAction implements Subscription, Runnable {
+    class TimedAction implements Subscription {
 
       private long id;
       private final Action0 action;
       private final long periodMillis;
-      private boolean cancelled;
+      private boolean disposed;
 
-      public TimedAction(Action0 action, long delayMillis, long periodMillis) {
-        this.cancelled = false;
+      TimedAction(Action0 action, long periodMillis) {
+        this.disposed = false;
         this.action = action;
         this.periodMillis = periodMillis;
+      }
+
+      private synchronized void schedule(long delayMillis) {
         if (delayMillis > 0) {
-          schedule(delayMillis);
+          id = vertx.setTimer(delayMillis, this::execute);
         } else {
           id = -1;
-          execute();
+          execute(null);
         }
       }
 
-      private void schedule(long delay) {
-        this.id = vertx.setTimer(delay, l -> execute());
-      }
-
-      private void execute() {
+      private void execute(Object arg) {
         if (workerExecutor != null) {
           workerExecutor.executeBlocking(fut -> {
-            run();
-            fut.complete();
-          }, ordered, null);
-          return;
-        }
-        Context ctx = context != null ? context : vertx.getOrCreateContext();
-        if (blocking) {
-          ctx.executeBlocking(fut -> {
-            run();
+            run(null);
             fut.complete();
           }, ordered, null);
         } else {
-          ctx.runOnContext(v -> {
-            run();
-          });
+          Context ctx = context != null ? context : vertx.getOrCreateContext();
+          if (blocking) {
+            ctx.executeBlocking(fut -> {
+              run(null);
+              fut.complete();
+            }, ordered, null);
+          } else {
+            ctx.runOnContext(this::run);
+          }
         }
       }
 
-      @Override
-      public void run() {
+      private void run(Object arg) {
         synchronized (TimedAction.this) {
-          if (cancelled) {
+          if (disposed) {
             return;
           }
         }
         action.call();
         synchronized (TimedAction.this) {
-          if (periodMillis > 0) {
-            schedule(periodMillis);
+          if (!disposed) {
+            if (periodMillis > 0) {
+              schedule(periodMillis);
+            } else {
+              disposed = true;
+              actions.remove(this);
+            }
           }
         }
       }
 
       @Override
       public synchronized void unsubscribe() {
-        if (!cancelled) {
+        if (!disposed) {
           actions.remove(this);
           if (id > 0) {
             vertx.cancelTimer(id);
           }
-          cancelled = true;
+          disposed = true;
         }
       }
 
       @Override
       public synchronized boolean isUnsubscribed() {
-        return cancelled;
+        return disposed;
       }
     }
   }

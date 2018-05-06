@@ -8,6 +8,7 @@ import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.WorkerExecutor;
 import io.vertx.reactivex.ContextScheduler;
+import io.vertx.reactivex.RxHelper;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 
@@ -376,5 +377,43 @@ public class SchedulerTest extends VertxTestBase {
     assertEquals(1, called.get());
     assertEquals(1, workerScheduledVal.get());
     assertEquals(0, workerCalledVal.get());
+  }
+
+  @Test
+  public void testRemovedFromContextAfterRun() throws Exception {
+    ContextScheduler scheduler = (ContextScheduler) RxHelper.blockingScheduler(vertx);
+    ContextScheduler.ContextWorker worker = scheduler.createWorker();
+    CountDownLatch latch = new CountDownLatch(1);
+    worker.schedule(latch::countDown);
+    awaitLatch(latch);
+    assertEquals(0, worker.countActions());
+  }
+
+  @Test
+  public void testRemovedFromContextAfterDelay() throws Exception {
+    ContextScheduler scheduler = (ContextScheduler) RxHelper.blockingScheduler(vertx);
+    ContextScheduler.ContextWorker worker = scheduler.createWorker();
+    CountDownLatch latch = new CountDownLatch(1);
+    worker.schedule(latch::countDown, 10, TimeUnit.MILLISECONDS);
+    awaitLatch(latch);
+    assertEquals(0, worker.countActions());
+  }
+
+  @Test
+  public void testUnsubscribePeriodicInTask() throws Exception {
+    ContextScheduler scheduler = (ContextScheduler) RxHelper.blockingScheduler(vertx);
+    ContextScheduler.ContextWorker worker = scheduler.createWorker();
+    CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<Disposable> ref = new AtomicReference<>();
+    ref.set(worker.schedulePeriodically(() -> {
+      Disposable disposable;
+      while ((disposable = ref.get()) == null) {
+        Thread.yield();
+      }
+      disposable.dispose();
+      latch.countDown();
+    }, 10, 10, TimeUnit.MILLISECONDS));
+    awaitLatch(latch);
+    assertEquals(0, worker.countActions());
   }
 }

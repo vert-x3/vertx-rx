@@ -18,7 +18,6 @@ package io.vertx.reactivex;
 import io.reactivex.Scheduler;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.plugins.RxJavaPlugins;
-import io.vertx.core.*;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.WorkerExecutorInternal;
@@ -36,9 +35,6 @@ import io.vertx.core.WorkerExecutor;
  * @author <a href="mailto:sercan_karaoglu@yahoo.com">Sercan Karaoglu</a>
  */
 public class ContextScheduler extends Scheduler {
-
-  private static final Handler<AsyncResult<Object>> NOOP = result -> {
-  };
 
   private final Vertx vertx;
   private final boolean blocking;
@@ -84,16 +80,20 @@ public class ContextScheduler extends Scheduler {
   }
 
   @Override
-  public Worker createWorker() {
-    return new WorkerImpl();
+  public ContextWorker createWorker() {
+    return new ContextWorker();
   }
 
   private static final Object DUMB = new JsonObject();
 
-  private class WorkerImpl extends Worker {
+  public class ContextWorker extends Worker {
 
     private final ConcurrentHashMap<TimedAction, Object> actions = new ConcurrentHashMap<>();
     private final AtomicBoolean cancelled = new AtomicBoolean();
+
+    public int countActions() {
+      return actions.size();
+    }
 
     @Override
     public Disposable schedule(Runnable action) {
@@ -103,16 +103,20 @@ public class ContextScheduler extends Scheduler {
     @Override
     public Disposable schedule(Runnable action, long delayTime, TimeUnit unit) {
       action = RxJavaPlugins.onSchedule(action);
-      TimedAction timed = new TimedAction(action, unit.toMillis(delayTime), 0);
+      long delayMillis = unit.toMillis(delayTime);
+      TimedAction timed = new TimedAction(action, 0);
       actions.put(timed, DUMB);
+      timed.schedule(delayMillis);
       return timed;
     }
 
     @Override
     public Disposable schedulePeriodically(Runnable action, long initialDelay, long period, TimeUnit unit) {
       action = RxJavaPlugins.onSchedule(action);
-      TimedAction timed = new TimedAction(action, unit.toMillis(initialDelay), unit.toMillis(period));
+      long delayMillis = unit.toMillis(initialDelay);
+      TimedAction timed = new TimedAction(action, unit.toMillis(period));
       actions.put(timed, DUMB);
+      timed.schedule(delayMillis);
       return timed;
     }
 
@@ -128,83 +132,82 @@ public class ContextScheduler extends Scheduler {
       return cancelled.get();
     }
 
-    class TimedAction implements Disposable, Runnable {
+    class TimedAction implements Disposable {
 
       private final Context context;
       private long id;
       private final Runnable action;
       private final long periodMillis;
-      private boolean cancelled;
+      private boolean disposed;
 
-      public TimedAction(Runnable action, long delayMillis, long periodMillis) {
+      TimedAction(Runnable action, long periodMillis) {
         this.context = ContextScheduler.this.context != null ? ContextScheduler.this.context : vertx.getOrCreateContext();
-        this.cancelled = false;
+        this.disposed = false;
         this.action = action;
         this.periodMillis = periodMillis;
+      }
+
+      private synchronized void schedule(long delayMillis) {
         if (delayMillis > 0) {
-          schedule(delayMillis);
+          id = vertx.setTimer(delayMillis, this::execute);
         } else {
           id = -1;
           execute(null);
         }
       }
 
-      private void schedule(long delay) {
-        this.id = vertx.setTimer(delay, this::execute);
-      }
-
       private void execute(Object o) {
         if (workerExecutor != null) {
           workerExecutor.executeBlocking(fut -> {
-            run();
-            fut.complete();
-          }, ordered, null);
-          return;
-        }
-        Context ctx = context != null ? context : vertx.getOrCreateContext();
-        if (blocking) {
-          ctx.executeBlocking(fut -> {
-            run();
+            run(null);
             fut.complete();
           }, ordered, null);
         } else {
-          ctx.runOnContext(this::run);
+          Context ctx = context != null ? context : vertx.getOrCreateContext();
+          if (blocking) {
+            ctx.executeBlocking(fut -> {
+              run(null);
+              fut.complete();
+            }, ordered, null);
+          } else {
+            ctx.runOnContext(this::run);
+          }
         }
       }
 
       private void run(Object arg) {
-        run();
-      }
-
-      @Override
-      public void run() {
         synchronized (TimedAction.this) {
-          if (cancelled) {
+          if (disposed) {
             return;
           }
         }
         action.run();
         synchronized (TimedAction.this) {
-          if (periodMillis > 0) {
-            schedule(periodMillis);
+          if (!disposed) {
+            if (periodMillis > 0) {
+              schedule(periodMillis);
+            } else {
+              disposed = true;
+              actions.remove(this);
+            }
           }
         }
       }
 
       @Override
       public synchronized void dispose() {
-        if (!cancelled) {
+        if (!disposed) {
           actions.remove(this);
           if (id > 0) {
             vertx.cancelTimer(id);
           }
-          cancelled = true;
+          disposed = true;
         }
       }
 
       @Override
       public synchronized boolean isDisposed() {
-        return cancelled;
+        return disposed;
       }
     }
   }
