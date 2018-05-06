@@ -20,7 +20,7 @@ To use Vert.x API for RxJava1, add the following dependency to the _dependencies
 <dependency>
   <groupId>io.vertx</groupId>
   <artifactId>vertx-rx-java</artifactId>
-  <version>3.5.1</version>
+  <version>3.5.2-SNAPSHOT</version>
 </dependency>
 ----
 
@@ -28,7 +28,7 @@ To use Vert.x API for RxJava1, add the following dependency to the _dependencies
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-rx-java:3.5.1'
+compile 'io.vertx:vertx-rx-java:3.5.2-SNAPSHOT'
 ----
 
 There are two ways for using the RxJava API with Vert.x:
