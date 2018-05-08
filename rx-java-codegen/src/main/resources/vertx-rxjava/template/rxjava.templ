@@ -30,7 +30,8 @@
       method.doc,
       method.staticMethod,
       method.defaultMethod,
-      method.typeParams);
+      method.typeParams,
+      method.deprecated);
     return futMethod;
   }
 
@@ -70,7 +71,8 @@
         method.doc,
         method.staticMethod,
         method.defaultMethod,
-        method.typeParams);
+        method.typeParams,
+        method.deprecated);
     }
     return null;
   }
@@ -123,7 +125,7 @@
 		@code{futureParam=futureParams.remove(futureParams.size()-1)}
 		@code{futureType=futureParam.type.args[0].args[0]}
 		@code{futureReturnType=new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(rx.Observable), false, java.util.Collections.singletonList(futureType))}
-		@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,method.name + 'Observable',method.kind,futureReturnType,null,method.fluent,method.cacheReturn,futureParams,method.comment,method.doc,method.staticMethod,method.defaultMethod,method.typeParams)}
+		@code{futureMethod=new io.vertx.codegen.MethodInfo(method.ownerTypes,method.name + 'Observable',method.kind,futureReturnType,null,method.fluent,method.cacheReturn,futureParams,method.comment,method.doc,method.staticMethod,method.defaultMethod,method.typeParams,method.deprecated)}
 		@includeNamed{'startMethodTemplate';meth=futureMethod;deprecated='use {@link #' + genFutureMethodName(method) + '} instead'} { \n
 		    io.vertx.rx.java.ObservableFuture<@{futureType.simpleName}> @{futureParam.name} = io.vertx.rx.java.RxHelper.observableFuture();\n
 		    @{methodName}(@foreach{param:futureParams}@{param.name}@end{', '}@if{futureParams.size() > 0}, @end{}@{futureParam.name}.toHandler());\n
