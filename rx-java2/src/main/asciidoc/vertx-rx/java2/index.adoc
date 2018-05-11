@@ -248,6 +248,13 @@
  Deploying an RxJava verticle is still performed by the Java deployer and does not need a specified
  deployer.
 
+Verticles having an asynchronous start can override instead the `rxStart` method and return a `Completable`:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#rxStart()}
+----
+
  == Api examples
 
  Let's study now a few examples of using Vert.x with RxJava.
