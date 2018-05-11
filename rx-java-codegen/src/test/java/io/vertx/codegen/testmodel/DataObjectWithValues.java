@@ -174,10 +174,10 @@ public class DataObjectWithValues {
       json.put("jsonArrayValue", jsonArrayValue);
     }
     if (enumValue != null) {
-      json.put("enumValue", enumValue);
+      json.put("enumValue", enumValue.name());
     }
     if (genEnumValue != null) {
-      json.put("genEnumValue", genEnumValue);
+      json.put("genEnumValue", genEnumValue.name());
     }
     if (dataObjectValue != null) {
       json.put("dataObjectValue", dataObjectValue.toJson());
