@@ -36,10 +36,22 @@ public class AbstractVerticle extends io.vertx.core.AbstractVerticle {
 
   @Override
   public void start(Future<Void> startFuture) throws Exception {
-    rxStart().subscribe(startFuture::complete, startFuture::fail);
+    Completable completable = rxStart();
+    if (completable != null) {
+      completable.subscribe(startFuture::complete, startFuture::fail);
+    } else {
+      super.start(startFuture);
+    }
   }
 
+  /**
+   * Override to return a {@code Completable} that will complete the deployment of this verticle.
+   * <p/>
+   * When {@code null} is returned, the {@link #start()} will be called instead.
+   *
+   * @return the completable
+   */
   public Completable rxStart() {
-    return Completable.complete();
+    return null;
   }
 }

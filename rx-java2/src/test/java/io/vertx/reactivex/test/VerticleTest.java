@@ -9,6 +9,7 @@ import org.junit.Test;
 public class VerticleTest extends VertxTestBase {
 
   private static final RuntimeException err = new RuntimeException();
+  private static volatile int startedCount;
 
   private Vertx vertx;
 
@@ -16,6 +17,7 @@ public class VerticleTest extends VertxTestBase {
   public void setUp() throws Exception {
     super.setUp();
     vertx = new Vertx(super.vertx);
+    startedCount = 0;
   }
 
   public static class CompleteVerticle extends AbstractVerticle {
@@ -39,10 +41,10 @@ public class VerticleTest extends VertxTestBase {
     }
   }
 
-  public static class FaultyVerticle extends AbstractVerticle {
+  public static class SynchronousVerticle extends AbstractVerticle {
     @Override
-    public Completable rxStart() {
-      return null;
+    public void start() {
+      startedCount++;
     }
   }
 
@@ -71,9 +73,9 @@ public class VerticleTest extends VertxTestBase {
   }
 
   @Test
-  public void testRxStartFaulty() {
-    vertx.deployVerticle(FaultyVerticle.class.getName(), onFailure(t -> {
-      assertTrue(t instanceof NullPointerException);
+  public void testSynchronousStart() {
+    vertx.deployVerticle(SynchronousVerticle.class.getName(), onSuccess(t -> {
+      assertEquals(1, startedCount);
       testComplete();
     }));
     await();
