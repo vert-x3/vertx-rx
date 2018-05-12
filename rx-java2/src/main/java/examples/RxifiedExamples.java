@@ -192,6 +192,17 @@ public class RxifiedExamples {
     }
   }
 
+  public void rxStart() {
+    class MyVerticle extends io.vertx.reactivex.core.AbstractVerticle {
+      public Completable rxStart() {
+        return vertx.createHttpServer()
+          .requestHandler(req -> req.response().end("Hello World"))
+          .rxListen()
+          .toCompletable();
+      }
+    }
+  }
+
   public void eventBusMessages(Vertx vertx) {
     EventBus eb = vertx.eventBus();
     MessageConsumer<String> consumer = eb.<String>consumer("the-address");

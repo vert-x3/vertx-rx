@@ -24,11 +24,7 @@ import io.vertx.rxjava.core.http.HttpServer;
 import io.vertx.rxjava.core.http.HttpServerRequest;
 import io.vertx.rxjava.core.http.ServerWebSocket;
 import io.vertx.rxjava.core.http.WebSocket;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Single;
-import rx.Subscriber;
-import rx.Subscription;
+import rx.*;
 import rx.plugins.RxJavaHooks;
 import rx.plugins.RxJavaSchedulersHook;
 
@@ -154,6 +150,17 @@ public class RxifiedExamples {
     class MyVerticle extends io.vertx.rxjava.core.AbstractVerticle {
       public void start() {
         // Use Rxified Vertx here
+      }
+    }
+  }
+
+  public void rxStart() {
+    class MyVerticle extends io.vertx.rxjava.core.AbstractVerticle {
+      public Completable rxStart() {
+        return vertx.createHttpServer()
+          .requestHandler(req -> req.response().end("Hello World"))
+          .rxListen()
+          .toCompletable();
       }
     }
   }
