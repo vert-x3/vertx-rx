@@ -54,4 +54,25 @@ public class AbstractVerticle extends io.vertx.core.AbstractVerticle {
   public Completable rxStart() {
     return null;
   }
+
+  @Override
+  public void stop(Future<Void> stopFuture) throws Exception {
+    Completable completable = rxStop();
+    if (completable != null) {
+      completable.subscribe(stopFuture::complete, stopFuture::fail);
+    } else {
+      super.stop(stopFuture);
+    }
+  }
+
+  /**
+   * Override to return a {@code Completable} that will complete the undeployment of this verticle.
+   * <p/>
+   * When {@code null} is returned, the {@link #stop()} will be called instead.
+   *
+   * @return the completable
+   */
+  public Completable rxStop() {
+    return null;
+  }
 }
