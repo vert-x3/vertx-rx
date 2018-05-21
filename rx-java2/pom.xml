@@ -7,11 +7,11 @@
   <parent>
     <artifactId>vertx-rx</artifactId>
     <groupId>io.vertx</groupId>
-    <version>3.5.2-SNAPSHOT</version>
+    <version>3.5.2.CR2</version>
   </parent>
 
   <artifactId>vertx-rx-java2</artifactId>
-  <version>3.5.2-SNAPSHOT</version>
+  <version>3.5.2.CR2</version>
 
   <name>Vert.x RxJava2 API</name>
 
@@ -75,7 +75,7 @@
       <artifactId>vertx-rx-java</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
-      <version>3.5.2-SNAPSHOT</version>
+      <version>3.5.2.CR2</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
