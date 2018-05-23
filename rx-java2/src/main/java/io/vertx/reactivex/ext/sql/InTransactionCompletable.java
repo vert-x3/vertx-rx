@@ -32,7 +32,9 @@ public class InTransactionCompletable implements CompletableTransformer {
       .andThen(upstream)
       .andThen(sqlConnection.rxCommit())
       .onErrorResumeNext(throwable -> {
-        return sqlConnection.rxRollback().onErrorComplete().andThen(Completable.error(throwable));
+        return sqlConnection.rxRollback().onErrorComplete()
+          .andThen(sqlConnection.rxSetAutoCommit(true).onErrorComplete())
+          .andThen(Completable.error(throwable));
       }).andThen(sqlConnection.rxSetAutoCommit(true));
   }
 }

@@ -32,7 +32,9 @@ public class InTransactionFlowable<T> implements FlowableTransformer<T, T> {
       .andThen(upstream)
       .concatWith(sqlConnection.rxCommit().toFlowable())
       .onErrorResumeNext(throwable -> {
-        return sqlConnection.rxRollback().onErrorComplete().andThen(Flowable.error(throwable));
+        return sqlConnection.rxRollback().onErrorComplete()
+          .andThen(sqlConnection.rxSetAutoCommit(true).onErrorComplete())
+          .andThen(Flowable.error(throwable));
       }).concatWith(sqlConnection.rxSetAutoCommit(true).toFlowable());
   }
 }

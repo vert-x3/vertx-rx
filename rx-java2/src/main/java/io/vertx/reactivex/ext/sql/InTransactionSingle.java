@@ -32,7 +32,9 @@ public class InTransactionSingle<T> implements SingleTransformer<T, T> {
       .andThen(upstream)
       .flatMap(item -> sqlConnection.rxCommit().andThen(Single.just(item)))
       .onErrorResumeNext(throwable -> {
-        return sqlConnection.rxRollback().onErrorComplete().andThen(Single.error(throwable));
+        return sqlConnection.rxRollback().onErrorComplete()
+          .andThen(sqlConnection.rxSetAutoCommit(true).onErrorComplete())
+          .andThen(Single.error(throwable));
       }).flatMap(item -> sqlConnection.rxSetAutoCommit(true).andThen(Single.just(item)));
   }
 }

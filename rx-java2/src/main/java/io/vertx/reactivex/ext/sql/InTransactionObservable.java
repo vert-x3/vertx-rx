@@ -32,7 +32,9 @@ public class InTransactionObservable<T> implements ObservableTransformer<T, T> {
       .andThen(upstream)
       .concatWith(sqlConnection.rxCommit().toObservable())
       .onErrorResumeNext(throwable -> {
-        return sqlConnection.rxRollback().onErrorComplete().andThen(Observable.error(throwable));
+        return sqlConnection.rxRollback().onErrorComplete()
+          .andThen(sqlConnection.rxSetAutoCommit(true).onErrorComplete())
+          .andThen(Observable.error(throwable));
       }).concatWith(sqlConnection.rxSetAutoCommit(true).toObservable());
   }
 }
