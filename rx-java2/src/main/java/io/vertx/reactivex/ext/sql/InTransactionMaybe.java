@@ -30,19 +30,11 @@ public class InTransactionMaybe<T> implements MaybeTransformer<T, T> {
   public MaybeSource<T> apply(Maybe<T> upstream) {
     return sqlConnection.rxSetAutoCommit(false)
       .andThen(upstream)
-      .flatMap(item -> commitAndThen(Maybe.just(item)), Maybe::error, () -> commitAndThen(Maybe.empty()))
+      .flatMap(item -> sqlConnection.rxCommit().andThen(Maybe.just(item)), Maybe::error, () -> sqlConnection.rxCommit().andThen(Maybe.empty()))
       .onErrorResumeNext(throwable -> {
         return sqlConnection.rxRollback().onErrorComplete()
           .andThen(sqlConnection.rxSetAutoCommit(true).onErrorComplete())
           .andThen(Maybe.error(throwable));
-      }).flatMap(item -> setAutoCommitAndThen(Maybe.just(item)), Maybe::error, () -> setAutoCommitAndThen(Maybe.empty()));
-  }
-
-  private Maybe<T> setAutoCommitAndThen(Maybe<T> next) {
-    return sqlConnection.rxSetAutoCommit(true).andThen(next);
-  }
-
-  private Maybe<T> commitAndThen(Maybe<T> next) {
-    return sqlConnection.rxCommit().andThen(next);
+      }).flatMap(item -> sqlConnection.rxSetAutoCommit(true).andThen(Maybe.just(item)), Maybe::error, () -> sqlConnection.rxSetAutoCommit(true).andThen(Maybe.empty()));
   }
 }
