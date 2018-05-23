@@ -141,7 +141,6 @@
         </executions>
       </plugin>
 
-      <!--
       <plugin>
         <groupId>biz.aQute.bnd</groupId>
         <artifactId>bnd-maven-plugin</artifactId>
@@ -181,12 +180,13 @@
               io.vertx.core.spi.logging,\
               io.vertx.core.spi.metrics,\
               io.vertx.core.streams,\
-              *
-           -exportcontents: !examples,!io.vertx.core.*, *
+              *;resolution:=optional
+          Export-Package: \
+              io.vertx.reactivex*,\
+              io.vertx.lang.reactivex*
           ]]></bnd>
         </configuration>
       </plugin>
-      -->
 
       <!-- Configure the execution of the compiler to execute the codegen processor -->
       <plugin>
@@ -284,6 +284,9 @@
               <descriptors>
                 <descriptor>${rxjava2.descriptor}</descriptor>
               </descriptors>
+              <archive>
+                <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+              </archive>
             </configuration>
           </execution>
         </executions>

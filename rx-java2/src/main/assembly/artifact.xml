@@ -12,6 +12,7 @@
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>io/vertx/reactivex/**</include>
+        <include>io/vertx/lang/reactivex/**</include>
       </includes>
     </fileSet>
   </fileSets>
