@@ -12,6 +12,8 @@
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>io/vertx/rxjava/**</include>
+        <include>io/vertx/lang/rxjava/**</include>
+        <include>io/vertx/rx/**</include>
       </includes>
     </fileSet>
   </fileSets>
