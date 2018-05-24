@@ -109,7 +109,8 @@ public class MaybeSQLHelperTest extends VertxTestBase {
       return conn.rxExecute(String.format(INSERT_FOLK_SQL, "Georges"))
         .andThen(conn.rxExecute(String.format(INSERT_FOLK_SQL, "Henry")))
         .andThen(uniqueNames(conn))
-        .compose(upstream -> noValue ? Maybe.empty() : upstream)
+        .flatMap(val -> noValue ? Maybe.empty() : Maybe.just(val))
+        .flatMap(val -> postInsert.apply(conn).andThen(Maybe.just(val)), Maybe::error, () -> postInsert.apply(conn).andThen(Maybe.empty()))
         .compose(upstream -> postInsert.apply(conn).andThen(upstream));
     }).test().await();
   }
