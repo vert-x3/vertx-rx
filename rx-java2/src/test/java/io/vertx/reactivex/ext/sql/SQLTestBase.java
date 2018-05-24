@@ -104,7 +104,6 @@ public abstract class SQLTestBase extends VertxTestBase {
           })
           .doFinally(other::close);
       }));
-
   }
 
   @Override
