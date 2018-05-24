@@ -16,12 +16,22 @@ import io.reactivex.MaybeSource;
 import io.reactivex.MaybeTransformer;
 
 /**
+ * Decorates a {@link Maybe} with transaction management for a given {@link SQLConnection}.
+ * <p>
+ * If the {@link Maybe} emits a value (<em>onSuccess</em>) or completes (<em>onComplete</em>), the transaction is committed.
+ * If the {@link Maybe} emits an error (<em>onError</em>), the transaction is rollbacked.
+ * <p>
+ * Eventually, the given {@link SQLConnection} is put back in <em>autocommit</em> mode.
+ *
  * @author Thomas Segismont
  */
 public class InTransactionMaybe<T> implements MaybeTransformer<T, T> {
 
   private final SQLConnection sqlConnection;
 
+  /**
+   * @param sqlConnection the connection used for transaction management
+   */
   public InTransactionMaybe(SQLConnection sqlConnection) {
     this.sqlConnection = sqlConnection;
   }

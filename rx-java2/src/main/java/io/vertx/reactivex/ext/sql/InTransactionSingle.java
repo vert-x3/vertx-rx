@@ -16,12 +16,22 @@ import io.reactivex.SingleSource;
 import io.reactivex.SingleTransformer;
 
 /**
+ * Decorates a {@link Single} with transaction management for a given {@link SQLConnection}.
+ * <p>
+ * If the {@link Single} emits a value (<em>onSuccess</em>), the transaction is committed.
+ * If the {@link Single} emits an error (<em>onError</em>), the transaction is rollbacked.
+ * <p>
+ * Eventually, the given {@link SQLConnection} is put back in <em>autocommit</em> mode.
+ *
  * @author Thomas Segismont
  */
 public class InTransactionSingle<T> implements SingleTransformer<T, T> {
 
   private final SQLConnection sqlConnection;
 
+  /**
+   * @param sqlConnection the connection used for transaction management
+   */
   public InTransactionSingle(SQLConnection sqlConnection) {
     this.sqlConnection = sqlConnection;
   }

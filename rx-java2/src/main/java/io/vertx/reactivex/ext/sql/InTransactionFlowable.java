@@ -16,12 +16,22 @@ import io.reactivex.FlowableTransformer;
 import org.reactivestreams.Publisher;
 
 /**
+ * Decorates a {@link Flowable} with transaction management for a given {@link SQLConnection}.
+ * <p>
+ * If the {@link Flowable} completes (<em>onComplete</em>), the transaction is committed.
+ * If the {@link Flowable} emits an error (<em>onError</em>), the transaction is rollbacked.
+ * <p>
+ * Eventually, the given {@link SQLConnection} is put back in <em>autocommit</em> mode.
+ *
  * @author Thomas Segismont
  */
 public class InTransactionFlowable<T> implements FlowableTransformer<T, T> {
 
   private final SQLConnection sqlConnection;
 
+  /**
+   * @param sqlConnection the connection used for transaction management
+   */
   public InTransactionFlowable(SQLConnection sqlConnection) {
     this.sqlConnection = sqlConnection;
   }
