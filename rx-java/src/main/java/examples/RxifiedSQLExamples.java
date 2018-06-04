@@ -20,7 +20,7 @@ import io.vertx.rxjava.ext.sql.SQLConnection;
 /**
  * @author Thomas Segismont
  */
-public class SQLExamples {
+public class RxifiedSQLExamples {
 
   public void inTransactionTransformer(SQLConnection conn) {
     // tag::inTransactionTransformer[]
@@ -50,7 +50,7 @@ public class SQLExamples {
     // end::inTransactionSingle[]
   }
 
-  private SQLExamples() {
+  private RxifiedSQLExamples() {
     // Examples
   }
 }
