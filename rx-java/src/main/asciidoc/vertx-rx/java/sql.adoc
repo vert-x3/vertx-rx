@@ -18,7 +18,7 @@ After your got an instance of `io.vertx.rxjava.ext.sql.SQLConnection`, you may u
 
 [source,java]
 ----
-include::SQLExamples.java[tags=inTransactionTransformer]
+{@link examples.RxifiedSQLExamples#inTransactionTransformer}
 ----
 <1> Transaction management appplied to the `Completable` source
 
@@ -31,6 +31,6 @@ Let's rewrite the previous example:
 
 [source,java]
 ----
-include::SQLExamples.java[tags=inTransactionSingle]
+{@link examples.RxifiedSQLExamples#inTransactionSingle}
 ----
 <1> the `SELECT` query is now part of the transaction

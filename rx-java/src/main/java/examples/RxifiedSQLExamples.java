@@ -23,7 +23,6 @@ import io.vertx.rxjava.ext.sql.SQLConnection;
 public class RxifiedSQLExamples {
 
   public void inTransactionTransformer(SQLConnection conn) {
-    // tag::inTransactionTransformer[]
     conn.rxExecute("... insert into album ...").toCompletable()
       .andThen(conn.rxExecute("... insert into tracks ...").toCompletable())
       .compose(new InTransactionCompletable(conn)) // <1>
@@ -33,11 +32,9 @@ public class RxifiedSQLExamples {
       }, throwable -> {
         // handle error
       });
-    // end::inTransactionTransformer[]
   }
 
   public void inTransactionSingle(SQLClient sqlClient) {
-    // tag::inTransactionSingle[]
     SQLClientHelper.inTransactionSingle(sqlClient, conn -> {
       return conn.rxExecute("... insert into album ...").toCompletable()
         .andThen(conn.rxExecute("... insert into tracks ...").toCompletable())
@@ -47,7 +44,6 @@ public class RxifiedSQLExamples {
     }, throwable -> {
       // handle error
     });
-    // end::inTransactionSingle[]
   }
 
   private RxifiedSQLExamples() {
