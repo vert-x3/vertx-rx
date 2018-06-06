@@ -99,7 +99,7 @@
       if (type.variable) {
         var typeArg = genTypeArg(type);
         if (typeArg != null) {
-          return typeArg + '.unwrap(' + expr + ')';
+          return typeArg + '.<' + type.name + '>unwrap(' + expr + ')';
         }
       }
       return expr;

@@ -95,10 +95,10 @@
   public synchronized io.reactivex.@{rxType}<@{streamType.simpleName}> to@{rxType}() {\n
     if (@{rxName} == null) {\n
 	@if{streamType.kind == CLASS_API}
-      java.util.function.Function<@{streamType.raw.name}, @{streamType.simpleName}> conv = @{streamType.raw.simpleName}::newInstance;\n
+      java.util.function.Function<@{streamType.name}, @{streamType.simpleName}> conv = @{streamType.raw.simpleName}::newInstance;\n
       @{rxName} = io.vertx.reactivex.@{rxType}Helper.to@{rxType}(delegate, conv);\n
 	@else{streamType.variable}
-      java.util.function.Function<Object, @{streamType.simpleName}> conv = (java.util.function.Function<Object, @{streamType.simpleName}>) __typeArg_0.wrap;\n
+      java.util.function.Function<@{streamType.simpleName}, @{streamType.simpleName}> conv = (java.util.function.Function<@{streamType.simpleName}, @{streamType.simpleName}>) __typeArg_0.wrap;\n
       @{rxName} = io.vertx.reactivex.@{rxType}Helper.to@{rxType}(delegate, conv);\n
 	@else{}
       @{rxName} = io.vertx.reactivex.@{rxType}Helper.to@{rxType}(this.getDelegate());\n

@@ -5,7 +5,7 @@
 	  );\n
 	\n
 	@end{}
-	  private final @{helper.getNonGenericType(ifaceFQCN)} delegate;\n
+	  private final @{helper.getNonGenericType(ifaceFQCN)}@if{typeParams.size() > 0}<@foreach{typeParam : typeParams}@{typeParam.name}@end{','}>@end{} delegate;\n
 	@foreach{typeParam:type.params}
 	  public final io.vertx.lang.@{rxid}.TypeArg<@{typeParam.name}> __typeArg_@{typeParam.index};\n
 	@end{}
