@@ -45,7 +45,7 @@ public class InTransactionCompletableTest extends SQLTestBase {
         .<List<String>>collect(ArrayList::new, List::add)
         .flatMapCompletable(names -> rxAssertEquals(namesWithExtraFolks(), names))
         .compose(upstream -> e == null ? upstream : upstream.andThen(Completable.error(e)))
-        .compose(new InTransactionCompletable(conn))
+        .compose(SQLClientHelper.txCompletableTransformer(conn))
         .andThen(rxAssertAutoCommit(conn))
         .doFinally(conn::close);
     });

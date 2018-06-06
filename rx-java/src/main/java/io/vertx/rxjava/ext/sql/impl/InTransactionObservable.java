@@ -9,41 +9,35 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
  */
 
-package io.vertx.rxjava.ext.sql;
+package io.vertx.rxjava.ext.sql.impl;
 
-import rx.Single;
-import rx.Single.Transformer;
+import io.vertx.rxjava.ext.sql.SQLConnection;
+import rx.Observable;
+import rx.Observable.Transformer;
 
 /**
- * Decorates a {@link Single} with transaction management for a given {@link SQLConnection}.
- * <p>
- * If the {@link Single} emits a value (<em>onSuccess</em>), the transaction is committed.
- * If the {@link Single} emits an error (<em>onError</em>), the transaction is rollbacked.
- * <p>
- * Eventually, the given {@link SQLConnection} is put back in <em>autocommit</em> mode.
- *
  * @author Thomas Segismont
  */
-public class InTransactionSingle<T> implements Transformer<T, T> {
+public class InTransactionObservable<T> implements Transformer<T, T> {
 
   private final SQLConnection sqlConnection;
 
   /**
    * @param sqlConnection the connection used for transaction management
    */
-  public InTransactionSingle(SQLConnection sqlConnection) {
+  public InTransactionObservable(SQLConnection sqlConnection) {
     this.sqlConnection = sqlConnection;
   }
 
   @Override
-  public Single<T> call(Single<T> upstream) {
+  public Observable<T> call(Observable<T> upstream) {
     return sqlConnection.rxSetAutoCommit(false).toCompletable()
       .andThen(upstream)
-      .flatMap(item -> sqlConnection.rxCommit().toCompletable().andThen(Single.just(item)))
+      .concatWith(sqlConnection.rxCommit().toCompletable().toObservable())
       .onErrorResumeNext(throwable -> {
         return sqlConnection.rxRollback().toCompletable().onErrorComplete()
           .andThen(sqlConnection.rxSetAutoCommit(true).toCompletable().onErrorComplete())
-          .andThen(Single.error(throwable));
-      }).flatMap(item -> sqlConnection.rxSetAutoCommit(true).toCompletable().andThen(Single.just(item)));
+          .andThen(Observable.error(throwable));
+      }).concatWith(sqlConnection.rxSetAutoCommit(true).toCompletable().toObservable());
   }
 }

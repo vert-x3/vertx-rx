@@ -9,20 +9,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
  */
 
-package io.vertx.reactivex.ext.sql;
+package io.vertx.reactivex.ext.sql.impl;
 
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
+import io.vertx.reactivex.ext.sql.SQLConnection;
 import org.reactivestreams.Publisher;
 
 /**
- * Decorates a {@link Flowable} with transaction management for a given {@link SQLConnection}.
- * <p>
- * If the {@link Flowable} completes (<em>onComplete</em>), the transaction is committed.
- * If the {@link Flowable} emits an error (<em>onError</em>), the transaction is rollbacked.
- * <p>
- * Eventually, the given {@link SQLConnection} is put back in <em>autocommit</em> mode.
- *
  * @author Thomas Segismont
  */
 public class InTransactionFlowable<T> implements FlowableTransformer<T, T> {

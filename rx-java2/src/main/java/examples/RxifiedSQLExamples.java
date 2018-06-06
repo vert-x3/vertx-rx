@@ -12,7 +12,6 @@
 package examples;
 
 import io.vertx.ext.sql.ResultSet;
-import io.vertx.reactivex.ext.sql.InTransactionCompletable;
 import io.vertx.reactivex.ext.sql.SQLClient;
 import io.vertx.reactivex.ext.sql.SQLClientHelper;
 import io.vertx.reactivex.ext.sql.SQLConnection;
@@ -25,7 +24,7 @@ public class RxifiedSQLExamples {
   public void inTransactionTransformer(SQLConnection conn) {
     conn.rxExecute("... insert into album ...")
       .andThen(conn.rxExecute("... insert into tracks ..."))
-      .compose(new InTransactionCompletable(conn)) // <1>
+      .compose(SQLClientHelper.txCompletableTransformer(conn)) // <1>
       .andThen(conn.rxQuery("... select from album, tracks ...").map(ResultSet::getResults))
       .subscribe(rows -> {
         // send to client

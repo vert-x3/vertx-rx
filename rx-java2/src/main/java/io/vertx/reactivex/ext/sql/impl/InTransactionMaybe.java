@@ -9,20 +9,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
  */
 
-package io.vertx.reactivex.ext.sql;
+package io.vertx.reactivex.ext.sql.impl;
 
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.MaybeTransformer;
+import io.vertx.reactivex.ext.sql.SQLConnection;
 
 /**
- * Decorates a {@link Maybe} with transaction management for a given {@link SQLConnection}.
- * <p>
- * If the {@link Maybe} emits a value (<em>onSuccess</em>) or completes (<em>onComplete</em>), the transaction is committed.
- * If the {@link Maybe} emits an error (<em>onError</em>), the transaction is rollbacked.
- * <p>
- * Eventually, the given {@link SQLConnection} is put back in <em>autocommit</em> mode.
- *
  * @author Thomas Segismont
  */
 public class InTransactionMaybe<T> implements MaybeTransformer<T, T> {

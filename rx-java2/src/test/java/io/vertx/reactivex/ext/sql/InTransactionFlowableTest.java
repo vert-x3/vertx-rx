@@ -42,7 +42,7 @@ public class InTransactionFlowableTest extends SQLTestBase {
       return rxInsertExtraFolks(conn)
         .andThen(uniqueNames(conn))
         .compose(upstream -> e == null ? upstream : upstream.concatWith(Flowable.error(e)))
-        .compose(new InTransactionFlowable<>(conn))
+        .compose(SQLClientHelper.txFlowableTransformer(conn))
         .concatWith(rxAssertAutoCommit(conn).toFlowable())
         .doFinally(conn::close);
     });

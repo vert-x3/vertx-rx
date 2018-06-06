@@ -4,11 +4,11 @@ Managing SQL transactions manually with the Rxified `SQLConnection` requires qui
 
 Vert.x provides __observable transformers__ that you can apply to your flows with http://reactivex.io/RxJava/javadoc/io/reactivex/Flowable.html#compose-io.reactivex.FlowableTransformer-[`compose`] to make them transactional:
 
-* `InTransactionFlowable`
-* `InTransactionObservable`
-* `InTransactionSingle`
-* `InTransactionMaybe`
-* `InTransactionCompletable`
+* `SQLClientHelper#txFlowableTransformer`
+* `SQLClientHelper#txObservableTransformer`
+* `SQLClientHelper#txSingleTransformer`
+* `SQLClientHelper#txMaybeTransformer`
+* `SQLClientHelper#txCompletableTransformer`
 
 These _transformers_ wrap the corresponding source of events with SQL transaction management. Let's take an example.
 

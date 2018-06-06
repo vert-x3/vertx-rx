@@ -9,42 +9,36 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
  */
 
-package io.vertx.reactivex.ext.sql;
+package io.vertx.reactivex.ext.sql.impl;
 
-import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
-import io.reactivex.CompletableTransformer;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.SingleTransformer;
+import io.vertx.reactivex.ext.sql.SQLConnection;
 
 /**
- * Decorates a {@link Completable} with transaction management for a given {@link SQLConnection}.
- * <p>
- * If the {@link Completable} completes (<em>onComplete</em>), the transaction is committed.
- * If the {@link Completable} emits an error (<em>onError</em>), the transaction is rollbacked.
- * <p>
- * Eventually, the given {@link SQLConnection} is put back in <em>autocommit</em> mode.
- *
  * @author Thomas Segismont
  */
-public class InTransactionCompletable implements CompletableTransformer {
+public class InTransactionSingle<T> implements SingleTransformer<T, T> {
 
   private final SQLConnection sqlConnection;
 
   /**
    * @param sqlConnection the connection used for transaction management
    */
-  public InTransactionCompletable(SQLConnection sqlConnection) {
+  public InTransactionSingle(SQLConnection sqlConnection) {
     this.sqlConnection = sqlConnection;
   }
 
   @Override
-  public CompletableSource apply(Completable upstream) {
+  public SingleSource<T> apply(Single<T> upstream) {
     return sqlConnection.rxSetAutoCommit(false)
       .andThen(upstream)
-      .andThen(sqlConnection.rxCommit())
+      .flatMap(item -> sqlConnection.rxCommit().andThen(Single.just(item)))
       .onErrorResumeNext(throwable -> {
         return sqlConnection.rxRollback().onErrorComplete()
           .andThen(sqlConnection.rxSetAutoCommit(true).onErrorComplete())
-          .andThen(Completable.error(throwable));
-      }).andThen(sqlConnection.rxSetAutoCommit(true));
+          .andThen(Single.error(throwable));
+      }).flatMap(item -> sqlConnection.rxSetAutoCommit(true).andThen(Single.just(item)));
   }
 }

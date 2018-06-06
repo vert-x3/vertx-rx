@@ -61,7 +61,7 @@ public class InTransactionMaybeTest extends SQLTestBase {
         .<List<String>>collect(ArrayList::new, List::add)
         .flatMapMaybe(names -> withValue ? Maybe.just(names) : Maybe.empty())
         .compose(upstream -> e == null ? upstream : upstream.flatMap(names -> Maybe.error(e), Maybe::error, () -> Maybe.error(e)))
-        .compose(new InTransactionMaybe<>(conn))
+        .compose(SQLClientHelper.txMaybeTransformer(conn))
         .flatMap(names -> rxAssertAutoCommit(conn).andThen(Maybe.just(names)), Maybe::error, () -> rxAssertAutoCommit(conn).andThen(Maybe.empty()))
         .doFinally(conn::close);
     });

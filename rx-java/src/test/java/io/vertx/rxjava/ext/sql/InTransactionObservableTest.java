@@ -42,7 +42,7 @@ public class InTransactionObservableTest extends SQLTestBase {
       return rxInsertExtraFolks(conn)
         .andThen(uniqueNames(conn))
         .compose(upstream -> e == null ? upstream : upstream.concatWith(Observable.error(e)))
-        .compose(new InTransactionObservable<>(conn))
+        .compose(SQLClientHelper.txObservableTransformer(conn))
         .concatWith(rxAssertAutoCommit(conn).toObservable())
         .doAfterTerminate(conn::close);
     });

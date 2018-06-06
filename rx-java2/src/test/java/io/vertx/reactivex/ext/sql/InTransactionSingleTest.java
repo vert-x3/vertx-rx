@@ -44,7 +44,7 @@ public class InTransactionSingleTest extends SQLTestBase {
         .andThen(uniqueNames(conn))
         .<List<String>>collect(ArrayList::new, List::add)
         .compose(upstream -> e == null ? upstream : upstream.flatMap(names -> Single.error(e)))
-        .compose(new InTransactionSingle<>(conn))
+        .compose(SQLClientHelper.txSingleTransformer(conn))
         .flatMap(names -> rxAssertAutoCommit(conn).andThen(Single.just(names)))
         .doFinally(conn::close);
     });

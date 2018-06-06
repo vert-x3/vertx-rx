@@ -9,41 +9,35 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
  */
 
-package io.vertx.rxjava.ext.sql;
+package io.vertx.rxjava.ext.sql.impl;
 
-import rx.Observable;
-import rx.Observable.Transformer;
+import io.vertx.rxjava.ext.sql.SQLConnection;
+import rx.Completable;
+import rx.Completable.Transformer;
 
 /**
- * Decorates a {@link Observable} with transaction management for a given {@link SQLConnection}.
- * <p>
- * If the {@link Observable} completes (<em>onComplete</em>), the transaction is committed.
- * If the {@link Observable} emits an error (<em>onError</em>), the transaction is rollbacked.
- * <p>
- * Eventually, the given {@link SQLConnection} is put back in <em>autocommit</em> mode.
- *
  * @author Thomas Segismont
  */
-public class InTransactionObservable<T> implements Transformer<T, T> {
+public class InTransactionCompletable implements Transformer {
 
   private final SQLConnection sqlConnection;
 
   /**
    * @param sqlConnection the connection used for transaction management
    */
-  public InTransactionObservable(SQLConnection sqlConnection) {
+  public InTransactionCompletable(SQLConnection sqlConnection) {
     this.sqlConnection = sqlConnection;
   }
 
   @Override
-  public Observable<T> call(Observable<T> upstream) {
+  public Completable call(Completable upstream) {
     return sqlConnection.rxSetAutoCommit(false).toCompletable()
       .andThen(upstream)
-      .concatWith(sqlConnection.rxCommit().toCompletable().toObservable())
+      .andThen(sqlConnection.rxCommit().toCompletable())
       .onErrorResumeNext(throwable -> {
         return sqlConnection.rxRollback().toCompletable().onErrorComplete()
           .andThen(sqlConnection.rxSetAutoCommit(true).toCompletable().onErrorComplete())
-          .andThen(Observable.error(throwable));
-      }).concatWith(sqlConnection.rxSetAutoCommit(true).toCompletable().toObservable());
+          .andThen(Completable.error(throwable));
+      }).andThen(sqlConnection.rxSetAutoCommit(true).toCompletable());
   }
 }

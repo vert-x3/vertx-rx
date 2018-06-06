@@ -12,10 +12,20 @@
 package io.vertx.reactivex.ext.sql;
 
 import io.reactivex.Completable;
+import io.reactivex.CompletableTransformer;
 import io.reactivex.Flowable;
+import io.reactivex.FlowableTransformer;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeTransformer;
 import io.reactivex.Observable;
+import io.reactivex.ObservableTransformer;
 import io.reactivex.Single;
+import io.reactivex.SingleTransformer;
+import io.vertx.reactivex.ext.sql.impl.InTransactionCompletable;
+import io.vertx.reactivex.ext.sql.impl.InTransactionFlowable;
+import io.vertx.reactivex.ext.sql.impl.InTransactionMaybe;
+import io.vertx.reactivex.ext.sql.impl.InTransactionObservable;
+import io.vertx.reactivex.ext.sql.impl.InTransactionSingle;
 
 import java.util.function.Function;
 
@@ -27,6 +37,22 @@ import java.util.function.Function;
 public class SQLClientHelper {
 
   /**
+   * Creates a {@link FlowableTransformer} decorating a {@link Flowable} with transaction management for a given {@link SQLConnection}.
+   * <p>
+   * If the upstream {@link Flowable} completes (<em>onComplete</em>), the transaction is committed.
+   * If the upstream {@link Flowable} emits an error (<em>onError</em>), the transaction is rollbacked.
+   * <p>
+   * Eventually, the given {@link SQLConnection} is put back in <em>autocommit</em> mode.
+   *
+   * @param sqlConnection the {@link SQLConnection} used for database operations and transaction management
+   * @param <T> the type of the items emitted by the upstream {@link Flowable}
+   * @return a {@link FlowableTransformer} decorating a {@link Flowable} with transaction management
+   */
+  public static <T> FlowableTransformer<T, T> txFlowableTransformer(SQLConnection sqlConnection) {
+    return new InTransactionFlowable<>(sqlConnection);
+  }
+
+  /**
    * Generates a {@link Flowable} from {@link SQLConnection} operations executed inside a transaction.
    *
    * @param client the {@link SQLClient}
@@ -36,8 +62,24 @@ public class SQLClientHelper {
    */
   public static <T> Flowable<T> inTransactionFlowable(SQLClient client, Function<SQLConnection, Flowable<T>> sourceSupplier) {
     return client.rxGetConnection().flatMapPublisher(conn -> {
-      return sourceSupplier.apply(conn).compose(new InTransactionFlowable<>(conn)).doFinally(conn::close);
+      return sourceSupplier.apply(conn).compose(txFlowableTransformer(conn)).doFinally(conn::close);
     });
+  }
+
+  /**
+   * Creates a {@link ObservableTransformer} decorating an {@link Observable} with transaction management for a given {@link SQLConnection}.
+   * <p>
+   * If the upstream {@link Observable} completes (<em>onComplete</em>), the transaction is committed.
+   * If the upstream {@link Observable} emits an error (<em>onError</em>), the transaction is rollbacked.
+   * <p>
+   * Eventually, the given {@link SQLConnection} is put back in <em>autocommit</em> mode.
+   *
+   * @param sqlConnection the {@link SQLConnection} used for database operations and transaction management
+   * @param <T> the type of the items emitted by the upstream {@link Observable}
+   * @return a {@link ObservableTransformer} decorating an {@link Observable} with transaction management
+   */
+  public static <T> ObservableTransformer<T, T> txObservableTransformer(SQLConnection sqlConnection) {
+    return new InTransactionObservable<>(sqlConnection);
   }
 
   /**
@@ -50,8 +92,24 @@ public class SQLClientHelper {
    */
   public static <T> Observable<T> inTransactionObservable(SQLClient client, Function<SQLConnection, Observable<T>> sourceSupplier) {
     return client.rxGetConnection().flatMapObservable(conn -> {
-      return sourceSupplier.apply(conn).compose(new InTransactionObservable<>(conn)).doFinally(conn::close);
+      return sourceSupplier.apply(conn).compose(txObservableTransformer(conn)).doFinally(conn::close);
     });
+  }
+
+  /**
+   * Creates a {@link SingleTransformer} decorating a {@link Single} with transaction management for a given {@link SQLConnection}.
+   * <p>
+   * If the upstream {@link Single} emits a value (<em>onSuccess</em>), the transaction is committed.
+   * If the upstream {@link Single} emits an error (<em>onError</em>), the transaction is rollbacked.
+   * <p>
+   * Eventually, the given {@link SQLConnection} is put back in <em>autocommit</em> mode.
+   *
+   * @param sqlConnection the {@link SQLConnection} used for database operations and transaction management
+   * @param <T> the type of the item emitted by the upstream {@link Single}
+   * @return a {@link SingleTransformer} decorating a {@link Single} with transaction management
+   */
+  public static <T> SingleTransformer<T, T> txSingleTransformer(SQLConnection sqlConnection) {
+    return new InTransactionSingle<>(sqlConnection);
   }
 
   /**
@@ -64,8 +122,24 @@ public class SQLClientHelper {
    */
   public static <T> Single<T> inTransactionSingle(SQLClient client, Function<SQLConnection, Single<T>> sourceSupplier) {
     return client.rxGetConnection().flatMap(conn -> {
-      return sourceSupplier.apply(conn).compose(new InTransactionSingle<>(conn)).doFinally(conn::close);
+      return sourceSupplier.apply(conn).compose(txSingleTransformer(conn)).doFinally(conn::close);
     });
+  }
+
+  /**
+   * Creates a {@link MaybeTransformer} decorating a {@link Maybe} with transaction management for a given {@link SQLConnection}.
+   * <p>
+   * If the upstream {@link Maybe} emits a value (<em>onSuccess</em>) or completes (<em>onComplete</em>), the transaction is committed.
+   * If the upstream {@link Maybe} emits an error (<em>onError</em>), the transaction is rollbacked.
+   * <p>
+   * Eventually, the given {@link SQLConnection} is put back in <em>autocommit</em> mode.
+   *
+   * @param sqlConnection the {@link SQLConnection} used for database operations and transaction management
+   * @param <T> the type of the item emitted by the upstream {@link Maybe}
+   * @return a {@link MaybeTransformer} decorating a {@link Maybe} with transaction management
+   */
+  public static <T> MaybeTransformer<T, T> txMaybeTransformer(SQLConnection sqlConnection) {
+    return new InTransactionMaybe<>(sqlConnection);
   }
 
   /**
@@ -78,8 +152,23 @@ public class SQLClientHelper {
    */
   public static <T> Maybe<T> inTransactionMaybe(SQLClient client, Function<SQLConnection, Maybe<T>> sourceSupplier) {
     return client.rxGetConnection().flatMapMaybe(conn -> {
-      return sourceSupplier.apply(conn).compose(new InTransactionMaybe<>(conn)).doFinally(conn::close);
+      return sourceSupplier.apply(conn).compose(txMaybeTransformer(conn)).doFinally(conn::close);
     });
+  }
+
+  /**
+   * Creates a {@link CompletableTransformer} decorating a {@link Completable} with transaction management for a given {@link SQLConnection}.
+   * <p>
+   * If the upstream {@link Completable} completes (<em>onComplete</em>), the transaction is committed.
+   * If the upstream {@link Completable} emits an error (<em>onError</em>), the transaction is rollbacked.
+   * <p>
+   * Eventually, the given {@link SQLConnection} is put back in <em>autocommit</em> mode.
+   *
+   * @param sqlConnection the {@link SQLConnection} used for database operations and transaction management
+   * @return a {@link CompletableTransformer} decorating a {@link Completable} with transaction management
+   */
+  public static CompletableTransformer txCompletableTransformer(SQLConnection sqlConnection) {
+    return new InTransactionCompletable(sqlConnection);
   }
 
   /**
@@ -91,7 +180,7 @@ public class SQLClientHelper {
    */
   public static Completable inTransactionCompletable(SQLClient client, Function<SQLConnection, Completable> sourceSupplier) {
     return client.rxGetConnection().flatMapCompletable(conn -> {
-      return sourceSupplier.apply(conn).compose(new InTransactionCompletable(conn)).doFinally(conn::close);
+      return sourceSupplier.apply(conn).compose(txCompletableTransformer(conn)).doFinally(conn::close);
     });
   }
 
