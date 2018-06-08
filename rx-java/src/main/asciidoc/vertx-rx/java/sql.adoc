@@ -1,0 +1,36 @@
+== SQL Transaction management with RxJava
+
+Managing SQL transactions manually with the Rxified `SQLConnection` requires quite a lot of boilerplate code.
+
+Vert.x provides __observable transformers__ that you can apply to your flows with http://reactivex.io/RxJava/1.x/javadoc/rx/Observable.html#compose-rx.Observable.Transformer-[`compose`] to make them transactional:
+
+* `SQLClientHelper#txObservableTransformer`
+* `SQLClientHelper#txSingleTransformer`
+* `SQLClientHelper#txCompletableTransformer`
+
+These _transformers_ wrap the corresponding source of events with SQL transaction management. Let's take an example.
+
+In your music library application, you need to insert a row in table `albums`, then some rows in table `tracks`.
+These two steps shall be part of the same atomic transaction.
+If it succeeds, the application must return results from a query involving both tables.
+
+After your got an instance of `io.vertx.rxjava.ext.sql.SQLConnection`, you can use it to perform the SQL operations:
+
+[source,java]
+----
+{@link examples.RxifiedSQLExamples#inTransactionTransformer}
+----
+<1> Transaction management appplied to the `Completable` source
+
+Source _transformers_ provide maximum flexibility: you are still able to execute operations with the connection after the transaction completes.
+
+But more often than not, you do not need the connection after the changes are _commited_ or _rollbacked_.
+In this case, you may simply create you source observable with one of the transactional helper methods in `io.vertx.rxjava.ext.sql.SQLClientHelper`.
+
+Let's rewrite the previous example:
+
+[source,java]
+----
+{@link examples.RxifiedSQLExamples#inTransactionSingle}
+----
+<1> the `SELECT` query is now part of the transaction
