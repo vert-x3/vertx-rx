@@ -16,8 +16,8 @@
 
 package io.vertx.rx.java.test;
 
-import com.acme.rxjava.pkg.AnotherInterface;
 import io.vertx.core.net.impl.SocketAddressImpl;
+import io.vertx.rxjava.codegen.extra.AnotherInterface;
 import io.vertx.rxjava.core.buffer.Buffer;
 import io.vertx.rxjava.core.net.SocketAddress;
 import org.junit.Test;

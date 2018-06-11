@@ -1,6 +1,6 @@
 package io.vertx.rx.java.test.gen;
 
-import com.acme.rxjava.pkg.AnotherInterface;
+import io.vertx.rxjava.codegen.extra.AnotherInterface;
 import org.junit.Test;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.acme.pkg;
+package io.vertx.codegen.extra;
 
 import java.util.Objects;
 
