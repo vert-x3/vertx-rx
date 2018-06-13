@@ -397,7 +397,7 @@ public class SchedulerTest extends VertxTestBase {
     CountDownLatch latch = new CountDownLatch(1);
     worker.schedule(latch::countDown);
     awaitLatch(latch);
-    assertEquals(0, worker.countActions());
+    waitUntil(() -> worker.countActions() == 0);
   }
 
   @Test
@@ -407,7 +407,7 @@ public class SchedulerTest extends VertxTestBase {
     CountDownLatch latch = new CountDownLatch(1);
     worker.schedule(latch::countDown, 10, TimeUnit.MILLISECONDS);
     awaitLatch(latch);
-    assertEquals(0, worker.countActions());
+    waitUntil(() -> worker.countActions() == 0);
   }
 
   @Test
@@ -425,6 +425,6 @@ public class SchedulerTest extends VertxTestBase {
       latch.countDown();
     }, 10, 10, TimeUnit.MILLISECONDS));
     awaitLatch(latch);
-    assertEquals(0, worker.countActions());
+    waitUntil(() -> worker.countActions() == 0);
   }
 }
