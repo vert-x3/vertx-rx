@@ -83,6 +83,20 @@ public class RxHelper {
   }
 
   /**
+   * Create a scheduler for a {@link Vertx} object, actions can be blocking, they are not executed
+   * on Vertx event loop.
+   *
+   * @param vertx the vertx object
+   * @param ordered  if true then if when tasks are scheduled several times on the same context, the executions
+   *                 for that context will be executed serially, not in parallel. if false then they will be no ordering
+   *                 guarantees
+   * @return the scheduler
+   */
+  public static Scheduler blockingScheduler(Vertx vertx, boolean ordered) {
+    return new ContextScheduler(vertx.getDelegate().getOrCreateContext(), true, ordered);
+  }
+
+  /**
    * Returns a json unmarshaller for the specified java type as a {@link rx.Observable.Operator} instance.<p/>
    *
    * The marshaller can be used with the {@link rx.Observable#lift(rx.Observable.Operator)} method to transform
