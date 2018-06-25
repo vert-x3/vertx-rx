@@ -74,5 +74,8 @@ public class AbstractVerticle extends io.vertx.core.AbstractVerticle {
    */
   public Completable rxStop() {
     return null;
+  
+  public io.vertx.reactivex.core.Vertx getRxVertx() {
+    return vertx;
   }
 }
