@@ -1,10 +1,15 @@
 package io.vertx.lang.rxjava;
 
 import io.vertx.codegen.ClassModel;
+import io.vertx.codegen.MethodInfo;
 import io.vertx.codegen.ModuleInfo;
+import io.vertx.codegen.ParamInfo;
+import io.vertx.codegen.type.*;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 class RxJavaGenerator extends AbstractRxGenerator {
   RxJavaGenerator() {
@@ -17,5 +22,136 @@ class RxJavaGenerator extends AbstractRxGenerator {
     writer.println("import rx.Observable;");
     writer.println("import rx.Single;");
     super.generateImport(model, writer);
+  }
+
+  @Override
+  protected void genToObservable(ApiTypeInfo type, PrintWriter writer) {
+    TypeInfo streamType = type.getReadStreamArg();
+    String simpleName = streamType.getSimpleName();
+    writer.print("  private rx.Observable<");
+    writer.print(simpleName);
+    writer.print("> observable;");
+    writer.println();
+
+    writer.print("  public synchronized rx.Observable<");
+    writer.print(simpleName);
+    writer.println("> toObservable() {");
+
+    writer.print("    ");
+    writer.println("if (observable == null) {");
+
+    if (streamType.getKind() == ClassKind.API) {
+      writer.print("      java.util.function.Function<");
+      writer.print(streamType.getName());
+      writer.print(", ");
+      writer.print(simpleName);
+      writer.print("> conv = ");
+      writer.print(simpleName);
+      writer.println("::newInstance;");
+
+      writer.println("      observable = io.vertx.rx.java.RxHelper.toObservable(delegate, conv);");
+    } else if (streamType.isVariable()) {
+      writer.print("      java.util.function.Function<");
+      writer.print(simpleName);
+      writer.print(", ");
+      writer.print(simpleName);
+      writer.print("> conv = (java.util.function.Function<");
+      writer.print(simpleName);
+      writer.print(", ");
+      writer.print(simpleName);
+      writer.println(">) __typeArg_0.wrap;");
+
+      writer.println("      observable = io.vertx.rx.java.RxHelper.toObservable(delegate, conv);");
+    } else {
+      writer.println("      observable = io.vertx.rx.java.RxHelper.toObservable(this.getDelegate());");
+    }
+
+    writer.println("    }");
+    writer.println("return observable；");
+    writer.println("}");
+    writer.println();
+  }
+
+  @Override
+  protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, PrintWriter writer) {
+    genMethod(model, method, writer);
+    MethodInfo overloaded = genOverloadedMethod(method);
+    if (overloaded != null) {
+      genMethod(model, overloaded, writer);
+    }
+  }
+
+  @Override
+  protected void genRxMethod(ClassModel model, MethodInfo method, PrintWriter writer) {
+    ClassTypeInfo type = model.getType();
+    String packageName = type.getPackageName();
+    if (packageName.startsWith("io.vertx.codegen") ||
+      packageName.startsWith("io.vertx.core") ||
+      packageName.startsWith("io.vertx.ext.web") ||
+      packageName.startsWith("io.vertx.ext.sql") ||
+      packageName.startsWith("io.vertx.ext.jdbc") ||
+      packageName.startsWith("io.vertx.ext.mongo") ||
+      packageName.startsWith("io.vertx.ext.auth") ||
+      packageName.startsWith("io.vertx.ext.jwt") ||
+      packageName.startsWith("io.vertx.redis") ||
+      packageName.startsWith("io.vertx.ext.mail") ||
+      packageName.startsWith("io.vertx.ext.asyncsql") ||
+      packageName.startsWith("io.vertx.ext.stomp") ||
+      packageName.startsWith("io.vertx.ext.shell") ||
+      packageName.startsWith("io.vertx.ext.dropwizard") ||
+      packageName.startsWith("io.vertx.amqpbridge") ||
+      packageName.startsWith("io.vertx.rabbitmq") ||
+      packageName.startsWith("io.vertx.ext.unit")) {
+      String methodName = method.getName();
+      List<ParamInfo> futureParams = new ArrayList<>(method.getParams());
+      ParamInfo futureParam = futureParams.remove(futureParams.size() - 1);
+      ParameterizedTypeInfo handlerType = (ParameterizedTypeInfo) futureParam.getType();
+      ParameterizedTypeInfo asyncResultType = (ParameterizedTypeInfo) handlerType.getArg(0);
+      TypeInfo futureType = asyncResultType.getArg(0);
+      ParameterizedTypeInfo futureReturnType = new ParameterizedTypeInfo(TypeReflectionFactory.create(rx.Observable.class).getRaw(), false, Collections.singletonList(futureType));
+      MethodInfo futureMethod = new MethodInfo(method.getOwnerTypes(), method.getName() + "Observable", method.getKind(), futureReturnType, null, method.isFluent(), method.isCacheReturn(), futureParams, method.getComment(), method.getDoc(), method.isStaticMethod(), method.isDefaultMethod(), method.getTypeParams(), method.isDeprecated());
+      startMethodTemplate(type, futureMethod, "use {@link #" + genFutureMethodName(method) + "} instead", writer);
+    }
+  }
+
+  private MethodInfo genOverloadedMethod(MethodInfo method) {
+    List<ParamInfo> params = null;
+    for (ParamInfo param : method.getParams()) {
+      if (param.getType().isParameterized() && "io.vertx.core.streams.ReadStream".equals(param.getType().getRaw().getName())) {
+        if (params == null) {
+          params = new ArrayList<>(method.getParams());
+        }
+        ParameterizedTypeInfo t = (ParameterizedTypeInfo) param.getType();
+        ParameterizedTypeInfo paramType = new io.vertx.codegen.type.ParameterizedTypeInfo(
+          io.vertx.codegen.type.TypeReflectionFactory.create(rx.Observable.class).getRaw(),
+          false,
+          java.util.Collections.singletonList(t.getArg(0))
+        );
+        params.add(new io.vertx.codegen.ParamInfo(
+          param.getIndex(),
+          param.getName(),
+          param.getDescription(),
+          paramType
+        ));
+      }
+    }
+    if (params != null) {
+      return new io.vertx.codegen.MethodInfo(
+        method.getOwnerTypes(),
+        method.getName(),
+        method.getKind(),
+        method.getReturnType(),
+        null,
+        method.isFluent(),
+        method.isCacheReturn(),
+        params,
+        method.getComment(),
+        method.getDoc(),
+        method.isStaticMethod(),
+        method.isDefaultMethod(),
+        method.getTypeParams(),
+        method.isDeprecated());
+    }
+    return null;
   }
 }
