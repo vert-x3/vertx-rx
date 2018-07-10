@@ -23,13 +23,13 @@ class RxJava2Generator extends AbstractRxGenerator {
   }
 
   @Override
-  protected void generateImport(ClassModel model, PrintWriter writer) {
+  protected void genRxImports(ClassModel model, PrintWriter writer) {
     writer.println("import io.reactivex.Observable;");
     writer.println("import io.reactivex.Flowable;");
     writer.println("import io.reactivex.Single;");
     writer.println("import io.reactivex.Completable;");
     writer.println("import io.reactivex.Maybe;");
-    super.generateImport(model, writer);
+    super.genRxImports(model, writer);
   }
 
   @Override
@@ -70,7 +70,7 @@ class RxJava2Generator extends AbstractRxGenerator {
       writer.print(", ");
       writer.print(simpleName);
       writer.print("> conv = ");
-      writer.print(simpleName);
+      writer.print(streamType.getRaw().getSimpleName());
       writer.println("::newInstance;");
 
       writer.print("      ");
@@ -122,14 +122,14 @@ class RxJava2Generator extends AbstractRxGenerator {
 
   @Override
   protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, PrintWriter writer) {
-    genMethod(model, method, writer);
+    genMethod(model, method, cacheDecls, writer);
     MethodInfo flowableOverload = genOverloadedMethod(method, io.reactivex.Flowable.class);
     MethodInfo observableOverload = genOverloadedMethod(method, io.reactivex.Observable.class);
     if (flowableOverload != null) {
-      genMethod(model, flowableOverload, writer);
+      genMethod(model, flowableOverload, cacheDecls, writer);
     }
     if (observableOverload != null) {
-      genMethod(model, observableOverload, writer);
+      genMethod(model, observableOverload, cacheDecls, writer);
     }
   }
 
@@ -141,6 +141,7 @@ class RxJava2Generator extends AbstractRxGenerator {
     String adapterType = "io.vertx.reactivex.impl.AsyncResult" + methodSimpleName + ".to" + methodSimpleName;
     String rxType = raw.getName();
     startMethodTemplate(model.getType(), futMethod, "", writer);
+    writer.println(" { ");
     writer.print("    return ");
     writer.print(adapterType);
     writer.println("(handler -> {");
@@ -158,7 +159,7 @@ class RxJava2Generator extends AbstractRxGenerator {
     writer.println();
   }
 
-  private void genReadStream(List<TypeParamInfo> typeParams, PrintWriter writer){
+  protected void genReadStream(List<? extends TypeParamInfo> typeParams, PrintWriter writer){
     writer.print("  io.reactivex.Observable<");
     writer.print(typeParams.get(0).getName());
     writer.println("> toObservable();");
@@ -221,7 +222,7 @@ class RxJava2Generator extends AbstractRxGenerator {
           false,
           java.util.Collections.singletonList(((ParameterizedTypeInfo) param.getType()).getArg(0))
         );
-        params.add(new io.vertx.codegen.ParamInfo(
+        params.set(count, new io.vertx.codegen.ParamInfo(
           param.getIndex(),
           param.getName(),
           param.getDescription(),

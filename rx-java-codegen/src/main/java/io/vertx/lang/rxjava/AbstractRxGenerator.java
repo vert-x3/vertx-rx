@@ -37,7 +37,11 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
   public String render(ClassModel model, int index, int size, Map<String, Object> session) {
     StringWriter sw = new StringWriter();
     PrintWriter writer = new PrintWriter(sw);
+    generateClass(model, writer);
+    return sw.toString();
+  }
 
+  private void generateClass(ClassModel model, PrintWriter writer) {
     ClassTypeInfo type = model.getType();
 
     generateLicense(writer);
@@ -48,9 +52,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println();
 
     writer.println("import java.util.Map;");
-    generateImport(model, writer);
-    writer.println();
+    genRxImports(model, writer);
 
+    writer.println();
     generateDoc(model, writer);
     writer.println();
 
@@ -80,9 +84,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     if (abstractSuperTypes.size() > 0) {
       writer.print(" ");
       if (model.isConcrete()) {
-        writer.print("implements ");
+        writer.print("implements");
       } else {
-        writer.print("extends ");
+        writer.print("extends");
       }
       writer.print(abstractSuperTypes.stream().map(it -> " " + it.getSimpleName()).collect(Collectors.joining(", ")));
     }
@@ -121,7 +125,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       }
 
       List<MethodInfo> methods = model.getMethods();
-      if (methods.stream().anyMatch(it -> it.getParams().isEmpty() && "toString".equals(it.getName()))) {
+      if (methods.stream().noneMatch(it -> it.getParams().isEmpty() && "toString".equals(it.getName()))) {
         writer.println("  @Override");
         writer.println("  public String toString() {");
         writer.println("    return delegate.toString();");
@@ -140,20 +144,99 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.println(") o;");
       writer.println("    return delegate.equals(that.delegate);");
       writer.println("  }");
-      writer.println();
+      writer.println("  ");
 
       writer.println("  @Override");
       writer.println("  public int hashCode() {");
       writer.println("    return delegate.hashCode();");
       writer.println("  }");
+      writer.println();
+
+      generateClassBody(model, model.getIfaceSimpleName(), writer);
     } else {
+      writer.print("  ");
+      writer.print(type.getName());
+      writer.println(" getDelegate();");
+      writer.println();
 
+      for (MethodInfo method : model.getMethods()) {
+        startMethodTemplate(type, method, "", writer);
+        writer.println(";");
+        writer.println();
+      }
+
+      if (type.getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
+        genReadStream(type.getParams(), writer);
+      }
     }
+    writer.println();
+    writer.print("  public static ");
+    writer.print(genOptTypeParamsDecl(type, " "));
+    writer.print(type.getSimpleName());
+    writer.print(genOptTypeParamsDecl(type, ""));
+    writer.print(" newInstance(");
+    writer.print(type.getName());
+    writer.println(" arg) {");
 
+    writer.print("    return arg != null ? new ");
+    writer.print(type.getSimpleName());
+    if (!model.isConcrete()) {
+      writer.print("Impl");
+    }
+    writer.print(genOptTypeParamsDecl(type, ""));
+    writer.println("(arg) : null;");
+    writer.println("  }");
+
+    if (type.getParams().size() > 0) {
+      writer.println();
+      writer.print("  public static ");
+      writer.print(genOptTypeParamsDecl(type, " "));
+      writer.print(type.getSimpleName());
+      writer.print(genOptTypeParamsDecl(type, ""));
+      writer.print(" newInstance(");
+      writer.print(type.getName());
+      writer.print(" arg");
+      for (TypeParamInfo typeParam : type.getParams()) {
+        writer.print(", io.vertx.lang.");
+        writer.print(id);
+        writer.print(".TypeArg<");
+        writer.print(typeParam.getName());
+        writer.print("> __typeArg_");
+        writer.print(typeParam.getName());
+      }
+      writer.println(") {");
+
+      writer.print("    return arg != null ? new ");
+      writer.print(type.getSimpleName());
+      if (!model.isConcrete()) {
+        writer.print("Impl");
+      }
+      writer.print(genOptTypeParamsDecl(type, ""));
+      writer.print("(arg");
+      for (TypeParamInfo typeParam : type.getParams()) {
+        writer.print(", __typeArg_");
+        writer.print(typeParam.getName());
+      }
+      writer.println(") : null;");
+      writer.println("  }");
+    }
     writer.println("}");
 
-    return sw.toString();
+    if (!model.isConcrete()) {
+      writer.println();
+      writer.print("class ");
+      writer.print(type.getSimpleName());
+      writer.print("Impl");
+      writer.print(genOptTypeParamsDecl(type, ""));
+      writer.print(" implements ");
+      writer.print(Helper.getSimpleName(model.getIfaceFQCN()));
+      writer.println(" {");
+      generateClassBody(model, type.getSimpleName() + "Impl", writer);
+      writer.println("}");
+    }
   }
+
+  protected abstract void genReadStream(List<? extends TypeParamInfo> typeParams, PrintWriter writer);
 
   private void generateClassBody(ClassModel model, String constructor, PrintWriter writer) {
     ClassTypeInfo type = model.getType();
@@ -186,7 +269,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println(" delegate;");
 
     for (TypeParamInfo.Class typeParam : typeParams) {
-      writer.print("public final io.vertx.lang.");
+      writer.print("  public final io.vertx.lang.");
       writer.print(id);
       writer.print(".TypeArg<");
       writer.print(typeParam.getName());
@@ -194,7 +277,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.print(typeParam.getIndex());
       writer.println(";");
     }
-    writer.println();
+    writer.println("  ");
 
     writer.print("  public ");
     writer.print(constructor);
@@ -207,13 +290,13 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     }
     writer.println("    this.delegate = delegate;");
     for (TypeParamInfo.Class typeParam : typeParams) {
-      writer.print("this.__typeArg_");
+      writer.print("    this.__typeArg_");
       writer.print(typeParam.getIndex());
       writer.print(" = io.vertx.lang.");
       writer.print(id);
-      writer.print(".TypeArg.unknown();");
+      writer.println(".TypeArg.unknown();");
     }
-    writer.println("}");
+    writer.println("  }");
     writer.println();
 
     if (typeParams.size() > 0) {
@@ -236,13 +319,13 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       }
       writer.println("    this.delegate = delegate;");
       for (TypeParamInfo.Class typeParam : typeParams) {
-        writer.print("this.__typeArg_");
+        writer.print("    this.__typeArg_");
         writer.print(typeParam.getIndex());
         writer.print(" = typeArg_");
         writer.print(typeParam.getIndex());
-        writer.print(";");
+        writer.println(";");
       }
-      writer.println("}");
+      writer.println("  }");
       writer.println();
     }
 
@@ -250,7 +333,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.print(type.getName());
     writer.println(" getDelegate() {");
     writer.println("    return delegate;");
-    writer.println("}");
+    writer.println("  }");
     writer.println();
 
     ApiTypeInfo api = (ApiTypeInfo) type;
@@ -264,7 +347,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
 
     for (String cacheDecl : cacheDecls) {
       writer.print("");
-      writer.println(cacheDecl);
+      writer.print(cacheDecl);
+      writer.println(";");
     }
   }
 
@@ -274,8 +358,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
 
   protected abstract void genRxMethod(ClassModel model, MethodInfo method, PrintWriter writer);
 
-  protected final void genMethod(ClassModel model, MethodInfo method, PrintWriter writer) {
-    genSimpleMethod(model.getType(), method, writer);
+  protected final void genMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, PrintWriter writer) {
+    genSimpleMethod(model, method, cacheDecls, writer);
     if (method.getKind() == MethodKind.FUTURE) {
       genRxMethod(model, method, writer);
     }
@@ -286,28 +370,30 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     if (doc != null) {
       writer.println("  /**");
       Token.toHtml(doc.getTokens(), "   *", renderLinkToHtml(type), "\n", writer);
-    }
-    for (ParamInfo param : method.getParams()) {
-      writer.print("   * @param ");
-      writer.print(param.getName());
-      writer.print("");
-      if (param.getDescription() != null) {
-        Token.toHtml(param.getDescription().getTokens(), "", renderLinkToHtml(type), "\n", writer);
+      for (ParamInfo param : method.getParams()) {
+        writer.print("   * @param ");
+        writer.print(param.getName());
+        writer.print(" ");
+        if (param.getDescription() != null) {
+          Token.toHtml(param.getDescription().getTokens(), "", renderLinkToHtml(type), "\n", writer);
+        } else {
+          writer.println();
+        }
       }
-      writer.println();
-    }
-    if (!method.getReturnType().getName().equals("void")) {
-      writer.print("   * @return ");
-      if (method.getReturnDescription() != null) {
-        Token.toHtml(method.getReturnDescription().getTokens(), "", renderLinkToHtml(type), "\n", writer);
+      if (!method.getReturnType().getName().equals("void")) {
+        writer.print("   * @return ");
+        if (method.getReturnDescription() != null) {
+          Token.toHtml(method.getReturnDescription().getTokens(), "", renderLinkToHtml(type), "\n", writer);
+        } else {
+          writer.println();
+        }
       }
-      writer.println();
+      if (deprecated != null && deprecated.length() > 0) {
+        writer.print("   * @deprecated ");
+        writer.println(deprecated);
+      }
+      writer.println("   */");
     }
-    if (deprecated != null && deprecated.length() > 0) {
-      writer.print("   * @deprecated ");
-      writer.println(deprecated);
-    }
-    writer.println("   */");
     if (deprecated != null && deprecated.length() > 0) {
       writer.println("  @Deprecated()");
     }
@@ -328,13 +414,16 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
   }
 
   protected String genFutureMethodName(MethodInfo method) {
-    return "rx" + java.lang.Character.toUpperCase(method.getName().charAt(0)) + method.getName().substring(1);
+    return "rx" + Character.toUpperCase(method.getName().charAt(0)) + method.getName().substring(1);
   }
-  private void genSimpleMethod(ClassTypeInfo type, MethodInfo method, PrintWriter writer) {
+
+  private void genSimpleMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, PrintWriter writer) {
+    ClassTypeInfo type = model.getType();
     startMethodTemplate(type, method, "", writer);
+    writer.println(" { ");
     if (method.isFluent()) {
       writer.print("    ");
-      genInvokeDelegate(method, writer);
+      writer.print(genInvokeDelegate(model, method));
       writer.println(";");
       if (method.getReturnType().isVariable()) {
         writer.print("    return (");
@@ -345,19 +434,46 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       }
     } else if (method.getReturnType().getName().equals("void")) {
       writer.print("    ");
-      genInvokeDelegate(method, writer);
+      writer.print(genInvokeDelegate(model, method));
       writer.println(";");
     } else {
-      writer.print("");
       if (method.isCacheReturn()) {
+        writer.print("    if (cached_");
+        writer.print(cacheDecls.size());
+        writer.println(" != null) {");
 
+        writer.print("      return cached_");
+        writer.print(cacheDecls.size());
+        writer.println(";");
+        writer.println("    }");
       }
+      String cachedType;
+      TypeInfo returnType = method.getReturnType();
+      if (method.getReturnType().getKind() == PRIMITIVE) {
+        cachedType = ((PrimitiveTypeInfo) returnType).getBoxed().getName();
+      } else {
+        cachedType = returnType.getSimpleName();
+      }
+      writer.print("    ");
+      writer.print(returnType.getSimpleName());
+      writer.print(" ret = ");
+      writer.print(genConvReturn(returnType, method, genInvokeDelegate(model, method)));
+      writer.println(";");
+      if (method.isCacheReturn()) {
+        writer.print("    cached_");
+        writer.print(cacheDecls.size());
+        writer.println(" = ret;");
+        cacheDecls.add("private" + (method.isStaticMethod() ? " static" : "") + " " + cachedType + " cached_" + cacheDecls.size());
+      }
+      writer.println("    return ret;");
     }
+    writer.println("  }");
+    writer.println();
   }
 
-  private void genInvokeDelegate(MethodInfo method, PrintWriter writer) {
-
-  }
+//  private void genInvokeDelegate(MethodInfo method, PrintWriter writer) {
+//
+//  }
 
   private void generateDoc(ClassModel model, PrintWriter writer) {
     ClassTypeInfo type = model.getType();
@@ -367,14 +483,16 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       Token.toHtml(doc.getTokens(), " *", this.renderLinkToHtml(type), "\n", writer);
       writer.println(" *");
       writer.println(" * <p/>");
-      writer.println(" * NOTE: This class has been automatically generated from the {@link @{type.name} original} non RX-ified interface using Vert.x codegen.");
+      writer.print(" * NOTE: This class has been automatically generated from the {@link ");
+      writer.print(type.getName());
+      writer.println(" original} non RX-ified interface using Vert.x codegen.");
       writer.println(" */");
     }
 
 
   }
 
-  protected void generateImport(ClassModel model, PrintWriter writer) {
+  protected void genRxImports(ClassModel model, PrintWriter writer) {
     for (ClassTypeInfo importedType : model.getImportedTypes()) {
       if (importedType.getKind() == ClassKind.API) {
         if (!model.getIfacePackageName().equals(importedType.getPackageName())) {
@@ -399,20 +517,20 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
   }
 
   private String genInvokeDelegate(ClassModel model, MethodInfo method) {
-    String ret;
+    StringBuilder ret;
     if (method.isStaticMethod()) {
-      ret = Helper.getNonGenericType(model.getIfaceFQCN());
+      ret = new StringBuilder(Helper.getNonGenericType(model.getIfaceFQCN()));
     } else {
-      ret = "delegate";
+      ret = new StringBuilder("delegate");
     }
-    ret += "." + method.getName() + "(";
+    ret.append(".").append(method.getName()).append("(");
     int index = 0;
     for (ParamInfo param : method.getParams()) {
       if (index > 0) {
-        ret += ", ";
+        ret.append(", ");
       }
       TypeInfo type = param.getType();
-      if (type.isParameterized() && type.getRaw().getName() == "rx.Observable") {
+      if (type.isParameterized() && type.getRaw().getName().equals("rx.Observable")) {
         String adapterFunction;
         ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
 
@@ -421,7 +539,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         } else {
           adapterFunction = "obj -> (" + parameterizedType.getArg(0).getRaw().getName() + ")obj.getDelegate()";
         }
-        ret += "io.vertx.rx.java.ReadStreamSubscriber.asReadStream(" + param.getName() + "," + adapterFunction + ").resume()";
+        ret.append("io.vertx.rx.java.ReadStreamSubscriber.asReadStream(").append(param.getName()).append(",").append(adapterFunction).append(").resume()");
       } else if (type.isParameterized() && (type.getRaw().getName().equals("io.reactivex.Flowable") || type.getRaw().getName().equals("io.reactivex.Observable"))) {
         String adapterFunction;
         ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
@@ -430,14 +548,14 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         } else {
           adapterFunction = "obj -> (" + parameterizedType.getArg(0).getRaw().getName() + ")obj.getDelegate()";
         }
-        ret += "io.vertx.reactivex.impl.ReadStreamSubscriber.asReadStream(" + param.getName() + "," + adapterFunction + ").resume()";
+        ret.append("io.vertx.reactivex.impl.ReadStreamSubscriber.asReadStream(").append(param.getName()).append(",").append(adapterFunction).append(").resume()");
       } else {
-        ret += genConvParam(type, method, param.getName());
+        ret.append(genConvParam(type, method, param.getName()));
       }
       index = index + 1;
     }
-    ret += ")";
-    return ret;
+    ret.append(")");
+    return ret.toString();
   }
 
   private boolean isSameType(TypeInfo type, MethodInfo method) {
@@ -479,13 +597,15 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       return expr;
     } else if (kind == API) {
       return expr + ".getDelegate()";
-    } else if(type.isParameterized()){
+    } else if (kind == CLASS_TYPE) {
+      return "io.vertx.lang." + id + ".Helper.unwrap(" + expr + ")";
+    } else if (type.isParameterized()) {
       ParameterizedTypeInfo parameterizedTypeInfo = (ParameterizedTypeInfo) type;
       if (kind == HANDLER) {
         TypeInfo eventType = parameterizedTypeInfo.getArg(0);
         ClassKind eventKind = eventType.getKind();
         if (eventKind == ASYNC_RESULT) {
-          TypeInfo resultType = ((ParameterizedTypeInfo)eventType).getArg(0);
+          TypeInfo resultType = ((ParameterizedTypeInfo) eventType).getArg(0);
           return "new Handler<AsyncResult<" + resultType.getName() + ">>() {\n" +
             "      public void handle(AsyncResult<" + resultType.getName() + "> ar) {\n" +
             "        if (ar.succeeded()) {\n" +
@@ -507,8 +627,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         TypeInfo retType = parameterizedTypeInfo.getArg(1);
         return "new java.util.function.Function<" + argType.getName() + "," + retType.getName() + ">() {\n" +
           "      public " + retType.getName() + " apply(" + argType.getName() + " arg) {\n" +
-          "        " + retType.getSimpleName() + " ret = " + expr + ".apply(" + genConvReturn(argType, method,"arg") + ");\n" +
-          "        return " + genConvParam(retType, method,"ret") + ";\n" +
+          "        " + retType.getSimpleName() + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
+          "        return " + genConvParam(retType, method, "ret") + ";\n" +
           "      }\n" +
           "    }";
       } else if (kind == LIST || kind == SET) {
@@ -516,8 +636,6 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       } else if (kind == MAP) {
         return expr + ".entrySet().stream().collect(java.util.stream.Collectors.toMap(e -> e.getKey(), e -> " + genConvParam(parameterizedTypeInfo.getArg(1), method, "e.getValue()") + "))";
       }
-    }else if (kind == CLASS_TYPE) {
-      return "io.vertx.lang." + id +  ".Helper.unwrap(" + expr + ")";
     }
     return expr;
   }
@@ -527,13 +645,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       return true;
     } else {
       TypeArgExpression typeArg = method.resolveTypeArg(typeVar);
-      if (typeArg != null) {
-        if (typeArg.isClassType()) {
-          return true;
-        }
-      }
+      return typeArg != null && typeArg.isClassType();
     }
-    return false;
   }
 
   private String genTypeArg(TypeVariableInfo typeVar, MethodInfo method) {
@@ -589,12 +702,12 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       }
       tmp.append(")");
       return tmp.toString();
-    } else if (type.isParameterized()){
+    } else if (type.isParameterized()) {
       ParameterizedTypeInfo parameterizedTypeInfo = (ParameterizedTypeInfo) type;
       if (kind == HANDLER) {
         TypeInfo abc = parameterizedTypeInfo.getArg(0);
         if (abc.getKind() == ASYNC_RESULT) {
-          TypeInfo tutu = ((ParameterizedTypeInfo)abc).getArg(0);
+          TypeInfo tutu = ((ParameterizedTypeInfo) abc).getArg(0);
           return "new Handler<AsyncResult<" + tutu.getSimpleName() + ">>() {\n" +
             "      public void handle(AsyncResult<" + tutu.getSimpleName() + "> ar) {\n" +
             "        if (ar.succeeded()) {\n" +
@@ -618,14 +731,14 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     return expr;
   }
 
-  private boolean hasReadStream(MethodInfo method) {
-    for (ParamInfo param : method.getParams()) {
-      if (param.getType().isParameterized() && param.getType().getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
-        return true;
-      }
-    }
-    return false;
-  }
+//  private boolean hasReadStream(MethodInfo method) {
+//    for (ParamInfo param : method.getParams()) {
+//      if (param.getType().isParameterized() && param.getType().getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
+//        return true;
+//      }
+//    }
+//    return false;
+//  }
 
   private String genOptTypeParamsDecl(ClassTypeInfo type, String deflt) {
     if (type.getParams().size() > 0) {

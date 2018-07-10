@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class RxJavaGenerator extends AbstractRxGenerator {
   RxJavaGenerator() {
@@ -18,10 +19,10 @@ class RxJavaGenerator extends AbstractRxGenerator {
   }
 
   @Override
-  protected void generateImport(ClassModel model, PrintWriter writer) {
+  protected void genRxImports(ClassModel model, PrintWriter writer) {
     writer.println("import rx.Observable;");
     writer.println("import rx.Single;");
-    super.generateImport(model, writer);
+    super.genRxImports(model, writer);
   }
 
   @Override
@@ -46,7 +47,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
       writer.print(", ");
       writer.print(simpleName);
       writer.print("> conv = ");
-      writer.print(simpleName);
+      writer.print(streamType.getRaw().getSimpleName());
       writer.println("::newInstance;");
 
       writer.println("      observable = io.vertx.rx.java.RxHelper.toObservable(delegate, conv);");
@@ -67,17 +68,17 @@ class RxJavaGenerator extends AbstractRxGenerator {
     }
 
     writer.println("    }");
-    writer.println("return observable；");
+    writer.println("    return observable;");
     writer.println("}");
     writer.println();
   }
 
   @Override
   protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, PrintWriter writer) {
-    genMethod(model, method, writer);
+    genMethod(model, method, cacheDecls, writer);
     MethodInfo overloaded = genOverloadedMethod(method);
     if (overloaded != null) {
-      genMethod(model, overloaded, writer);
+      genMethod(model, overloaded, cacheDecls, writer);
     }
   }
 
@@ -85,6 +86,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
   protected void genRxMethod(ClassModel model, MethodInfo method, PrintWriter writer) {
     ClassTypeInfo type = model.getType();
     String packageName = type.getPackageName();
+    writer.print("  ");
     if (packageName.startsWith("io.vertx.codegen") ||
       packageName.startsWith("io.vertx.core") ||
       packageName.startsWith("io.vertx.ext.web") ||
@@ -110,7 +112,43 @@ class RxJavaGenerator extends AbstractRxGenerator {
       ParameterizedTypeInfo futureReturnType = new ParameterizedTypeInfo(TypeReflectionFactory.create(rx.Observable.class).getRaw(), false, Collections.singletonList(futureType));
       MethodInfo futureMethod = new MethodInfo(method.getOwnerTypes(), method.getName() + "Observable", method.getKind(), futureReturnType, null, method.isFluent(), method.isCacheReturn(), futureParams, method.getComment(), method.getDoc(), method.isStaticMethod(), method.isDefaultMethod(), method.getTypeParams(), method.isDeprecated());
       startMethodTemplate(type, futureMethod, "use {@link #" + genFutureMethodName(method) + "} instead", writer);
+      writer.println(" { ");
+      writer.print("    io.vertx.rx.java.ObservableFuture<");
+      writer.print(futureType.getSimpleName());
+      writer.print("> ");
+      writer.print(futureParam.getName());
+      writer.println(" = io.vertx.rx.java.RxHelper.observableFuture();");
+      writer.print("    ");
+      writer.print(method.getName());
+      writer.print("(");
+      writer.print(futureParams.stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
+      if (futureParams.size() > 0) {
+        writer.print(", ");
+      }
+      writer.print(futureParam.getName());
+      writer.println(".toHandler());");
+      writer.print("    return ");
+      writer.print(futureParam.getName());
+      writer.println(";");
+      writer.println("  }");
+      writer.println();
     }
+    MethodInfo futMethod = genFutureMethod(method);
+    startMethodTemplate(type, futMethod, "", writer);
+    writer.println(" { ");
+    writer.println("    return Single.create(new io.vertx.rx.java.SingleOnSubscribeAdapter<>(fut -> {");
+    writer.print("      ");
+    writer.print(method.getName());
+    writer.print("(");
+    writer.print(futMethod.getParams().stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
+    if (futMethod.getParams().size() > 0) {
+      writer.print(", ");
+    }
+    writer.println("fut);");
+    writer.println("    }));");
+    writer.println("  }");
+    writer.println();
+
   }
 
 //  private String genFutureMethodName(MethodInfo method) {
@@ -160,7 +198,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
           false,
           java.util.Collections.singletonList(((ParameterizedTypeInfo) param.getType()).getArg(0))
         );
-        params.add(new io.vertx.codegen.ParamInfo(
+        params.set(count, new io.vertx.codegen.ParamInfo(
           param.getIndex(),
           param.getName(),
           param.getDescription(),
@@ -189,7 +227,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
     return null;
   }
 
-  private void genReadStream(List<TypeParamInfo> typeParams, PrintWriter writer) {
+  protected void genReadStream(List<? extends TypeParamInfo> typeParams, PrintWriter writer) {
     writer.print("  rx.Observable<");
     writer.print(typeParams.get(0).getName());
     writer.println("> toObservable();");
