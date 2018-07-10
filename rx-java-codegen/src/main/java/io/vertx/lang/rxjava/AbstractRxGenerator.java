@@ -346,7 +346,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     }
 
     for (String cacheDecl : cacheDecls) {
-      writer.print("");
+      writer.print("  ");
       writer.print(cacheDecl);
       writer.println(";");
     }
@@ -375,18 +375,16 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         writer.print(param.getName());
         writer.print(" ");
         if (param.getDescription() != null) {
-          Token.toHtml(param.getDescription().getTokens(), "", renderLinkToHtml(type), "\n", writer);
-        } else {
-          writer.println();
+          Token.toHtml(param.getDescription().getTokens(), "", renderLinkToHtml(type), "", writer);
         }
+        writer.println();
       }
       if (!method.getReturnType().getName().equals("void")) {
         writer.print("   * @return ");
         if (method.getReturnDescription() != null) {
-          Token.toHtml(method.getReturnDescription().getTokens(), "", renderLinkToHtml(type), "\n", writer);
-        } else {
-          writer.println();
+          Token.toHtml(method.getReturnDescription().getTokens(), "", renderLinkToHtml(type), "", writer);
         }
+        writer.println();
       }
       if (deprecated != null && deprecated.length() > 0) {
         writer.print("   * @deprecated ");
@@ -403,6 +401,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     }
     if (method.getTypeParams().size() > 0) {
       writer.print(method.getTypeParams().stream().map(TypeParamInfo::getName).collect(Collectors.joining(", ", "<", ">")));
+      writer.print(" ");
     }
     writer.print(method.getReturnType().getSimpleName());
     writer.print(" ");

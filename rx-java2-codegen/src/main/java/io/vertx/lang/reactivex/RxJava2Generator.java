@@ -38,11 +38,13 @@ class RxJava2Generator extends AbstractRxGenerator {
     String simpleName = streamType.getSimpleName();
     writer.print("  private io.reactivex.Observable<");
     writer.print(simpleName);
-    writer.print("> observable;");
+    writer.println("> observable;");
 
     writer.print("  private io.reactivex.Flowable<");
     writer.print(simpleName);
-    writer.print("> flowable;");
+    writer.println("> flowable;");
+
+    writer.println();
 
     genToXXXAble(streamType, "Observable", "observable", writer);
     genToXXXAble(streamType, "Flowable", "flowable", writer);
@@ -109,10 +111,10 @@ class RxJava2Generator extends AbstractRxGenerator {
     }
 
     writer.println("    }");
-    writer.print("return ");
+    writer.print("    return ");
     writer.print(rxName);
     writer.println(";");
-    writer.println("}");
+    writer.println("  }");
     writer.println();
   }
 

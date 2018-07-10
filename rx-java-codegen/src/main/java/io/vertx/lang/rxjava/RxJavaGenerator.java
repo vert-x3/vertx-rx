@@ -31,7 +31,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
     String simpleName = streamType.getSimpleName();
     writer.print("  private rx.Observable<");
     writer.print(simpleName);
-    writer.print("> observable;");
+    writer.println("> observable;");
     writer.println();
 
     writer.print("  public synchronized rx.Observable<");
@@ -69,7 +69,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
 
     writer.println("    }");
     writer.println("    return observable;");
-    writer.println("}");
+    writer.println("  }");
     writer.println();
   }
 
