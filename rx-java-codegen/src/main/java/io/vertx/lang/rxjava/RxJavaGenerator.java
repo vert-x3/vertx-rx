@@ -233,45 +233,4 @@ class RxJavaGenerator extends AbstractRxGenerator {
     writer.println("> toObservable();");
     writer.println();
   }
-
-//  private MethodInfo genOverloadedMethod(MethodInfo method) {
-//    List<ParamInfo> params = null;
-//    for (ParamInfo param : method.getParams()) {
-//      if (param.getType().isParameterized() && "io.vertx.core.streams.ReadStream".equals(param.getType().getRaw().getName())) {
-//        if (params == null) {
-//          params = new ArrayList<>(method.getParams());
-//        }
-//        ParameterizedTypeInfo t = (ParameterizedTypeInfo) param.getType();
-//        ParameterizedTypeInfo paramType = new io.vertx.codegen.type.ParameterizedTypeInfo(
-//          io.vertx.codegen.type.TypeReflectionFactory.create(rx.Observable.class).getRaw(),
-//          false,
-//          java.util.Collections.singletonList(t.getArg(0))
-//        );
-//        params.add(new io.vertx.codegen.ParamInfo(
-//          param.getIndex(),
-//          param.getName(),
-//          param.getDescription(),
-//          paramType
-//        ));
-//      }
-//    }
-//    if (params != null) {
-//      return new io.vertx.codegen.MethodInfo(
-//        method.getOwnerTypes(),
-//        method.getName(),
-//        method.getKind(),
-//        method.getReturnType(),
-//        null,
-//        method.isFluent(),
-//        method.isCacheReturn(),
-//        params,
-//        method.getComment(),
-//        method.getDoc(),
-//        method.isStaticMethod(),
-//        method.isDefaultMethod(),
-//        method.getTypeParams(),
-//        method.isDeprecated());
-//    }
-//    return null;
-//  }
 }
