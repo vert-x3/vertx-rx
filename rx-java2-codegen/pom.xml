@@ -95,26 +95,6 @@
         <version>3.0.2</version>
         <executions>
           <execution>
-            <id>copy-templates</id>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <phase>generate-resources</phase>
-            <configuration>
-              <outputDirectory>${project.build.outputDirectory}/vertx-rxjava2/template</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${project.basedir}/../rx-java-codegen/src/main/resources/vertx-rxjava/template</directory>
-                  <includes>
-                    <include>class.templ</include>
-                    <include>classbody.templ</include>
-                    <include>common.templ</include>
-                  </includes>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-          <execution>
             <id>copy-codegen-extra</id>
             <goals>
               <goal>copy-resources</goal>
