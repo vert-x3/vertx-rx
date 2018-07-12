@@ -392,7 +392,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       }
       writer.println("   */");
     }
-    if (deprecated != null && deprecated.length() > 0) {
+    if (method.isDeprecated() || deprecated != null && deprecated.length() > 0) {
       writer.println("  @Deprecated()");
     }
     writer.print("  public ");
