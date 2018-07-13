@@ -28,7 +28,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
   }
 
   @Override
-  public String relativeFilename(ClassModel model) {
+  public String filename(ClassModel model) {
     ModuleInfo module = model.getModule();
     return module.translateQualifiedName(model.getFqn(), id) + ".java";
   }
