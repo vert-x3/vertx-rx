@@ -1,5 +1,6 @@
 package io.vertx.codegen.testmodel;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -48,6 +49,7 @@ public class DataObjectWithMaps {
   Map<String, Double> doubleValues = new HashMap<>();
   Map<String, Boolean> booleanValues = new HashMap<>();
   Map<String, String> stringValues = new HashMap<>();
+  Map<String, Instant> instantValues = new HashMap<>();
   Map<String, JsonObject> jsonObjectValues = new HashMap<>();
   Map<String, JsonArray> jsonArrayValues = new HashMap<>();
   Map<String, TestDataObject> dataObjectValues = new HashMap<>();
@@ -69,6 +71,7 @@ public class DataObjectWithMaps {
     floatValues = fromObject(json, "floatValues", o -> Float.parseFloat(o.toString()));
     doubleValues = fromObject(json, "doubleValues");
     stringValues = fromObject(json, "stringValues");
+    instantValues = fromObject(json, "instantValues", (o -> Instant.parse(o.toString())));
     jsonObjectValues = fromObject(json, "jsonObjectValues", o -> (JsonObject) o);
     jsonArrayValues = fromObject(json, "jsonArrayValues", o -> (JsonArray) o);
     dataObjectValues = fromObject(json, "dataObjectValues", o -> new TestDataObject((JsonObject) o));
@@ -108,6 +111,11 @@ public class DataObjectWithMaps {
 
   public DataObjectWithMaps setStringValues(Map<String, String> stringValue) {
     this.stringValues = stringValue;
+    return this;
+  }
+
+  public DataObjectWithMaps setInstantValues(Map<String, Instant> instantValues) {
+    this.instantValues = instantValues;
     return this;
   }
 
@@ -158,6 +166,9 @@ public class DataObjectWithMaps {
     }
     if (stringValues != null) {
       json.put("stringValues", toObject(stringValues));
+    }
+    if (instantValues != null) {
+      json.put("instantValues", toObject(instantValues, Instant::toString));
     }
     if (jsonObjectValues != null) {
       json.put("jsonObjectValues", toObject(jsonObjectValues));

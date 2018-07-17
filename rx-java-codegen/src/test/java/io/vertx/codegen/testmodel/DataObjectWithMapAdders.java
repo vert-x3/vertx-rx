@@ -4,9 +4,7 @@ import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
+import java.time.Instant;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -59,6 +57,11 @@ public class DataObjectWithMapAdders {
 
   public DataObjectWithMapAdders addStringValue(String key, String stringValue) {
     value.stringValues.put(key, stringValue);
+    return this;
+  }
+
+  public DataObjectWithMapAdders addInstantValue(String key, Instant instantValue) {
+    value.instantValues.put(key, instantValue);
     return this;
   }
 

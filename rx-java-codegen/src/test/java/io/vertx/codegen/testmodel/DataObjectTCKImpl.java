@@ -4,6 +4,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,6 +33,7 @@ public class DataObjectTCKImpl implements DataObjectTCK {
     dataObject.setBoxedFloatValue(2.2f);
     dataObject.setBoxedDoubleValue(2.22d);
     dataObject.setStringValue("wibble");
+    dataObject.setInstantValue(Instant.parse("1984-05-27T00:05:00Z"));
     dataObject.setJsonObjectValue(new JsonObject().put("foo", "eek").put("bar", "wibble"));
     dataObject.setJsonArrayValue(new JsonArray().add("eek").add("wibble"));
     dataObject.setEnumValue(TestEnum.TIM);
@@ -55,6 +57,7 @@ public class DataObjectTCKImpl implements DataObjectTCK {
     assertEquals(2.2f, dataObject.boxedFloatValue, 0.01f);
     assertEquals(2.22f, dataObject.boxedDoubleValue, 0.01f);
     assertEquals("wibble", dataObject.stringValue);
+    assertEquals(Instant.parse("1984-05-27T00:05:00Z"), dataObject.instantValue);
     assertEquals(new JsonObject().put("foo", "eek").put("bar", "wibble"), dataObject.jsonObjectValue);
     assertEquals(new JsonArray().add("eek").add("wibble"), dataObject.jsonArrayValue);
     assertEquals(TestEnum.TIM, dataObject.enumValue);
@@ -74,6 +77,7 @@ public class DataObjectTCKImpl implements DataObjectTCK {
     dataObject.setFloatValues(Arrays.asList(1.1f, 2.2f, 3.3f));
     dataObject.setDoubleValues(Arrays.asList(1.11d, 2.22d, 3.33d));
     dataObject.setStringValues(Arrays.asList("stringValues1", "stringValues2", "stringValues3"));
+    dataObject.setInstantValues(Arrays.asList(Instant.parse("1984-05-27T00:05:00Z"), Instant.parse("2018-07-05T08:23:21Z")));
     dataObject.setJsonObjectValues(Arrays.asList(new JsonObject().put("foo", "eek"), new JsonObject().put("foo", "wibble")));
     dataObject.setJsonArrayValues(Arrays.asList(new JsonArray().add("foo"), new JsonArray().add("bar")));
     dataObject.setDataObjectValues(Arrays.asList(new TestDataObject().setFoo("1").setBar(1).setWibble(1.1), new TestDataObject().setFoo("2").setBar(2).setWibble(2.2)));
@@ -91,6 +95,7 @@ public class DataObjectTCKImpl implements DataObjectTCK {
     assertEquals(Arrays.asList(1.1f, 2.2f, 3.3f), dataObject.floatValues);
     assertEquals(Arrays.asList(1.11d, 2.22d, 3.33d), dataObject.doubleValues);
     assertEquals(Arrays.asList("stringValues1", "stringValues2", "stringValues3"), dataObject.stringValues);
+    assertEquals(Arrays.asList(Instant.parse("1984-05-27T00:05:00Z"), Instant.parse("2018-07-05T08:23:21Z")), dataObject.instantValues);
     assertEquals(Arrays.asList(new JsonObject().put("foo", "eek"), new JsonObject().put("foo", "wibble")), dataObject.jsonObjectValues);
     assertEquals(Arrays.asList(new JsonArray().add("foo"), new JsonArray().add("bar")), dataObject.jsonArrayValues);
     assertEquals(2, dataObject.dataObjectValues.size());
@@ -121,6 +126,7 @@ public class DataObjectTCKImpl implements DataObjectTCK {
     dataObject.setFloatValues(map(1.1f, 2.2f));
     dataObject.setDoubleValues(map(1.11d, 2.22d));
     dataObject.setStringValues(map("stringValues1", "stringValues2"));
+    dataObject.setInstantValues(map(Instant.parse("1984-05-27T00:05:00Z"), Instant.parse("2018-07-05T08:23:21Z")));
     dataObject.setJsonObjectValues(map(new JsonObject().put("foo", "eek"), new JsonObject().put("foo", "wibble")));
     dataObject.setJsonArrayValues(map(new JsonArray().add("foo"), new JsonArray().add("bar")));
     dataObject.setDataObjectValues(map(new TestDataObject().setFoo("1").setBar(1).setWibble(1.1), new TestDataObject().setFoo("2").setBar(2).setWibble(2.2)));
@@ -148,6 +154,7 @@ public class DataObjectTCKImpl implements DataObjectTCK {
     assertMap(dataObject.floatValues, 1.1f, 2.2f, (f1, f2) -> assertEquals(f1, f2, 0.1d));
     assertMap(dataObject.doubleValues, 1.11d, 2.22d, (f1, f2) -> assertEquals(f1, f2, 0.1d));
     assertMap(dataObject.stringValues, "stringValues1", "stringValues2");
+    assertMap(dataObject.instantValues, Instant.parse("1984-05-27T00:05:00Z"), Instant.parse("2018-07-05T08:23:21Z"));
     assertMap(dataObject.jsonObjectValues, new JsonObject().put("foo", "eek"), new JsonObject().put("foo", "wibble"));
     assertMap(dataObject.jsonArrayValues, new JsonArray().add("foo"), new JsonArray().add("bar"));
     assertEquals(2, dataObject.dataObjectValues.size());

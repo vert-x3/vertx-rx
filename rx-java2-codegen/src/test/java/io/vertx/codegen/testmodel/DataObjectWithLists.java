@@ -4,9 +4,9 @@ import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,6 +42,7 @@ public class DataObjectWithLists {
   List<Double> doubleValues = new ArrayList<>();
   List<Boolean> booleanValues = new ArrayList<>();
   List<String> stringValues = new ArrayList<>();
+  List<Instant> instantValues = new ArrayList<>();
   List<JsonObject> jsonObjectValues = new ArrayList<>();
   List<JsonArray> jsonArrayValues = new ArrayList<>();
   List<TestDataObject> dataObjectValues = new ArrayList<>();
@@ -63,6 +64,7 @@ public class DataObjectWithLists {
     floatValues = fromArray(json, "floatValues", o -> Float.parseFloat(o.toString()));
     doubleValues = fromArray(json, "doubleValues");
     stringValues = fromArray(json, "stringValues");
+    instantValues = fromArray(json, "instantValues", o -> Instant.parse(o.toString()));
     jsonObjectValues = fromArray(json, "jsonObjectValues", o -> (JsonObject) o);
     jsonArrayValues = fromArray(json, "jsonArrayValues", o -> (JsonArray) o);
     dataObjectValues = fromArray(json, "dataObjectValues", o -> new TestDataObject((JsonObject) o));
@@ -102,6 +104,11 @@ public class DataObjectWithLists {
 
   public DataObjectWithLists setStringValues(List<String> stringValue) {
     this.stringValues = stringValue;
+    return this;
+  }
+
+  public DataObjectWithLists setInstantValues(List<Instant> instantValues) {
+    this.instantValues = instantValues;
     return this;
   }
 
@@ -152,6 +159,9 @@ public class DataObjectWithLists {
     }
     if (stringValues != null) {
       json.put("stringValues", toArray(stringValues));
+    }
+    if (instantValues != null) {
+      json.put("instantValues", toArray(instantValues.stream().map(Instant::toString).collect(Collectors.toList())));
     }
     if (jsonObjectValues != null) {
       json.put("jsonObjectValues", toArray(jsonObjectValues));

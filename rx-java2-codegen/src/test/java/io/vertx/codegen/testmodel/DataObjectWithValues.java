@@ -4,6 +4,8 @@ import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+import java.time.Instant;
+
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
@@ -23,6 +25,7 @@ public class DataObjectWithValues {
   Double boxedDoubleValue;
   Boolean boxedBooleanValue;
   String stringValue;
+  Instant instantValue;
   JsonObject jsonObjectValue;
   JsonArray jsonArrayValue;
   TestDataObject dataObjectValue;
@@ -50,6 +53,7 @@ public class DataObjectWithValues {
     boxedFloatValue = json.getFloat("boxedFloatValue", null);
     boxedDoubleValue = json.getDouble("boxedDoubleValue", null);
     stringValue = json.getString("stringValue");
+    instantValue = json.getInstant("instantValue");
     jsonObjectValue = json.getJsonObject("jsonObjectValue");
     jsonArrayValue = json.getJsonArray("jsonArrayValue");
     dataObjectValue = json.getJsonObject("dataObjectValue") != null ? new TestDataObject(json.getJsonObject("dataObjectValue")) : null;
@@ -116,6 +120,11 @@ public class DataObjectWithValues {
     return this;
   }
 
+  public DataObjectWithValues setInstantValue(Instant instantValue) {
+    this.instantValue = instantValue;
+    return this;
+  }
+
   public DataObjectWithValues setJsonObjectValue(JsonObject jsonObjectValue) {
     this.jsonObjectValue = jsonObjectValue;
     return this;
@@ -163,6 +172,9 @@ public class DataObjectWithValues {
     }
     if (stringValue != null) {
       json.put("stringValue", stringValue);
+    }
+    if (instantValue != null) {
+      json.put("instantValue", instantValue);
     }
     if (jsonObjectValue != null) {
       json.put("jsonObjectValue", jsonObjectValue);

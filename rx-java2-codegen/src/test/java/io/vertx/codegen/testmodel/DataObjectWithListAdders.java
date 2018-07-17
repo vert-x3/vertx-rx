@@ -4,6 +4,8 @@ import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+import java.time.Instant;
+
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
@@ -55,6 +57,11 @@ public class DataObjectWithListAdders {
 
   public DataObjectWithListAdders addStringValue(String stringValue) {
     value.stringValues.add(stringValue);
+    return this;
+  }
+
+  public DataObjectWithListAdders addInstantValue(Instant instantValue) {
+    value.instantValues.add(instantValue);
     return this;
   }
 
