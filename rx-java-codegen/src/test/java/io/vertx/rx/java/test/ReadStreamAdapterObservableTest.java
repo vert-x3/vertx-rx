@@ -1,8 +1,8 @@
 package io.vertx.rx.java.test;
 
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import io.vertx.rx.java.RxHelper;
-import io.vertx.rx.java.test.support.SimpleReadStream;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
 import rx.Observable;
 
@@ -12,7 +12,7 @@ import rx.Observable;
 public class ReadStreamAdapterObservableTest extends ReadStreamAdapterTestBase<Buffer, Observable<Buffer>> {
 
   @Override
-  protected Observable<Buffer> toObservable(SimpleReadStream<Buffer> stream) {
+  protected Observable<Buffer> toObservable(ReadStream<Buffer> stream) {
     return RxHelper.toObservable(stream);
   }
 

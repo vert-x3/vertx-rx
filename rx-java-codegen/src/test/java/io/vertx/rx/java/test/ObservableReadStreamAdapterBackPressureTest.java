@@ -1,6 +1,7 @@
 package io.vertx.rx.java.test;
 
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import io.vertx.rx.java.ObservableReadStream;
 import io.vertx.rx.java.RxHelper;
 import io.vertx.rx.java.test.support.SimpleReadStream;
@@ -16,12 +17,12 @@ import java.util.function.Function;
 public class ObservableReadStreamAdapterBackPressureTest extends ReadStreamAdapterBackPressureTest<Observable<Buffer>> {
 
   @Override
-  protected Observable<Buffer> toObservable(SimpleReadStream<Buffer> stream, int maxBufferSize) {
+  protected Observable<Buffer> toObservable(ReadStream<Buffer> stream, int maxBufferSize) {
     return RxHelper.toObservable(stream, maxBufferSize);
   }
 
   @Override
-  protected Observable<Buffer> toObservable(SimpleReadStream<Buffer> stream) {
+  protected Observable<Buffer> toObservable(ReadStream<Buffer> stream) {
     return RxHelper.toObservable(stream);
   }
 

@@ -3,6 +3,7 @@ package io.vertx.reactivex.test;
 import io.reactivex.Flowable;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import io.vertx.reactivex.FlowableHelper;
 import io.vertx.rx.java.test.ReadStreamAdapterBackPressureTest;
 import io.vertx.rx.java.test.support.SimpleReadStream;
@@ -18,12 +19,12 @@ import java.util.function.Function;
 public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapterBackPressureTest<Flowable<Buffer>> {
 
   @Override
-  protected Flowable<Buffer> toObservable(SimpleReadStream<Buffer> stream, int maxBufferSize) {
+  protected Flowable<Buffer> toObservable(ReadStream<Buffer> stream, int maxBufferSize) {
     return FlowableHelper.toFlowable(stream, maxBufferSize);
   }
 
   @Override
-  protected Flowable<Buffer> toObservable(SimpleReadStream<Buffer> stream) {
+  protected Flowable<Buffer> toObservable(ReadStream<Buffer> stream) {
     return FlowableHelper.toFlowable(stream);
   }
 

@@ -1,6 +1,7 @@
 package io.vertx.rx.java.test;
 
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import io.vertx.rx.java.ObservableReadStream;
 import io.vertx.rx.java.test.support.SimpleReadStream;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
@@ -15,7 +16,7 @@ import java.util.function.Function;
  */
 public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAdapterTestBase<Buffer, O> {
 
-  protected abstract O toObservable(SimpleReadStream<Buffer> stream, int maxBufferSize);
+  protected abstract O toObservable(ReadStream<Buffer> stream, int maxBufferSize);
 
   protected abstract O flatMap(O obs, Function<Buffer, O> f);
 

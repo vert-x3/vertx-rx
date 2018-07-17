@@ -3,6 +3,7 @@ package io.vertx.reactivex.test;
 import io.reactivex.Observable;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import io.vertx.reactivex.ObservableHelper;
 import io.vertx.rx.java.test.ReadStreamAdapterTestBase;
 import io.vertx.rx.java.test.support.SimpleReadStream;
@@ -17,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ObservableReadStreamAdapterTest extends ReadStreamAdapterTestBase<Buffer, Observable<Buffer>> {
 
   @Override
-  protected Observable<Buffer> toObservable(SimpleReadStream<Buffer> stream) {
+  protected Observable<Buffer> toObservable(ReadStream<Buffer> stream) {
     return ObservableHelper.toObservable(stream);
   }
 

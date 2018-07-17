@@ -2,6 +2,7 @@ package io.vertx.rx.java.test;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import io.vertx.rx.java.test.support.SimpleReadStream;
 import io.vertx.rx.java.test.support.SimpleSubscriber;
 import io.vertx.test.core.VertxTestBase;
@@ -12,7 +13,7 @@ import org.junit.Test;
  */
 public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
 
-  protected abstract O toObservable(SimpleReadStream<Buffer> stream);
+  protected abstract O toObservable(ReadStream<Buffer> stream);
   protected abstract B buffer(String s);
   protected abstract String string(B buffer);
   protected abstract void subscribe(O obs, SimpleSubscriber<B> sub);
