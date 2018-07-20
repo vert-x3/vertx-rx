@@ -369,20 +369,20 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     Doc doc = method.getDoc();
     if (doc != null) {
       writer.println("  /**");
-      Token.toHtml(doc.getTokens(), "   *", renderLinkToHtml(type), "\n", writer);
+      Token.toHtml(doc.getTokens(), "   *", this::renderLinkToHtml, "\n", writer);
       for (ParamInfo param : method.getParams()) {
         writer.print("   * @param ");
         writer.print(param.getName());
         writer.print(" ");
         if (param.getDescription() != null) {
-          Token.toHtml(param.getDescription().getTokens(), "", renderLinkToHtml(type), "", writer);
+          Token.toHtml(param.getDescription().getTokens(), "", this::renderLinkToHtml, "", writer);
         }
         writer.println();
       }
       if (!method.getReturnType().getName().equals("void")) {
         writer.print("   * @return ");
         if (method.getReturnDescription() != null) {
-          Token.toHtml(method.getReturnDescription().getTokens(), "", renderLinkToHtml(type), "", writer);
+          Token.toHtml(method.getReturnDescription().getTokens(), "", this::renderLinkToHtml, "", writer);
         }
         writer.println();
       }
@@ -479,7 +479,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     Doc doc = model.getDoc();
     if (doc != null) {
       writer.println("/**");
-      Token.toHtml(doc.getTokens(), " *", this.renderLinkToHtml(type), "\n", writer);
+      Token.toHtml(doc.getTokens(), " *", this::renderLinkToHtml, "\n", writer);
       writer.println(" *");
       writer.println(" * <p/>");
       writer.print(" * NOTE: This class has been automatically generated from the {@link ");
@@ -767,31 +767,29 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println();
   }
 
-  private Function<Tag.Link, String> renderLinkToHtml(ClassTypeInfo type) {
-    return link -> {
-      ClassTypeInfo rawType = link.getTargetType().getRaw();
-      if (rawType.getModule() != null) {
-        String label = link.getLabel().trim();
-        if (rawType.getKind() == DATA_OBJECT) {
-          return "{@link " + rawType.getName() + "}";
-        } else {
-          if (type.getKind() == ClassKind.API) {
-            Element elt = link.getTargetElement();
-            String eltKind = elt.getKind().name();
-            String ret = "{@link " + rawType.translateName(id);
-            if ("METHOD".equals(eltKind)) {
-              /* todo find a way for translating the complete signature */
-              ret += "#" + elt.getSimpleName().toString();
-            }
-            if (label.length() > 0) {
-              ret += " " + label;
-            }
-            ret += "}";
-            return ret;
+  private String renderLinkToHtml(Tag.Link link) {
+    ClassTypeInfo rawType = link.getTargetType().getRaw();
+    if (rawType.getModule() != null) {
+      String label = link.getLabel().trim();
+      if (rawType.getKind() == DATA_OBJECT) {
+        return "{@link " + rawType.getName() + "}";
+      } else {
+        if (rawType.getKind() == ClassKind.API) {
+          Element elt = link.getTargetElement();
+          String eltKind = elt.getKind().name();
+          String ret = "{@link " + rawType.translateName(id);
+          if ("METHOD".equals(eltKind)) {
+            /* todo find a way for translating the complete signature */
+            ret += "#" + elt.getSimpleName().toString();
           }
+          if (label.length() > 0) {
+            ret += " " + label;
+          }
+          ret += "}";
+          return ret;
         }
       }
-      return "{@link " + rawType.getName() + "}";
-    };
+    }
+    return "{@link " + rawType.getName() + "}";
   }
 }
