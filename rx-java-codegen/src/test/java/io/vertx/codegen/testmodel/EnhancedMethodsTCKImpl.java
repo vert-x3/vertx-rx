@@ -76,6 +76,12 @@ public class EnhancedMethodsTCKImpl implements EnhancedMethodsTCK {
   }
 
   @Override
+  public void methodWithHandlerOtherParam(Handler<Socket> socketHandler) {
+    assertNotNull(socketHandler);
+    socketHandler.handle(new Socket());
+  }
+
+  @Override
   public void methodWithHandlerListOfOtherParam(Handler<List<Socket>> socketList) {
     assertNotNull(socketList);
     Socket socket = new Socket();

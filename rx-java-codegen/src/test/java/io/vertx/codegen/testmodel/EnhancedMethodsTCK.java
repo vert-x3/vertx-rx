@@ -23,10 +23,10 @@ public interface EnhancedMethodsTCK {
   Set<Socket> methodWithSetOfOtherReturn();
   Map<String, Socket> methodWithMapOfOtherReturn();
 
+  void methodWithHandlerOtherParam(Handler<Socket> socketHandler);
   void methodWithHandlerListOfOtherParam(Handler<List<Socket>> socketList);
   void methodWithHandlerSetOfOtherParam(Handler<Set<Socket>> socketSet);
   void methodWithHandlerMapOfOtherParam(Handler<Map<String, Socket>> socketMap);
-
 
   void methodWithHandlerAsyncResultListOfOtherParam(Handler<AsyncResult<List<Socket>>> socketList);
   void methodWithHandlerAsyncResultSetOfOtherParam(Handler<AsyncResult<Set<Socket>>> socketSet);
