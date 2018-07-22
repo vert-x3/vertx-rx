@@ -12,10 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.junit.Assert.*;
+
 public class EnhancedMethodsTCKImpl implements EnhancedMethodsTCK {
 
   @Override
   public void methodWithOtherParam(Socket socket) {
+    assertNotNull(socket);
     System.out.println(socket.toString());
   }
 
@@ -27,6 +30,7 @@ public class EnhancedMethodsTCKImpl implements EnhancedMethodsTCK {
   @Override
   public void methodWithListOfOtherParam(List<Socket> socketList) {
     for (Socket socket : socketList) {
+      assertNotNull(socket);
       System.out.println(socket.toString());
     }
   }
@@ -34,14 +38,16 @@ public class EnhancedMethodsTCKImpl implements EnhancedMethodsTCK {
   @Override
   public void methodWithSetOfOtherParam(Set<Socket> socketSet) {
     for (Socket socket : socketSet) {
+      assertNotNull(socket);
       System.out.println(socket.toString());
     }
   }
 
   @Override
   public void methodWithMapOfOtherParam(Map<String, Socket> socketMap) {
-    for (String s : socketMap.keySet()) {
-      System.out.println(s);
+    for (Map.Entry<String, Socket> stringSocketEntry : socketMap.entrySet()) {
+      System.out.println(stringSocketEntry.getKey());
+      assertNotNull(stringSocketEntry.getValue());
     }
   }
 
@@ -71,6 +77,7 @@ public class EnhancedMethodsTCKImpl implements EnhancedMethodsTCK {
 
   @Override
   public void methodWithHandlerListOfOtherParam(Handler<List<Socket>> socketList) {
+    assertNotNull(socketList);
     Socket socket = new Socket();
     ArrayList<Socket> sockets = new ArrayList<>();
     sockets.add(socket);
@@ -79,6 +86,7 @@ public class EnhancedMethodsTCKImpl implements EnhancedMethodsTCK {
 
   @Override
   public void methodWithHandlerSetOfOtherParam(Handler<Set<Socket>> socketSet) {
+    assertNotNull(socketSet);
     Socket socket = new Socket();
     Set<Socket> sockets = new HashSet<>();
     sockets.add(socket);
@@ -87,6 +95,7 @@ public class EnhancedMethodsTCKImpl implements EnhancedMethodsTCK {
 
   @Override
   public void methodWithHandlerMapOfOtherParam(Handler<Map<String, Socket>> socketMap) {
+    assertNotNull(socketMap);
     Socket socket = new Socket();
     Map<String, Socket> sockets = new HashMap<>();
     sockets.put("1", socket);
@@ -95,6 +104,7 @@ public class EnhancedMethodsTCKImpl implements EnhancedMethodsTCK {
 
   @Override
   public void methodWithHandlerAsyncResultListOfOtherParam(Handler<AsyncResult<List<Socket>>> socketList) {
+    assertNotNull(socketList);
     Socket socket = new Socket();
     ArrayList<Socket> sockets = new ArrayList<>();
     sockets.add(socket);
@@ -103,6 +113,7 @@ public class EnhancedMethodsTCKImpl implements EnhancedMethodsTCK {
 
   @Override
   public void methodWithHandlerAsyncResultSetOfOtherParam(Handler<AsyncResult<Set<Socket>>> socketSet) {
+    assertNotNull(socketSet);
     Socket socket = new Socket();
     Set<Socket> sockets = new HashSet<>();
     sockets.add(socket);
@@ -111,6 +122,7 @@ public class EnhancedMethodsTCKImpl implements EnhancedMethodsTCK {
 
   @Override
   public void methodWithHandlerAsyncResultMapOfOtherParam(Handler<AsyncResult<Map<String, Socket>>> socketMap) {
+    assertNotNull(socketMap);
     Socket socket = new Socket();
     Map<String, Socket> sockets = new HashMap<>();
     sockets.put("1", socket);
