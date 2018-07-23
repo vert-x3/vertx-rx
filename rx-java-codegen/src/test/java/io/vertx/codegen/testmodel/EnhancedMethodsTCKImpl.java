@@ -19,7 +19,6 @@ public class EnhancedMethodsTCKImpl implements EnhancedMethodsTCK {
   @Override
   public void methodWithOtherParam(Socket socket) {
     assertNotNull(socket);
-    System.out.println(socket.toString());
   }
 
   @Override
@@ -31,7 +30,6 @@ public class EnhancedMethodsTCKImpl implements EnhancedMethodsTCK {
   public void methodWithListOfOtherParam(List<Socket> socketList) {
     for (Socket socket : socketList) {
       assertNotNull(socket);
-      System.out.println(socket.toString());
     }
   }
 
@@ -39,14 +37,12 @@ public class EnhancedMethodsTCKImpl implements EnhancedMethodsTCK {
   public void methodWithSetOfOtherParam(Set<Socket> socketSet) {
     for (Socket socket : socketSet) {
       assertNotNull(socket);
-      System.out.println(socket.toString());
     }
   }
 
   @Override
   public void methodWithMapOfOtherParam(Map<String, Socket> socketMap) {
     for (Map.Entry<String, Socket> stringSocketEntry : socketMap.entrySet()) {
-      System.out.println(stringSocketEntry.getKey());
       assertNotNull(stringSocketEntry.getValue());
     }
   }
