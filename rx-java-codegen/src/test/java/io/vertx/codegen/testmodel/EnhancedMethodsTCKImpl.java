@@ -17,6 +17,29 @@ import static org.junit.Assert.*;
 public class EnhancedMethodsTCKImpl implements EnhancedMethodsTCK {
 
   @Override
+  public Object[] methodReturningObjectArray() {
+    return new Object[0];
+  }
+
+  @Override
+  public int[] methodReturningPrimitiveArrayParam() {
+    return new int[0];
+  }
+
+  @Override
+  public String[] methodReturningStringArrayParam() {
+    return new String[0];
+  }
+
+  @Override
+  public void methodWithOtherArraysPram(String[] strings, int[] ints, byte[] bytes, Object... objects) {
+    assertNotNull(strings);
+    assertNotNull(ints);
+    assertNotNull(bytes);
+    assertNotNull(objects);
+  }
+
+  @Override
   public void methodWithOtherParam(Socket socket) {
     assertNotNull(socket);
   }
