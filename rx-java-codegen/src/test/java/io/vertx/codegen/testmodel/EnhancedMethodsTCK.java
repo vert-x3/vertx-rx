@@ -12,11 +12,6 @@ import java.util.Set;
 @VertxGen
 public interface EnhancedMethodsTCK {
 
-  Object[] methodReturningObjectArray();
-  int[] methodReturningPrimitiveArrayParam();
-  String[] methodReturningStringArrayParam();
-  void methodWithOtherArraysPram(String[] strings, int[] ints, byte[] bytes, Object... objects);
-
   void methodWithOtherParam(Socket socket);
   Socket methodWithOtherReturn();
 
