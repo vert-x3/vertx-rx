@@ -1,78 +1,67 @@
 package io.vertx.rx.java.test.support;
 
 import io.vertx.core.Handler;
+import io.vertx.core.queue.Queue;
 import io.vertx.core.streams.ReadStream;
 
-import java.util.Collections;
-import java.util.LinkedList;
-
 import static junit.framework.TestCase.assertNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class SimpleReadStream<T> implements ReadStream<T> {
 
-  private enum Kind {
-    PAUSE,
-    RESUME
-  }
-
-  private static class Expect {
-    final Kind kind;
-    final Runnable action;
-    Expect(Kind kind, Runnable action) {
-      this.kind = kind;
-      this.action = action;
-    }
-    Expect(Kind kind) {
-      this.kind = kind;
-      this.action = null;
-    }
-
-    @Override
-    public String toString() {
-      return "Expected[kind=" + kind.name() + "]";
-    }
-  }
-
-  private static final Expect RESUME = new Expect(Kind.RESUME);
-  private static final Expect PAUSE = new Expect(Kind.PAUSE);
-
   private Handler<Throwable> exceptionHandler;
-  private Handler<T> handler;
+  private Handler<T> itemHandler;
   private Handler<Void> endHandler;
-  private boolean paused;
-  private LinkedList<Expect> expects = new LinkedList<>();
+  private boolean ended;
+  private final Queue<T> queue;
+
+  private Runnable onResume;
+
+  public SimpleReadStream() {
+    queue = Queue.queue();
+
+    queue.writableHandler(v -> {
+      resume();
+    });
+    queue.emptyHandler(v -> {
+      if (ended) {
+        if (endHandler != null) {
+          endHandler.handle(null);
+        }
+      }
+    });
+    queue.handler(item -> {
+      if (itemHandler != null) {
+        itemHandler.handle(item);
+      }
+    });
+  }
 
   public void assertPaused() {
-    assertTrue(paused);
+    assertTrue(queue.isPaused());
   }
 
   public void assertResumed() {
-    assertTrue(!paused);
+    assertFalse(queue.isPaused());
   }
 
   public SimpleReadStream<T> expectPause() {
-    expects.add(PAUSE);
     return this;
   }
 
   public SimpleReadStream<T> expectPause(Runnable action) {
-    expects.add(new Expect(Kind.PAUSE, action));
     return this;
   }
 
   public SimpleReadStream<T> expectResume() {
-    expects.add(RESUME);
     return this;
   }
 
-  public SimpleReadStream<T> expectResume(Runnable action) {
-    expects.add(new Expect(Kind.RESUME, action));
+  public SimpleReadStream<T> onResume(Runnable action) {
+    onResume = action;
     return this;
   }
 
@@ -89,11 +78,11 @@ public class SimpleReadStream<T> implements ReadStream<T> {
   }
 
   public void assertHasItemHandler() {
-    assertNotNull(handler);
+    assertTrue(itemHandler != null);
   }
 
   public void assertHasNoItemHandler() {
-    assertNull(handler);
+    assertTrue(itemHandler == null);
   }
 
   public void assertHasExceptionHandler() {
@@ -119,28 +108,42 @@ public class SimpleReadStream<T> implements ReadStream<T> {
   }
 
   public SimpleReadStream<T> untilPaused(Runnable action) {
-    while (!paused) {
+    while (!queue.isPaused()) {
       action.run();
     }
     return this;
   }
 
   public SimpleReadStream<T> untilResumed(Runnable action) {
-    while (paused) {
+    while (queue.isPaused()) {
       action.run();
     }
     return this;
   }
 
-  public SimpleReadStream<T> emit(T... items) {
-    for (T item : items) {
-      handler.handle(item);
+  public boolean emit(T first) {
+    if (ended) {
+      throw new IllegalStateException();
     }
-    return this;
+    return queue.add(first);
+  }
+
+  public boolean emit(T first, T... other) {
+    boolean full = emit(first);
+    for (T item : other) {
+      full &= emit(item);
+    }
+    return full;
   }
 
   public void end() {
-    endHandler.handle(null);
+    if (ended) {
+      throw new IllegalStateException();
+    }
+    ended = true;
+    if (queue.isEmpty()) {
+      endHandler.handle(null);
+    }
   }
 
   public void fail(Throwable err) {
@@ -157,31 +160,31 @@ public class SimpleReadStream<T> implements ReadStream<T> {
 
   @Override
   public SimpleReadStream<T> handler(Handler<T> handler) {
-    this.handler = handler;
+    this.itemHandler = handler;
     return this;
-  }
-
-  private void expect(Kind kind) {
-    Expect next = expects.poll();
-    if (next == null || next.kind != kind) {
-      throw new IllegalStateException();
-    }
-    if (next.action != null) {
-      next.action.run();
-    }
   }
 
   @Override
   public SimpleReadStream<T> pause() {
-    expect(Kind.PAUSE);
-    paused = true;
+    queue.pause();
+    return this;
+  }
+
+  @Override
+  public ReadStream<T> fetch(long amount) {
+    assertNotNull(itemHandler);
+    queue.take(amount);
     return this;
   }
 
   @Override
   public SimpleReadStream<T> resume() {
-    expect(Kind.RESUME);
-    paused = false;
+    if (!ended) {
+      queue.resume();
+      if (onResume != null) {
+        onResume.run();
+      }
+    }
     return this;
   }
 
@@ -192,6 +195,5 @@ public class SimpleReadStream<T> implements ReadStream<T> {
   }
 
   public void check() {
-    assertEquals(Collections.emptyList(), expects);
   }
 }

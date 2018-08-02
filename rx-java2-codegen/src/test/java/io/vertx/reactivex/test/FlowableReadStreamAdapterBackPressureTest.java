@@ -59,16 +59,16 @@ public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapter
 
   @Test
   public void testHandletIsSetInDoOnSubscribe() {
-    AtomicBoolean hanlderSet = new AtomicBoolean();
+    AtomicBoolean handlerSet = new AtomicBoolean();
     SimpleReadStream<Buffer> stream = new SimpleReadStream<Buffer>() {
       @Override
       public SimpleReadStream<Buffer> handler(Handler<Buffer> handler) {
-        hanlderSet.set(true);
+        handlerSet.set(true);
         return super.handler(handler);
       }
     };
     Flowable<Buffer> observable = toObservable(stream).doOnSubscribe(disposable -> {
-      assertTrue(hanlderSet.get());
+      assertTrue(handlerSet.get());
     });
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<>();
     subscribe(observable, subscriber);
