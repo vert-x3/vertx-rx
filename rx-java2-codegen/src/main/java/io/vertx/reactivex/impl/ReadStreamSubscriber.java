@@ -77,6 +77,11 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
   }
 
   @Override
+  public ReadStream<J> fetch(long amount) {
+    throw new UnsupportedOperationException("todo");
+  }
+
+  @Override
   public ReadStream<J> resume() {
     synchronized (this) {
       paused = false;

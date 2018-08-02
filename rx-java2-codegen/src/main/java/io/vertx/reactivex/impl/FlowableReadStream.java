@@ -21,102 +21,68 @@ public class FlowableReadStream<T, U> extends Flowable<U> {
 
   private final ReadStream<T> stream;
   private final Function<T, U> f;
-  private final AtomicReference<UnicastProcessor<U>> processor = new AtomicReference<>();
-  private final long highWaterMark;
-  private final long lowWaterMark;
-  private boolean subscribed;
-  private long pending;
-  private boolean paused;
+  private final AtomicReference<Subscription> current;
 
   public FlowableReadStream(ReadStream<T> stream, long maxBufferSize, Function<T, U> f) {
+
+    stream.pause();
+
     this.stream = stream;
     this.f = f;
-    this.highWaterMark = maxBufferSize;
-    this.lowWaterMark = maxBufferSize / 2;
+    this.current = new AtomicReference<>();
   }
 
-  @Override
-  protected void subscribeActual(Subscriber<? super U> subscriber) {
-    UnicastProcessor<U> p = UnicastProcessor.create();
-    if (!processor.compareAndSet(null, p)) {
-      EmptySubscription.error(new IllegalStateException("This processor allows only a single Subscriber"), subscriber);
-      return;
-    }
-    p.subscribe(new FlowableSubscriber<U>() {
-      public void onSubscribe(Subscription s) {
-        BasicIntQueueSubscription<U> sub = (BasicIntQueueSubscription<U>) s;
-        BasicIntQueueSubscription basic = new BasicIntQueueSubscription<U>() {
-          public int requestFusion(int mode) {
-            return sub.requestFusion(mode);
-          }
-          public U poll() throws Exception {
-            return sub.poll();
-          }
-          public boolean isEmpty() {
-            return sub.isEmpty();
-          }
-          public void clear() {
-            sub.clear();
-          }
-          public void request(long n) {
-            if (p == processor.get()) {
-              if (n == Long.MAX_VALUE) {
-                pending = Long.MIN_VALUE;
-              } else {
-                pending -= n;
-              }
-              if (subscribed) {
-                if (paused && pending < lowWaterMark) {
-                  paused = false;
-                  stream.resume();
-                }
-              }
-              sub.request(n);
-            }
-          }
-          public void cancel() {
-            sub.cancel();
-            release();
-          }
-        };
-        stream.endHandler(v -> p.onComplete());
-        stream.exceptionHandler(p::onError);
-        stream.handler(item -> {
-          p.onNext(f.apply(item));
-          if (++pending >= highWaterMark && !paused) {
-            paused = true;
-            stream.pause();
-          }
-        });
-        subscriber.onSubscribe(basic);
-        subscribed = true;
-      }
-      public void onNext(U t) {
-        subscriber.onNext(t);
-      }
-      public void onError(Throwable t) {
-        release();
-        subscriber.onError(t);
-      }
-      public void onComplete() {
-        release();
-        subscriber.onComplete();
-      }
-      private void release() {
-        subscribed = false;
-        processor.set(null);
-        pending = 0;
+  private void release() {
+    Subscription sub = current.get();
+    if (sub != null) {
+      if (current.compareAndSet(sub, null)) {
         try {
           stream.exceptionHandler(null);
           stream.endHandler(null);
           stream.handler(null);
         } catch (Exception ignore) {
-        }
-        if (paused) {
-          paused = false;
+        } finally {
           stream.resume();
         }
       }
+    }
+  }
+
+  @Override
+  protected void subscribeActual(Subscriber<? super U> subscriber) {
+
+    Subscription sub = new Subscription() {
+      @Override
+      public void request(long l) {
+        if (current.get() == this) {
+          stream.fetch(l);
+        }
+      }
+
+      @Override
+      public void cancel() {
+        release();
+      }
+    };
+    if (!current.compareAndSet(null, sub)) {
+      EmptySubscription.error(new IllegalStateException("This processor allows only a single Subscriber"), subscriber);
+      return;
+    }
+
+    stream.pause();
+
+    stream.endHandler(v -> {
+      release();
+      subscriber.onComplete();
     });
+    stream.exceptionHandler(err -> {
+      release();
+      subscriber.onError(err);
+    });
+    stream.handler(item -> {
+      subscriber.onNext(f.apply(item));
+    });
+
+    subscriber.onSubscribe(sub);
   }
 }

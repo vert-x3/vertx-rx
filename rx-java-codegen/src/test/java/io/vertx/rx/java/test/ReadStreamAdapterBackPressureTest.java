@@ -128,18 +128,20 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
 
   @Test
   public void testEndDuringRequestResume() {
-    int num = 10;
     SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     stream.expectPause();
-    stream.expectResume(stream::end);
+    stream.onResume(stream::end);
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
-    O observable = toObservable(stream, num);
+    O observable = toObservable(stream, 10);
     subscribe(observable, subscriber);
-    for (int i = 0;i < num;i++) {
-      stream.emit(Buffer.buffer("" + i));
+    int count = 0;
+    while (true) {
+      if (!stream.emit(Buffer.buffer("" + count++))) {
+        break;
+      }
     }
-    subscriber.request(num);
-    for (int i = 0;i < num;i++) {
+    subscriber.request(count);
+    for (int i = 0;i < count;i++) {
       subscriber.assertItem(Buffer.buffer("" + i));
     }
     subscriber.assertCompleted().assertEmpty();
@@ -172,8 +174,8 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     }
     stream.expectResume();
     subscriber.request(2);
-    subscriber.assertItems(buffer("0"), buffer("1"));
     if (err == null) {
+      subscriber.assertItems(buffer("0"), buffer("1"));
       subscriber.assertCompleted();
     } else {
       subscriber.assertError(err);
@@ -207,8 +209,8 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     }
     stream.expectResume();
     subscriber.request(2);
-    subscriber.assertItems(buffer("0"), buffer("1"));
     if (err == null) {
+      subscriber.assertItems(buffer("0"), buffer("1"));
       subscriber.assertCompleted();
     } else {
       subscriber.assertError(err);
@@ -244,7 +246,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
     SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     stream.expectPause();
-    stream.expectResume(() -> stream.emit(buffer("2")));
+    stream.onResume(() -> stream.emit(buffer("2")));
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
     stream.emit(Buffer.buffer("0"));
@@ -256,20 +258,22 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
 
   @Test
   public void testEndDuringResume() {
-    int num = 4;
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
     SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     stream.expectPause();
-    stream.expectResume(() -> {
+    stream.onResume(() -> {
       stream.end();
     });
-    O observable = toObservable(stream, num);
+    O observable = toObservable(stream, 4);
     subscribe(observable, subscriber);
-    for (int i = 0;i < num;i++) {
-      stream.emit(Buffer.buffer("" + i));
+    int count = 0;
+    while (true) {
+      if (!stream.emit(Buffer.buffer("" + count++))) {
+        break;
+      }
     }
-    subscriber.request(num);
-    for (int i = 0;i < num;i++) {
+    subscriber.request(count);
+    for (int i = 0;i < count;i++) {
       subscriber.assertItem(Buffer.buffer("" + i));
     }
     subscriber.assertCompleted().assertEmpty();
@@ -281,7 +285,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>().prefetch(0);
     SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
     stream.expectPause();
-    stream.expectResume(() -> stream.emit(buffer("2"), buffer("3")));
+    stream.onResume(() -> stream.emit(buffer("2"), buffer("3")));
     stream.expectPause();
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
