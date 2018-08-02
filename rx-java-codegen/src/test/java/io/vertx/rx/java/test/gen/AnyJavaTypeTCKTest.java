@@ -13,7 +13,7 @@ import static io.vertx.rx.java.test.gen.ApiTCKTest.get;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-public class JavaTypeTCKTest {
+public class AnyJavaTypeTCKTest {
 
   final AnyJavaTypeTCK obj = new AnyJavaTypeTCK(new AnyJavaTypeTCKImpl());
 
