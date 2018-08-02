@@ -14,7 +14,7 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 
-public class JavaTypeTCKImpl implements JavaTypeTCK {
+public class AnyJavaTypeTCKImpl implements AnyJavaTypeTCK {
 
   @Override
   public void methodWithJavaTypeParam(Socket socket) {

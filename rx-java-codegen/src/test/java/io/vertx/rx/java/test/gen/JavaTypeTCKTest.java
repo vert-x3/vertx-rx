@@ -1,7 +1,7 @@
 package io.vertx.rx.java.test.gen;
 
-import io.vertx.codegen.testmodel.JavaTypeTCKImpl;
-import io.vertx.rxjava.codegen.testmodel.JavaTypeTCK;
+import io.vertx.codegen.testmodel.AnyJavaTypeTCKImpl;
+import io.vertx.rxjava.codegen.testmodel.AnyJavaTypeTCK;
 import org.junit.Test;
 
 import java.net.Socket;
@@ -15,7 +15,7 @@ import static org.junit.Assert.assertFalse;
 
 public class JavaTypeTCKTest {
 
-  final JavaTypeTCK obj = new JavaTypeTCK(new JavaTypeTCKImpl());
+  final AnyJavaTypeTCK obj = new AnyJavaTypeTCK(new AnyJavaTypeTCKImpl());
 
   @Test
   public void testHandlersWithAsyncResult() throws Exception {

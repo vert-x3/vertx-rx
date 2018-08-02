@@ -344,6 +344,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     for (MethodInfo method : model.getMethods()) {
       genMethods(model, method, cacheDecls, writer);
     }
+    for (MethodInfo method : model.getAnyJavaTypeMethods()) {
+      genMethods(model, method, cacheDecls, writer);
+    }
 
     for (String cacheDecl : cacheDecls) {
       writer.print("  ");
