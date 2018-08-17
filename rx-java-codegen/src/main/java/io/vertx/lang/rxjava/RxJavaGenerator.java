@@ -110,7 +110,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
       ParameterizedTypeInfo asyncResultType = (ParameterizedTypeInfo) handlerType.getArg(0);
       TypeInfo futureType = asyncResultType.getArg(0);
       ParameterizedTypeInfo futureReturnType = new ParameterizedTypeInfo(TypeReflectionFactory.create(rx.Observable.class).getRaw(), false, Collections.singletonList(futureType));
-      MethodInfo futureMethod = new MethodInfo(method.getOwnerTypes(), method.getName() + "Observable", method.getKind(), futureReturnType, null, method.isFluent(), method.isCacheReturn(), futureParams, method.getComment(), method.getDoc(), method.isStaticMethod(), method.isDefaultMethod(), method.getTypeParams(), method.isDeprecated());
+      MethodInfo futureMethod = method.copy().setName(method.getName() + "Observable").setParams(futureParams).setReturnType(futureReturnType);
       startMethodTemplate(type, futureMethod, "use {@link #" + genFutureMethodName(method) + "} instead", writer);
       writer.println(" { ");
       writer.print("    io.vertx.rx.java.ObservableFuture<");
@@ -169,20 +169,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
     ParamInfo futParam = method.getParam(size);
     TypeInfo futType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getType()).getArg(0)).getArg(0);
     ParameterizedTypeInfo futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(rx.Single.class).getRaw(), false, java.util.Collections.singletonList(futType));
-    return new io.vertx.codegen.MethodInfo(
-      method.getOwnerTypes(), futMethodName,
-      method.getKind(),
-      futReturnType,
-      null,
-      method.isFluent(),
-      method.isCacheReturn(),
-      futParams,
-      method.getComment(),
-      method.getDoc(),
-      method.isStaticMethod(),
-      method.isDefaultMethod(),
-      method.getTypeParams(),
-      method.isDeprecated());
+    return method.copy().setName(futMethodName).setParams(futParams).setReturnType(futReturnType);
   }
 
   private MethodInfo genOverloadedMethod(MethodInfo method) {
@@ -208,21 +195,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
       count = count + 1;
     }
     if (params != null) {
-      return new io.vertx.codegen.MethodInfo(
-        method.getOwnerTypes(),
-        method.getName(),
-        method.getKind(),
-        method.getReturnType(),
-        null,
-        method.isFluent(),
-        method.isCacheReturn(),
-        params,
-        method.getComment(),
-        method.getDoc(),
-        method.isStaticMethod(),
-        method.isDefaultMethod(),
-        method.getTypeParams(),
-        method.isDeprecated());
+      return method.copy().setParams(params);
     }
     return null;
   }

@@ -195,20 +195,7 @@ class RxJava2Generator extends AbstractRxGenerator {
     } else {
       futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Single.class).getRaw(), false, Collections.singletonList(futType));
     }
-    return new io.vertx.codegen.MethodInfo(
-      method.getOwnerTypes(), futMethodName,
-      method.getKind(),
-      futReturnType,
-      null,
-      method.isFluent(),
-      method.isCacheReturn(),
-      futParams,
-      method.getComment(),
-      method.getDoc(),
-      method.isStaticMethod(),
-      method.isDefaultMethod(),
-      method.getTypeParams(),
-      method.isDeprecated());
+    return method.copy().setName(futMethodName).setReturnType(futReturnType).setParams(futParams);
   }
 
   private MethodInfo genOverloadedMethod(MethodInfo method, Class streamType) {
@@ -234,21 +221,7 @@ class RxJava2Generator extends AbstractRxGenerator {
       count = count + 1;
     }
     if (params != null) {
-      return new io.vertx.codegen.MethodInfo(
-        method.getOwnerTypes(),
-        method.getName(),
-        method.getKind(),
-        method.getReturnType(),
-        null,
-        method.isFluent(),
-        method.isCacheReturn(),
-        params,
-        method.getComment(),
-        method.getDoc(),
-        method.isStaticMethod(),
-        method.isDefaultMethod(),
-        method.getTypeParams(),
-        method.isDeprecated());
+      return method.copy().setParams(params);
     }
     return null;
   }
