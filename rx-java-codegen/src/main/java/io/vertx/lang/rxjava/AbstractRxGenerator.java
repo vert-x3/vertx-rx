@@ -348,6 +348,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       genMethods(model, method, cacheDecls, writer);
     }
 
+    for (ConstantInfo constant : model.getConstants()) {
+      genConstant(model, constant, writer);
+    }
+
     for (String cacheDecl : cacheDecls) {
       writer.print("  ");
       writer.print(cacheDecl);
@@ -366,6 +370,18 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     if (method.getKind() == MethodKind.FUTURE) {
       genRxMethod(model, method, writer);
     }
+  }
+
+  private void genConstant(ClassModel model, ConstantInfo constant, PrintWriter writer) {
+    Doc doc = constant.getDoc();
+    if (doc != null) {
+      writer.println("  /**");
+      Token.toHtml(doc.getTokens(), "   *", this::renderLinkToHtml, "\n", writer);
+      writer.println("   */");
+    }
+    writer.print(model.isConcrete() ? "  public static final" : "");
+    writer.println(" " + constant.getType().getSimpleName() + " " + constant.getName() + " = "
+      + genConvReturn(constant.getType(), null, model.getType().getName() + "." + constant.getName()) + ";");
   }
 
   protected void startMethodTemplate(ClassTypeInfo type, MethodInfo method, String deprecated, PrintWriter writer) {

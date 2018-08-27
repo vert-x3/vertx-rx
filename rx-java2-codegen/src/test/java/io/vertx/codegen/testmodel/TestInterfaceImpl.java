@@ -359,7 +359,7 @@ public class TestInterfaceImpl implements TestInterface {
 
   @Override
   public byte methodWithByteReturn() {
-    return (byte)123;
+    return (byte) 123;
   }
 
   @Override
