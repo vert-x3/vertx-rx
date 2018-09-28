@@ -28,14 +28,13 @@ class RxJavaGenerator extends AbstractRxGenerator {
   @Override
   protected void genToObservable(ApiTypeInfo type, PrintWriter writer) {
     TypeInfo streamType = type.getReadStreamArg();
-    String simpleName = streamType.getSimpleName();
     writer.print("  private rx.Observable<");
-    writer.print(simpleName);
+    writer.print(genTypeName(streamType));
     writer.println("> observable;");
     writer.println();
 
     writer.print("  public synchronized rx.Observable<");
-    writer.print(simpleName);
+    writer.print(genTypeName(streamType));
     writer.println("> toObservable() {");
 
     writer.print("    ");
@@ -45,21 +44,22 @@ class RxJavaGenerator extends AbstractRxGenerator {
       writer.print("      java.util.function.Function<");
       writer.print(streamType.getName());
       writer.print(", ");
-      writer.print(simpleName);
+      writer.print(genTypeName(streamType));
       writer.print("> conv = ");
-      writer.print(streamType.getRaw().getSimpleName());
+      writer.print(genTypeName(streamType.getRaw()));
       writer.println("::newInstance;");
 
       writer.println("      observable = io.vertx.rx.java.RxHelper.toObservable(delegate, conv);");
     } else if (streamType.isVariable()) {
+      String typeVar = streamType.getSimpleName();
       writer.print("      java.util.function.Function<");
-      writer.print(simpleName);
+      writer.print(typeVar);
       writer.print(", ");
-      writer.print(simpleName);
+      writer.print(typeVar);
       writer.print("> conv = (java.util.function.Function<");
-      writer.print(simpleName);
+      writer.print(typeVar);
       writer.print(", ");
-      writer.print(simpleName);
+      writer.print(typeVar);
       writer.println(">) __typeArg_0.wrap;");
 
       writer.println("      observable = io.vertx.rx.java.RxHelper.toObservable(delegate, conv);");
@@ -114,7 +114,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
       startMethodTemplate(type, futureMethod, "use {@link #" + genFutureMethodName(method) + "} instead", writer);
       writer.println(" { ");
       writer.print("    io.vertx.rx.java.ObservableFuture<");
-      writer.print(futureType.getSimpleName());
+      writer.print(genTypeName(futureType));
       writer.print("> ");
       writer.print(futureParam.getName());
       writer.println(" = io.vertx.rx.java.RxHelper.observableFuture();");

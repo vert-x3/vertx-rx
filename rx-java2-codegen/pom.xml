@@ -56,6 +56,12 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
+      <classifier>sources</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-core</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
@@ -196,6 +202,22 @@
               <includeTypes>jar</includeTypes>
               <includeClassifiers>tck-sources</includeClassifiers>
               <outputDirectory>${basedir}/src/test/java</outputDirectory>
+            </configuration>
+          </execution>
+          <!-- Unpack codegen source code to src/test/java -->
+          <execution>
+            <id>unpack-core</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <includeGroupIds>io.vertx</includeGroupIds>
+              <includeArtifactIds>vertx-core</includeArtifactIds>
+              <includeTypes>jar</includeTypes>
+              <includeClassifiers>sources</includeClassifiers>
+              <outputDirectory>${basedir}/src/test/java</outputDirectory>
+              <includes>io/vertx/core/streams/ReadStream.java,io/vertx/core/streams/StreamBase.java</includes>
             </configuration>
           </execution>
         </executions>

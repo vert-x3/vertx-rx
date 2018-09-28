@@ -35,13 +35,12 @@ class RxJava2Generator extends AbstractRxGenerator {
   @Override
   protected void genToObservable(ApiTypeInfo type, PrintWriter writer) {
     TypeInfo streamType = type.getReadStreamArg();
-    String simpleName = streamType.getSimpleName();
     writer.print("  private io.reactivex.Observable<");
-    writer.print(simpleName);
+    writer.print(genTypeName(streamType));
     writer.println("> observable;");
 
     writer.print("  private io.reactivex.Flowable<");
-    writer.print(simpleName);
+    writer.print(genTypeName(streamType));
     writer.println("> flowable;");
 
     writer.println();
@@ -52,11 +51,10 @@ class RxJava2Generator extends AbstractRxGenerator {
   }
 
   private void genToXXXAble(TypeInfo streamType, String rxType, String rxName, PrintWriter writer) {
-    String simpleName = streamType.getSimpleName();
     writer.print("  public synchronized io.reactivex.");
     writer.print(rxType);
     writer.print("<");
-    writer.print(simpleName);
+    writer.print(genTypeName(streamType));
     writer.print("> to");
     writer.print(rxType);
     writer.println("() {");
@@ -70,9 +68,9 @@ class RxJava2Generator extends AbstractRxGenerator {
       writer.print("      java.util.function.Function<");
       writer.print(streamType.getName());
       writer.print(", ");
-      writer.print(simpleName);
+      writer.print(genTypeName(streamType));
       writer.print("> conv = ");
-      writer.print(streamType.getRaw().getSimpleName());
+      writer.print(genTypeName(streamType.getRaw()));
       writer.println("::newInstance;");
 
       writer.print("      ");
@@ -83,14 +81,15 @@ class RxJava2Generator extends AbstractRxGenerator {
       writer.print(rxType);
       writer.println("(delegate, conv);");
     } else if (streamType.isVariable()) {
+      String typeVar = streamType.getSimpleName();
       writer.print("      java.util.function.Function<");
-      writer.print(simpleName);
+      writer.print(typeVar);
       writer.print(", ");
-      writer.print(simpleName);
+      writer.print(typeVar);
       writer.print("> conv = (java.util.function.Function<");
-      writer.print(simpleName);
+      writer.print(typeVar);
       writer.print(", ");
-      writer.print(simpleName);
+      writer.print(typeVar);
       writer.println(">) __typeArg_0.wrap;");
 
       writer.print("      ");
