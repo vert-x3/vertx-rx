@@ -18,6 +18,7 @@
     <module>rx-java-codegen</module>
     <module>rx-java2-codegen</module>
     <module>rx-java</module>
+    <module>rx-java2</module>
     <!--
     <module>rx-js</module>
     -->
@@ -135,6 +136,7 @@
         <module>rx-java-codegen</module>
         <module>rx-java2-codegen</module>
         <module>rx-java</module>
+        <module>rx-java2</module>
         <!--
         <module>rx-groovy</module>
         <module>rx-js</module>
