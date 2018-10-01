@@ -1,6 +1,6 @@
 # Rx extension for Vert.x
 
-[![Build Status](https://vertx.ci.cloudbees.com/buildStatus/icon?job=vert.x3-rx)](https://vertx.ci.cloudbees.com/view/vert.x-3/job/vert.x3-rx/)
+[![Build Status](https://travis-ci.org/vert-x3/vertx-rx.svg?branch=master)](https://travis-ci.org/vert-x3/vertx-rx)
 
 Vert.x module adding support for Reactive Extensions (Rx) using the Rx libraries. This
 allows Vert.x developers to use the Rx type-safe composable API to build Vert.x verticles.
