@@ -17,7 +17,10 @@
   <modules>
     <module>rx-java-codegen</module>
     <module>rx-java2-codegen</module>
+    <module>rx-java</module>
+    <!--
     <module>rx-js</module>
+    -->
   </modules>
 
   <properties>
@@ -131,8 +134,11 @@
       <modules>
         <module>rx-java-codegen</module>
         <module>rx-java2-codegen</module>
+        <module>rx-java</module>
+        <!--
         <module>rx-groovy</module>
         <module>rx-js</module>
+        -->
       </modules>
     </profile>
   </profiles>
