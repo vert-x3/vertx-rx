@@ -1,7 +1,10 @@
 package examples;
 
+import io.vertx.core.Future;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.docgen.Source;
+import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.rxjava.core.buffer.Buffer;
 import io.vertx.rxjava.ext.web.client.HttpResponse;
 import io.vertx.rxjava.ext.web.client.WebClient;
@@ -72,5 +75,23 @@ public class RxWebClientExamples {
       System.out.println(resp.statusCode());
       System.out.println(resp.body());
     });
+  }
+
+  public static final HttpResponse<Buffer> mapToError(HttpResponse<Buffer> r) throws Exception {
+    if (r.statusCode()>=400) {
+      throw new Exception(String.format("%d: %s\n%s", r.statusCode(), r.statusMessage(), r.bodyAsString()));
+    } else {
+      return r;
+    }
+  }
+
+  public void rxErrorHandlingExample(WebClient client) {
+    client.get(8080, "myserver.mycompany.com", "/some/uri")
+          .rxSend()
+          .map(this::mapToError)
+          .map(HttpResponse::bodyAsJsonObject)
+          .map(Future::succeededFuture)
+          .onErrorReturn(Future::failedFuture)
+          .subscribe(handler::handle);
   }
 }

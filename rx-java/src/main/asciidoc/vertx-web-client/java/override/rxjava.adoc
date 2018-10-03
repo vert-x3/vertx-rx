@@ -17,7 +17,7 @@ The obtained {@code Single} can be composed and chained naturally with the RxJav
 {@link examples.RxWebClientExamples#flatMap(io.vertx.rxjava.ext.web.client.WebClient)}
 ----
 
-The same APIs is available
+The same APIs are available
 
 [source,$lang]
 ----
@@ -33,4 +33,24 @@ be preferred for sending bodies {@code Observable<Buffer>}
 ----
 
 Upon subscription, the {@code body} will be subscribed and its content used for the request.
+
+=== Error Handling
+
+The RxJava version of the WebClient does not automatically consider request/server errors (4XX/5XX) as
+errors for the purpose of `onError` handlers. In order to handle errors of this kind, you need to `map`
+the response to an Exception like this:
+
+[source,$lang]
+----
+{@link examples.RxWebClientExamples#mapToError(io.vertx.rxjava.ext.web.client.HttpResponse)}
+----
+
+And then, you can use Rx-ified error handling like this:
+
+[source,$lang]
+----
+{@link examples.RxWebClientExamples#rxErrorHandlingExample(io.vertx.rxjava.ext.web.client.WebClient)}
+----
 endif::[]
+
+
