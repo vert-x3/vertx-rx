@@ -5,21 +5,21 @@ The RxJava {@link io.vertx.rxjava.ext.web.client.HttpRequest} provides an rx-ifi
 the {@link io.vertx.rxjava.ext.web.client.HttpRequest#rxSend()} method returns a `Single<HttpResponse<Buffer>>` that
 makes the HTTP request upon subscription, as consequence, the {@code Single} can be subscribed many times.
 
-[source,$lang]
+[source,java]
 ----
 {@link examples.RxWebClientExamples#simpleGet(io.vertx.rxjava.ext.web.client.WebClient)}
 ----
 
 The obtained {@code Single} can be composed and chained naturally with the RxJava API
 
-[source,$lang]
+[source,java]
 ----
 {@link examples.RxWebClientExamples#flatMap(io.vertx.rxjava.ext.web.client.WebClient)}
 ----
 
 The same APIs is available
 
-[source,$lang]
+[source,java]
 ----
 {@link examples.RxWebClientExamples#moreComplex(io.vertx.rxjava.ext.web.client.WebClient)}
 ----
@@ -27,7 +27,7 @@ The same APIs is available
 The {@link io.vertx.rxjava.ext.web.client.HttpRequest#sendStream(rx.Observable, io.vertx.core.Handler)} shall
 be preferred for sending bodies {@code Observable<Buffer>}
 
-[source,$lang]
+[source,java]
 ----
 {@link examples.RxWebClientExamples#sendObservable(io.vertx.rxjava.ext.web.client.WebClient)}
 ----
