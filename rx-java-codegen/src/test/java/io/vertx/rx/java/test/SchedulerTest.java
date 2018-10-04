@@ -16,13 +16,14 @@ import rx.plugins.RxJavaSchedulersHook;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import static java.util.concurrent.TimeUnit.*;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -86,7 +87,7 @@ public class SchedulerTest extends VertxTestBase {
     worker.schedule(() -> {
       thread.set(Thread.currentThread());
       latch.countDown();
-    }, 0, TimeUnit.MILLISECONDS);
+    }, 0, MILLISECONDS);
     awaitLatch(latch);
     threadAssert.accept(thread.get());
   }
@@ -123,7 +124,7 @@ public class SchedulerTest extends VertxTestBase {
         isOnVertxThread.set(Context.isOnVertxThread());
         subscriber.onNext("expected");
         subscriber.onCompleted();
-      }).delay(10, TimeUnit.MILLISECONDS, scheduler).doOnNext(o -> assertEquals(Vertx.currentContext(), testContext));
+      }).delay(10, MILLISECONDS, scheduler).doOnNext(o -> assertEquals(Vertx.currentContext(), testContext));
       new Thread(() -> {
         observable.subscribe(
             item -> assertEquals("expected", item),
@@ -161,7 +162,7 @@ public class SchedulerTest extends VertxTestBase {
       thread.set(Thread.currentThread());
       execTime.set(System.currentTimeMillis() - time);
       latch.countDown();
-    }, 40, TimeUnit.MILLISECONDS);
+    }, 40, MILLISECONDS);
     awaitLatch(latch);
     threadAssert.accept(thread.get());
     assertTrue(execTime.get() >= 40);
@@ -200,7 +201,7 @@ public class SchedulerTest extends VertxTestBase {
         assertTrue("" + delta, delta >= 40);
         time.set(now);
       }
-    }, 0, 40, TimeUnit.MILLISECONDS));
+    }, 0, 40, MILLISECONDS));
     await();
   }
 
@@ -223,9 +224,9 @@ public class SchedulerTest extends VertxTestBase {
     ContextScheduler scheduler2 = scheduler.get();
     Scheduler.Worker worker = scheduler2.createWorker();
     CountDownLatch latch = new CountDownLatch(1);
-    Subscription sub = worker.schedule(latch::countDown, 20, TimeUnit.MILLISECONDS);
+    Subscription sub = worker.schedule(latch::countDown, 20, MILLISECONDS);
     sub.unsubscribe();
-    assertFalse(latch.await(40, TimeUnit.MILLISECONDS));
+    assertFalse(latch.await(40, MILLISECONDS));
   }
 
   @Test
@@ -252,7 +253,7 @@ public class SchedulerTest extends VertxTestBase {
       if (count.getAndIncrement() == 0) {
         sub.get().unsubscribe();
       }
-    }, 0, 5, TimeUnit.MILLISECONDS));
+    }, 0, 5, MILLISECONDS));
     Thread.sleep(60);
     assertEquals(1, count.get());
   }
@@ -282,7 +283,7 @@ public class SchedulerTest extends VertxTestBase {
       if (count.incrementAndGet() == 4) {
         latch.countDown();
       }
-    }, 0, 20, TimeUnit.MILLISECONDS));
+    }, 0, 20, MILLISECONDS));
     awaitLatch(latch);
     sub.get().unsubscribe();
     Thread.sleep(60);
@@ -308,12 +309,12 @@ public class SchedulerTest extends VertxTestBase {
     ContextScheduler scheduler2 = scheduler.get();
     Scheduler.Worker worker = scheduler2.createWorker();
     CountDownLatch latch = new CountDownLatch(2);
-    Subscription sub1 = worker.schedule(latch::countDown, 40, TimeUnit.MILLISECONDS);
-    Subscription sub2 = worker.schedule(latch::countDown, 40, TimeUnit.MILLISECONDS);
+    Subscription sub1 = worker.schedule(latch::countDown, 40, MILLISECONDS);
+    Subscription sub2 = worker.schedule(latch::countDown, 40, MILLISECONDS);
     worker.unsubscribe();
     assertTrue(sub1.isUnsubscribed());
     assertTrue(sub2.isUnsubscribed());
-    assertFalse(latch.await(40, TimeUnit.MILLISECONDS));
+    assertFalse(latch.await(40, MILLISECONDS));
     assertEquals(2, latch.getCount());
   }
 
@@ -322,7 +323,7 @@ public class SchedulerTest extends VertxTestBase {
     ContextScheduler scheduler2 = new ContextScheduler(vertx, true);
     Scheduler.Worker worker = scheduler2.createWorker();
     AtomicBoolean b = new AtomicBoolean();
-    long time = System.currentTimeMillis();
+    long time = System.nanoTime();
     worker.schedulePeriodically(() -> {
       if (b.compareAndSet(false, true)) {
         try {
@@ -331,11 +332,12 @@ public class SchedulerTest extends VertxTestBase {
           fail();
         }
       } else {
-        assertTrue(System.currentTimeMillis() - time > 20 + 10 + 20);
+        assertTrue(System.nanoTime() - time > NANOSECONDS.convert(20 + 10 + 20, MILLISECONDS));
         worker.unsubscribe();
         testComplete();
       }
-    }, 20, 20, TimeUnit.MILLISECONDS);
+    }, 20, 20, MILLISECONDS);
+    await();
   }
 
   @Test
@@ -381,7 +383,7 @@ public class SchedulerTest extends VertxTestBase {
       workerScheduledVal.set(scheduled.get());
       workerCalledVal.set(called.get());
       latch.countDown();
-    }, 0, TimeUnit.SECONDS);
+    }, 0, SECONDS);
     awaitLatch(latch);
     awaitLatch(latchCalled);
     assertEquals(1, scheduled.get());
@@ -405,7 +407,7 @@ public class SchedulerTest extends VertxTestBase {
     ContextScheduler scheduler = (ContextScheduler) RxHelper.blockingScheduler(vertx);
     ContextScheduler.ContextWorker worker = scheduler.createWorker();
     CountDownLatch latch = new CountDownLatch(1);
-    worker.schedule(latch::countDown, 10, TimeUnit.MILLISECONDS);
+    worker.schedule(latch::countDown, 10, MILLISECONDS);
     awaitLatch(latch);
     waitUntil(() -> worker.countActions() == 0);
   }
@@ -423,7 +425,7 @@ public class SchedulerTest extends VertxTestBase {
       }
       sub.unsubscribe();
       latch.countDown();
-    }, 10, 10, TimeUnit.MILLISECONDS));
+    }, 10, 10, MILLISECONDS));
     awaitLatch(latch);
     waitUntil(() -> worker.countActions() == 0);
   }
