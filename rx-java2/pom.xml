@@ -346,12 +346,12 @@
     <!-- Extra dependencies -->
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-rx-java2-codegen</artifactId>
+      <artifactId>vertx-rx-java2-gen</artifactId>
       <version>3.6.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-rx-java-codegen</artifactId>
+      <artifactId>vertx-rx-java-gen</artifactId>
       <version>3.6.0-SNAPSHOT</version>
       <optional>true</optional>
     </dependency>
@@ -371,14 +371,14 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-rx-java-codegen</artifactId>
+      <artifactId>vertx-rx-java-gen</artifactId>
       <type>test-jar</type>
       <version>3.6.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-rx-java2-codegen</artifactId>
+      <artifactId>vertx-rx-java2-gen</artifactId>
       <version>3.6.0-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>

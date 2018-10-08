@@ -10,10 +10,10 @@
     <version>3.6.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>vertx-rx-java-codegen</artifactId>
+  <artifactId>vertx-rx-java2-gen</artifactId>
   <version>3.6.0-SNAPSHOT</version>
 
-  <name>Vert.x RxJava Code Generator</name>
+  <name>Vert.x RxJava2 Code Generator</name>
 
   <properties>
     <asciidoc.dir>${project.basedir}/src/main/asciidoc</asciidoc.dir>
@@ -26,8 +26,12 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.reactivex</groupId>
+      <groupId>io.reactivex.rxjava2</groupId>
       <artifactId>rxjava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.reactivestreams</groupId>
+      <artifactId>reactive-streams</artifactId>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -52,14 +56,27 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
-      <type>test-jar</type>
+      <classifier>sources</classifier>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
-      <classifier>sources</classifier>
+      <type>test-jar</type>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-rx-java-gen</artifactId>
+      <version>3.6.0-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-rx-java-gen</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+      <version>3.6.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -67,11 +84,89 @@
       <version>4.12</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+      <version>2.9.6</version>
+      <scope>test</scope>
+    </dependency>
 
   </dependencies>
 
   <build>
     <plugins>
+
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <execution>
+            <id>copy-codegen-extra</id>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <phase>generate-test-sources</phase>
+            <configuration>
+              <outputDirectory>${project.basedir}/src/test/java/</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/../rx-java-codegen/src/test/java</directory>
+                  <includes>
+                    <include>io/vertx/codegen/extra/**</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!--
+      <plugin>
+        <groupId>biz.aQute.bnd</groupId>
+        <artifactId>bnd-maven-plugin</artifactId>
+        <version>3.2.0</version>
+
+        <executions>
+          <execution>
+            <id>default-bnd-process</id>
+            <goals>
+              <goal>bnd-process</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <bnd><![CDATA[
+          Import-Package: \
+              io.vertx.codegen.annotations;resolution:=optional,\
+              io.vertx.core,\
+              io.vertx.core.buffer,\
+              io.vertx.core.cli,\
+              io.vertx.core.cli.annotations,\
+              io.vertx.core.cli.converters,\
+              io.vertx.core.datagram,\
+              io.vertx.core.dns,\
+              io.vertx.core.eventbus,\
+              io.vertx.core.file,\
+              io.vertx.core.http,\
+              io.vertx.core.json,\
+              io.vertx.core.logging,\
+              io.vertx.core.metrics,\
+              io.vertx.core.net,\
+              io.vertx.core.parsetools,\
+              io.vertx.core.shareddata,\
+              io.vertx.core.spi,\
+              io.vertx.core.spi.cluster,\
+              io.vertx.core.spi.launcher,\
+              io.vertx.core.spi.logging,\
+              io.vertx.core.spi.metrics,\
+              io.vertx.core.streams,\
+              *
+           -exportcontents: !examples,!io.vertx.core.*, *
+          ]]></bnd>
+        </configuration>
+      </plugin>
+      -->
 
       <!-- Configure the execution of the compiler to execute the codegen processor -->
       <plugin>
@@ -85,7 +180,7 @@
               </annotationProcessors>
               <compilerArgs>
                 <arg>-Acodegen.output=${project.basedir}/src/test</arg>
-                <arg>-Acodegen.generators=RxJava</arg>
+                <arg>-Acodegen.generators=RxJava2</arg>
               </compilerArgs>
             </configuration>
           </execution>
@@ -129,5 +224,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>
