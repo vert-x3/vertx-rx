@@ -1,8 +1,5 @@
-package io.vertx.rx.java.test.support;
+package io.vertx.lang.rx.test;
 
-/**
- * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
- */
 public class SimplePojo {
 
   public String foo;

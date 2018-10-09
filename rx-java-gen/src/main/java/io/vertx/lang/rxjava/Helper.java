@@ -1,5 +1,7 @@
 package io.vertx.lang.rxjava;
 
+import io.vertx.lang.rx.RxGen;
+
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */

@@ -1,16 +1,14 @@
-package io.vertx.rx.java.test.support;
+package io.vertx.lang.rx.test;
 
 import io.vertx.core.Handler;
 import io.vertx.core.queue.Queue;
 import io.vertx.core.streams.ReadStream;
-
-import static junit.framework.TestCase.assertNull;
-import static org.junit.Assert.*;
+import org.junit.Assert;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class SimpleReadStream<T> implements ReadStream<T> {
+public class TestReadStream<T> implements ReadStream<T> {
 
   private Handler<Throwable> exceptionHandler;
   private Handler<T> itemHandler;
@@ -20,7 +18,7 @@ public class SimpleReadStream<T> implements ReadStream<T> {
 
   private Runnable onResume;
 
-  public SimpleReadStream() {
+  public TestReadStream() {
     queue = Queue.queue();
 
     queue.writableHandler(v -> {
@@ -41,26 +39,26 @@ public class SimpleReadStream<T> implements ReadStream<T> {
   }
 
   public void assertPaused() {
-    assertTrue(queue.isPaused());
+    Assert.assertTrue(queue.isPaused());
   }
 
   public void assertResumed() {
-    assertFalse(queue.isPaused());
+    Assert.assertFalse(queue.isPaused());
   }
 
-  public SimpleReadStream<T> expectPause() {
+  public TestReadStream<T> expectPause() {
     return this;
   }
 
-  public SimpleReadStream<T> expectPause(Runnable action) {
+  public TestReadStream<T> expectPause(Runnable action) {
     return this;
   }
 
-  public SimpleReadStream<T> expectResume() {
+  public TestReadStream<T> expectResume() {
     return this;
   }
 
-  public SimpleReadStream<T> onResume(Runnable action) {
+  public TestReadStream<T> onResume(Runnable action) {
     onResume = action;
     return this;
   }
@@ -78,43 +76,43 @@ public class SimpleReadStream<T> implements ReadStream<T> {
   }
 
   public void assertHasItemHandler() {
-    assertTrue(itemHandler != null);
+    Assert.assertTrue(itemHandler != null);
   }
 
   public void assertHasNoItemHandler() {
-    assertTrue(itemHandler == null);
+    Assert.assertTrue(itemHandler == null);
   }
 
   public void assertHasExceptionHandler() {
-    assertNotNull(exceptionHandler);
+    Assert.assertNotNull(exceptionHandler);
   }
 
   public void assertHasNoExceptionHandler() {
-    assertNull(exceptionHandler);
+    Assert.assertNull(exceptionHandler);
   }
 
   public void assertHasEndHandler() {
-    assertNotNull(endHandler);
+    Assert.assertNotNull(endHandler);
   }
 
   public void assertHasNoEndHandler() {
-    assertNull(endHandler);
+    Assert.assertNull(endHandler);
   }
 
   @Override
-  public SimpleReadStream<T> exceptionHandler(Handler<Throwable> handler) {
+  public TestReadStream<T> exceptionHandler(Handler<Throwable> handler) {
     this.exceptionHandler = handler;
     return this;
   }
 
-  public SimpleReadStream<T> untilPaused(Runnable action) {
+  public TestReadStream<T> untilPaused(Runnable action) {
     while (!queue.isPaused()) {
       action.run();
     }
     return this;
   }
 
-  public SimpleReadStream<T> untilResumed(Runnable action) {
+  public TestReadStream<T> untilResumed(Runnable action) {
     while (queue.isPaused()) {
       action.run();
     }
@@ -159,26 +157,26 @@ public class SimpleReadStream<T> implements ReadStream<T> {
   }
 
   @Override
-  public SimpleReadStream<T> handler(Handler<T> handler) {
+  public TestReadStream<T> handler(Handler<T> handler) {
     this.itemHandler = handler;
     return this;
   }
 
   @Override
-  public SimpleReadStream<T> pause() {
+  public TestReadStream<T> pause() {
     queue.pause();
     return this;
   }
 
   @Override
   public ReadStream<T> fetch(long amount) {
-    assertNotNull(itemHandler);
+    Assert.assertNotNull(itemHandler);
     queue.take(amount);
     return this;
   }
 
   @Override
-  public SimpleReadStream<T> resume() {
+  public TestReadStream<T> resume() {
     if (!ended) {
       queue.resume();
       if (onResume != null) {
@@ -189,7 +187,7 @@ public class SimpleReadStream<T> implements ReadStream<T> {
   }
 
   @Override
-  public SimpleReadStream<T> endHandler(Handler<Void> endHandler) {
+  public TestReadStream<T> endHandler(Handler<Void> endHandler) {
     this.endHandler = endHandler;
     return this;
   }

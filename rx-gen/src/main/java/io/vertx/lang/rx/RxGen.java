@@ -1,4 +1,4 @@
-package io.vertx.lang.rxjava;
+package io.vertx.lang.rx;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Associate an RxJava generated class with its original type, used for mapping the generated
+ * Associate an RX generated class with its original type, used for mapping the generated
  * classes to their original type.
  *
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -15,6 +15,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RxGen {
 
+  /**
+   * @return the wrapped class
+   */
   Class value();
 
 }

@@ -4,8 +4,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.rx.java.test.support.SimpleSubscriber;
+import io.vertx.lang.rx.test.TestSubscriber;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -14,12 +13,12 @@ import org.reactivestreams.Subscription;
  */
 public class TestUtils {
 
-  public static <T>  void subscribe(Flowable<T> obs, SimpleSubscriber<T> sub) {
+  public static <T>  void subscribe(Flowable<T> obs, TestSubscriber<T> sub) {
     obs.subscribe(new Subscriber<T>() {
       boolean unsubscribed;
       @Override
       public void onSubscribe(Subscription s) {
-        sub.onSubscribe(new SimpleSubscriber.Subscription() {
+        sub.onSubscribe(new TestSubscriber.Subscription() {
           @Override
           public void fetch(long val) {
             if (val > 0) {
@@ -55,12 +54,12 @@ public class TestUtils {
     });
   }
 
-  public static <T> void subscribe(Observable<T> obs, SimpleSubscriber<T> sub) {
+  public static <T> void subscribe(Observable<T> obs, TestSubscriber<T> sub) {
     obs.subscribe(sub::onNext,
       sub::onError,
       sub::onCompleted,
       disposable -> {
-        sub.onSubscribe(new SimpleSubscriber.Subscription() {
+        sub.onSubscribe(new TestSubscriber.Subscription() {
           @Override
           public void fetch(long val) {}
           @Override
@@ -75,11 +74,11 @@ public class TestUtils {
       });
   }
 
-  public static <T> void subscribe(Single<T> obs, SimpleSubscriber<T> sub) {
+  public static <T> void subscribe(Single<T> obs, TestSubscriber<T> sub) {
     obs.subscribe(sub::onNext, sub::onError);
   }
 
-  public static <T> void subscribe(Maybe<T> obs, SimpleSubscriber<T> sub) {
+  public static <T> void subscribe(Maybe<T> obs, TestSubscriber<T> sub) {
     obs.subscribe(sub::onNext, sub::onError, sub::onCompleted);
   }
 }

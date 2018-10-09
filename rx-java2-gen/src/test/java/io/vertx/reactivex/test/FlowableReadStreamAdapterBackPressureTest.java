@@ -4,10 +4,11 @@ import io.reactivex.Flowable;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
+import io.vertx.lang.rx.test.TestReadStream;
+import io.vertx.lang.rx.test.TestSubscriber;
 import io.vertx.reactivex.FlowableHelper;
-import io.vertx.rx.java.test.ReadStreamAdapterBackPressureTest;
-import io.vertx.rx.java.test.support.SimpleReadStream;
-import io.vertx.rx.java.test.support.SimpleSubscriber;
+import io.vertx.lang.rx.test.ReadStreamAdapterBackPressureTest;
+import io.vertx.reactivex.impl.FlowableReadStream;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,6 +18,11 @@ import java.util.function.Function;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapterBackPressureTest<Flowable<Buffer>> {
+
+  @Override
+  protected long defaultMaxBufferSize() {
+    return FlowableReadStream.DEFAULT_MAX_BUFFER_SIZE;
+  }
 
   @Override
   protected Flowable<Buffer> toObservable(ReadStream<Buffer> stream, int maxBufferSize) {
@@ -34,7 +40,7 @@ public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapter
   }
 
   @Override
-  protected void subscribe(Flowable<Buffer> obs, SimpleSubscriber<Buffer> sub) {
+  protected void subscribe(Flowable<Buffer> obs, TestSubscriber<Buffer> sub) {
     TestUtils.subscribe(obs, sub);
   }
 
@@ -45,10 +51,10 @@ public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapter
 
   @Test
   public void testSubscribeTwice() {
-    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
+    TestReadStream<Buffer> stream = new TestReadStream<>();
     Flowable<Buffer> observable = toObservable(stream);
-    SimpleSubscriber<Buffer> subscriber1 = new SimpleSubscriber<Buffer>().prefetch(0);
-    SimpleSubscriber<Buffer> subscriber2 = new SimpleSubscriber<Buffer>().prefetch(0);
+    TestSubscriber<Buffer> subscriber1 = new TestSubscriber<Buffer>().prefetch(0);
+    TestSubscriber<Buffer> subscriber2 = new TestSubscriber<Buffer>().prefetch(0);
     subscribe(observable, subscriber1);
     subscribe(observable, subscriber2);
     subscriber2.assertError(err -> {
@@ -60,9 +66,9 @@ public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapter
   @Test
   public void testHandletIsSetInDoOnSubscribe() {
     AtomicBoolean handlerSet = new AtomicBoolean();
-    SimpleReadStream<Buffer> stream = new SimpleReadStream<Buffer>() {
+    TestReadStream<Buffer> stream = new TestReadStream<Buffer>() {
       @Override
-      public SimpleReadStream<Buffer> handler(Handler<Buffer> handler) {
+      public TestReadStream<Buffer> handler(Handler<Buffer> handler) {
         handlerSet.set(true);
         return super.handler(handler);
       }
@@ -70,7 +76,7 @@ public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapter
     Flowable<Buffer> observable = toObservable(stream).doOnSubscribe(disposable -> {
       assertTrue(handlerSet.get());
     });
-    SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<Buffer> subscriber = new TestSubscriber<>();
     subscribe(observable, subscriber);
     subscriber.assertEmpty();
   }

@@ -1,13 +1,12 @@
 package io.vertx.rx.java.test;
 
 import io.vertx.core.Handler;
+import io.vertx.lang.rx.test.TestSubscriber;
 import io.vertx.rx.java.ObservableHandler;
 import io.vertx.rx.java.RxHelper;
-import io.vertx.rx.java.test.support.SimpleSubscriber;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,8 +21,8 @@ public class ObservableHandlerTest {
   public void testMultiNotifyBeforeSubscribe() {
     ObservableHandler<String> o = RxHelper.observableHandler(true);
     o.toHandler().handle("abc");
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    SimpleSubscriber.subscribe(o, subscriber);
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
+    TestUtils.subscribe(o, subscriber);
     subscriber.assertEmpty();
   }
 
@@ -31,16 +30,16 @@ public class ObservableHandlerTest {
   public void testSingleNotifyBeforeSubscribe() {
     ObservableHandler<String> o = RxHelper.observableHandler();
     o.toHandler().handle("abc");
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    SimpleSubscriber.subscribe(o, subscriber);
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
+    TestUtils.subscribe(o, subscriber);
     subscriber.assertCompleted().assertEmpty();
   }
 
   @Test
   public void testMultiNotifyAfterSubscribe() {
     ObservableHandler<String> o = RxHelper.observableHandler(true);
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    SimpleSubscriber.subscribe(o, subscriber);
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
+    TestUtils.subscribe(o, subscriber);
     subscriber.assertEmpty();
     o.toHandler().handle("abc");
     subscriber.assertItem("abc").assertEmpty();
@@ -49,8 +48,8 @@ public class ObservableHandlerTest {
   @Test
   public void testSingleNotifyAfterSubscribe() {
     ObservableHandler<String> o = RxHelper.observableHandler();
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    SimpleSubscriber.subscribe(o, subscriber);
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
+    TestUtils.subscribe(o, subscriber);
     subscriber.assertEmpty();
     o.toHandler().handle("abc");
     subscriber.assertItem("abc").assertCompleted().assertEmpty();
@@ -59,8 +58,8 @@ public class ObservableHandlerTest {
   @Test
   public void testMultiUnsubscribeBeforeNotify() {
     ObservableHandler<String> o = RxHelper.observableHandler(true);
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    SimpleSubscriber.subscribe(o, subscriber);
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
+    TestUtils.subscribe(o, subscriber);
     subscriber.unsubscribe();
     assertTrue(subscriber.isUnsubscribed());
     subscriber.assertEmpty();
@@ -71,8 +70,8 @@ public class ObservableHandlerTest {
   @Test
   public void testSingleUnsubscribeBeforeNotify() {
     ObservableHandler<String> o = RxHelper.observableHandler();
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    SimpleSubscriber.subscribe(o, subscriber);
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
+    TestUtils.subscribe(o, subscriber);
     subscriber.unsubscribe();
     assertTrue(subscriber.isUnsubscribed());
     subscriber.assertEmpty();
@@ -83,8 +82,8 @@ public class ObservableHandlerTest {
   @Test
   public void testMultiNotifyTwice() {
     ObservableHandler<String> o = RxHelper.observableHandler(true);
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    SimpleSubscriber.subscribe(o, subscriber);
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
+    TestUtils.subscribe(o, subscriber);
     o.toHandler().handle("abc");
     o.toHandler().handle("def");
     subscriber.assertItem("abc").assertItem("def").assertEmpty();
@@ -93,8 +92,8 @@ public class ObservableHandlerTest {
   @Test
   public void testSingleNotifyTwice() {
     ObservableHandler<String> o = RxHelper.observableHandler();
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    SimpleSubscriber.subscribe(o, subscriber);
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
+    TestUtils.subscribe(o, subscriber);
     o.toHandler().handle("abc");
     o.toHandler().handle("def");
     subscriber.assertItem("abc").assertCompleted().assertEmpty();
@@ -102,16 +101,16 @@ public class ObservableHandlerTest {
 
   @Test
   public void testMultiFulfillAdaptedSubscriber() {
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    Handler<String> o = RxHelper.toHandler(subscriber.toObserver(), true);
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
+    Handler<String> o = RxHelper.toHandler(TestUtils.toObserver(subscriber), true);
     o.handle("abc");
     subscriber.assertItem("abc").assertEmpty();
   }
 
   @Test
   public void testSingleFulfillAdaptedSubscriber() {
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    Handler<String> o = RxHelper.toHandler(subscriber.toObserver());
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
+    Handler<String> o = RxHelper.toHandler(TestUtils.toObserver(subscriber));
     o.handle("abc");
     subscriber.assertItem("abc").assertCompleted().assertEmpty();
   }

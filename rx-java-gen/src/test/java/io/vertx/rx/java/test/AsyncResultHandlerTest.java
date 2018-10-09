@@ -3,9 +3,9 @@ package io.vertx.rx.java.test;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.lang.rx.test.TestSubscriber;
 import io.vertx.rx.java.ObservableFuture;
 import io.vertx.rx.java.RxHelper;
-import io.vertx.rx.java.test.support.SimpleSubscriber;
 import org.junit.Test;
 import rx.exceptions.OnErrorNotImplementedException;
 
@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.vertx.rx.java.test.support.SimpleSubscriber.subscribe;
+import static io.vertx.rx.java.test.TestUtils.subscribe;
 import static org.junit.Assert.*;
 
 /**
@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
   public void testCompleteWithSuccessBeforeSubscribe() {
     ObservableFuture<String> o = RxHelper.observableFuture();
     o.toHandler().handle(Future.succeededFuture("abc"));
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
     subscribe(o, subscriber);
     subscriber.assertItem("abc").assertCompleted().assertEmpty();
   }
@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
   @Test
   public void testCompleteWithSuccessAfterSubscribe() {
     ObservableFuture<String> o = RxHelper.observableFuture();
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
     subscribe(o, subscriber);
     subscriber.assertEmpty();
     o.toHandler().handle(Future.succeededFuture("abc"));
@@ -46,7 +46,7 @@ import static org.junit.Assert.*;
     ObservableFuture<String> o = RxHelper.observableFuture();
     Throwable failure = new Throwable();
     o.toHandler().handle(Future.failedFuture(failure));
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
     subscribe(o, subscriber);
     subscriber.assertError(failure).assertEmpty();
   }
@@ -54,7 +54,7 @@ import static org.junit.Assert.*;
   @Test
   public void testCompleteWithFailureAfterSubscribe() {
     ObservableFuture<String> o = RxHelper.observableFuture();
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
     subscribe(o, subscriber);
     subscriber.assertEmpty();
     Throwable failure = new Throwable();
@@ -65,7 +65,7 @@ import static org.junit.Assert.*;
   @Test
   public void testUnsubscribeBeforeResolve() {
     ObservableFuture<String> o = RxHelper.observableFuture();
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
     subscribe(o, subscriber);
     subscriber.unsubscribe();
     assertTrue(subscriber.isUnsubscribed());
@@ -75,7 +75,7 @@ import static org.junit.Assert.*;
   @Test
   public void testCompleteTwice() {
     ObservableFuture<String> o = RxHelper.observableFuture();
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
     subscribe(o, subscriber);
     o.toHandler().handle(Future.succeededFuture("abc"));
     o.toHandler().handle(Future.succeededFuture("def"));
@@ -85,7 +85,7 @@ import static org.junit.Assert.*;
   @Test
   public void testFailTwice() {
     ObservableFuture<String> o = RxHelper.observableFuture();
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
     subscribe(o, subscriber);
     Throwable failure = new Throwable();
     o.toHandler().handle(Future.failedFuture(failure));
@@ -95,16 +95,16 @@ import static org.junit.Assert.*;
 
   @Test
   public void testFulfillAdaptedSubscriber() {
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    Handler<AsyncResult<String>> o = RxHelper.toFuture(subscriber.toObserver());
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
+    Handler<AsyncResult<String>> o = RxHelper.toFuture(TestUtils.toObserver(subscriber));
     o.handle(Future.succeededFuture("abc"));
     subscriber.assertItem("abc").assertCompleted().assertEmpty();
   }
 
   @Test
   public void testRejectAdaptedSubscriber() {
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
-    Handler<AsyncResult<String>> o = RxHelper.toFuture(subscriber.toObserver());
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
+    Handler<AsyncResult<String>> o = RxHelper.toFuture(TestUtils.toObserver(subscriber));
     Exception e = new Exception();
     o.handle(Future.failedFuture(e));
     subscriber.assertError(e).assertEmpty();
@@ -142,7 +142,7 @@ import static org.junit.Assert.*;
 
   @Test
   public void testRejectAdaptedFunctions1() {
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
     Handler<AsyncResult<String>> o = RxHelper.toFuture(subscriber::onNext);
     Exception cause = new Exception();
     try {
@@ -155,7 +155,7 @@ import static org.junit.Assert.*;
 
   @Test
   public void testRejectAdaptedFunctions2() {
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
     Handler<AsyncResult<String>> o = RxHelper.toFuture(subscriber::onNext, subscriber::onError);
     Exception cause = new Exception();
     o.handle(Future.failedFuture(cause));
@@ -164,7 +164,7 @@ import static org.junit.Assert.*;
 
   @Test
   public void testRejectAdaptedFunctions3() {
-    SimpleSubscriber<String> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<String> subscriber = new TestSubscriber<>();
     Handler<AsyncResult<String>> o = RxHelper.toFuture(subscriber::onNext, subscriber::onError, subscriber::onCompleted);
     Exception cause = new Exception();
     o.handle(Future.failedFuture(cause));

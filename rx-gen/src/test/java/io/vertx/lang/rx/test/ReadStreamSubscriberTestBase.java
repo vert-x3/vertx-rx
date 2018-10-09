@@ -1,7 +1,6 @@
-package io.vertx.rx.java.test;
+package io.vertx.lang.rx.test;
 
 import io.vertx.core.streams.ReadStream;
-import io.vertx.rx.java.ReadStreamSubscriber;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 
@@ -15,6 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public abstract class ReadStreamSubscriberTestBase extends VertxTestBase {
+
+  public abstract long bufferSize();
+
+  private final long BUFFER_SIZE = bufferSize();
 
   public abstract class Sender {
 
@@ -94,14 +97,14 @@ public abstract class ReadStreamSubscriberTestBase extends VertxTestBase {
     sender.assertRequested(0);
     Receiver receiver = new Receiver();
     receiver.subscribe(sender.stream);
-    sender.assertRequested(ReadStreamSubscriber.BUFFER_SIZE);
-    while (sender.seq < ReadStreamSubscriber.BUFFER_SIZE / 2) {
+    sender.assertRequested(BUFFER_SIZE);
+    while (sender.seq < BUFFER_SIZE / 2) {
       sender.emit();
-      sender.assertRequested(ReadStreamSubscriber.BUFFER_SIZE);
+      sender.assertRequested(BUFFER_SIZE);
     }
-    int i = ReadStreamSubscriber.BUFFER_SIZE - (sender.seq - 1);
+    long i = BUFFER_SIZE - (sender.seq - 1);
     sender.emit();
-    sender.assertRequested(ReadStreamSubscriber.BUFFER_SIZE + i);
+    sender.assertRequested(BUFFER_SIZE + i);
   }
 
   @Test
@@ -111,14 +114,14 @@ public abstract class ReadStreamSubscriberTestBase extends VertxTestBase {
     sender.stream.pause();
     Receiver receiver = new Receiver();
     receiver.subscribe(sender.stream);
-    for (int i = 0; i < ReadStreamSubscriber.BUFFER_SIZE; i++) {
+    for (int i = 0; i < BUFFER_SIZE; i++) {
       sender.emit();
-      assertEquals(ReadStreamSubscriber.BUFFER_SIZE, sender.requested);
+      assertEquals(BUFFER_SIZE, sender.requested);
     }
     assertEquals(0, sender.available());
     receiver.assertEmpty();
     sender.stream.resume();
-    assertEquals(ReadStreamSubscriber.BUFFER_SIZE, sender.available());
+    assertEquals(BUFFER_SIZE, sender.available());
     receiver.assertItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15");
     receiver.assertEmpty();
   }

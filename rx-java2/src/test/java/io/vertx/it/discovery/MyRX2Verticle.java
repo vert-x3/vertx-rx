@@ -15,7 +15,7 @@ import io.vertx.reactivex.servicediscovery.ServiceDiscovery;
 import io.vertx.reactivex.servicediscovery.ServiceReference;
 import io.vertx.reactivex.servicediscovery.types.*;
 
-import static io.vertx.it.ServiceDiscoveryTest.DISCOVERY_OPTIONS;
+import static io.vertx.it.discovery.ServiceDiscoveryTest.DISCOVERY_OPTIONS;
 
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>

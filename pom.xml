@@ -15,6 +15,7 @@
   <name>Vert.x Reactive Extensions</name>
 
   <modules>
+    <module>rx-gen</module>
     <module>rx-java-gen</module>
     <module>rx-java2-gen</module>
     <module>rx-java</module>
@@ -130,6 +131,7 @@
         <jdk>1.8</jdk>
       </activation>
       <modules>
+        <module>rx-gen</module>
         <module>rx-java-gen</module>
         <module>rx-java2-gen</module>
         <module>rx-java</module>

@@ -5,7 +5,7 @@ import io.vertx.codegen.MethodInfo;
 import io.vertx.codegen.ParamInfo;
 import io.vertx.codegen.TypeParamInfo;
 import io.vertx.codegen.type.*;
-import io.vertx.lang.rxjava.AbstractRxGenerator;
+import io.vertx.lang.rx.AbstractRxGenerator;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;

@@ -1,10 +1,8 @@
-package io.vertx.rx.java.test;
+package io.vertx.lang.rx.test;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
-import io.vertx.rx.java.test.support.SimpleReadStream;
-import io.vertx.rx.java.test.support.SimpleSubscriber;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 
@@ -16,14 +14,14 @@ public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
   protected abstract O toObservable(ReadStream<Buffer> stream);
   protected abstract B buffer(String s);
   protected abstract String string(B buffer);
-  protected abstract void subscribe(O obs, SimpleSubscriber<B> sub);
+  protected abstract void subscribe(O obs, TestSubscriber<B> sub);
   protected abstract O concat(O obs1, O obs2);
 
   @Test
   public void testReact() {
-    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
+    TestReadStream<Buffer> stream = new TestReadStream<>();
     O observable = toObservable(stream);
-    SimpleSubscriber<B> subscriber = new SimpleSubscriber<B>() {
+    TestSubscriber<B> subscriber = new TestSubscriber<B>() {
       @Override
       protected void assertEquals(Object expected, Object actual) {
         super.assertEquals(string((B) expected), string((B) actual));
@@ -43,12 +41,12 @@ public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
 
   @Test
   public void testConcat() {
-    SimpleReadStream<Buffer> stream1 = new SimpleReadStream<>();
-    SimpleReadStream<Buffer> stream2 = new SimpleReadStream<>();
+    TestReadStream<Buffer> stream1 = new TestReadStream<>();
+    TestReadStream<Buffer> stream2 = new TestReadStream<>();
     O observable1 = toObservable(stream1);
     O observable2 = toObservable(stream2);
     O observable = concat(observable1, observable2);
-    SimpleSubscriber<B> observer = new SimpleSubscriber<B>() {
+    TestSubscriber<B> observer = new TestSubscriber<B>() {
       @Override
       public void onNext(B next) {
         switch (string(next)) {
@@ -88,9 +86,9 @@ public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
 
   @Test
   public void testDataHandlerShouldBeSetAndUnsetAfterOtherHandlers() {
-    SimpleReadStream<Buffer> stream = new SimpleReadStream<Buffer>() {
+    TestReadStream<Buffer> stream = new TestReadStream<Buffer>() {
       @Override
-      public SimpleReadStream<Buffer> handler(Handler<Buffer> handler) {
+      public TestReadStream<Buffer> handler(Handler<Buffer> handler) {
         if (handler == null) {
           assertHasNoExceptionHandler();
           assertHasNoEndHandler();
@@ -102,31 +100,31 @@ public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
       }
     };
     O observable = toObservable(stream);
-    SimpleSubscriber<B> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<B> subscriber = new TestSubscriber<>();
     subscribe(observable, subscriber);
     subscriber.unsubscribe();
   }
 
   @Test
   public void testOnSubscribeHandlerIsSetLast() {
-    SimpleReadStream<Buffer> stream = new SimpleReadStream<Buffer>() {
+    TestReadStream<Buffer> stream = new TestReadStream<Buffer>() {
       @Override
-      public SimpleReadStream<Buffer> handler(Handler<Buffer> handler) {
+      public TestReadStream<Buffer> handler(Handler<Buffer> handler) {
         assertHasExceptionHandler();
         assertHasEndHandler();
         return super.handler(handler);
       }
     };
     O observable = toObservable(stream);
-    SimpleSubscriber<B> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<B> subscriber = new TestSubscriber<>();
     subscribe(observable, subscriber);
   }
 
   @Test
   public void testHandlers() {
-    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
+    TestReadStream<Buffer> stream = new TestReadStream<>();
     O observable = toObservable(stream);
-    SimpleSubscriber<B> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<B> subscriber = new TestSubscriber<>();
     subscribe(observable, subscriber);
     stream.assertHasHandlers();
     subscriber.unsubscribe();

@@ -11,8 +11,8 @@ import io.vertx.reactivex.FlowableHelper;
 import io.vertx.reactivex.MaybeHelper;
 import io.vertx.reactivex.ObservableHelper;
 import io.vertx.reactivex.SingleHelper;
-import io.vertx.rx.java.test.support.SimplePojo;
-import io.vertx.rx.java.test.support.SimpleSubscriber;
+import io.vertx.lang.rx.test.SimplePojo;
+import io.vertx.lang.rx.test.TestSubscriber;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public class BufferTest {
 
   private void testFlowableMapPojoFromBuffer(Flowable<Buffer> stream, FlowableTransformer<Buffer, SimplePojo> composer) throws Exception {
     Flowable<SimplePojo> mapped = stream.compose(composer);
-    SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<SimplePojo>().prefetch(0);
+    TestSubscriber<SimplePojo> subscriber = new TestSubscriber<SimplePojo>().prefetch(0);
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .assertEmpty()
@@ -72,7 +72,7 @@ public class BufferTest {
 
   private void testObservableMapPojoFromBuffer(Observable<Buffer> stream, ObservableTransformer<Buffer, SimplePojo> composer) throws Exception {
     Observable<SimplePojo> mapped = stream.compose(composer);
-    SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<SimplePojo>();
+    TestSubscriber<SimplePojo> subscriber = new TestSubscriber<SimplePojo>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .assertItem(new SimplePojo("bar"))
@@ -112,7 +112,7 @@ public class BufferTest {
 
   private void testFlowableMapPojoFromBufferFailure(Flowable<Buffer> stream, FlowableTransformer<Buffer, SimplePojo> composer) throws Exception {
     Flowable<SimplePojo> mapped = stream.compose(composer);
-    SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<SimplePojo>().prefetch(0);
+    TestSubscriber<SimplePojo> subscriber = new TestSubscriber<SimplePojo>().prefetch(0);
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .request(1)
@@ -132,7 +132,7 @@ public class BufferTest {
 
   private void testObservableMapPojoFromBufferFailure(Observable<Buffer> stream, ObservableTransformer<Buffer, SimplePojo> composer) throws Exception {
     Observable<SimplePojo> mapped = stream.compose(composer);
-    SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<SimplePojo>();
+    TestSubscriber<SimplePojo> subscriber = new TestSubscriber<SimplePojo>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .assertError(err -> assertTrue(err instanceof JsonParseException))
@@ -151,7 +151,7 @@ public class BufferTest {
 
   private void testSingleMapPojoFromBufferFailure(Single<Buffer> stream, SingleTransformer<Buffer, SimplePojo> composer) throws Exception {
     Single<SimplePojo> mapped = stream.compose(composer);
-    SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<SimplePojo> subscriber = new TestSubscriber<>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .assertError(err -> assertTrue(err instanceof JsonParseException))
@@ -170,7 +170,7 @@ public class BufferTest {
 
   private void testMaybeMapPojoFromBufferFailure(Maybe<Buffer> stream, MaybeTransformer<Buffer, SimplePojo> transformer) throws Exception {
     Maybe<SimplePojo> mapped = stream.compose(transformer);
-    SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<SimplePojo> subscriber = new TestSubscriber<>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .assertError(err -> assertTrue(err instanceof JsonParseException))
@@ -189,7 +189,7 @@ public class BufferTest {
 
   private void testFlowableMapObjectNodeFromBuffer(Flowable<Buffer> stream, FlowableTransformer<Buffer, JsonNode> composer) throws Exception {
     Flowable<JsonNode> mapped = stream.compose(composer);
-    SimpleSubscriber<JsonNode> subscriber = new SimpleSubscriber<JsonNode>().prefetch(0);
+    TestSubscriber<JsonNode> subscriber = new TestSubscriber<JsonNode>().prefetch(0);
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .assertEmpty()
@@ -211,7 +211,7 @@ public class BufferTest {
 
   private void testObservableMapObjectNodeFromBuffer(Observable<Buffer> stream, ObservableTransformer<Buffer, JsonNode> composer) throws Exception {
     Observable<JsonNode> mapped = stream.compose(composer);
-    SimpleSubscriber<JsonNode> subscriber = new SimpleSubscriber<JsonNode>();
+    TestSubscriber<JsonNode> subscriber = new TestSubscriber<JsonNode>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .assertItem(new ObjectMapper().createObjectNode().put("foo", "bar"))
@@ -274,7 +274,7 @@ public class BufferTest {
 
   private void testFlowableMapPojoListFromBuffer(Flowable<Buffer> stream, FlowableTransformer<Buffer, List<SimplePojo>> composer) throws Exception {
     Flowable<List<SimplePojo>> mapped = stream.compose(composer);
-    SimpleSubscriber<List<SimplePojo>> subscriber = new SimpleSubscriber<List<SimplePojo>>().prefetch(0);
+    TestSubscriber<List<SimplePojo>> subscriber = new TestSubscriber<List<SimplePojo>>().prefetch(0);
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .assertEmpty()
@@ -296,7 +296,7 @@ public class BufferTest {
 
   private void testObservableMapPojoListFromBuffer(Observable<Buffer> stream, ObservableTransformer<Buffer, List<SimplePojo>> composer) throws Exception {
     Observable<List<SimplePojo>> mapped = stream.compose(composer);
-    SimpleSubscriber<List<SimplePojo>> subscriber = new SimpleSubscriber<List<SimplePojo>>();
+    TestSubscriber<List<SimplePojo>> subscriber = new TestSubscriber<List<SimplePojo>>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .assertItem(Arrays.asList(new SimplePojo("bar")))
@@ -337,7 +337,7 @@ public class BufferTest {
   private void testFlowableMapFromEmptyBuffer(FlowableTransformer<Buffer, SimplePojo> composer) throws Exception {
     Flowable<Buffer> stream = Flowable.empty();
     Flowable<SimplePojo> mapped = stream.compose(composer);
-    SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<SimplePojo>().prefetch(0);
+    TestSubscriber<SimplePojo> subscriber = new TestSubscriber<SimplePojo>().prefetch(0);
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .assertCompleted()
@@ -357,7 +357,7 @@ public class BufferTest {
   private void testObservableMapFromEmptyBuffer(ObservableTransformer<Buffer, SimplePojo> composer) throws Exception {
     Observable<Buffer> stream = Observable.empty();
     Observable<SimplePojo> mapped = stream.compose(composer);
-    SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<SimplePojo>().prefetch(0);
+    TestSubscriber<SimplePojo> subscriber = new TestSubscriber<SimplePojo>().prefetch(0);
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .assertCompleted()
@@ -377,7 +377,7 @@ public class BufferTest {
   private void testMaybeMapFromEmptyBuffer(MaybeTransformer<Buffer, SimplePojo> transformer) throws Exception {
     Maybe<Buffer> stream = Maybe.empty();
     Maybe<SimplePojo> mapped = stream.compose(transformer);
-    SimpleSubscriber<SimplePojo> subscriber = new SimpleSubscriber<SimplePojo>().prefetch(0);
+    TestSubscriber<SimplePojo> subscriber = new TestSubscriber<SimplePojo>().prefetch(0);
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .assertCompleted()

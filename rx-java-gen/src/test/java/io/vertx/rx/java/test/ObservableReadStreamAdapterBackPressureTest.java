@@ -2,10 +2,11 @@ package io.vertx.rx.java.test;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
+import io.vertx.lang.rx.test.ReadStreamAdapterBackPressureTest;
+import io.vertx.lang.rx.test.TestReadStream;
+import io.vertx.lang.rx.test.TestSubscriber;
 import io.vertx.rx.java.ObservableReadStream;
 import io.vertx.rx.java.RxHelper;
-import io.vertx.rx.java.test.support.SimpleReadStream;
-import io.vertx.rx.java.test.support.SimpleSubscriber;
 import org.junit.Test;
 import rx.Observable;
 
@@ -15,6 +16,11 @@ import java.util.function.Function;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class ObservableReadStreamAdapterBackPressureTest extends ReadStreamAdapterBackPressureTest<Observable<Buffer>> {
+
+  @Override
+  protected long defaultMaxBufferSize() {
+    return ObservableReadStream.DEFAULT_MAX_BUFFER_SIZE;
+  }
 
   @Override
   protected Observable<Buffer> toObservable(ReadStream<Buffer> stream, int maxBufferSize) {
@@ -27,8 +33,8 @@ public class ObservableReadStreamAdapterBackPressureTest extends ReadStreamAdapt
   }
 
   @Override
-  protected void subscribe(Observable<Buffer> obs, SimpleSubscriber<Buffer> sub) {
-    SimpleSubscriber.subscribe(obs, sub);
+  protected void subscribe(Observable<Buffer> obs, TestSubscriber<Buffer> sub) {
+    TestUtils.subscribe(obs, sub);
   }
 
   @Override
@@ -43,11 +49,11 @@ public class ObservableReadStreamAdapterBackPressureTest extends ReadStreamAdapt
 
   @Test
   public void testDisableBackPressure() {
-    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
+    TestReadStream<Buffer> stream = new TestReadStream<>();
     ObservableReadStream<Buffer, Buffer> adapter = new ObservableReadStream<>(stream, Function.identity());
     Observable<Buffer> observable = Observable.create(adapter);
-    SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<>();
-    SimpleSubscriber.subscribe(observable, subscriber);
+    TestSubscriber<Buffer> subscriber = new TestSubscriber<>();
+    TestUtils.subscribe(observable, subscriber);
     assertEquals(Long.MAX_VALUE, adapter.getRequested());
     stream.emit(buffer("0"));
     assertEquals(Long.MAX_VALUE, adapter.getRequested());
@@ -55,17 +61,17 @@ public class ObservableReadStreamAdapterBackPressureTest extends ReadStreamAdapt
 
   @Test
   public void testImplicitBackPressureActivation() {
-    SimpleReadStream<Buffer> stream = new SimpleReadStream<>();
+    TestReadStream<Buffer> stream = new TestReadStream<>();
     ObservableReadStream<Buffer, Buffer> adapter = new ObservableReadStream<Buffer, Buffer>(stream, Function.identity());
     Observable<Buffer> observable = Observable.create(adapter);
-    SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<Buffer>() {
+    TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>() {
       @Override
       public void onNext(Buffer o) {
         super.onNext(o);
         request(2);
       }
     }.prefetch(Long.MAX_VALUE - 1);
-    SimpleSubscriber.subscribe(observable, subscriber);
+    TestUtils.subscribe(observable, subscriber);
     assertEquals(Long.MAX_VALUE - 1, adapter.getRequested());
     stream.emit(buffer("0"));
     assertEquals(Long.MAX_VALUE, adapter.getRequested());

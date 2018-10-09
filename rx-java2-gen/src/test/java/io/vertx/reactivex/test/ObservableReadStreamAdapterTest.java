@@ -4,10 +4,10 @@ import io.reactivex.Observable;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
+import io.vertx.lang.rx.test.TestReadStream;
+import io.vertx.lang.rx.test.TestSubscriber;
 import io.vertx.reactivex.ObservableHelper;
-import io.vertx.rx.java.test.ReadStreamAdapterTestBase;
-import io.vertx.rx.java.test.support.SimpleReadStream;
-import io.vertx.rx.java.test.support.SimpleSubscriber;
+import io.vertx.lang.rx.test.ReadStreamAdapterTestBase;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -33,7 +33,7 @@ public class ObservableReadStreamAdapterTest extends ReadStreamAdapterTestBase<B
   }
 
   @Override
-  protected void subscribe(Observable<Buffer> obs, SimpleSubscriber<Buffer> sub) {
+  protected void subscribe(Observable<Buffer> obs, TestSubscriber<Buffer> sub) {
     TestUtils.subscribe(obs, sub);
   }
 
@@ -45,9 +45,9 @@ public class ObservableReadStreamAdapterTest extends ReadStreamAdapterTestBase<B
   @Test
   public void testHandletIsSetInDoOnSubscribe() {
     AtomicBoolean hanlderSet = new AtomicBoolean();
-    SimpleReadStream<Buffer> stream = new SimpleReadStream<Buffer>() {
+    TestReadStream<Buffer> stream = new TestReadStream<Buffer>() {
       @Override
-      public SimpleReadStream<Buffer> handler(Handler<Buffer> handler) {
+      public TestReadStream<Buffer> handler(Handler<Buffer> handler) {
         hanlderSet.set(true);
         return super.handler(handler);
       }
@@ -55,7 +55,7 @@ public class ObservableReadStreamAdapterTest extends ReadStreamAdapterTestBase<B
     Observable<Buffer> observable = toObservable(stream).doOnSubscribe(disposable -> {
       assertTrue(hanlderSet.get());
     });
-    SimpleSubscriber<Buffer> subscriber = new SimpleSubscriber<>();
+    TestSubscriber<Buffer> subscriber = new TestSubscriber<>();
     subscribe(observable, subscriber);
     subscriber.assertEmpty();
   }

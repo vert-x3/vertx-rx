@@ -1,7 +1,7 @@
 package io.vertx.reactivex.test;
 
 import io.vertx.reactivex.impl.ReadStreamSubscriber;
-import io.vertx.rx.java.test.ReadStreamSubscriberTestBase;
+import io.vertx.lang.rx.test.ReadStreamSubscriberTestBase;
 import org.reactivestreams.Subscription;
 
 import java.util.function.Function;
@@ -10,6 +10,11 @@ import java.util.function.Function;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
+
+  @Override
+  public long bufferSize() {
+    return ReadStreamSubscriber.BUFFER_SIZE;
+  }
 
   @Override
   protected Sender sender() {

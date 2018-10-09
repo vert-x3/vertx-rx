@@ -1,4 +1,4 @@
-package io.vertx.it;
+package io.vertx.lang.rx.it;
 
 import java.util.Objects;
 

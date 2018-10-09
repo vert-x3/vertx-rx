@@ -1,4 +1,4 @@
-package io.vertx.lang.rxjava;
+package io.vertx.lang.rx;
 
 import java.lang.reflect.Field;
 import java.util.function.Function;

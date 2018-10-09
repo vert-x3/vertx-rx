@@ -5,7 +5,7 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServerOptions;
-import io.vertx.rx.java.test.support.SimplePojo;
+import io.vertx.lang.rx.test.SimplePojo;
 import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.rxjava.core.Context;
 import io.vertx.rxjava.core.Vertx;

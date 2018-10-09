@@ -1,4 +1,4 @@
-package io.vertx.lang.rxjava;
+package io.vertx.lang.rx;
 
 import io.vertx.codegen.*;
 import io.vertx.codegen.Helper;
@@ -58,9 +58,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     generateDoc(model, writer);
     writer.println();
 
-    writer.print("@io.vertx.lang.");
-    writer.print(id);
-    writer.print(".RxGen(");
+    writer.print("@io.vertx.lang.rx.RxGen(");
     writer.print(type.getName());
     writer.println(".class)");
 
@@ -196,9 +194,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.print(type.getName());
       writer.print(" arg");
       for (TypeParamInfo typeParam : type.getParams()) {
-        writer.print(", io.vertx.lang.");
-        writer.print(id);
-        writer.print(".TypeArg<");
+        writer.print(", io.vertx.lang.rx.TypeArg<");
         writer.print(typeParam.getName());
         writer.print("> __typeArg_");
         writer.print(typeParam.getName());
@@ -241,13 +237,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     ClassTypeInfo type = model.getType();
     String simpleName = type.getSimpleName();
     if (model.isConcrete()) {
-      writer.print("  public static final io.vertx.lang.");
-      writer.print(id);
-      writer.print(".TypeArg<");
+      writer.print("  public static final io.vertx.lang.rx.TypeArg<");
       writer.print(simpleName);
-      writer.print("> __TYPE_ARG = new io.vertx.lang.");
-      writer.print(id);
-      writer.println(".TypeArg<>(");
+      writer.print("> __TYPE_ARG = new io.vertx.lang.rx.TypeArg<>(");
       writer.print("    obj -> new ");
       writer.print(simpleName);
       writer.print("((");
@@ -268,9 +260,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println(" delegate;");
 
     for (TypeParamInfo.Class typeParam : typeParams) {
-      writer.print("  public final io.vertx.lang.");
-      writer.print(id);
-      writer.print(".TypeArg<");
+      writer.print("  public final io.vertx.lang.rx.TypeArg<");
       writer.print(typeParam.getName());
       writer.print("> __typeArg_");
       writer.print(typeParam.getIndex());
@@ -291,9 +281,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     for (TypeParamInfo.Class typeParam : typeParams) {
       writer.print("    this.__typeArg_");
       writer.print(typeParam.getIndex());
-      writer.print(" = io.vertx.lang.");
-      writer.print(id);
-      writer.println(".TypeArg.unknown();");
+      writer.print(" = io.vertx.lang.rx.TypeArg.unknown();");
     }
     writer.println("  }");
     writer.println();
@@ -305,9 +293,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.print(Helper.getNonGenericType(model.getIfaceFQCN()));
       writer.print(" delegate");
       for (TypeParamInfo.Class typeParam : typeParams) {
-        writer.print(", io.vertx.lang.");
-        writer.print(id);
-        writer.print(".TypeArg<");
+        writer.print(", io.vertx.lang.rx.TypeArg<");
         writer.print(typeParam.getName());
         writer.print("> typeArg_");
         writer.print(typeParam.getIndex());
@@ -681,7 +667,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       TypeArgExpression typeArg = method.resolveTypeArg(typeVar);
       if (typeArg != null) {
         if (typeArg.isClassType()) {
-          return "io.vertx.lang." + id + ".TypeArg.of(" + typeArg.getParam().getName() + ")";
+          return "io.vertx.lang.rx.TypeArg.of(" + typeArg.getParam().getName() + ")";
         } else {
           return typeArg.getParam().getName() + ".__typeArg_" + typeArg.getIndex();
         }
@@ -714,7 +700,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
           if (argKind == API) {
             tmp.append(arg.translateName(id)).append(".__TYPE_ARG");
           } else {
-            String typeArg = "io.vertx.lang." + id + ".TypeArg.unknown()";
+            String typeArg = "io.vertx.lang.rx.TypeArg.unknown()";
             if (argKind == OBJECT && arg.isVariable()) {
               String resolved = genTypeArg((TypeVariableInfo) arg, method);
               if (resolved != null) {
