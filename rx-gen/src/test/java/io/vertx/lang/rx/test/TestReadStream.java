@@ -1,49 +1,39 @@
 package io.vertx.lang.rx.test;
 
 import io.vertx.core.Handler;
-import io.vertx.core.queue.Queue;
+import io.vertx.core.impl.Arguments;
 import io.vertx.core.streams.ReadStream;
 import org.junit.Assert;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class TestReadStream<T> implements ReadStream<T> {
 
+  private final long highWaterMark = 16L;
   private Handler<Throwable> exceptionHandler;
   private Handler<T> itemHandler;
   private Handler<Void> endHandler;
+  private final Deque<T> pending;
+  private long demand = Long.MAX_VALUE;
   private boolean ended;
-  private final Queue<T> queue;
+  private boolean overflow;
 
   private Runnable onResume;
 
   public TestReadStream() {
-    queue = Queue.queue();
-
-    queue.writableHandler(v -> {
-      resume();
-    });
-    queue.emptyHandler(v -> {
-      if (ended) {
-        if (endHandler != null) {
-          endHandler.handle(null);
-        }
-      }
-    });
-    queue.handler(item -> {
-      if (itemHandler != null) {
-        itemHandler.handle(item);
-      }
-    });
+    pending = new ArrayDeque<>();
   }
 
   public void assertPaused() {
-    Assert.assertTrue(queue.isPaused());
+    Assert.assertEquals(0L, demand);
   }
 
   public void assertResumed() {
-    Assert.assertFalse(queue.isPaused());
+    Assert.assertTrue(demand > 0L);
   }
 
   public TestReadStream<T> expectPause() {
@@ -106,14 +96,14 @@ public class TestReadStream<T> implements ReadStream<T> {
   }
 
   public TestReadStream<T> untilPaused(Runnable action) {
-    while (!queue.isPaused()) {
+    while (demand > 0L) {
       action.run();
     }
     return this;
   }
 
   public TestReadStream<T> untilResumed(Runnable action) {
-    while (queue.isPaused()) {
+    while (demand == 0L) {
       action.run();
     }
     return this;
@@ -123,7 +113,11 @@ public class TestReadStream<T> implements ReadStream<T> {
     if (ended) {
       throw new IllegalStateException();
     }
-    return queue.add(first);
+    pending.add(first);
+    checkPending();
+    boolean writable = pending.size() <= highWaterMark;
+    overflow |= !writable;
+    return writable;
   }
 
   public boolean emit(T first, T... other) {
@@ -139,8 +133,11 @@ public class TestReadStream<T> implements ReadStream<T> {
       throw new IllegalStateException();
     }
     ended = true;
-    if (queue.isEmpty()) {
-      endHandler.handle(null);
+    if (pending.isEmpty()) {
+      Handler<Void> handler = endHandler;
+      if (handler != null) {
+        handler.handle(null);
+      }
     }
   }
 
@@ -164,26 +161,49 @@ public class TestReadStream<T> implements ReadStream<T> {
 
   @Override
   public TestReadStream<T> pause() {
-    queue.pause();
+    demand = 0L;
     return this;
   }
 
+  private void checkPending() {
+    T elt;
+    while (demand > 0L && (elt = pending.poll()) != null) {
+      if (demand != Long.MAX_VALUE) {
+        demand--;
+      }
+      Handler<T> handler = itemHandler;
+      if (handler != null) {
+        handler.handle(elt);
+      }
+    }
+    if (pending.isEmpty() && overflow) {
+      overflow = false;
+      if (onResume != null) {
+        onResume.run();
+      }
+    }
+  }
+
   @Override
-  public ReadStream<T> fetch(long amount) {
-    Assert.assertNotNull(itemHandler);
-    queue.take(amount);
+  public TestReadStream<T> fetch(long amount) {
+    Arguments.require(amount > 0L, "Fetch amount must be > 0L");
+    demand += amount;
+    if (demand < 0L) {
+      demand = Long.MAX_VALUE;
+    }
+    checkPending();
+    if (pending.isEmpty() && ended) {
+      Handler<Void> handler = endHandler;
+      if (handler != null) {
+        handler.handle(null);
+      }
+    }
     return this;
   }
 
   @Override
   public TestReadStream<T> resume() {
-    if (!ended) {
-      queue.resume();
-      if (onResume != null) {
-        onResume.run();
-      }
-    }
-    return this;
+    return fetch(Long.MAX_VALUE);
   }
 
   @Override

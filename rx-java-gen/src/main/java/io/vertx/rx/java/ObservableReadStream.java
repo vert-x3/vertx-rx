@@ -69,11 +69,11 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
         synchronized (ObservableReadStream.this) {
           resume = adapter.dispose();
         }
+        RxHelper.setNullHandlers(stream);
         if (resume) {
           stream.resume();
         }
         subscribed = false;
-        RxHelper.setNullHandlers(stream);
       }
     }
 
@@ -105,7 +105,9 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
     // Ask what we want
     long requested = adapter.requested();
     stream.pause();
-    stream.fetch(requested);
+    if (requested > 0L) {
+      stream.fetch(requested);
+    }
   }
 
   /*
@@ -184,7 +186,7 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
     @Override
     void request(long n) {
       super.request(n);
-      if (subscribed) {
+      if (subscribed && n > 0L) {
         stream.fetch(n);
       }
     }

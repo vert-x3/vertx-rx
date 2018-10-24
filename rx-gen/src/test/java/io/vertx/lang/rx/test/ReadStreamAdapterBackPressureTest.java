@@ -64,7 +64,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
 
   @Test
   public void testUnsubscribeOnFirstItemFromBufferedDeliveredWhileRequesting() {
-    for (int i = 1;i <= 3;i++) {
+    for (int i = 1;i <= 1;i++) {
       TestReadStream<Buffer> stream = new TestReadStream<>();
       stream.expectPause();
       stream.expectResume();
