@@ -3,7 +3,7 @@ package examples;
 import io.vertx.rxjava.cassandra.CassandraClient;
 import io.vertx.rxjava.cassandra.ResultSet;
 
-public class CassandraClientExamples {
+public class RxCassandraClientExamples {
 
   public void connectPrepareExecuteAndDisconnect(CassandraClient cassandraClient) {
     cassandraClient.rxConnect()
