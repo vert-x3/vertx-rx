@@ -1,0 +1,8 @@
+== RxJava API
+
+The Cassandra client provides an Rxified version of the original API.
+
+[source,java]
+----
+{@link examples.CassandraClientExamples#connectPrepareExecuteAndDisconnect(io.vertx.rxjava.cassandra.CassandraClient)}
+----
