@@ -16,10 +16,10 @@
 
 package examples;
 
+import io.reactivex.Observable;
 import io.vertx.docgen.Source;
-import io.vertx.rxjava.kafka.client.consumer.KafkaConsumer;
-import io.vertx.rxjava.kafka.client.consumer.KafkaConsumerRecord;
-import rx.Observable;
+import io.vertx.reactivex.kafka.client.consumer.KafkaConsumer;
+import io.vertx.reactivex.kafka.client.consumer.KafkaConsumerRecord;
 
 @Source
 public class KafkaClientExamples {

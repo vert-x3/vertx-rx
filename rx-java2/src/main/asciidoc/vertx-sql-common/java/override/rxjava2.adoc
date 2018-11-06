@@ -1,4 +1,6 @@
-== SQL Transaction management with RxJava
+== RxJava 2 API
+
+=== SQL Transaction management with RxJava
 
 Managing SQL transactions manually with the Rxified `SQLConnection` requires quite a lot of boilerplate code.
 

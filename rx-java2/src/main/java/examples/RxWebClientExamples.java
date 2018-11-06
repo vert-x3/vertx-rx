@@ -1,13 +1,14 @@
 package examples;
 
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.vertx.core.json.JsonObject;
 import io.vertx.docgen.Source;
-import io.vertx.rxjava.core.buffer.Buffer;
-import io.vertx.rxjava.ext.web.client.HttpResponse;
-import io.vertx.rxjava.ext.web.client.WebClient;
-import io.vertx.rxjava.ext.web.codec.BodyCodec;
-import rx.Observable;
-import rx.Single;
+import io.vertx.reactivex.core.buffer.Buffer;
+import io.vertx.reactivex.ext.web.client.HttpResponse;
+import io.vertx.reactivex.ext.web.client.WebClient;
+import io.vertx.reactivex.ext.web.codec.BodyCodec;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -57,13 +58,13 @@ public class RxWebClientExamples {
     });
   }
 
-  private Observable<Buffer> getPayload() {
+  private Flowable<Buffer> getPayload() {
     throw new UnsupportedOperationException();
   }
 
-  public void sendObservable(WebClient client) {
+  public void sendFlowable(WebClient client) {
 
-    Observable<Buffer> body = getPayload();
+    Flowable<Buffer> body = getPayload();
 
     Single<HttpResponse<Buffer>> single = client
       .post(8080, "myserver.mycompany.com", "/some-uri")

@@ -1,9 +1,9 @@
 package examples;
 
 import com.datastax.driver.core.Row;
-import io.vertx.rxjava.cassandra.CassandraClient;
-import io.vertx.rxjava.cassandra.CassandraRowStream;
-import io.vertx.rxjava.cassandra.ResultSet;
+import io.vertx.reactivex.cassandra.CassandraClient;
+import io.vertx.reactivex.cassandra.CassandraRowStream;
+import io.vertx.reactivex.cassandra.ResultSet;
 
 import java.util.List;
 
@@ -11,14 +11,14 @@ public class RxCassandraClientExamples {
 
   public void connectPrepareExecuteAndDisconnect(CassandraClient cassandraClient) {
     cassandraClient.rxConnect()
-      .flatMap(v -> cassandraClient.rxPrepare("SELECT * FROM my_keyspace.my_table where my_key = ?"))
+      .andThen(cassandraClient.rxPrepare("SELECT * FROM my_keyspace.my_table where my_key = ?"))
       .flatMap(preparedStatement -> cassandraClient.rxExecute(preparedStatement.bind("my_value")))
-      .flatMap(ResultSet::rxOne)
-      .flatMap(row -> {
+      .flatMapMaybe(ResultSet::rxOne)
+      .flatMapCompletable(row -> {
         // process the row here
         return cassandraClient.rxDisconnect();
       })
-      .subscribe(success -> {
+      .subscribe(() -> {
         System.out.println("We are done!");
       }, error -> {
         System.err.println("Whoops, something went wrong...");
