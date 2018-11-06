@@ -6,3 +6,13 @@ The Cassandra client provides an Rxified version of the original API.
 ----
 {@link examples.RxCassandraClientExamples#connectPrepareExecuteAndDisconnect(io.vertx.rxjava.cassandra.CassandraClient)}
 ----
+
+[source,java]
+----
+{@link examples.RxCassandraClientExamples#simpleQueryStream(io.vertx.rxjava.cassandra.CassandraClient)}
+----
+
+[source,java]
+----
+{@link examples.RxCassandraClientExamples#simpleFullFetch(io.vertx.rxjava.cassandra.CassandraClient)}
+----
