@@ -4,10 +4,10 @@ import io.reactivex.Observable;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
-import io.vertx.lang.rx.test.TestReadStream;
 import io.vertx.lang.rx.test.TestSubscriber;
 import io.vertx.reactivex.ObservableHelper;
 import io.vertx.lang.rx.test.ReadStreamAdapterTestBase;
+import io.vertx.test.fakestream.FakeStream;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -45,9 +45,9 @@ public class ObservableReadStreamAdapterTest extends ReadStreamAdapterTestBase<B
   @Test
   public void testHandletIsSetInDoOnSubscribe() {
     AtomicBoolean hanlderSet = new AtomicBoolean();
-    TestReadStream<Buffer> stream = new TestReadStream<Buffer>() {
+    FakeStream<Buffer> stream = new FakeStream<Buffer>() {
       @Override
-      public TestReadStream<Buffer> handler(Handler<Buffer> handler) {
+      public FakeStream<Buffer> handler(Handler<Buffer> handler) {
         hanlderSet.set(true);
         return super.handler(handler);
       }

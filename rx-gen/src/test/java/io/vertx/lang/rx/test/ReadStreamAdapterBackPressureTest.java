@@ -2,6 +2,7 @@ package io.vertx.lang.rx.test;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
+import io.vertx.test.fakestream.FakeStream;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,16 +32,14 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
 
   @Test
   public void testPause() {
-    TestReadStream<Buffer> stream = new TestReadStream<>();
+    FakeStream<Buffer> stream = new FakeStream<>();
     O observable = toObservable(stream);
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
     subscribe(observable, subscriber);
     subscriber.assertEmpty();
-    stream.expectPause();
     for (int i = 0; i < defaultMaxBufferSize(); i++) {
       stream.emit(buffer("" + i));
     }
-    stream.check();
     subscriber.assertEmpty();
     subscriber.request(1);
     subscriber.assertItem(buffer("0")).assertEmpty();
@@ -48,7 +47,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
 
   @Test
   public void testNoPauseWhenRequestingOne() {
-    TestReadStream<Buffer> stream = new TestReadStream<>();
+    FakeStream<Buffer> stream = new FakeStream<>();
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>() {
       @Override
       public void onNext(Buffer buffer) {
@@ -59,15 +58,12 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     O observable = toObservable(stream);
     subscribe(observable, subscriber);
     stream.emit(buffer("0"), buffer("1"), buffer("2"));
-    stream.check();
   }
 
   @Test
   public void testUnsubscribeOnFirstItemFromBufferedDeliveredWhileRequesting() {
     for (int i = 1;i <= 3;i++) {
-      TestReadStream<Buffer> stream = new TestReadStream<>();
-      stream.expectPause();
-      stream.expectResume();
+      FakeStream<Buffer> stream = new FakeStream<>();
       TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>() {
         @Override
         public void onNext(Buffer buffer) {
@@ -78,10 +74,8 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
       O observable = toObservable(stream, 2);
       subscribe(observable, subscriber);
       stream.emit(buffer("0"), buffer("1"));
-      stream.assertPaused();
       subscriber.request(i);
       subscriber.assertItem(Buffer.buffer("0")).assertEmpty();
-      stream.check();
     }
   }
 
@@ -96,7 +90,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   }
 
   private void testEndOrFailWithoutRequest(Throwable err) {
-    TestReadStream<Buffer> stream = new TestReadStream<>();
+    FakeStream<Buffer> stream = new FakeStream<>();
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
@@ -107,29 +101,25 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
       stream.fail(err);
       subscriber.assertError(err);
     }
-    stream.check();
     subscriber.assertEmpty();
   }
 
   @Test
   public void testNoResumeWhenRequestingBuffered() {
     AtomicBoolean resumed = new AtomicBoolean();
-    TestReadStream<Buffer> stream = new TestReadStream<>();
-    stream.expectPause();
+    FakeStream<Buffer> stream = new FakeStream<>();
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
     stream.emit(buffer("0"), buffer("1"));
     subscriber.request(1);
     assertEquals(false, resumed.get());
-    stream.check();
   }
 
   @Test
   public void testEndDuringRequestResume() {
-    TestReadStream<Buffer> stream = new TestReadStream<>();
-    stream.expectPause();
-    stream.onResume(stream::end);
+    FakeStream<Buffer> stream = new FakeStream<>();
+    stream.drainHandler(v -> stream.end());
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
     O observable = toObservable(stream, 10);
     subscribe(observable, subscriber);
@@ -144,7 +134,6 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
       subscriber.assertItem(Buffer.buffer("" + i));
     }
     subscriber.assertCompleted().assertEmpty();
-    stream.check();
   }
 
   @Test
@@ -158,20 +147,17 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   }
 
   private void testDeliverEndOrFailWhenPaused(Throwable err) {
-    TestReadStream<Buffer> stream = new TestReadStream<>();
-    stream.expectPause();
+    FakeStream<Buffer> stream = new FakeStream<>();
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
     stream.emit(buffer("0"), buffer("1"));
-    stream.check();
     // We send events even though we are paused
     if (err == null) {
       stream.end();
     } else {
       stream.fail(err);
     }
-    stream.expectResume();
     subscriber.request(2);
     if (err == null) {
       subscriber.assertItems(buffer("0"), buffer("1"));
@@ -180,7 +166,6 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
       subscriber.assertError(err);
     }
     subscriber.assertEmpty();
-    stream.check();
   }
 
   @Test
@@ -194,19 +179,16 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   }
 
   private void testEndOrFailWhenPaused(Throwable err) {
-    TestReadStream<Buffer> stream = new TestReadStream<>();
-    stream.expectPause();
+    FakeStream<Buffer> stream = new FakeStream<>();
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
     stream.emit(buffer("0"), buffer("1"));
-    stream.assertPaused();
     if (err == null) {
       stream.end();
     } else {
       stream.fail(err);
     }
-    stream.expectResume();
     subscriber.request(2);
     if (err == null) {
       subscriber.assertItems(buffer("0"), buffer("1"));
@@ -215,12 +197,11 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
       subscriber.assertError(err);
     }
     subscriber.assertEmpty();
-    stream.check();
   }
 
   @Test
   public void testRequestDuringOnNext() {
-    TestReadStream<Buffer> stream = new TestReadStream<>();
+    FakeStream<Buffer> stream = new FakeStream<>();
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>() {
       @Override
       public void onNext(Buffer buffer) {
@@ -243,26 +224,21 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   @Test
   public void testDeliverDuringResume() {
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
-    TestReadStream<Buffer> stream = new TestReadStream<>();
-    stream.expectPause();
-    stream.onResume(() -> stream.emit(buffer("2")));
+    FakeStream<Buffer> stream = new FakeStream<>();
+    stream.drainHandler(v -> stream.emit(buffer("2")));
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
     stream.emit(Buffer.buffer("0"));
     stream.emit(Buffer.buffer("1"));
     subscriber.request(2);
     subscriber.assertItems(buffer("0"), buffer("1")).assertEmpty();
-    stream.check();
   }
 
   @Test
   public void testEndDuringResume() {
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
-    TestReadStream<Buffer> stream = new TestReadStream<>();
-    stream.expectPause();
-    stream.onResume(() -> {
-      stream.end();
-    });
+    FakeStream<Buffer> stream = new FakeStream<>();
+    stream.drainHandler(v -> stream.end());
     O observable = toObservable(stream, 4);
     subscribe(observable, subscriber);
     int count = 0;
@@ -276,28 +252,24 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
       subscriber.assertItem(Buffer.buffer("" + i));
     }
     subscriber.assertCompleted().assertEmpty();
-    stream.check();
   }
 
   @Test
   public void testBufferDuringResume() {
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
-    TestReadStream<Buffer> stream = new TestReadStream<>();
-    stream.expectPause();
-    stream.onResume(() -> stream.emit(buffer("2"), buffer("3")));
-    stream.expectPause();
+    FakeStream<Buffer> stream = new FakeStream<>();
+    stream.drainHandler(v -> stream.emit(buffer("2"), buffer("3")));
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
     stream.emit(buffer("0"), buffer("1"));
     subscriber.request(2);
     subscriber.assertItem(buffer("0")).assertItem(buffer("1")).assertEmpty();
-    stream.check();
   }
 
   @Test
   public void testFoo() {
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
-    TestReadStream<Buffer> stream = new TestReadStream<>();
+    FakeStream<Buffer> stream = new FakeStream<>();
     O observable = toObservable(stream);
     subscribe(observable, subscriber);
     stream.emit(buffer("0"));
@@ -309,8 +281,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   @Test
   public void testBar() {
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
-    TestReadStream<Buffer> stream = new TestReadStream<>();
-    stream.expectPause();
+    FakeStream<Buffer> stream = new FakeStream<>();
     O observable = toObservable(stream);
     subscribe(observable, subscriber);
     for (int i = 0; i < defaultMaxBufferSize(); i++) {
@@ -330,7 +301,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
         unsubscribe();
       }
     };
-    TestReadStream<Buffer> stream = new TestReadStream<>();
+    FakeStream<Buffer> stream = new FakeStream<>();
     O observable = toObservable(stream);
     subscribe(observable, subscriber);
     stream.emit(buffer("0"));
@@ -339,23 +310,16 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   @Test
   public void testResubscribe() {
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
-    TestReadStream<Buffer> stream = new TestReadStream<>();
+    FakeStream<Buffer> stream = new FakeStream<>();
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
-    stream.expectPause();
     stream.emit(buffer("0"), buffer("1"));
-    stream.check();
-    stream.expectResume();
     subscriber.unsubscribe();
-    stream.check();
     subscriber = new TestSubscriber<Buffer>().prefetch(0);
     subscribe(observable, subscriber);
     stream.emit(buffer("2"));
-    stream.expectPause();
     stream.emit(buffer("3"));
     subscriber.assertEmpty();
-    stream.check();
-    stream.expectResume();
     subscriber.request(2);
     subscriber.assertItems(buffer("2"), buffer("3"));
     RuntimeException cause = new RuntimeException();
@@ -366,12 +330,11 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     subscribe(observable, subscriber);
     stream.end();
     subscriber.assertCompleted();
-    stream.check();
   }
 
   @Test
   public void testBackPressureBuffer() {
-    TestReadStream<Buffer> stream = new TestReadStream<>();
+    FakeStream<Buffer> stream = new FakeStream<>();
     O observable = toObservable(stream, 20);
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>() {
       @Override
@@ -383,18 +346,16 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     subscribe(observable, subscriber);
     waitUntil(subscriber::isSubscribed);
     final AtomicInteger count = new AtomicInteger();
-    stream.expectPause();
-    stream.untilPaused(() -> {
+    while (!stream.isPaused()) {
       stream.emit(buffer("" + count.get()));
       count.incrementAndGet();
-    });
+    }
     for (int i = 0;i < 5;i++) {
       subscriber.assertItem(buffer("" + i));
       stream.emit(Buffer.buffer("" + count));
       count.incrementAndGet();
     }
     subscriber.assertEmpty();
-    stream.expectResume();
     subscriber.request(count.get() - 5);
     for (int i = 5;i < count.get(); i++) {
       subscriber.assertItem(buffer("" + i));
@@ -406,7 +367,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
 
   @Test
   public void testChained() throws Exception {
-    TestReadStream<Buffer> stream = new TestReadStream<>();
+    FakeStream<Buffer> stream = new FakeStream<>();
     O observable = toObservable(stream);
     TestSubscriber<Buffer> subscriber = new TestSubscriber<>();
     subscriber.prefetch(1);
@@ -420,9 +381,9 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
 
   @Test
   public void testFlatMap() {
-    TestReadStream<Buffer> stream1 = new TestReadStream<>();
+    FakeStream<Buffer> stream1 = new FakeStream<>();
     O obs1 = toObservable(stream1);
-    TestReadStream<Buffer> stream2 = new TestReadStream<>();
+    FakeStream<Buffer> stream2 = new FakeStream<>();
     O obs2 = toObservable(stream2);
     O obs3 = flatMap(obs1, s -> obs2);
     TestSubscriber<Buffer> sub = new TestSubscriber<>();
@@ -439,7 +400,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   @Test
   public void testCancelWhenSubscribedPropagatesToStream() {
     Buffer expected = buffer("something");
-    TestReadStream<Buffer> stream = new TestReadStream<>();
+    FakeStream<Buffer> stream = new FakeStream<>();
     O observable = toObservable(stream);
     TestSubscriber<Buffer> sub = new TestSubscriber<Buffer>() {
       @Override
@@ -447,7 +408,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
         assertSame(b, expected);
         super.onNext(b);
         unsubscribe();
-        stream.assertHasNoItemHandler();
+        assertNull(stream.handler());
       }
     };
     sub.prefetch(1);
@@ -456,6 +417,6 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     stream.emit(expected);
     sub.assertItem(expected);
     sub.assertEmpty();
-    stream.assertHasNoItemHandler();
+    assertNull(stream.handler());
   }
 }

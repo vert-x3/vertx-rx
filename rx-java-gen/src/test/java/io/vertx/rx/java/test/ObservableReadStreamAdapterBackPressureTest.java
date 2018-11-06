@@ -3,10 +3,10 @@ package io.vertx.rx.java.test;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.lang.rx.test.ReadStreamAdapterBackPressureTest;
-import io.vertx.lang.rx.test.TestReadStream;
 import io.vertx.lang.rx.test.TestSubscriber;
 import io.vertx.rx.java.ObservableReadStream;
 import io.vertx.rx.java.RxHelper;
+import io.vertx.test.fakestream.FakeStream;
 import org.junit.Test;
 import rx.Observable;
 
@@ -49,7 +49,7 @@ public class ObservableReadStreamAdapterBackPressureTest extends ReadStreamAdapt
 
   @Test
   public void testDisableBackPressure() {
-    TestReadStream<Buffer> stream = new TestReadStream<>();
+    FakeStream<Buffer> stream = new FakeStream<>();
     ObservableReadStream<Buffer, Buffer> adapter = new ObservableReadStream<>(stream, Function.identity());
     Observable<Buffer> observable = Observable.create(adapter);
     TestSubscriber<Buffer> subscriber = new TestSubscriber<>();
@@ -61,7 +61,7 @@ public class ObservableReadStreamAdapterBackPressureTest extends ReadStreamAdapt
 
   @Test
   public void testImplicitBackPressureActivation() {
-    TestReadStream<Buffer> stream = new TestReadStream<>();
+    FakeStream<Buffer> stream = new FakeStream<>();
     ObservableReadStream<Buffer, Buffer> adapter = new ObservableReadStream<Buffer, Buffer>(stream, Function.identity());
     Observable<Buffer> observable = Observable.create(adapter);
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>() {

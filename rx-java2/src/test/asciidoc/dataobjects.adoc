@@ -31,6 +31,7 @@
 |[[enumValues]]`@enumValues`|`Array of link:enums.html#TestEnum[TestEnum]`|-
 |[[floatValues]]`@floatValues`|`Array of Number (Float)`|-
 |[[genEnumValues]]`@genEnumValues`|`Array of link:enums.html#TestGenEnum[TestGenEnum]`|-
+|[[instantValues]]`@instantValues`|`Array of Instant`|-
 |[[integerValues]]`@integerValues`|`Array of Number (Integer)`|-
 |[[jsonArrayValues]]`@jsonArrayValues`|`Array of Json array`|-
 |[[jsonObjectValues]]`@jsonObjectValues`|`Array of Json object`|-
@@ -56,6 +57,7 @@
 |[[enumValues]]`@enumValues`|`Array of link:enums.html#TestEnum[TestEnum]`|-
 |[[floatValues]]`@floatValues`|`Array of Number (Float)`|-
 |[[genEnumValues]]`@genEnumValues`|`Array of link:enums.html#TestGenEnum[TestGenEnum]`|-
+|[[instantValues]]`@instantValues`|`Array of Instant`|-
 |[[integerValues]]`@integerValues`|`Array of Number (Integer)`|-
 |[[jsonArrayValues]]`@jsonArrayValues`|`Array of Json array`|-
 |[[jsonObjectValues]]`@jsonObjectValues`|`Array of Json object`|-
@@ -81,6 +83,7 @@
 |[[enumValues]]`@enumValues`|`link:enums.html#TestEnum[TestEnum]`|-
 |[[floatValues]]`@floatValues`|`Number (Float)`|-
 |[[genEnumValues]]`@genEnumValues`|`link:enums.html#TestGenEnum[TestGenEnum]`|-
+|[[instantValues]]`@instantValues`|`Instant`|-
 |[[integerValues]]`@integerValues`|`Number (Integer)`|-
 |[[jsonArrayValues]]`@jsonArrayValues`|`Json array`|-
 |[[jsonObjectValues]]`@jsonObjectValues`|`Json object`|-
@@ -106,6 +109,7 @@
 |[[enumValues]]`@enumValues`|`link:enums.html#TestEnum[TestEnum]`|-
 |[[floatValues]]`@floatValues`|`Number (Float)`|-
 |[[genEnumValues]]`@genEnumValues`|`link:enums.html#TestGenEnum[TestGenEnum]`|-
+|[[instantValues]]`@instantValues`|`Instant`|-
 |[[integerValues]]`@integerValues`|`Number (Integer)`|-
 |[[jsonArrayValues]]`@jsonArrayValues`|`Json array`|-
 |[[jsonObjectValues]]`@jsonObjectValues`|`Json object`|-
@@ -182,6 +186,7 @@
 |[[enumValue]]`@enumValue`|`link:enums.html#TestEnum[TestEnum]`|-
 |[[floatValue]]`@floatValue`|`Number (float)`|-
 |[[genEnumValue]]`@genEnumValue`|`link:enums.html#TestGenEnum[TestGenEnum]`|-
+|[[instantValue]]`@instantValue`|`Instant`|-
 |[[intValue]]`@intValue`|`Number (int)`|-
 |[[jsonArrayValue]]`@jsonArrayValue`|`Json array`|-
 |[[jsonObjectValue]]`@jsonObjectValue`|`Json object`|-

@@ -11,13 +11,13 @@ import io.reactivex.SingleObserver;
 import io.reactivex.functions.Function;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.Future;
-import io.vertx.lang.rx.test.TestReadStream;
 import io.vertx.reactivex.CompletableHelper;
 import io.vertx.reactivex.FlowableHelper;
 import io.vertx.reactivex.MaybeHelper;
 import io.vertx.reactivex.ObservableHelper;
 import io.vertx.reactivex.SingleHelper;
 import io.vertx.test.core.VertxTestBase;
+import io.vertx.test.fakestream.FakeStream;
 import org.junit.Test;
 
 import static java.util.function.Function.identity;
@@ -102,7 +102,7 @@ public class HelperTest extends VertxTestBase {
 
   @Test
   public void testToObservableAssemblyHook() {
-    TestReadStream<String> stream = new TestReadStream<>();
+    FakeStream<String> stream = new FakeStream<>();
     try {
       final Observable<String> justMe = Observable.just("me");
       RxJavaPlugins.setOnObservableAssembly(new Function<Observable, Observable>() {
@@ -121,7 +121,7 @@ public class HelperTest extends VertxTestBase {
 
   @Test
   public void testToFlowableAssemblyHook() {
-    TestReadStream<String> stream = new TestReadStream<>();
+    FakeStream<String> stream = new FakeStream<>();
     try {
       final Flowable<String> justMe = Flowable.just("me");
       RxJavaPlugins.setOnFlowableAssembly(new Function<Flowable, Flowable>() {

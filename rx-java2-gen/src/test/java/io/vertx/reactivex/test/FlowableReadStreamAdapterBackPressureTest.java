@@ -4,11 +4,11 @@ import io.reactivex.Flowable;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
-import io.vertx.lang.rx.test.TestReadStream;
 import io.vertx.lang.rx.test.TestSubscriber;
 import io.vertx.reactivex.FlowableHelper;
 import io.vertx.lang.rx.test.ReadStreamAdapterBackPressureTest;
 import io.vertx.reactivex.impl.FlowableReadStream;
+import io.vertx.test.fakestream.FakeStream;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,7 +51,7 @@ public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapter
 
   @Test
   public void testSubscribeTwice() {
-    TestReadStream<Buffer> stream = new TestReadStream<>();
+    FakeStream<Buffer> stream = new FakeStream<>();
     Flowable<Buffer> observable = toObservable(stream);
     TestSubscriber<Buffer> subscriber1 = new TestSubscriber<Buffer>().prefetch(0);
     TestSubscriber<Buffer> subscriber2 = new TestSubscriber<Buffer>().prefetch(0);
@@ -66,9 +66,9 @@ public class FlowableReadStreamAdapterBackPressureTest extends ReadStreamAdapter
   @Test
   public void testHandletIsSetInDoOnSubscribe() {
     AtomicBoolean handlerSet = new AtomicBoolean();
-    TestReadStream<Buffer> stream = new TestReadStream<Buffer>() {
+    FakeStream<Buffer> stream = new FakeStream<Buffer>() {
       @Override
-      public TestReadStream<Buffer> handler(Handler<Buffer> handler) {
+      public FakeStream<Buffer> handler(Handler<Buffer> handler) {
         handlerSet.set(true);
         return super.handler(handler);
       }
