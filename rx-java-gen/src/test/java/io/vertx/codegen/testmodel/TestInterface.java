@@ -2,6 +2,7 @@ package io.vertx.codegen.testmodel;
 
 import io.vertx.codegen.annotations.CacheReturn;
 import io.vertx.codegen.annotations.Fluent;
+import io.vertx.codegen.annotations.Nullable;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -151,7 +152,7 @@ public interface TestInterface extends SuperInterface1, SuperInterface2 {
 
   void methodWithJsonParams(JsonObject jsonObject, JsonArray jsonArray);
 
-  void methodWithNullJsonParams(JsonObject jsonObject, JsonArray jsonArray);
+  void methodWithNullJsonParams(@Nullable JsonObject jsonObject, @Nullable JsonArray jsonArray);
 
   void methodWithHandlerJson(Handler<JsonObject> jsonObjectHandler, Handler<JsonArray> jsonArrayHandler);
 
@@ -159,13 +160,13 @@ public interface TestInterface extends SuperInterface1, SuperInterface2 {
 
   void methodWithHandlerAsyncResultJsonObject(Handler<AsyncResult<JsonObject>> handler);
 
-  void methodWithHandlerAsyncResultNullJsonObject(Handler<AsyncResult<JsonObject>> handler);
+  void methodWithHandlerAsyncResultNullJsonObject(Handler<AsyncResult<@Nullable JsonObject>> handler);
 
   void methodWithHandlerAsyncResultComplexJsonObject(Handler<AsyncResult<JsonObject>> handler);
 
   void methodWithHandlerAsyncResultJsonArray(Handler<AsyncResult<JsonArray>> handler);
 
-  void methodWithHandlerAsyncResultNullJsonArray(Handler<AsyncResult<JsonArray>> handler);
+  void methodWithHandlerAsyncResultNullJsonArray(Handler<AsyncResult<@Nullable JsonArray>> handler);
 
   void methodWithHandlerAsyncResultComplexJsonArray(Handler<AsyncResult<JsonArray>> handler);
 
