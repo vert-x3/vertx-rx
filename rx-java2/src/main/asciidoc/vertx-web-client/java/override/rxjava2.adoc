@@ -24,7 +24,7 @@ The same APIs is available
 ----
 
 The {@link io.vertx.reactivex.ext.web.client.HttpRequest#sendStream(io.reactivex.Flowable, io.vertx.core.Handler)} shall
-be preferred for sending bodies {@code Flowable<Buffer>}
+be preferred for sending bodies `Flowable<Buffer>`.
 
 [source,java]
 ----
