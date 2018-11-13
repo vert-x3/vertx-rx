@@ -144,7 +144,7 @@ It also works with just actions:
 {@link examples.NativeExamples#actionsToHandler()}
 ----
 
-The _Rxified_ Vert.x API duplicates each such method with the `rx` prefix that returns an RxJava {@code Single}:
+The _Rxified_ Vert.x API duplicates each such method with the `rx` prefix that returns an RxJava `Single`:
 
 [source,java]
 ----

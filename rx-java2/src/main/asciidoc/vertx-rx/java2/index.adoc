@@ -117,8 +117,8 @@
  {@link examples.NativeExamples#handlerToCompletableObserver}
  ----
 
- The _Rxified_ Vert.x API duplicates each such method with the `rx` prefix that returns an RxJava {@code Single},
- {@code Maybe} or {@code Completable}:
+ The _Rxified_ Vert.x API duplicates each such method with the `rx` prefix that returns an RxJava `Single`,
+ `Maybe` or `Completable`:
 
  [source,java]
  ----

@@ -2,14 +2,14 @@
 
 The RxJava {@link io.vertx.reactivex.ext.web.client.HttpRequest} provides an rx-ified version of the original API,
 the {@link io.vertx.reactivex.ext.web.client.HttpRequest#rxSend()} method returns a `Single<HttpResponse<Buffer>>` that
-makes the HTTP request upon subscription, as consequence, the {@code Single} can be subscribed many times.
+makes the HTTP request upon subscription, as consequence, the `Single` can be subscribed many times.
 
 [source,java]
 ----
 {@link examples.RxWebClientExamples#simpleGet(io.vertx.reactivex.ext.web.client.WebClient)}
 ----
 
-The obtained {@code Single} can be composed and chained naturally with the RxJava API
+The obtained `Single` can be composed and chained naturally with the RxJava API
 
 [source,java]
 ----
@@ -31,4 +31,4 @@ be preferred for sending bodies {@code Flowable<Buffer>}
 {@link examples.RxWebClientExamples#sendFlowable(io.vertx.reactivex.ext.web.client.WebClient)}
 ----
 
-Upon subscription, the {@code body} will be subscribed and its content used for the request.
+Upon subscription, the `body` will be subscribed and its content used for the request.
