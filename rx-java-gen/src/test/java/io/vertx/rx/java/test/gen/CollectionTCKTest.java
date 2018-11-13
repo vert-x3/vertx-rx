@@ -11,13 +11,7 @@ import io.vertx.rxjava.codegen.testmodel.RefedInterface1;
 import io.vertx.rxjava.codegen.testmodel.RefedInterface2;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -360,7 +354,9 @@ public class CollectionTCKTest {
         Arrays.asList(1234, 1345), Arrays.asList(123l, 456l), Arrays.asList(new JsonObject().put("foo", "bar"), new JsonObject().put("eek", "wibble")),
         Arrays.asList(new JsonArray().add("foo"), new JsonArray().add("blah")), Arrays.asList(refed1, refed2),
         Arrays.asList(new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1), new TestDataObject().setFoo("String 2").setBar(2).setWibble(2.2)),
-        Arrays.asList(TestEnum.JULIEN, TestEnum.TIM));
+        Arrays.asList(TestEnum.JULIEN, TestEnum.TIM),
+        Arrays.asList("foo", 4, 3.4, true, new JsonObject().put("wibble", "eek"), new JsonArray().add("one").add(2))
+    );
   }
 
   @Test
@@ -373,7 +369,8 @@ public class CollectionTCKTest {
         set(1234, 1345), set(123l, 456l), set(new JsonObject().put("foo", "bar"), new JsonObject().put("eek", "wibble")),
         set(new JsonArray().add("foo"), new JsonArray().add("blah")), set(refed1, refed2),
         set(new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1), new TestDataObject().setFoo("String 2").setBar(2).setWibble(2.2)),
-        set(TestEnum.TIM, TestEnum.JULIEN));
+        set(TestEnum.TIM, TestEnum.JULIEN),
+        set("foo", 4, 3.4, true, new JsonObject().put("wibble", "eek"), new JsonArray().add("one").add(2)));
   }
 
   @Test
@@ -382,10 +379,19 @@ public class CollectionTCKTest {
     refed1.setString("foo");
     RefedInterface1 refed2 = new RefedInterface1(new RefedInterface1Impl());
     refed2.setString("bar");
+    Map<String, Object> m = new HashMap<>();
+    m.put("string", "foo");
+    m.put("integer", 4);
+    m.put("float", 3.4);
+    m.put("boolean", true);
+    m.put("object", new JsonObject().put("wibble", "eek"));
+    m.put("array", new JsonArray().add("one").add(2));
     obj.methodWithMapParams(map("foo", "bar", "eek", "wibble"), map("foo", (byte) 2, "eek", (byte) 3),
         map("foo", (short) 12, "eek", (short) 13),
         map("foo", 1234, "eek", 1345), map("foo", 123l, "eek", 456l), map("foo", new JsonObject().put("foo", "bar"), "eek", new JsonObject().put("eek", "wibble")),
-        map("foo", new JsonArray().add("foo"), "eek", new JsonArray().add("blah")), map("foo", refed1, "eek", refed2));
+        map("foo", new JsonArray().add("foo"), "eek", new JsonArray().add("blah")), map("foo", refed1, "eek", refed2),
+        m
+      );
   }
 
   @Test

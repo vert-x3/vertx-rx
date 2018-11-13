@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 public class CollectionTCKImpl implements CollectionTCK {
 
   @Override
-  public void methodWithListParams(List<String> listString, List<Byte> listByte, List<Short> listShort, List<Integer> listInt, List<Long> listLong, List<JsonObject> listJsonObject, List<JsonArray> listJsonArray, List<RefedInterface1> listVertxGen, List<TestDataObject> listDataObject, List<TestEnum> listEnum) {
+  public void methodWithListParams(List<String> listString, List<Byte> listByte, List<Short> listShort, List<Integer> listInt, List<Long> listLong, List<JsonObject> listJsonObject, List<JsonArray> listJsonArray, List<RefedInterface1> listVertxGen, List<TestDataObject> listDataObject, List<TestEnum> listEnum, List<Object> listObject) {
     assertEquals("foo", listString.get(0));
     assertEquals("bar", listString.get(1));
     assertEquals((byte) 2, listByte.get(0).byteValue());
@@ -46,10 +46,17 @@ public class CollectionTCKImpl implements CollectionTCK {
     assertEquals(new JsonObject().put("foo", "String 1").put("bar", 1).put("wibble", 1.1), listDataObject.get(0).toJson());
     assertEquals(new JsonObject().put("foo", "String 2").put("bar", 2).put("wibble", 2.2), listDataObject.get(1).toJson());
     assertEquals(Arrays.asList(TestEnum.JULIEN, TestEnum.TIM), new ArrayList<>(listEnum));
+    assertEquals(6, listObject.size());
+    assertEquals("foo", listObject.get(0));
+    assertEquals(4, ((Number)listObject.get(1)).intValue());
+    assertEquals(3.4, ((Number)listObject.get(2)).floatValue(), 0.1);
+    assertEquals(true, listObject.get(3));
+    assertEquals(new JsonObject().put("wibble", "eek"), listObject.get(4));
+    assertEquals(new JsonArray().add("one").add(2), listObject.get(5));
   }
 
   @Override
-  public void methodWithSetParams(Set<String> setString, Set<Byte> setByte, Set<Short> setShort, Set<Integer> setInt, Set<Long> setLong, Set<JsonObject> setJsonObject, Set<JsonArray> setJsonArray, Set<RefedInterface1> setVertxGen, Set<TestDataObject> setDataObject, Set<TestEnum> setEnum) {
+  public void methodWithSetParams(Set<String> setString, Set<Byte> setByte, Set<Short> setShort, Set<Integer> setInt, Set<Long> setLong, Set<JsonObject> setJsonObject, Set<JsonArray> setJsonArray, Set<RefedInterface1> setVertxGen, Set<TestDataObject> setDataObject, Set<TestEnum> setEnum, Set<Object> setObject) {
     assertTrue(setString.contains("foo"));
     assertTrue(setString.contains("bar"));
     assertTrue(setByte.contains((byte) 2));
@@ -73,11 +80,16 @@ public class CollectionTCKImpl implements CollectionTCK {
     assertEquals(2, setEnum.size());
     assertTrue(setEnum.contains(TestEnum.JULIEN));
     assertTrue(setEnum.contains(TestEnum.TIM));
+    assertEquals(6, setObject.size());
+    assertTrue(setObject.contains("foo"));
+    assertTrue(setObject.contains(true));
+    assertTrue(setObject.contains(true));
+    assertTrue(setObject.contains(new JsonObject().put("wibble", "eek")));
+    assertTrue(setObject.contains(new JsonArray().add("one").add(2)));
   }
 
   @Override
-  public void methodWithMapParams(Map<String, String> mapString, Map<String, Byte> mapByte, Map<String, Short> mapShort, Map<String, Integer> mapInt, Map<String, Long> mapLong, Map<String, JsonObject> mapJsonObject,
-                                  Map<String, JsonArray> mapJsonArray, Map<String, RefedInterface1> mapVertxGen) {
+  public void methodWithMapParams(Map<String, String> mapString, Map<String, Byte> mapByte, Map<String, Short> mapShort, Map<String, Integer> mapInt, Map<String, Long> mapLong, Map<String, JsonObject> mapJsonObject, Map<String, JsonArray> mapJsonArray, Map<String, RefedInterface1> mapVertxGen, Map<String, Object> mapObject) {
     assertEquals("bar", mapString.get("foo"));
     assertEquals("wibble", mapString.get("eek"));
     assertEquals((byte) 2, mapByte.get("foo").byteValue());
@@ -94,6 +106,12 @@ public class CollectionTCKImpl implements CollectionTCK {
     assertEquals(new JsonArray().add("blah"), mapJsonArray.get("eek"));
     assertEquals(new RefedInterface1Impl().setString("foo"), mapVertxGen.get("foo"));
     assertEquals(new RefedInterface1Impl().setString("bar"), mapVertxGen.get("eek"));
+    assertEquals("foo", mapObject.get("string"));
+    assertEquals(4, ((Number)mapObject.get("integer")).intValue());
+    assertEquals(3.4, ((Number)mapObject.get("float")).floatValue(), 0.1);
+    assertEquals(true, mapObject.get("boolean"));
+    assertEquals(new JsonObject().put("wibble", "eek"), mapObject.get("object"));
+    assertEquals(new JsonArray().add("one").add(2), mapObject.get("array"));
   }
 
 
