@@ -1,5 +1,6 @@
 package io.vertx.codegen.testmodel;
 
+import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -12,23 +13,23 @@ import java.util.Set;
 @VertxGen()
 public interface AnyJavaTypeTCK {
 
-  @SuppressWarnings("codegen-allow-any-java-type") void methodWithJavaTypeParam(Socket socket);
-  @SuppressWarnings("codegen-allow-any-java-type") void methodWithListOfJavaTypeParam(List<Socket> socketList);
-  @SuppressWarnings("codegen-allow-any-java-type") void methodWithSetOfJavaTypeParam(Set<Socket> socketSet);
-  @SuppressWarnings("codegen-allow-any-java-type") void methodWithMapOfJavaTypeParam(Map<String, Socket> socketMap);
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithJavaTypeParam(Socket socket);
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithListOfJavaTypeParam(List<Socket> socketList);
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithSetOfJavaTypeParam(Set<Socket> socketSet);
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithMapOfJavaTypeParam(Map<String, Socket> socketMap);
 
-  @SuppressWarnings("codegen-allow-any-java-type") Socket methodWithJavaTypeReturn();
-  @SuppressWarnings("codegen-allow-any-java-type") List<Socket> methodWithListOfJavaTypeReturn();
-  @SuppressWarnings("codegen-allow-any-java-type") Set<Socket> methodWithSetOfJavaTypeReturn();
-  @SuppressWarnings("codegen-allow-any-java-type") Map<String, Socket> methodWithMapOfJavaTypeReturn();
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) Socket methodWithJavaTypeReturn();
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) List<Socket> methodWithListOfJavaTypeReturn();
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) Set<Socket> methodWithSetOfJavaTypeReturn();
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) Map<String, Socket> methodWithMapOfJavaTypeReturn();
 
-  @SuppressWarnings("codegen-allow-any-java-type") void methodWithHandlerJavaTypeParam(Handler<Socket> socketHandler);
-  @SuppressWarnings("codegen-allow-any-java-type") void methodWithHandlerListOfJavaTypeParam(Handler<List<Socket>> socketListHandler);
-  @SuppressWarnings("codegen-allow-any-java-type") void methodWithHandlerSetOfJavaTypeParam(Handler<Set<Socket>> socketSetHandler);
-  @SuppressWarnings("codegen-allow-any-java-type") void methodWithHandlerMapOfJavaTypeParam(Handler<Map<String, Socket>> socketMapHandler);
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithHandlerJavaTypeParam(Handler<Socket> socketHandler);
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithHandlerListOfJavaTypeParam(Handler<List<Socket>> socketListHandler);
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithHandlerSetOfJavaTypeParam(Handler<Set<Socket>> socketSetHandler);
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithHandlerMapOfJavaTypeParam(Handler<Map<String, Socket>> socketMapHandler);
 
-  @SuppressWarnings("codegen-allow-any-java-type") void methodWithHandlerAsyncResultJavaTypeParam(Handler<AsyncResult<Socket>> socketHandler);
-  @SuppressWarnings("codegen-allow-any-java-type") void methodWithHandlerAsyncResultListOfJavaTypeParam(Handler<AsyncResult<List<Socket>>> socketListHandler);
-  @SuppressWarnings("codegen-allow-any-java-type") void methodWithHandlerAsyncResultSetOfJavaTypeParam(Handler<AsyncResult<Set<Socket>>> socketSetHandler);
-  @SuppressWarnings("codegen-allow-any-java-type") void methodWithHandlerAsyncResultMapOfJavaTypeParam(Handler<AsyncResult<Map<String, Socket>>> socketMapHandler);
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithHandlerAsyncResultJavaTypeParam(Handler<AsyncResult<Socket>> socketHandler);
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithHandlerAsyncResultListOfJavaTypeParam(Handler<AsyncResult<List<Socket>>> socketListHandler);
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithHandlerAsyncResultSetOfJavaTypeParam(Handler<AsyncResult<Set<Socket>>> socketSetHandler);
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithHandlerAsyncResultMapOfJavaTypeParam(Handler<AsyncResult<Map<String, Socket>>> socketMapHandler);
 }
