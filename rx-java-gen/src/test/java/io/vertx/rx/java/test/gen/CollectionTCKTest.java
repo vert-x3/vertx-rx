@@ -535,8 +535,31 @@ public class CollectionTCKTest {
   }
 
   @Test
+  public void testMapObjectReturn() {
+    Map<String, Object> map = obj.methodWithMapObjectReturn(s -> {
+    });
+    assertEquals("foo", map.get("string"));
+    assertEquals(4, map.get("integer"));
+    assertEquals(3.4f, map.get("float"));
+    assertEquals(true, map.get("boolean"));
+    assertEquals(new JsonObject().put("wibble", "eek"), map.get("object"));
+    assertEquals(new JsonArray().add("one").add(2), map.get("array"));
+  }
+
+  @Test
   public void testListEnumReturn() {
     assertEquals(Arrays.asList(TestEnum.JULIEN, TestEnum.TIM), obj.methodWithListEnumReturn());
+  }
+
+  @Test
+  public void testListObjectReturn() {
+    List<Object> list = obj.methodWithListObjectReturn();
+    assertEquals("foo", list.get(0));
+    assertEquals(4, list.get(1));
+    assertEquals(3.4f, list.get(2));
+    assertEquals(true, list.get(3));
+    assertEquals(new JsonObject().put("wibble", "eek"), list.get(4));
+    assertEquals(new JsonArray().add("one").add(2), list.get(5));
   }
 
   @Test
@@ -544,4 +567,14 @@ public class CollectionTCKTest {
     assertEquals(set(TestEnum.JULIEN, TestEnum.TIM), obj.methodWithSetEnumReturn());
   }
 
+  @Test
+  public void testSetObjectReturn() {
+    List<Object> list = new ArrayList<>(obj.methodWithSetObjectReturn());
+    assertEquals("foo", list.get(0));
+    assertEquals(4, list.get(1));
+    assertEquals(3.4f, list.get(2));
+    assertEquals(true, list.get(3));
+    assertEquals(new JsonObject().put("wibble", "eek"), list.get(4));
+    assertEquals(new JsonArray().add("one").add(2), list.get(5));
+  }
 }

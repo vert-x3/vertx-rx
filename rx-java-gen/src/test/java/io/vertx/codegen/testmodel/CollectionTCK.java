@@ -65,7 +65,6 @@ public interface CollectionTCK {
   void methodWithHandlerAsyncResultSetDataObject(Handler<AsyncResult<Set<TestDataObject>>> setHandler);
   void methodWithHandlerAsyncResultSetEnum(Handler<AsyncResult<Set<TestEnum>>> setHandler);
 
-  Map<String, String> methodWithMapReturn(Handler<String> handler);
   Map<String, String> methodWithMapStringReturn(Handler<String> handler);
   Map<String, Long> methodWithMapLongReturn(Handler<String> handler);
   Map<String, Integer> methodWithMapIntegerReturn(Handler<String> handler);
@@ -79,6 +78,7 @@ public interface CollectionTCK {
   Map<String, JsonObject> methodWithMapComplexJsonObjectReturn(Handler<String> handler);
   Map<String, JsonArray> methodWithMapJsonArrayReturn(Handler<String> handler);
   Map<String, JsonArray> methodWithMapComplexJsonArrayReturn(Handler<String> handler);
+  Map<String, Object> methodWithMapObjectReturn(Handler<String> handler);
 
   List<String> methodWithListStringReturn();
   List<Long> methodWithListLongReturn();
@@ -89,6 +89,7 @@ public interface CollectionTCK {
   List<JsonArray> methodWithListComplexJsonArrayReturn();
   List<TestDataObject> methodWithListDataObjectReturn();
   List<TestEnum> methodWithListEnumReturn();
+  List<Object> methodWithListObjectReturn();
 
   Set<String> methodWithSetStringReturn();
   Set<Long> methodWithSetLongReturn();
@@ -99,4 +100,5 @@ public interface CollectionTCK {
   Set<JsonArray> methodWithSetComplexJsonArrayReturn();
   Set<TestDataObject> methodWithSetDataObjectReturn();
   Set<TestEnum> methodWithSetEnumReturn();
+  Set<Object> methodWithSetObjectReturn();
 }
