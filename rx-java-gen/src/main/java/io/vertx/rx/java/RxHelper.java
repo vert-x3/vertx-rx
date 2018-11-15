@@ -1,14 +1,11 @@
 package io.vertx.rx.java;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Context;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.vertx.core.*;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
+import io.vertx.core.streams.WriteStream;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
@@ -18,6 +15,7 @@ import rx.functions.Action1;
 import rx.plugins.RxJavaSchedulersHook;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -461,5 +459,13 @@ public class RxHelper {
     }
     catch(Exception ignore) {
     }
+  }
+
+  public static <T> Subscriber<T> toSubscriber(WriteStream<T> stream, Consumer<Throwable> onError, Runnable onComplete) {
+    return toSubscriber(stream, Function.identity(), onError, onComplete);
+  }
+
+  public static <R, T> Subscriber<R> toSubscriber(WriteStream<T> stream, Function<R, T> adapter, Consumer<Throwable> onError, Runnable onComplete) {
+    return new WriteStreamSubscriber<>(stream, adapter, onError, onComplete);
   }
 }

@@ -17,7 +17,7 @@
 package io.vertx.rx.java.test;
 
 import io.vertx.lang.rx.test.FakeWriteStream;
-import io.vertx.rx.java.WriteStreamSubscriber;
+import io.vertx.rx.java.RxHelper;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 import rx.Observable;
@@ -34,7 +34,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
   public void testObservableErrorReported() throws Exception {
     Exception expected = new Exception();
     AtomicReference<Throwable> throwable = new AtomicReference<>();
-    Subscriber<Integer> subscriber = new WriteStreamSubscriber<>(new FakeWriteStream(vertx), t -> {
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx), t -> {
       if (throwable.compareAndSet(null, t)) {
         complete();
       } else {
@@ -49,7 +49,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
   @Test
   public void testObservableToWriteStream() throws Exception {
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Subscriber<Integer> subscriber = new WriteStreamSubscriber<>(writeStream, this::fail, this::complete);
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream, this::fail, this::complete);
     Observable.range(0, 10000)
       .subscribe(subscriber);
     await();

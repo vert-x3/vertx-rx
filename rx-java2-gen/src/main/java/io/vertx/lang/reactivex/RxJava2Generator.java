@@ -50,6 +50,11 @@ class RxJava2Generator extends AbstractRxGenerator {
 
   }
 
+  @Override
+  protected void genToSubscriber(ApiTypeInfo type, PrintWriter writer) {
+
+  }
+
   private void genToXXXAble(TypeInfo streamType, String rxType, String rxName, PrintWriter writer) {
     writer.print("  public synchronized io.reactivex.");
     writer.print(rxType);

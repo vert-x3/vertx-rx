@@ -75,6 +75,54 @@ class RxJavaGenerator extends AbstractRxGenerator {
   }
 
   @Override
+  protected void genToSubscriber(ApiTypeInfo type, PrintWriter writer) {
+    TypeInfo streamType = type.getWriteStreamArg();
+    writer.print("  private rx.Subscriber<");
+    writer.print(genTypeName(streamType));
+    writer.println("> subscriber;");
+    writer.println();
+
+    writer.print("  public synchronized rx.Subscriber<");
+    writer.print(genTypeName(streamType));
+    writer.println("> toSubscriber(java.util.function.Consumer<Throwable> onError, Runnable onComplete) {");
+
+    writer.print("    ");
+    writer.println("if (subscriber == null) {");
+
+    if (streamType.getKind() == ClassKind.API) {
+      writer.print("      java.util.function.Function<");
+      writer.print(genTypeName(streamType.getRaw()));
+      writer.print(", ");
+      writer.print(streamType.getName());
+      writer.print("> conv = ");
+      writer.print(genTypeName(streamType));
+      writer.println("::getDelegate;");
+
+      writer.println("      subscriber = io.vertx.rx.java.RxHelper.toSubscriber(getDelegate(), conv, onError, onComplete);");
+    } else if (streamType.isVariable()) {
+      String typeVar = streamType.getSimpleName();
+      writer.print("      java.util.function.Function<");
+      writer.print(typeVar);
+      writer.print(", ");
+      writer.print(typeVar);
+      writer.print("> conv = (java.util.function.Function<");
+      writer.print(typeVar);
+      writer.print(", ");
+      writer.print(typeVar);
+      writer.println(">) __typeArg_0.unwrap;");
+
+      writer.println("      subscriber = io.vertx.rx.java.RxHelper.toSubscriber(getDelegate(), conv, onError, onComplete);");
+    } else {
+      writer.println("      subscriber = io.vertx.rx.java.RxHelper.toSubscriber(getDelegate(), onError, onComplete);");
+    }
+
+    writer.println("    }");
+    writer.println("    return subscriber;");
+    writer.println("  }");
+    writer.println();
+  }
+
+  @Override
   protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, PrintWriter writer) {
     genMethod(model, method, cacheDecls, writer);
     MethodInfo overloaded = genOverloadedMethod(method);

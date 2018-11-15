@@ -22,23 +22,27 @@ import rx.Subscriber;
 
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author Thomas Segismont
  */
-public class WriteStreamSubscriber<T> extends Subscriber<T> {
+public class WriteStreamSubscriber<R, T> extends Subscriber<R> {
 
   private final WriteStream<T> writeStream;
   private final Consumer<Throwable> onError;
   private final Runnable onComplete;
+  private final Function<R, T> adapter;
 
   private boolean drainHandlerSet;
 
-  public WriteStreamSubscriber(WriteStream<T> writeStream, Consumer<Throwable> onError, Runnable onComplete) {
+  public WriteStreamSubscriber(WriteStream<T> writeStream, Function<R, T> adapter, Consumer<Throwable> onError, Runnable onComplete) {
     Objects.requireNonNull(writeStream, "writeStream");
+    Objects.requireNonNull(adapter, "adapter");
     Objects.requireNonNull(onError, "onError");
     Objects.requireNonNull(onComplete, "onComplete");
     this.writeStream = writeStream;
+    this.adapter = adapter;
     this.onError = onError;
     this.onComplete = onComplete;
   }
@@ -49,8 +53,8 @@ public class WriteStreamSubscriber<T> extends Subscriber<T> {
   }
 
   @Override
-  public void onNext(T t) {
-    writeStream.write(t);
+  public void onNext(R r) {
+    writeStream.write(adapter.apply(r));
     if (writeStream.writeQueueFull()) {
       Handler<Void> h;
       synchronized (this) {
