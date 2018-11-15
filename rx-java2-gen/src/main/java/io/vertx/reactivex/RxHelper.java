@@ -1,9 +1,16 @@
 package io.vertx.reactivex;
 
+import io.reactivex.Observer;
 import io.reactivex.Scheduler;
-
 import io.vertx.core.Vertx;
 import io.vertx.core.WorkerExecutor;
+import io.vertx.core.streams.WriteStream;
+import io.vertx.reactivex.impl.WriteStreamObserver;
+import io.vertx.reactivex.impl.WriteStreamSubscriber;
+import org.reactivestreams.Subscriber;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -65,4 +72,19 @@ public class RxHelper {
     return new ContextScheduler(executor, false);
   }
 
+  public static <T> Subscriber<T> toSubscriber(WriteStream<T> stream, Consumer<Throwable> onError, Runnable onComplete) {
+    return toSubscriber(stream, Function.identity(), onError, onComplete);
+  }
+
+  public static <R, T> Subscriber<R> toSubscriber(WriteStream<T> stream, Function<R, T> adapter, Consumer<Throwable> onError, Runnable onComplete) {
+    return new WriteStreamSubscriber<>(stream, adapter, onError, onComplete);
+  }
+
+  public static <T> Observer<T> toObserver(WriteStream<T> stream, Consumer<Throwable> onError, Runnable onComplete) {
+    return toObserver(stream, Function.identity(), onError, onComplete);
+  }
+
+  public static <R, T> Observer<R> toObserver(WriteStream<T> stream, Function<R, T> adapter, Consumer<Throwable> onError, Runnable onComplete) {
+    return new WriteStreamObserver<>(stream, adapter, onError, onComplete);
+  }
 }

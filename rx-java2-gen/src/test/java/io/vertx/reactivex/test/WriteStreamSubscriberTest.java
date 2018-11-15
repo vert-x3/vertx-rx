@@ -18,7 +18,7 @@ package io.vertx.reactivex.test;
 
 import io.reactivex.Flowable;
 import io.vertx.lang.rx.test.FakeWriteStream;
-import io.vertx.reactivex.impl.WriteStreamSubscriber;
+import io.vertx.reactivex.RxHelper;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 import org.reactivestreams.Subscriber;
@@ -34,7 +34,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
   public void testFlowableErrorReported() throws Exception {
     Exception expected = new Exception();
     AtomicReference<Throwable> throwable = new AtomicReference<>();
-    Subscriber<Integer> subscriber = new WriteStreamSubscriber<>(new FakeWriteStream(vertx), t -> {
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx), t -> {
       if (throwable.compareAndSet(null, t)) {
         complete();
       } else {
@@ -49,7 +49,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
   @Test
   public void testFlowableToWriteStream() throws Exception {
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Subscriber<Integer> subscriber = new WriteStreamSubscriber<>(writeStream, this::fail, this::complete);
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream, this::fail, this::complete);
     Flowable.range(0, 10000)
       .subscribe(subscriber);
     await();

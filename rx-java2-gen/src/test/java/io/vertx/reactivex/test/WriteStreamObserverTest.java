@@ -19,7 +19,7 @@ package io.vertx.reactivex.test;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.vertx.lang.rx.test.FakeWriteStream;
-import io.vertx.reactivex.impl.WriteStreamObserver;
+import io.vertx.reactivex.RxHelper;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 
@@ -34,7 +34,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
   public void testObservableErrorReported() throws Exception {
     Exception expected = new Exception();
     AtomicReference<Throwable> throwable = new AtomicReference<>();
-    Observer<Integer> observer = new WriteStreamObserver<>(new FakeWriteStream(vertx), t -> {
+    Observer<Integer> observer = RxHelper.toObserver(new FakeWriteStream(vertx), t -> {
       if (throwable.compareAndSet(null, t)) {
         complete();
       } else {
@@ -49,7 +49,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
   @Test
   public void testObservableToWriteStream() throws Exception {
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Observer<Integer> observer = new WriteStreamObserver<>(writeStream, this::fail, this::complete);
+    Observer<Integer> observer = RxHelper.toObserver(writeStream, this::fail, this::complete);
     Observable.range(0, 10000)
       .subscribe(observer);
     await();

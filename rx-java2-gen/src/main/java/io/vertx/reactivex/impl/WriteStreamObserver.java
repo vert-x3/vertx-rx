@@ -22,21 +22,25 @@ import io.vertx.core.streams.WriteStream;
 
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author Thomas Segismont
  */
-public class WriteStreamObserver<T> implements Observer<T> {
+public class WriteStreamObserver<R, T> implements Observer<R> {
 
   private final WriteStream<T> writeStream;
   private final Consumer<Throwable> onError;
   private final Runnable onComplete;
+  private final Function<R, T> adapter;
 
-  public WriteStreamObserver(WriteStream<T> writeStream, Consumer<Throwable> onError, Runnable onComplete) {
+  public WriteStreamObserver(WriteStream<T> writeStream, Function<R, T> adapter, Consumer<Throwable> onError, Runnable onComplete) {
     Objects.requireNonNull(writeStream, "writeStream");
+    Objects.requireNonNull(adapter, "adapter");
     Objects.requireNonNull(onError, "onError");
     Objects.requireNonNull(onComplete, "onComplete");
     this.writeStream = writeStream;
+    this.adapter = adapter;
     this.onError = onError;
     this.onComplete = onComplete;
   }
@@ -46,8 +50,8 @@ public class WriteStreamObserver<T> implements Observer<T> {
   }
 
   @Override
-  public void onNext(T t) {
-    writeStream.write(t);
+  public void onNext(R r) {
+    writeStream.write(adapter.apply(r));
   }
 
   @Override
