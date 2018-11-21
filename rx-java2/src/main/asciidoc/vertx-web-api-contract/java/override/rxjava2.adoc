@@ -1,0 +1,10 @@
+== RxJava 2 API
+
+The Web API Contract provides an rxified version of APIs
+
+Here is a complete example:
+
+[source,java]
+----
+{@link examples.RxWebApiContractExamples#mainExample(io.vertx.reactivex.core.Vertx, io.vertx.core.Handler, io.vertx.reactivex.ext.auth.jwt.JWTAuth)}
+----
