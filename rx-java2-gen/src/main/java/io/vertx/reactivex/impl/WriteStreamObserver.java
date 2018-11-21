@@ -18,6 +18,10 @@ package io.vertx.reactivex.impl;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.exceptions.CompositeException;
+import io.reactivex.exceptions.Exceptions;
+import io.reactivex.internal.disposables.DisposableHelper;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.streams.WriteStream;
 
 import java.util.Objects;
@@ -34,6 +38,9 @@ public class WriteStreamObserver<R, T> implements Observer<R> {
   private final Runnable onComplete;
   private final Function<R, T> adapter;
 
+  private Disposable disposable;
+  private boolean done;
+
   public WriteStreamObserver(WriteStream<T> writeStream, Function<R, T> adapter, Consumer<Throwable> onError, Runnable onComplete) {
     Objects.requireNonNull(writeStream, "writeStream");
     Objects.requireNonNull(adapter, "adapter");
@@ -46,21 +53,96 @@ public class WriteStreamObserver<R, T> implements Observer<R> {
   }
 
   @Override
-  public void onSubscribe(Disposable d) {
+  public void onSubscribe(Disposable disposable) {
+    Objects.requireNonNull(disposable, "disposable");
+    if (!setDisposable(disposable)) {
+      disposable.dispose();
+      DisposableHelper.reportDisposableSet();
+    }
   }
 
   @Override
   public void onNext(R r) {
-    writeStream.write(adapter.apply(r));
+    if (isDone()) {
+      return;
+    }
+
+    if (r == null) {
+      Throwable throwable = new NullPointerException("onNext called with null");
+      try {
+        getDisposable().dispose();
+      } catch (Throwable t) {
+        Exceptions.throwIfFatal(t);
+        throwable = new CompositeException(throwable, t);
+      }
+      onError(throwable);
+      return;
+    }
+
+    try {
+      writeStream.write(adapter.apply(r));
+    } catch (Throwable t) {
+      Exceptions.throwIfFatal(t);
+      Throwable throwable;
+      try {
+        getDisposable().dispose();
+        throwable = t;
+      } catch (Throwable t1) {
+        Exceptions.throwIfFatal(t1);
+        throwable = new CompositeException(t, t1);
+      }
+      onError(throwable);
+    }
   }
 
   @Override
   public void onError(Throwable t) {
-    onError.accept(t);
+    if (!setDone()) {
+      RxJavaPlugins.onError(t);
+      return;
+    }
+
+    Objects.requireNonNull(t, "onError called with null");
+
+    try {
+      onError.accept(t);
+    } catch (Throwable t1) {
+      Exceptions.throwIfFatal(t1);
+      RxJavaPlugins.onError(t1);
+    }
   }
 
   @Override
   public void onComplete() {
-    onComplete.run();
+    if (!setDone()) {
+      return;
+    }
+
+    try {
+      onComplete.run();
+    } catch (Throwable t) {
+      Exceptions.throwIfFatal(t);
+      RxJavaPlugins.onError(t);
+    }
+  }
+
+  private synchronized Disposable getDisposable() {
+    return disposable;
+  }
+
+  private synchronized boolean setDisposable(Disposable disposable) {
+    if (this.disposable == null) {
+      this.disposable = disposable;
+      return true;
+    }
+    return false;
+  }
+
+  private synchronized boolean isDone() {
+    return done;
+  }
+
+  private synchronized boolean setDone() {
+    return done ? false : (done = true);
   }
 }

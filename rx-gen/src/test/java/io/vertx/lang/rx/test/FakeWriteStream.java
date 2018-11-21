@@ -32,6 +32,7 @@ public class FakeWriteStream implements WriteStream<Integer> {
   private Handler<Void> drainHandler;
   private int last = -1;
   private volatile boolean drainHandlerInvoked;
+  private Runnable onWrite;
 
   public FakeWriteStream(Vertx vertx) {
     this.vertx = vertx;
@@ -42,14 +43,17 @@ public class FakeWriteStream implements WriteStream<Integer> {
   }
 
   @Override
-  public WriteStream<Integer> exceptionHandler(Handler<Throwable> handler) {
+  public FakeWriteStream exceptionHandler(Handler<Throwable> handler) {
     return null;
   }
 
   @Override
-  public synchronized WriteStream<Integer> write(Integer data) {
+  public synchronized FakeWriteStream write(Integer data) {
     if (data == null) {
       throw new IllegalArgumentException("data is null");
+    }
+    if (onWrite != null) {
+      onWrite.run();
     }
     if (data != last + 1) {
       throw new IllegalStateException("Expected " + (last + 1) + ", got " + data);
@@ -77,7 +81,7 @@ public class FakeWriteStream implements WriteStream<Integer> {
   }
 
   @Override
-  public WriteStream<Integer> setWriteQueueMaxSize(int maxSize) {
+  public FakeWriteStream setWriteQueueMaxSize(int maxSize) {
     return null;
   }
 
@@ -87,8 +91,13 @@ public class FakeWriteStream implements WriteStream<Integer> {
   }
 
   @Override
-  public synchronized WriteStream<Integer> drainHandler(@Nullable Handler<Void> drainHandler) {
+  public synchronized FakeWriteStream drainHandler(@Nullable Handler<Void> drainHandler) {
     this.drainHandler = drainHandler;
+    return this;
+  }
+
+  public synchronized FakeWriteStream setOnWrite(Runnable onWrite) {
+    this.onWrite = onWrite;
     return this;
   }
 }

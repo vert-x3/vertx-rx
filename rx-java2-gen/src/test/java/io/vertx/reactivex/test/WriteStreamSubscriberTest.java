@@ -16,34 +16,42 @@
 
 package io.vertx.reactivex.test;
 
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.exceptions.ProtocolViolationException;
+import io.reactivex.exceptions.UndeliverableException;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.lang.rx.test.FakeWriteStream;
 import io.vertx.reactivex.RxHelper;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 import org.reactivestreams.Subscriber;
 
-import java.util.concurrent.atomic.AtomicReference;
+import static org.hamcrest.CoreMatchers.*;
 
 /**
  * @author Thomas Segismont
  */
 public class WriteStreamSubscriberTest extends VertxTestBase {
 
+  @Override
+  protected void tearDown() throws Exception {
+    RxJavaPlugins.reset();
+    super.tearDown();
+  }
+
   @Test
   public void testFlowableErrorReported() throws Exception {
     Exception expected = new Exception();
-    AtomicReference<Throwable> throwable = new AtomicReference<>();
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx), t -> {
-      if (throwable.compareAndSet(null, t)) {
-        complete();
-      } else {
-        fail("onError invoked twice");
-      }
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx), throwable -> {
+      assertThat(throwable, is(sameInstance(expected)));
+      complete();
     }, this::fail);
     Flowable.<Integer>error(expected)
+      .observeOn(RxHelper.scheduler(vertx))
+      .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
-    assertSame(expected, throwable.get());
+    await();
   }
 
   @Test
@@ -51,8 +59,104 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
     Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream, this::fail, this::complete);
     Flowable.range(0, 10000)
+      .observeOn(RxHelper.scheduler(vertx))
+      .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
     await();
     assertTrue("Expected drainHandler to be invoked", writeStream.drainHandlerInvoked());
+  }
+
+  @Test
+  public void testCannotSubscribeTwice() throws Exception {
+    waitFor(3);
+    RxJavaPlugins.setErrorHandler(throwable -> {
+      assertThat(throwable, is(instanceOf(ProtocolViolationException.class)));
+      complete();
+    });
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx), this::fail, this::complete);
+    Flowable.range(0, 100)
+      .observeOn(RxHelper.scheduler(vertx))
+      .subscribeOn(RxHelper.scheduler(vertx))
+      .subscribe(subscriber);
+    Flowable.<Integer>create(emitter -> emitter.setCancellable(this::complete), BackpressureStrategy.MISSING)
+      .observeOn(RxHelper.scheduler(vertx))
+      .subscribeOn(RxHelper.scheduler(vertx))
+      .subscribe(subscriber);
+    await();
+  }
+
+  @Test
+  public void testOnNextThrowsFatal() throws Exception {
+    UnknownError expected = new UnknownError();
+    vertx.exceptionHandler(throwable -> {
+      assertThat(throwable, is(sameInstance(expected)));
+      complete();
+    });
+    FakeWriteStream writeStream = new FakeWriteStream(vertx).setOnWrite(() -> {
+      throw expected;
+    });
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream, this::fail, this::fail);
+    Flowable.just(0)
+      .observeOn(RxHelper.scheduler(vertx))
+      .subscribeOn(RxHelper.scheduler(vertx))
+      .subscribe(subscriber);
+    await();
+  }
+
+  @Test
+  public void testWriteThrowsException() throws Exception {
+    waitFor(2);
+    RuntimeException expected = new RuntimeException();
+    FakeWriteStream writeStream = new FakeWriteStream(vertx).setOnWrite(() -> {
+      throw expected;
+    });
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream, throwable -> {
+      assertThat(throwable, is(sameInstance(expected)));
+      complete();
+    }, this::fail);
+    Flowable.<Integer>create(emitter -> {
+      emitter.setCancellable(this::complete);
+      emitter.onNext(0);
+    }, BackpressureStrategy.MISSING)
+      .observeOn(RxHelper.scheduler(vertx))
+      .subscribeOn(RxHelper.scheduler(vertx))
+      .subscribe(subscriber);
+    await();
+  }
+
+  @Test
+  public void testOnErrorThrowsException() throws Exception {
+    RuntimeException expected = new RuntimeException();
+    RxJavaPlugins.setErrorHandler(throwable -> {
+      assertThat(throwable, is(instanceOf(UndeliverableException.class)));
+      assertThat(throwable.getCause(), is(sameInstance(expected)));
+      complete();
+    });
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx), throwable -> {
+      throw expected;
+    }, this::fail);
+    Flowable.<Integer>error(new RuntimeException())
+      .observeOn(RxHelper.scheduler(vertx))
+      .subscribeOn(RxHelper.scheduler(vertx))
+      .subscribe(subscriber);
+    await();
+  }
+
+  @Test
+  public void testOnCompleteThrowsException() throws Exception {
+    RuntimeException expected = new RuntimeException();
+    RxJavaPlugins.setErrorHandler(throwable -> {
+      assertThat(throwable, is(instanceOf(UndeliverableException.class)));
+      assertThat(throwable.getCause(), is(sameInstance(expected)));
+      complete();
+    });
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx), this::fail, () -> {
+      throw expected;
+    });
+    Flowable.just(0)
+      .observeOn(RxHelper.scheduler(vertx))
+      .subscribeOn(RxHelper.scheduler(vertx))
+      .subscribe(subscriber);
+    await();
   }
 }
