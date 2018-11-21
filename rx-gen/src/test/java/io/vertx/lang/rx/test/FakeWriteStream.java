@@ -16,7 +16,6 @@
 
 package io.vertx.lang.rx.test;
 
-import io.vertx.codegen.annotations.Nullable;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.streams.WriteStream;
@@ -28,11 +27,12 @@ public class FakeWriteStream implements WriteStream<Integer> {
 
   private final io.vertx.core.Vertx vertx;
 
-  private boolean writeQueueFull;
-  private Handler<Void> drainHandler;
-  private int last = -1;
+  private volatile int last = -1;
+  private volatile boolean writeQueueFull;
+  private volatile Handler<Void> drainHandler;
   private volatile boolean drainHandlerInvoked;
-  private Runnable onWrite;
+  private volatile Runnable onWrite;
+  private volatile Handler<Throwable> exceptionHandler;
 
   public FakeWriteStream(Vertx vertx) {
     this.vertx = vertx;
@@ -43,17 +43,19 @@ public class FakeWriteStream implements WriteStream<Integer> {
   }
 
   @Override
-  public FakeWriteStream exceptionHandler(Handler<Throwable> handler) {
-    return null;
+  public FakeWriteStream exceptionHandler(Handler<Throwable> exceptionHandler) {
+    this.exceptionHandler = exceptionHandler;
+    return this;
   }
 
   @Override
-  public synchronized FakeWriteStream write(Integer data) {
+  public FakeWriteStream write(Integer data) {
     if (data == null) {
       throw new IllegalArgumentException("data is null");
     }
-    if (onWrite != null) {
-      onWrite.run();
+    Runnable r = onWrite;
+    if (r != null) {
+      r.run();
     }
     if (data != last + 1) {
       throw new IllegalStateException("Expected " + (last + 1) + ", got " + data);
@@ -62,14 +64,11 @@ public class FakeWriteStream implements WriteStream<Integer> {
     if (last == 3001) {
       writeQueueFull = true;
       vertx.setTimer(50, l -> {
-        Handler<Void> h;
-        synchronized (this) {
-          writeQueueFull = false;
-          h = drainHandler;
-        }
+        writeQueueFull = false;
+        Handler<Void> h = drainHandler;
         if (h != null) {
           drainHandlerInvoked = true;
-          drainHandler.handle(null);
+          h.handle(null);
         }
       });
     }
@@ -82,26 +81,26 @@ public class FakeWriteStream implements WriteStream<Integer> {
 
   @Override
   public FakeWriteStream setWriteQueueMaxSize(int maxSize) {
-    return null;
+    return this;
   }
 
   @Override
-  public synchronized boolean writeQueueFull() {
+  public boolean writeQueueFull() {
     return writeQueueFull;
   }
 
   @Override
-  public synchronized FakeWriteStream drainHandler(@Nullable Handler<Void> drainHandler) {
+  public FakeWriteStream drainHandler(Handler<Void> drainHandler) {
     this.drainHandler = drainHandler;
     return this;
   }
 
-  public synchronized FakeWriteStream setOnWrite(Runnable onWrite) {
+  public FakeWriteStream setOnWrite(Runnable onWrite) {
     this.onWrite = onWrite;
     return this;
   }
 
-  public synchronized int getCount() {
+  public int getCount() {
     return last + 1;
   }
 }
