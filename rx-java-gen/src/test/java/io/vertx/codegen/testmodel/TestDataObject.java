@@ -66,6 +66,11 @@ public class TestDataObject {
     return false;
   }
 
+  @Override
+  public int hashCode() {
+    return Objects.hash(getFoo(), getBar(), getWibble());
+  }
+
   public JsonObject toJson() {
     JsonObject json = new JsonObject();
     json.put("foo", this.foo);
