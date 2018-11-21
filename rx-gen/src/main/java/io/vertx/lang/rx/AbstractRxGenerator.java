@@ -2,6 +2,8 @@ package io.vertx.lang.rx;
 
 import io.vertx.codegen.*;
 import io.vertx.codegen.Helper;
+import io.vertx.codegen.annotations.ModuleGen;
+import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.codegen.doc.Doc;
 import io.vertx.codegen.doc.Tag;
 import io.vertx.codegen.doc.Token;
@@ -10,10 +12,8 @@ import io.vertx.codegen.type.*;
 import javax.lang.model.element.Element;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.lang.annotation.Annotation;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -25,6 +25,11 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
   public AbstractRxGenerator(String id) {
     this.id = id;
     this.kinds = Collections.singleton("class");
+  }
+
+  @Override
+  public Collection<Class<? extends Annotation>> annotations() {
+    return Arrays.asList(VertxGen.class, ModuleGen.class);
   }
 
   @Override
