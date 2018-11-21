@@ -29,11 +29,15 @@ import java.util.function.Function;
  */
 public class WriteStreamSubscriber<R, T> extends Subscriber<R> {
 
+  private static final int BATCH_SIZE = 256;
+
   private final WriteStream<T> writeStream;
+  private final Function<R, T> adapter;
   private final Consumer<Throwable> onError;
   private final Runnable onComplete;
-  private final Function<R, T> adapter;
+  private final Handler<Void> drainHandler;
 
+  private int outstanding;
   private boolean drainHandlerSet;
 
   public WriteStreamSubscriber(WriteStream<T> writeStream, Function<R, T> adapter, Consumer<Throwable> onError, Runnable onComplete) {
@@ -45,36 +49,31 @@ public class WriteStreamSubscriber<R, T> extends Subscriber<R> {
     this.adapter = adapter;
     this.onError = onError;
     this.onComplete = onComplete;
+    this.drainHandler = v -> {
+      synchronized (this) {
+        drainHandlerSet = false;
+      }
+      requestMore();
+    };
   }
 
   @Override
   public void onStart() {
-    request(256);
+    requestMore();
   }
 
   @Override
   public void onNext(R r) {
     writeStream.write(adapter.apply(r));
+    synchronized (this) {
+      outstanding--;
+    }
     if (writeStream.writeQueueFull()) {
-      Handler<Void> h;
-      synchronized (this) {
-        if (drainHandlerSet) {
-          h = null;
-        } else {
-          drainHandlerSet = true;
-          h = v -> request(1);
-        }
-      }
-      if (h != null) {
-        writeStream.drainHandler(v -> {
-          synchronized (this) {
-            drainHandlerSet = false;
-          }
-          h.handle(null);
-        });
+      if (switchDrainHandlerSetOn()) {
+        writeStream.drainHandler(drainHandler);
       }
     } else {
-      request(1);
+      requestMore();
     }
   }
 
@@ -86,5 +85,19 @@ public class WriteStreamSubscriber<R, T> extends Subscriber<R> {
   @Override
   public void onCompleted() {
     onComplete.run();
+  }
+
+  private void requestMore() {
+    synchronized (this) {
+      if (outstanding > 0) {
+        return;
+      }
+      outstanding = BATCH_SIZE;
+    }
+    request(BATCH_SIZE);
+  }
+
+  private synchronized boolean switchDrainHandlerSetOn() {
+    return drainHandlerSet ? false : (drainHandlerSet = true);
   }
 }

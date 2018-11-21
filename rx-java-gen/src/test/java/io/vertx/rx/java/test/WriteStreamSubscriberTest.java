@@ -50,9 +50,11 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
   public void testObservableToWriteStream() throws Exception {
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
     Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream, this::fail, this::complete);
-    Observable.range(0, 10000)
+    int count = 10000;
+    Observable.range(0, count)
       .subscribe(subscriber);
     await();
     assertTrue("Expected drainHandler to be invoked", writeStream.drainHandlerInvoked());
+    assertEquals(count, writeStream.getCount());
   }
 }

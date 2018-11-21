@@ -34,14 +34,18 @@ import java.util.function.Function;
  */
 public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
 
+  private static final int BATCH_SIZE = 256;
+
   private final WriteStream<T> writeStream;
+  private final Function<R, T> adapter;
   private final Consumer<Throwable> onError;
   private final Runnable onComplete;
-  private final Function<R, T> adapter;
+  private final Handler<Void> drainHandler;
 
   private Subscription subscription;
-  private boolean done;
+  private int outstanding;
   private boolean drainHandlerSet;
+  private boolean done;
 
   public WriteStreamSubscriber(WriteStream<T> writeStream, Function<R, T> adapter, Consumer<Throwable> onError, Runnable onComplete) {
     Objects.requireNonNull(writeStream, "writeStream");
@@ -52,6 +56,12 @@ public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
     this.adapter = adapter;
     this.onError = onError;
     this.onComplete = onComplete;
+    this.drainHandler = v -> {
+      synchronized (this) {
+        drainHandlerSet = false;
+      }
+      requestMore();
+    };
   }
 
   @Override
@@ -62,7 +72,7 @@ public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
       SubscriptionHelper.reportSubscriptionSet();
       return;
     }
-    getSubscription().request(256);
+    requestMore();
   }
 
   @Override
@@ -85,6 +95,9 @@ public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
 
     try {
       writeStream.write(adapter.apply(r));
+      synchronized (this) {
+        outstanding--;
+      }
     } catch (Throwable t) {
       Exceptions.throwIfFatal(t);
       Throwable throwable;
@@ -100,25 +113,11 @@ public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
     }
 
     if (writeStream.writeQueueFull()) {
-      Handler<Void> h;
-      synchronized (this) {
-        if (drainHandlerSet) {
-          h = null;
-        } else {
-          drainHandlerSet = true;
-          h = v -> getSubscription().request(1);
-        }
-      }
-      if (h != null) {
-        writeStream.drainHandler(v -> {
-          synchronized (this) {
-            drainHandlerSet = false;
-          }
-          h.handle(null);
-        });
+      if (switchDrainHandlerSetOn()) {
+        writeStream.drainHandler(drainHandler);
       }
     } else {
-      getSubscription().request(1);
+      requestMore();
     }
   }
 
@@ -171,5 +170,23 @@ public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
 
   private synchronized boolean setDone() {
     return done ? false : (done = true);
+  }
+
+  private void requestMore() {
+    Subscription s = getSubscription();
+    if (s == null) {
+      return;
+    }
+    synchronized (this) {
+      if (done || outstanding > 0) {
+        return;
+      }
+      outstanding = BATCH_SIZE;
+    }
+    s.request(BATCH_SIZE);
+  }
+
+  private synchronized boolean switchDrainHandlerSetOn() {
+    return drainHandlerSet ? false : (drainHandlerSet = true);
   }
 }

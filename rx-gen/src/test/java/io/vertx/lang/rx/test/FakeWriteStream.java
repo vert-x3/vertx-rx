@@ -100,4 +100,8 @@ public class FakeWriteStream implements WriteStream<Integer> {
     this.onWrite = onWrite;
     return this;
   }
+
+  public synchronized int getCount() {
+    return last + 1;
+  }
 }
