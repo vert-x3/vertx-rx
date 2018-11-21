@@ -159,4 +159,22 @@ public class WriteStreamObserverTest extends VertxTestBase {
       .subscribe(observer);
     await();
   }
+
+  @Test
+  public void testWriteStreamError() throws Exception {
+    waitFor(2);
+    RuntimeException expected = new RuntimeException();
+    FakeWriteStream writeStream = new FakeWriteStream(vertx).failAfterWrite(expected);
+    Observer<Integer> observer = RxHelper.toObserver(writeStream, throwable -> {
+      assertThat(throwable, is(sameInstance(expected)));
+      complete();
+    }, this::fail);
+    Observable.<Integer>create(emitter -> {
+      emitter.setCancellable(this::complete);
+      emitter.onNext(0);
+    }).observeOn(RxHelper.scheduler(vertx))
+      .subscribeOn(RxHelper.scheduler(vertx))
+      .subscribe(observer);
+    await();
+  }
 }

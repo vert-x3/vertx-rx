@@ -33,6 +33,7 @@ public class FakeWriteStream implements WriteStream<Integer> {
   private volatile boolean drainHandlerInvoked;
   private volatile Runnable onWrite;
   private volatile Handler<Throwable> exceptionHandler;
+  private volatile Throwable failAfterWrite;
 
   public FakeWriteStream(Vertx vertx) {
     this.vertx = vertx;
@@ -72,6 +73,15 @@ public class FakeWriteStream implements WriteStream<Integer> {
         }
       });
     }
+    Throwable t = failAfterWrite;
+    if (t != null) {
+      vertx.runOnContext(v -> {
+        Handler<Throwable> h = exceptionHandler;
+        if (h != null) {
+          h.handle(t);
+        }
+      });
+    }
     return this;
   }
 
@@ -97,6 +107,11 @@ public class FakeWriteStream implements WriteStream<Integer> {
 
   public FakeWriteStream setOnWrite(Runnable onWrite) {
     this.onWrite = onWrite;
+    return this;
+  }
+
+  public FakeWriteStream failAfterWrite(Throwable expected) {
+    failAfterWrite = expected;
     return this;
   }
 

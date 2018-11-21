@@ -59,6 +59,10 @@ public class WriteStreamSubscriber<R, T> extends Subscriber<R> {
 
   @Override
   public void onStart() {
+    writeStream.exceptionHandler(t -> {
+      unsubscribe();
+      onError(t);
+    });
     requestMore();
   }
 

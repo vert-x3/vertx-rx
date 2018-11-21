@@ -25,6 +25,9 @@ import rx.Subscriber;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.sameInstance;
+
 /**
  * @author Thomas Segismont
  */
@@ -56,5 +59,21 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
     await();
     assertTrue("Expected drainHandler to be invoked", writeStream.drainHandlerInvoked());
     assertEquals(count, writeStream.getCount());
+  }
+
+  @Test
+  public void testWriteStreamError() throws Exception {
+    waitFor(2);
+    RuntimeException expected = new RuntimeException();
+    FakeWriteStream writeStream = new FakeWriteStream(vertx).failAfterWrite(expected);
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream, throwable -> {
+      assertThat(throwable, is(sameInstance(expected)));
+      complete();
+    }, this::fail);
+    Observable.<Integer>create(s -> s.onNext(0)).observeOn(RxHelper.scheduler(vertx))
+      .doOnUnsubscribe(this::complete)
+      .subscribeOn(RxHelper.scheduler(vertx))
+      .subscribe(subscriber);
+    await();
   }
 }

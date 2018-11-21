@@ -72,6 +72,10 @@ public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
       SubscriptionHelper.reportSubscriptionSet();
       return;
     }
+    writeStream.exceptionHandler(t -> {
+      getSubscription().cancel();
+      onError(t);
+    });
     requestMore();
   }
 

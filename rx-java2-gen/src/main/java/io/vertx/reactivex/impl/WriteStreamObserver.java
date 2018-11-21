@@ -59,6 +59,10 @@ public class WriteStreamObserver<R, T> implements Observer<R> {
       disposable.dispose();
       DisposableHelper.reportDisposableSet();
     }
+    writeStream.exceptionHandler(t -> {
+      getDisposable().dispose();
+      onError(t);
+    });
   }
 
   @Override
