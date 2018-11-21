@@ -209,7 +209,17 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
+      <artifactId>vertx-mail-service</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
       <artifactId>vertx-consul-client</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-consul-service</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -536,7 +546,9 @@
             vertx-redis-client,
             vertx-stomp,
             vertx-mail-client,
+            vertx-mail-service,
             vertx-consul-client,
+            vertx-consul-service,
             vertx-service-discovery,
             vertx-service-discovery-backend-consul,
             vertx-service-discovery-backend-redis,
