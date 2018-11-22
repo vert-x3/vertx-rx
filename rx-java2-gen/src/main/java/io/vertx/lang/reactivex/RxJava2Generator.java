@@ -49,19 +49,6 @@ class RxJava2Generator extends AbstractRxGenerator {
     genToXXXAble(streamType, "Flowable", "flowable", writer);
   }
 
-  @Override
-  protected void genToSubscriber(ApiTypeInfo type, PrintWriter writer) {
-    TypeInfo streamType = type.getWriteStreamArg();
-    writer.format("  private io.reactivex.Observer<%s> observer;%n", genTypeName(streamType));
-
-    writer.format("  private org.reactivestreams.Subscriber<%s> subscriber;%n", genTypeName(streamType));
-
-    writer.println();
-
-    genToXXXEr(streamType, "io.reactivex", "Observer", "observer", writer);
-    genToXXXEr(streamType, "org.reactivestreams", "Subscriber", "subscriber", writer);
-  }
-
   private void genToXXXAble(TypeInfo streamType, String rxType, String rxName, PrintWriter writer) {
     writer.print("  public synchronized io.reactivex.");
     writer.print(rxType);
@@ -129,22 +116,35 @@ class RxJava2Generator extends AbstractRxGenerator {
     writer.println();
   }
 
-  private void genToXXXEr(TypeInfo streamType, String rxPackage, String rxType, String rxName, PrintWriter writer) {
-    writer.format("  public synchronized %s.%s<%s> to%s(java.util.function.Consumer<Throwable> onError, Runnable onComplete) {%n", rxPackage, rxType, genTypeName(streamType), rxType);
+  @Override
+  protected void genToSubscriber(ApiTypeInfo type, PrintWriter writer) {
+    TypeInfo streamType = type.getWriteStreamArg();
+    writer.format("  private io.vertx.reactivex.WriteStreamObserver<%s> observer;%n", genTypeName(streamType));
+
+    writer.format("  private io.vertx.reactivex.WriteStreamSubscriber<%s> subscriber;%n", genTypeName(streamType));
+
+    writer.println();
+
+    genToXXXEr(streamType, "Observer", "observer", writer);
+    genToXXXEr(streamType, "Subscriber", "subscriber", writer);
+  }
+
+  private void genToXXXEr(TypeInfo streamType, String rxType, String rxName, PrintWriter writer) {
+    writer.format("  public synchronized io.vertx.reactivex.WriteStream%s<%s> to%s() {%n", rxType, genTypeName(streamType), rxType);
 
     writer.format("    if (%s == null) {%n", rxName);
 
     if (streamType.getKind() == ClassKind.API) {
       writer.format("      java.util.function.Function<%s, %s> conv = %s::getDelegate;%n", genTypeName(streamType.getRaw()), streamType.getName(), genTypeName(streamType));
 
-      writer.format("      %s = io.vertx.reactivex.RxHelper.to%s(getDelegate(), conv, onError, onComplete);%n", rxName, rxType);
+      writer.format("      %s = io.vertx.reactivex.RxHelper.to%s(getDelegate(), conv);%n", rxName, rxType);
     } else if (streamType.isVariable()) {
       String typeVar = streamType.getSimpleName();
       writer.format("      java.util.function.Function<%s, %s> conv = (java.util.function.Function<%s, %s>) __typeArg_0.unwrap;%n", typeVar, typeVar, typeVar, typeVar);
 
-      writer.format("      %s = io.vertx.reactivex.RxHelper.to%s(getDelegate(), conv, onError, onComplete);%n", rxName, rxType);
+      writer.format("      %s = io.vertx.reactivex.RxHelper.to%s(getDelegate(), conv);%n", rxName, rxType);
     } else {
-      writer.format("      %s = io.vertx.reactivex.RxHelper.to%s(getDelegate(), onError, onComplete);%n", rxName, rxType);
+      writer.format("      %s = io.vertx.reactivex.RxHelper.to%s(getDelegate());%n", rxName, rxType);
     }
 
     writer.println("    }");

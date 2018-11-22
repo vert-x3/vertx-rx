@@ -42,21 +42,23 @@ public class WriteStreamObserverTest extends VertxTestBase {
   @Test
   public void testObservableErrorReported() throws Exception {
     Exception expected = new Exception();
-    Observer<Integer> observer = RxHelper.toObserver(new FakeWriteStream(vertx), throwable -> {
+    FakeWriteStream writeStream = new FakeWriteStream(vertx);
+    Observer<Integer> observer = RxHelper.toObserver(writeStream).observableErrorHandler(throwable -> {
       assertThat(throwable, is(sameInstance(expected)));
       complete();
-    }, this::fail);
+    });
     Observable.<Integer>error(expected)
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(observer);
     await();
+    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
   }
 
   @Test
   public void testObservableToWriteStream() throws Exception {
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Observer<Integer> observer = RxHelper.toObserver(writeStream, this::fail, this::complete);
+    Observer<Integer> observer = RxHelper.toObserver(writeStream).observableCompleteHandler(v -> complete());
     int count = 10000;
     Observable.range(0, count)
       .observeOn(RxHelper.scheduler(vertx))
@@ -65,6 +67,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
     await();
     assertFalse("Did not expect drainHandler to be invoked", writeStream.drainHandlerInvoked());
     assertEquals(count, writeStream.getCount());
+    assertTrue("Expected writeStream end method to be invoked", writeStream.endInvoked());
   }
 
   @Test
@@ -74,7 +77,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
       assertThat(throwable, is(instanceOf(ProtocolViolationException.class)));
       complete();
     });
-    Observer<Integer> observer = RxHelper.toObserver(new FakeWriteStream(vertx), this::fail, this::complete);
+    Observer<Integer> observer = RxHelper.toObserver(new FakeWriteStream(vertx)).observableCompleteHandler(v -> complete());
     Observable.range(0, 100)
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
@@ -96,12 +99,13 @@ public class WriteStreamObserverTest extends VertxTestBase {
     FakeWriteStream writeStream = new FakeWriteStream(vertx).setOnWrite(() -> {
       throw expected;
     });
-    Observer<Integer> observer = RxHelper.toObserver(writeStream, this::fail, this::fail);
+    Observer<Integer> observer = RxHelper.toObserver(writeStream);
     Observable.just(0)
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(observer);
     await();
+    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
   }
 
   @Test
@@ -111,10 +115,10 @@ public class WriteStreamObserverTest extends VertxTestBase {
     FakeWriteStream writeStream = new FakeWriteStream(vertx).setOnWrite(() -> {
       throw expected;
     });
-    Observer<Integer> observer = RxHelper.toObserver(writeStream, throwable -> {
+    Observer<Integer> observer = RxHelper.toObserver(writeStream).observableErrorHandler(throwable -> {
       assertThat(throwable, is(sameInstance(expected)));
       complete();
-    }, this::fail);
+    });
     Observable.<Integer>create(emitter -> {
       emitter.setCancellable(this::complete);
       emitter.onNext(0);
@@ -122,6 +126,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(observer);
     await();
+    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
   }
 
   @Test
@@ -132,14 +137,16 @@ public class WriteStreamObserverTest extends VertxTestBase {
       assertThat(throwable.getCause(), is(sameInstance(expected)));
       complete();
     });
-    Observer<Integer> observer = RxHelper.toObserver(new FakeWriteStream(vertx), throwable -> {
+    FakeWriteStream writeStream = new FakeWriteStream(vertx);
+    Observer<Integer> observer = RxHelper.toObserver(writeStream).observableErrorHandler(throwable -> {
       throw expected;
-    }, this::fail);
+    });
     Observable.<Integer>error(new RuntimeException())
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(observer);
     await();
+    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
   }
 
   @Test
@@ -150,7 +157,8 @@ public class WriteStreamObserverTest extends VertxTestBase {
       assertThat(throwable.getCause(), is(sameInstance(expected)));
       complete();
     });
-    Observer<Integer> observer = RxHelper.toObserver(new FakeWriteStream(vertx), this::fail, () -> {
+    FakeWriteStream writeStream = new FakeWriteStream(vertx);
+    Observer<Integer> observer = RxHelper.toObserver(writeStream).observableCompleteHandler(v -> {
       throw expected;
     });
     Observable.just(0)
@@ -158,6 +166,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(observer);
     await();
+    assertTrue("Expected writeStream end method to be invoked", writeStream.endInvoked());
   }
 
   @Test
@@ -165,10 +174,10 @@ public class WriteStreamObserverTest extends VertxTestBase {
     waitFor(2);
     RuntimeException expected = new RuntimeException();
     FakeWriteStream writeStream = new FakeWriteStream(vertx).failAfterWrite(expected);
-    Observer<Integer> observer = RxHelper.toObserver(writeStream, throwable -> {
+    Observer<Integer> observer = RxHelper.toObserver(writeStream).writeStreamExceptionHandler(throwable -> {
       assertThat(throwable, is(sameInstance(expected)));
       complete();
-    }, this::fail);
+    });
     Observable.<Integer>create(emitter -> {
       emitter.setCancellable(this::complete);
       emitter.onNext(0);
@@ -176,5 +185,6 @@ public class WriteStreamObserverTest extends VertxTestBase {
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(observer);
     await();
+    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
   }
 }

@@ -16,40 +16,38 @@
 
 package io.vertx.reactivex.impl;
 
-import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.exceptions.CompositeException;
 import io.reactivex.exceptions.Exceptions;
 import io.reactivex.internal.disposables.DisposableHelper;
 import io.reactivex.plugins.RxJavaPlugins;
+import io.vertx.core.Handler;
 import io.vertx.core.streams.WriteStream;
+import io.vertx.reactivex.WriteStreamObserver;
 
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
  * @author Thomas Segismont
  */
-public class WriteStreamObserver<R, T> implements Observer<R> {
+public class WriteStreamObserverImpl<R, T> implements WriteStreamObserver<R> {
 
   private final WriteStream<T> writeStream;
-  private final Consumer<Throwable> onError;
-  private final Runnable onComplete;
   private final Function<R, T> mapping;
 
   private Disposable disposable;
   private boolean done;
 
-  public WriteStreamObserver(WriteStream<T> writeStream, Function<R, T> mapping, Consumer<Throwable> onError, Runnable onComplete) {
+  private Handler<Throwable> observableErrorHandler;
+  private Handler<Void> observableCompleteHandler;
+  private Handler<Throwable> writeStreamExceptionHandler;
+
+  public WriteStreamObserverImpl(WriteStream<T> writeStream, Function<R, T> mapping) {
     Objects.requireNonNull(writeStream, "writeStream");
     Objects.requireNonNull(mapping, "mapping");
-    Objects.requireNonNull(onError, "onError");
-    Objects.requireNonNull(onComplete, "onComplete");
     this.writeStream = writeStream;
     this.mapping = mapping;
-    this.onError = onError;
-    this.onComplete = onComplete;
   }
 
   @Override
@@ -61,8 +59,18 @@ public class WriteStreamObserver<R, T> implements Observer<R> {
       return;
     }
     writeStream.exceptionHandler(t -> {
+      if (!setDone()) {
+        RxJavaPlugins.onError(t);
+        return;
+      }
       getDisposable().dispose();
-      onError(t);
+      Handler<Throwable> h;
+      synchronized (this) {
+        h = this.writeStreamExceptionHandler;
+      }
+      if (h != null) {
+        h.handle(t);
+      }
     });
   }
 
@@ -109,8 +117,14 @@ public class WriteStreamObserver<R, T> implements Observer<R> {
 
     Objects.requireNonNull(t, "onError called with null");
 
+    Handler<Throwable> h;
+    synchronized (this) {
+      h = observableErrorHandler;
+    }
     try {
-      onError.accept(t);
+      if (h != null) {
+        h.handle(t);
+      }
     } catch (Throwable t1) {
       Exceptions.throwIfFatal(t1);
       RxJavaPlugins.onError(t1);
@@ -123,8 +137,15 @@ public class WriteStreamObserver<R, T> implements Observer<R> {
       return;
     }
 
+    Handler<Void> h;
+    synchronized (this) {
+      h = observableCompleteHandler;
+    }
     try {
-      onComplete.run();
+      writeStream.end();
+      if (h != null) {
+        h.handle(null);
+      }
     } catch (Throwable t) {
       Exceptions.throwIfFatal(t);
       RxJavaPlugins.onError(t);
@@ -149,5 +170,23 @@ public class WriteStreamObserver<R, T> implements Observer<R> {
 
   private synchronized boolean setDone() {
     return done ? false : (done = true);
+  }
+
+  @Override
+  public synchronized WriteStreamObserver<R> observableErrorHandler(Handler<Throwable> observableErrorHandler) {
+    this.observableErrorHandler = observableErrorHandler;
+    return this;
+  }
+
+  @Override
+  public synchronized WriteStreamObserver<R> observableCompleteHandler(Handler<Void> observableCompleteHandler) {
+    this.observableCompleteHandler = observableCompleteHandler;
+    return this;
+  }
+
+  @Override
+  public synchronized WriteStreamObserver<R> writeStreamExceptionHandler(Handler<Throwable> writeStreamExceptionHandler) {
+    this.writeStreamExceptionHandler = writeStreamExceptionHandler;
+    return this;
   }
 }

@@ -2,15 +2,13 @@ package io.vertx.reactivex;
 
 import io.reactivex.Observer;
 import io.reactivex.Scheduler;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.WorkerExecutor;
 import io.vertx.core.streams.WriteStream;
-import io.vertx.reactivex.impl.WriteStreamObserver;
-import io.vertx.reactivex.impl.WriteStreamSubscriber;
+import io.vertx.reactivex.impl.WriteStreamObserverImpl;
+import io.vertx.reactivex.impl.WriteStreamSubscriberImpl;
 import org.reactivestreams.Subscriber;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -76,48 +74,40 @@ public class RxHelper {
   /**
    * Adapts a Vert.x {@link WriteStream} to an RxJava {@link Subscriber}.
    * <p>
-   * The {@link WriteStream#end()} method is not invoked when the {@link io.reactivex.Flowable} terminates.
-   * <p>
-   * Also, after subscription, the original {@link WriteStream} handlers should not be used anymore as they will be used by the adapter.
+   * After subscription, the original {@link WriteStream} handlers should not be used anymore as they will be used by the adapter.
    *
    * @param stream the stream to adapt
-   * @param onError callback invoked when the {@link io.reactivex.Flowable} terminates with an error, or the {@link WriteStream#exceptionHandler(Handler)} throws an error
-   * @param onComplete callback invoked when the {@link io.reactivex.Flowable} terminates successfully
    *
    * @return the adapted {@link Subscriber}
    */
-  public static <T> Subscriber<T> toSubscriber(WriteStream<T> stream, Consumer<Throwable> onError, Runnable onComplete) {
-    return toSubscriber(stream, Function.identity(), onError, onComplete);
+  public static <T> WriteStreamSubscriber<T> toSubscriber(WriteStream<T> stream) {
+    return toSubscriber(stream, Function.identity());
   }
 
   /**
-   * Like {@link #toSubscriber(WriteStream, Consumer, Runnable)}, except the provided {@code mapping} function is applied to each {@link io.reactivex.Flowable} item.
+   * Like {@link #toSubscriber(WriteStream)}, except the provided {@code mapping} function is applied to each {@link io.reactivex.Flowable} item.
    */
-  public static <R, T> Subscriber<R> toSubscriber(WriteStream<T> stream, Function<R, T> mapping, Consumer<Throwable> onError, Runnable onComplete) {
-    return new WriteStreamSubscriber<>(stream, mapping, onError, onComplete);
+  public static <R, T> WriteStreamSubscriber<R> toSubscriber(WriteStream<T> stream, Function<R, T> mapping) {
+    return new WriteStreamSubscriberImpl<>(stream, mapping);
   }
 
   /**
    * Adapts a Vert.x {@link WriteStream} to an RxJava {@link Observer}.
    * <p>
-   * The {@link WriteStream#end()} method is not invoked when the {@link io.reactivex.Observable} terminates.
-   * <p>
-   * Also, after subscription, the original {@link WriteStream} handlers should not be used anymore as they will be used by the adapter.
+   * After subscription, the original {@link WriteStream} handlers should not be used anymore as they will be used by the adapter.
    *
    * @param stream the stream to adapt
-   * @param onError callback invoked when the {@link io.reactivex.Observable} terminates with an error, or the {@link WriteStream#exceptionHandler(Handler)} throws an error
-   * @param onComplete callback invoked when the {@link io.reactivex.Observable} terminates successfully
    *
    * @return the adapted {@link Observer}
    */
-  public static <T> Observer<T> toObserver(WriteStream<T> stream, Consumer<Throwable> onError, Runnable onComplete) {
-    return toObserver(stream, Function.identity(), onError, onComplete);
+  public static <T> WriteStreamObserver<T> toObserver(WriteStream<T> stream) {
+    return toObserver(stream, Function.identity());
   }
 
   /**
-   * Like {@link #toObserver(WriteStream, Consumer, Runnable)}, except the provided {@code mapping} function is applied to each {@link io.reactivex.Observable} item.
+   * Like {@link #toObserver(WriteStream)}, except the provided {@code mapping} function is applied to each {@link io.reactivex.Observable} item.
    */
-  public static <R, T> Observer<R> toObserver(WriteStream<T> stream, Function<R, T> mapping, Consumer<Throwable> onError, Runnable onComplete) {
-    return new WriteStreamObserver<>(stream, mapping, onError, onComplete);
+  public static <R, T> WriteStreamObserver<R> toObserver(WriteStream<T> stream, Function<R, T> mapping) {
+    return new WriteStreamObserverImpl<>(stream, mapping);
   }
 }

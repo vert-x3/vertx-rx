@@ -34,6 +34,7 @@ public class FakeWriteStream implements WriteStream<Integer> {
   private volatile Runnable onWrite;
   private volatile Handler<Throwable> exceptionHandler;
   private volatile Throwable failAfterWrite;
+  private volatile boolean endInvoked;
 
   public FakeWriteStream(Vertx vertx) {
     this.vertx = vertx;
@@ -87,6 +88,7 @@ public class FakeWriteStream implements WriteStream<Integer> {
 
   @Override
   public void end() {
+    endInvoked = true;
   }
 
   @Override
@@ -117,5 +119,9 @@ public class FakeWriteStream implements WriteStream<Integer> {
 
   public int getCount() {
     return last + 1;
+  }
+
+  public boolean endInvoked() {
+    return endInvoked;
   }
 }

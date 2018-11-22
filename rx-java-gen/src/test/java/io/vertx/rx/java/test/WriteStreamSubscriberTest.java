@@ -23,8 +23,6 @@ import org.junit.Test;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 
@@ -36,29 +34,32 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
   @Test
   public void testObservableErrorReported() throws Exception {
     Exception expected = new Exception();
-    AtomicReference<Throwable> throwable = new AtomicReference<>();
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx), t -> {
-      if (throwable.compareAndSet(null, t)) {
-        complete();
-      } else {
-        fail("onError invoked twice");
-      }
-    }, this::fail);
+    FakeWriteStream writeStream = new FakeWriteStream(vertx);
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).observableErrorHandler(throwable -> {
+      assertThat(throwable, is(sameInstance(expected)));
+      complete();
+    });
     Observable.<Integer>error(expected)
+      .observeOn(RxHelper.scheduler(vertx))
+      .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
-    assertSame(expected, throwable.get());
+    await();
+    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
   }
 
   @Test
   public void testObservableToWriteStream() throws Exception {
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream, this::fail, this::complete);
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).observableCompleteHandler(v -> complete());
     int count = 10000;
     Observable.range(0, count)
+      .observeOn(RxHelper.scheduler(vertx))
+      .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
     await();
     assertTrue("Expected drainHandler to be invoked", writeStream.drainHandlerInvoked());
     assertEquals(count, writeStream.getCount());
+    assertTrue("Expected writeStream end method to be invoked", writeStream.endInvoked());
   }
 
   @Test
@@ -66,14 +67,15 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
     waitFor(2);
     RuntimeException expected = new RuntimeException();
     FakeWriteStream writeStream = new FakeWriteStream(vertx).failAfterWrite(expected);
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream, throwable -> {
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).writeStreamExceptionHandler(throwable -> {
       assertThat(throwable, is(sameInstance(expected)));
       complete();
-    }, this::fail);
+    });
     Observable.<Integer>create(s -> s.onNext(0)).observeOn(RxHelper.scheduler(vertx))
       .doOnUnsubscribe(this::complete)
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
     await();
+    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
   }
 }

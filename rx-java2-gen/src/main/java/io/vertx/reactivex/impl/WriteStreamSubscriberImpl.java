@@ -16,44 +16,42 @@
 
 package io.vertx.reactivex.impl;
 
-import io.reactivex.FlowableSubscriber;
 import io.reactivex.exceptions.CompositeException;
 import io.reactivex.exceptions.Exceptions;
 import io.reactivex.internal.subscriptions.SubscriptionHelper;
 import io.reactivex.plugins.RxJavaPlugins;
+import io.vertx.core.Handler;
 import io.vertx.core.streams.WriteStream;
+import io.vertx.reactivex.WriteStreamSubscriber;
 import org.reactivestreams.Subscription;
 
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
  * @author Thomas Segismont
  */
-public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
+public class WriteStreamSubscriberImpl<R, T> implements WriteStreamSubscriber<R> {
 
   private static final int BATCH_SIZE = 16;
 
   private final WriteStream<T> writeStream;
   private final Function<R, T> mapping;
-  private final Consumer<Throwable> onError;
-  private final Runnable onComplete;
 
   private Subscription subscription;
   private int outstanding;
   private boolean drainHandlerSet;
   private boolean done;
 
-  public WriteStreamSubscriber(WriteStream<T> writeStream, Function<R, T> mapping, Consumer<Throwable> onError, Runnable onComplete) {
+  private Handler<Throwable> flowableErrorHandler;
+  private Handler<Void> flowableCompleteHandler;
+  private Handler<Throwable> writeStreamExceptionHandler;
+
+  public WriteStreamSubscriberImpl(WriteStream<T> writeStream, Function<R, T> mapping) {
     Objects.requireNonNull(writeStream, "writeStream");
     Objects.requireNonNull(mapping, "mapping");
-    Objects.requireNonNull(onError, "onError");
-    Objects.requireNonNull(onComplete, "onComplete");
     this.writeStream = writeStream;
     this.mapping = mapping;
-    this.onError = onError;
-    this.onComplete = onComplete;
   }
 
   @Override
@@ -65,8 +63,18 @@ public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
       return;
     }
     writeStream.exceptionHandler(t -> {
+      if (!setDone()) {
+        RxJavaPlugins.onError(t);
+        return;
+      }
       getSubscription().cancel();
-      onError(t);
+      Handler<Throwable> h;
+      synchronized (this) {
+        h = this.writeStreamExceptionHandler;
+      }
+      if (h != null) {
+        h.handle(t);
+      }
     });
     requestMore();
   }
@@ -124,8 +132,14 @@ public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
 
     Objects.requireNonNull(t, "onError called with null");
 
+    Handler<Throwable> h;
+    synchronized (this) {
+      h = flowableErrorHandler;
+    }
     try {
-      onError.accept(t);
+      if (h != null) {
+        h.handle(t);
+      }
     } catch (Throwable t1) {
       Exceptions.throwIfFatal(t1);
       RxJavaPlugins.onError(t1);
@@ -138,8 +152,15 @@ public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
       return;
     }
 
+    Handler<Void> h;
+    synchronized (this) {
+      h = flowableCompleteHandler;
+    }
     try {
-      onComplete.run();
+      writeStream.end();
+      if (h != null) {
+        h.handle(null);
+      }
     } catch (Throwable t) {
       Exceptions.throwIfFatal(t);
       RxJavaPlugins.onError(t);
@@ -195,5 +216,23 @@ public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
       drainHandlerSet = false;
     }
     requestMore();
+  }
+
+  @Override
+  public synchronized WriteStreamSubscriber<R> flowableErrorHandler(Handler<Throwable> flowableErrorHandler) {
+    this.flowableErrorHandler = flowableErrorHandler;
+    return this;
+  }
+
+  @Override
+  public synchronized WriteStreamSubscriber<R> flowableCompleteHandler(Handler<Void> flowableCompleteHandler) {
+    this.flowableCompleteHandler = flowableCompleteHandler;
+    return this;
+  }
+
+  @Override
+  public synchronized WriteStreamSubscriber<R> writeStreamExceptionHandler(Handler<Throwable> writeStreamExceptionHandler) {
+    this.writeStreamExceptionHandler = writeStreamExceptionHandler;
+    return this;
   }
 }

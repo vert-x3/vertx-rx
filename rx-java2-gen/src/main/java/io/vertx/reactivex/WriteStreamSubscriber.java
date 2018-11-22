@@ -14,35 +14,35 @@
  * under the License.
  */
 
-package io.vertx.rx.java;
+package io.vertx.reactivex;
 
+import io.reactivex.FlowableSubscriber;
 import io.vertx.core.Handler;
-import rx.Subscriber;
 
 /**
- * A {@link io.vertx.core.streams.WriteStream} to {@link Subscriber} adpater.
+ * A {@link io.vertx.core.streams.WriteStream} to {@link org.reactivestreams.Subscriber} adpater.
  *
  * @author Thomas Segismont
  */
-public abstract class WriteStreamSubscriber<R> extends Subscriber<R> {
+public interface WriteStreamSubscriber<R> extends FlowableSubscriber<R> {
 
   /**
-   * Sets the handler to invoke if the {@link rx.Observable} that was subscribed to terminates with an error.
+   * Sets the handler to invoke if the {@link io.reactivex.Flowable} that was subscribed to terminates with an error.
    * <p>
    * The underlying {@link io.vertx.core.streams.WriteStream#end()} method is <strong>not</strong> invoked in this case.
    *
    * @return a reference to this, so the API can be used fluently
    */
-  public abstract WriteStreamSubscriber<R> observableErrorHandler(Handler<Throwable> observableErrorHandler);
+  WriteStreamSubscriber<R> flowableErrorHandler(Handler<Throwable> flowableErrorHandler);
 
   /**
-   * Sets the handler to invoke if the {@link rx.Observable} that was subscribed to terminates successfully.
+   * Sets the handler to invoke if the {@link io.reactivex.Flowable} that was subscribed to terminates successfully.
    * <p>
-   * The underlying {@link io.vertx.core.streams.WriteStream#end()} method is invoked <strong>before</strong> the {@code observableCompleteHandler}.
+   * The underlying {@link io.vertx.core.streams.WriteStream#end()} method is invoked <strong>before</strong> the {@code flowableCompleteHandler}.
    *
    * @return a reference to this, so the API can be used fluently
    */
-  public abstract WriteStreamSubscriber<R> observableCompleteHandler(Handler<Void> observableCompleteHandler);
+  WriteStreamSubscriber<R> flowableCompleteHandler(Handler<Void> flowableCompleteHandler);
 
   /**
    * Sets the handler to invoke if the adapted {@link io.vertx.core.streams.WriteStream} fails.
@@ -51,5 +51,5 @@ public abstract class WriteStreamSubscriber<R> extends Subscriber<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  public abstract WriteStreamSubscriber<R> writeStreamExceptionHandler(Handler<Throwable> writeStreamExceptionHandler);
+  WriteStreamSubscriber<R> writeStreamExceptionHandler(Handler<Throwable> writeStreamExceptionHandler);
 }

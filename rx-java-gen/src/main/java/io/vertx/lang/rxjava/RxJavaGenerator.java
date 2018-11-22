@@ -77,24 +77,24 @@ class RxJavaGenerator extends AbstractRxGenerator {
   @Override
   protected void genToSubscriber(ApiTypeInfo type, PrintWriter writer) {
     TypeInfo streamType = type.getWriteStreamArg();
-    writer.format("  private rx.Subscriber<%s> subscriber;%n", genTypeName(streamType));
+    writer.format("  private io.vertx.rx.java.WriteStreamSubscriber<%s> subscriber;%n", genTypeName(streamType));
     writer.println();
 
-    writer.format("  public synchronized rx.Subscriber<%s> toSubscriber(java.util.function.Consumer<Throwable> onError, Runnable onComplete) {%n", genTypeName(streamType));
+    writer.format("  public synchronized io.vertx.rx.java.WriteStreamSubscriber<%s> toSubscriber() {%n", genTypeName(streamType));
 
-    writer.println("if (subscriber == null) {");
+    writer.println("    if (subscriber == null) {");
 
     if (streamType.getKind() == ClassKind.API) {
       writer.format("      java.util.function.Function<%s, %s> conv = %s::getDelegate;%n", genTypeName(streamType.getRaw()), streamType.getName(), genTypeName(streamType));
 
-      writer.println("      subscriber = io.vertx.rx.java.RxHelper.toSubscriber(getDelegate(), conv, onError, onComplete);");
+      writer.println("      subscriber = io.vertx.rx.java.RxHelper.toSubscriber(getDelegate(), conv);");
     } else if (streamType.isVariable()) {
       String typeVar = streamType.getSimpleName();
       writer.format("      java.util.function.Function<%s, %s> conv = (java.util.function.Function<%s, %s>) __typeArg_0.unwrap;%n", typeVar, typeVar, typeVar, typeVar);
 
-      writer.println("      subscriber = io.vertx.rx.java.RxHelper.toSubscriber(getDelegate(), conv, onError, onComplete);");
+      writer.println("      subscriber = io.vertx.rx.java.RxHelper.toSubscriber(getDelegate(), conv);");
     } else {
-      writer.println("      subscriber = io.vertx.rx.java.RxHelper.toSubscriber(getDelegate(), onError, onComplete);");
+      writer.println("      subscriber = io.vertx.rx.java.RxHelper.toSubscriber(getDelegate());");
     }
 
     writer.println("    }");

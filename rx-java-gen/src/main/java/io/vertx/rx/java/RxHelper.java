@@ -6,6 +6,7 @@ import io.vertx.core.*;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
+import io.vertx.rx.java.impl.WriteStreamSubscriberImpl;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
@@ -15,7 +16,6 @@ import rx.functions.Action1;
 import rx.plugins.RxJavaSchedulersHook;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -464,24 +464,20 @@ public class RxHelper {
   /**
    * Adapts a Vert.x {@link WriteStream} to an RxJava {@link Subscriber}.
    * <p>
-   * The {@link WriteStream#end()} method is not invoked when the {@link Observable} terminates.
-   * <p>
-   * Also, after subscription, the original {@link WriteStream} handlers should not be used anymore as they will be used by the adapter.
+   * After subscription, the original {@link WriteStream} handlers should not be used anymore as they will be used by the adapter.
    *
    * @param stream the stream to adapt
-   * @param onError callback invoked when the {@link Observable} terminates with an error, or the {@link WriteStream#exceptionHandler(Handler)} throws an error
-   * @param onComplete callback invoked when the {@link Observable} terminates successfully
    *
    * @return the adapted {@link Subscriber}
    */
-  public static <T> Subscriber<T> toSubscriber(WriteStream<T> stream, Consumer<Throwable> onError, Runnable onComplete) {
-    return toSubscriber(stream, Function.identity(), onError, onComplete);
+  public static <T> WriteStreamSubscriber<T> toSubscriber(WriteStream<T> stream) {
+    return toSubscriber(stream, Function.identity());
   }
 
   /**
-   * Like {@link #toSubscriber(WriteStream, Consumer, Runnable)}, except the provided {@code mapping} function is applied to each {@link Observable} item.
+   * Like {@link #toSubscriber(WriteStream)}, except the provided {@code mapping} function is applied to each {@link Observable} item.
    */
-  public static <R, T> Subscriber<R> toSubscriber(WriteStream<T> stream, Function<R, T> mapping, Consumer<Throwable> onError, Runnable onComplete) {
-    return new WriteStreamSubscriber<>(stream, mapping, onError, onComplete);
+  public static <R, T> WriteStreamSubscriber<R> toSubscriber(WriteStream<T> stream, Function<R, T> mapping) {
+    return new WriteStreamSubscriberImpl<>(stream, mapping);
   }
 }

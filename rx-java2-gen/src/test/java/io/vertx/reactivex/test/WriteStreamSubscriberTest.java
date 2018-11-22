@@ -43,21 +43,23 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
   @Test
   public void testFlowableErrorReported() throws Exception {
     Exception expected = new Exception();
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx), throwable -> {
+    FakeWriteStream writeStream = new FakeWriteStream(vertx);
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).flowableErrorHandler(throwable -> {
       assertThat(throwable, is(sameInstance(expected)));
       complete();
-    }, this::fail);
+    });
     Flowable.<Integer>error(expected)
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
     await();
+    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
   }
 
   @Test
   public void testFlowableToWriteStream() throws Exception {
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream, this::fail, this::complete);
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).flowableCompleteHandler(v -> complete());
     int count = 10000;
     Flowable.range(0, count)
       .observeOn(RxHelper.scheduler(vertx))
@@ -66,6 +68,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
     await();
     assertTrue("Expected drainHandler to be invoked", writeStream.drainHandlerInvoked());
     assertEquals(count, writeStream.getCount());
+    assertTrue("Expected writeStream end method to be invoked", writeStream.endInvoked());
   }
 
   @Test
@@ -75,7 +78,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
       assertThat(throwable, is(instanceOf(ProtocolViolationException.class)));
       complete();
     });
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx), this::fail, this::complete);
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx)).flowableCompleteHandler(v -> complete());
     Flowable.range(0, 100)
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
@@ -97,12 +100,13 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
     FakeWriteStream writeStream = new FakeWriteStream(vertx).setOnWrite(() -> {
       throw expected;
     });
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream, this::fail, this::fail);
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream);
     Flowable.just(0)
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
     await();
+    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
   }
 
   @Test
@@ -112,10 +116,10 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
     FakeWriteStream writeStream = new FakeWriteStream(vertx).setOnWrite(() -> {
       throw expected;
     });
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream, throwable -> {
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).flowableErrorHandler(throwable -> {
       assertThat(throwable, is(sameInstance(expected)));
       complete();
-    }, this::fail);
+    });
     Flowable.<Integer>create(emitter -> {
       emitter.setCancellable(this::complete);
       emitter.onNext(0);
@@ -124,6 +128,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
     await();
+    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
   }
 
   @Test
@@ -134,14 +139,16 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
       assertThat(throwable.getCause(), is(sameInstance(expected)));
       complete();
     });
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx), throwable -> {
+    FakeWriteStream writeStream = new FakeWriteStream(vertx);
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).flowableErrorHandler(throwable -> {
       throw expected;
-    }, this::fail);
+    });
     Flowable.<Integer>error(new RuntimeException())
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
     await();
+    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
   }
 
   @Test
@@ -152,7 +159,8 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
       assertThat(throwable.getCause(), is(sameInstance(expected)));
       complete();
     });
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx), this::fail, () -> {
+    FakeWriteStream writeStream = new FakeWriteStream(vertx);
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).flowableCompleteHandler(v -> {
       throw expected;
     });
     Flowable.just(0)
@@ -160,6 +168,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
     await();
+    assertTrue("Expected writeStream end method to be invoked", writeStream.endInvoked());
   }
 
   @Test
@@ -167,10 +176,10 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
     waitFor(2);
     RuntimeException expected = new RuntimeException();
     FakeWriteStream writeStream = new FakeWriteStream(vertx).failAfterWrite(expected);
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream, throwable -> {
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).writeStreamExceptionHandler(throwable -> {
       assertThat(throwable, is(sameInstance(expected)));
       complete();
-    }, this::fail);
+    });
     Flowable.<Integer>create(emitter -> {
       emitter.setCancellable(this::complete);
       emitter.onNext(0);
@@ -179,5 +188,6 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
     await();
+    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
   }
 }
