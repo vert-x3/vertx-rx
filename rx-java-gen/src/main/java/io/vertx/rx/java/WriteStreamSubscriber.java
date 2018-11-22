@@ -31,20 +31,20 @@ public class WriteStreamSubscriber<R, T> extends Subscriber<R> {
   private static final int BATCH_SIZE = 16;
 
   private final WriteStream<T> writeStream;
-  private final Function<R, T> adapter;
+  private final Function<R, T> mapping;
   private final Consumer<Throwable> onError;
   private final Runnable onComplete;
 
   private int outstanding;
   private boolean drainHandlerSet;
 
-  public WriteStreamSubscriber(WriteStream<T> writeStream, Function<R, T> adapter, Consumer<Throwable> onError, Runnable onComplete) {
+  public WriteStreamSubscriber(WriteStream<T> writeStream, Function<R, T> mapping, Consumer<Throwable> onError, Runnable onComplete) {
     Objects.requireNonNull(writeStream, "writeStream");
-    Objects.requireNonNull(adapter, "adapter");
+    Objects.requireNonNull(mapping, "mapping");
     Objects.requireNonNull(onError, "onError");
     Objects.requireNonNull(onComplete, "onComplete");
     this.writeStream = writeStream;
-    this.adapter = adapter;
+    this.mapping = mapping;
     this.onError = onError;
     this.onComplete = onComplete;
   }
@@ -60,7 +60,7 @@ public class WriteStreamSubscriber<R, T> extends Subscriber<R> {
 
   @Override
   public void onNext(R r) {
-    writeStream.write(adapter.apply(r));
+    writeStream.write(mapping.apply(r));
     synchronized (this) {
       outstanding--;
     }

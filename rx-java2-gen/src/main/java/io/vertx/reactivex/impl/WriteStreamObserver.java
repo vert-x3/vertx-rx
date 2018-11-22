@@ -36,18 +36,18 @@ public class WriteStreamObserver<R, T> implements Observer<R> {
   private final WriteStream<T> writeStream;
   private final Consumer<Throwable> onError;
   private final Runnable onComplete;
-  private final Function<R, T> adapter;
+  private final Function<R, T> mapping;
 
   private Disposable disposable;
   private boolean done;
 
-  public WriteStreamObserver(WriteStream<T> writeStream, Function<R, T> adapter, Consumer<Throwable> onError, Runnable onComplete) {
+  public WriteStreamObserver(WriteStream<T> writeStream, Function<R, T> mapping, Consumer<Throwable> onError, Runnable onComplete) {
     Objects.requireNonNull(writeStream, "writeStream");
-    Objects.requireNonNull(adapter, "adapter");
+    Objects.requireNonNull(mapping, "mapping");
     Objects.requireNonNull(onError, "onError");
     Objects.requireNonNull(onComplete, "onComplete");
     this.writeStream = writeStream;
-    this.adapter = adapter;
+    this.mapping = mapping;
     this.onError = onError;
     this.onComplete = onComplete;
   }
@@ -85,7 +85,7 @@ public class WriteStreamObserver<R, T> implements Observer<R> {
     }
 
     try {
-      writeStream.write(adapter.apply(r));
+      writeStream.write(mapping.apply(r));
     } catch (Throwable t) {
       Exceptions.throwIfFatal(t);
       Throwable throwable;
