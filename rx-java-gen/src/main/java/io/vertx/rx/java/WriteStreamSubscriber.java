@@ -16,7 +16,6 @@
 
 package io.vertx.rx.java;
 
-import io.vertx.core.Handler;
 import io.vertx.core.streams.WriteStream;
 import rx.Subscriber;
 
@@ -35,7 +34,6 @@ public class WriteStreamSubscriber<R, T> extends Subscriber<R> {
   private final Function<R, T> adapter;
   private final Consumer<Throwable> onError;
   private final Runnable onComplete;
-  private final Handler<Void> drainHandler;
 
   private int outstanding;
   private boolean drainHandlerSet;
@@ -49,12 +47,6 @@ public class WriteStreamSubscriber<R, T> extends Subscriber<R> {
     this.adapter = adapter;
     this.onError = onError;
     this.onComplete = onComplete;
-    this.drainHandler = v -> {
-      synchronized (this) {
-        drainHandlerSet = false;
-      }
-      requestMore();
-    };
   }
 
   @Override
@@ -73,9 +65,7 @@ public class WriteStreamSubscriber<R, T> extends Subscriber<R> {
       outstanding--;
     }
     if (writeStream.writeQueueFull()) {
-      if (switchDrainHandlerSetOn()) {
-        writeStream.drainHandler(drainHandler);
-      }
+      setDrainHandler();
     } else {
       requestMore();
     }
@@ -101,7 +91,20 @@ public class WriteStreamSubscriber<R, T> extends Subscriber<R> {
     request(BATCH_SIZE);
   }
 
-  private synchronized boolean switchDrainHandlerSetOn() {
-    return drainHandlerSet ? false : (drainHandlerSet = true);
+  private void setDrainHandler() {
+    boolean set;
+    synchronized (this) {
+      set = drainHandlerSet ? false : (drainHandlerSet = true);
+    }
+    if (set) {
+      writeStream.drainHandler(this::drain);
+    }
+  }
+
+  private void drain(Void v) {
+    synchronized (this) {
+      drainHandlerSet = false;
+    }
+    requestMore();
   }
 }

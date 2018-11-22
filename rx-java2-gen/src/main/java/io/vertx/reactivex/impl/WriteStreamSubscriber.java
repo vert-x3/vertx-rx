@@ -21,7 +21,6 @@ import io.reactivex.exceptions.CompositeException;
 import io.reactivex.exceptions.Exceptions;
 import io.reactivex.internal.subscriptions.SubscriptionHelper;
 import io.reactivex.plugins.RxJavaPlugins;
-import io.vertx.core.Handler;
 import io.vertx.core.streams.WriteStream;
 import org.reactivestreams.Subscription;
 
@@ -40,7 +39,6 @@ public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
   private final Function<R, T> adapter;
   private final Consumer<Throwable> onError;
   private final Runnable onComplete;
-  private final Handler<Void> drainHandler;
 
   private Subscription subscription;
   private int outstanding;
@@ -56,12 +54,6 @@ public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
     this.adapter = adapter;
     this.onError = onError;
     this.onComplete = onComplete;
-    this.drainHandler = v -> {
-      synchronized (this) {
-        drainHandlerSet = false;
-      }
-      requestMore();
-    };
   }
 
   @Override
@@ -117,9 +109,7 @@ public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
     }
 
     if (writeStream.writeQueueFull()) {
-      if (switchDrainHandlerSetOn()) {
-        writeStream.drainHandler(drainHandler);
-      }
+      setDrainHandler();
     } else {
       requestMore();
     }
@@ -190,7 +180,20 @@ public class WriteStreamSubscriber<R, T> implements FlowableSubscriber<R> {
     s.request(BATCH_SIZE);
   }
 
-  private synchronized boolean switchDrainHandlerSetOn() {
-    return drainHandlerSet ? false : (drainHandlerSet = true);
+  private void setDrainHandler() {
+    boolean set;
+    synchronized (this) {
+      set = drainHandlerSet ? false : (drainHandlerSet = true);
+    }
+    if (set) {
+      writeStream.drainHandler(this::drain);
+    }
+  }
+
+  private void drain(Void v) {
+    synchronized (this) {
+      drainHandlerSet = false;
+    }
+    requestMore();
   }
 }
