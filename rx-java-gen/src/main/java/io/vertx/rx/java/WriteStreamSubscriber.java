@@ -29,7 +29,7 @@ import java.util.function.Function;
  */
 public class WriteStreamSubscriber<R, T> extends Subscriber<R> {
 
-  private static final int BATCH_SIZE = 256;
+  private static final int BATCH_SIZE = 16;
 
   private final WriteStream<T> writeStream;
   private final Function<R, T> adapter;
