@@ -25,8 +25,7 @@ public class RxWebApiContractExamples {
       .flatMap(routerFactory -> {
         // Spec loaded with success. router factory contains OpenAPI3RouterFactory
         // Set router factory options.
-        RouterFactoryOptions options = new RouterFactoryOptions()
-          .setBodyHandler(BodyHandler.create("my_file_upload_dir").getDelegate());
+        RouterFactoryOptions options = new RouterFactoryOptions().setOperationModelKey("openapi_model");
         // Mount the options
         routerFactory.setOptions(options);
         // Add an handler with operationId
