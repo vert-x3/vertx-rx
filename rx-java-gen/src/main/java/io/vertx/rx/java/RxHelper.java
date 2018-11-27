@@ -26,7 +26,7 @@ import java.util.function.Function;
 public class RxHelper {
 
   /**
-   * Adapts an Vert.x {@code Handler<AsyncResult<T>>} to an RxJava {@link Subscriber}.
+   * Adapts a Vert.x {@code Handler<AsyncResult<T>>} to an RxJava {@link Subscriber}.
    * <p>
    * The returned subscriber can be subscribed to an {@link Observable#subscribe(Subscriber)} or
    * {@link rx.Single#subscribe(Subscriber)}.
