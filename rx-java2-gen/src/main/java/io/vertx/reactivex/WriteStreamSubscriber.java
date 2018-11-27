@@ -33,16 +33,16 @@ public interface WriteStreamSubscriber<R> extends FlowableSubscriber<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  WriteStreamSubscriber<R> flowableErrorHandler(Handler<Throwable> flowableErrorHandler);
+  WriteStreamSubscriber<R> onError(Handler<Throwable> handler);
 
   /**
    * Sets the handler to invoke if the {@link io.reactivex.Flowable} that was subscribed to terminates successfully.
    * <p>
-   * The underlying {@link io.vertx.core.streams.WriteStream#end()} method is invoked <strong>before</strong> the {@code flowableCompleteHandler}.
+   * The underlying {@link io.vertx.core.streams.WriteStream#end()} method is invoked <strong>before</strong> the given {@code handler}.
    *
    * @return a reference to this, so the API can be used fluently
    */
-  WriteStreamSubscriber<R> flowableCompleteHandler(Handler<Void> flowableCompleteHandler);
+  WriteStreamSubscriber<R> onComplete(Runnable handler);
 
   /**
    * Sets the handler to invoke if the adapted {@link io.vertx.core.streams.WriteStream} fails.
@@ -51,5 +51,5 @@ public interface WriteStreamSubscriber<R> extends FlowableSubscriber<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  WriteStreamSubscriber<R> writeStreamExceptionHandler(Handler<Throwable> writeStreamExceptionHandler);
+  WriteStreamSubscriber<R> onWriteStreamError(Handler<Throwable> handler);
 }

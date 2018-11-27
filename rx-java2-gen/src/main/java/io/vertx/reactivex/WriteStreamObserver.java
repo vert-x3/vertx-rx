@@ -33,16 +33,16 @@ public interface WriteStreamObserver<R> extends Observer<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  WriteStreamObserver<R> observableErrorHandler(Handler<Throwable> observableErrorHandler);
+  WriteStreamObserver<R> onError(Handler<Throwable> handler);
 
   /**
    * Sets the handler to invoke if the {@link io.reactivex.Observable} that was subscribed to terminates successfully.
    * <p>
-   * The underlying {@link io.vertx.core.streams.WriteStream#end()} method is invoked <strong>before</strong> the {@code observableCompleteHandler}.
+   * The underlying {@link io.vertx.core.streams.WriteStream#end()} method is invoked <strong>before</strong> the given {@code handler}.
    *
    * @return a reference to this, so the API can be used fluently
    */
-  WriteStreamObserver<R> observableCompleteHandler(Handler<Void> observableCompleteHandler);
+  WriteStreamObserver<R> onComplete(Runnable handler);
 
   /**
    * Sets the handler to invoke if the adapted {@link io.vertx.core.streams.WriteStream} fails.
@@ -51,5 +51,5 @@ public interface WriteStreamObserver<R> extends Observer<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  WriteStreamObserver<R> writeStreamExceptionHandler(Handler<Throwable> writeStreamExceptionHandler);
+  WriteStreamObserver<R> onWriteStreamError(Handler<Throwable> handler);
 }

@@ -37,7 +37,7 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
   private boolean drainHandlerSet;
 
   private Handler<Throwable> observableErrorHandler;
-  private Handler<Void> observableCompleteHandler;
+  private Runnable observableCompleteHandler;
   private Handler<Throwable> writeStreamExceptionHandler;
 
   public WriteStreamSubscriberImpl(WriteStream<T> writeStream, Function<R, T> mapping) {
@@ -88,13 +88,13 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
 
   @Override
   public void onCompleted() {
-    Handler<Void> h;
+    Runnable r;
     synchronized (this) {
-      h = this.observableCompleteHandler;
+      r = this.observableCompleteHandler;
     }
     writeStream.end();
-    if (h != null) {
-      h.handle(null);
+    if (r != null) {
+      r.run();
     }
   }
 
@@ -126,20 +126,20 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
   }
 
   @Override
-  public synchronized WriteStreamSubscriber<R> observableErrorHandler(Handler<Throwable> observableErrorHandler) {
-    this.observableErrorHandler = observableErrorHandler;
+  public synchronized WriteStreamSubscriber<R> onError(Handler<Throwable> handler) {
+    this.observableErrorHandler = handler;
     return this;
   }
 
   @Override
-  public synchronized WriteStreamSubscriber<R> observableCompleteHandler(Handler<Void> observableCompleteHandler) {
-    this.observableCompleteHandler = observableCompleteHandler;
+  public synchronized WriteStreamSubscriber<R> onComplete(Runnable handler) {
+    this.observableCompleteHandler = handler;
     return this;
   }
 
   @Override
-  public synchronized WriteStreamSubscriber<R> writeStreamExceptionHandler(Handler<Throwable> writeStreamExceptionHandler) {
-    this.writeStreamExceptionHandler = writeStreamExceptionHandler;
+  public synchronized WriteStreamSubscriber<R> onWriteStreamError(Handler<Throwable> handler) {
+    this.writeStreamExceptionHandler = handler;
     return this;
   }
 }

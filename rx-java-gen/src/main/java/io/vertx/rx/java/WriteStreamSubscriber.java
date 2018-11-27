@@ -33,16 +33,16 @@ public abstract class WriteStreamSubscriber<R> extends Subscriber<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  public abstract WriteStreamSubscriber<R> observableErrorHandler(Handler<Throwable> observableErrorHandler);
+  public abstract WriteStreamSubscriber<R> onError(Handler<Throwable> handler);
 
   /**
    * Sets the handler to invoke if the {@link rx.Observable} that was subscribed to terminates successfully.
    * <p>
-   * The underlying {@link io.vertx.core.streams.WriteStream#end()} method is invoked <strong>before</strong> the {@code observableCompleteHandler}.
+   * The underlying {@link io.vertx.core.streams.WriteStream#end()} method is invoked <strong>before</strong> the given {@code handler}.
    *
    * @return a reference to this, so the API can be used fluently
    */
-  public abstract WriteStreamSubscriber<R> observableCompleteHandler(Handler<Void> observableCompleteHandler);
+  public abstract WriteStreamSubscriber<R> onComplete(Runnable handler);
 
   /**
    * Sets the handler to invoke if the adapted {@link io.vertx.core.streams.WriteStream} fails.
@@ -51,5 +51,5 @@ public abstract class WriteStreamSubscriber<R> extends Subscriber<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  public abstract WriteStreamSubscriber<R> writeStreamExceptionHandler(Handler<Throwable> writeStreamExceptionHandler);
+  public abstract WriteStreamSubscriber<R> onWriteStreamError(Handler<Throwable> handler);
 }

@@ -361,7 +361,7 @@ public class RxifiedExamples {
 
     WriteStreamSubscriber<io.vertx.core.buffer.Buffer> subscriber = io.vertx.rx.java.RxHelper.toSubscriber(response);
 
-    subscriber.observableErrorHandler(throwable -> {
+    subscriber.onError(throwable -> {
       if (!response.headWritten() && response.closed()) {
         response.setStatusCode(500).end("oops");
       } else {
@@ -369,11 +369,11 @@ public class RxifiedExamples {
       }
     });
 
-    subscriber.writeStreamExceptionHandler(throwable -> {
+    subscriber.onWriteStreamError(throwable -> {
       // log error
     });
 
-    subscriber.observableCompleteHandler(v -> {
+    subscriber.onComplete(() -> {
       // log end of transaction to audit system...
     });
 

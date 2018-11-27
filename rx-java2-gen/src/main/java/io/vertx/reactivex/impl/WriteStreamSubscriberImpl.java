@@ -44,7 +44,7 @@ public class WriteStreamSubscriberImpl<R, T> implements WriteStreamSubscriber<R>
   private boolean done;
 
   private Handler<Throwable> flowableErrorHandler;
-  private Handler<Void> flowableCompleteHandler;
+  private Runnable flowableCompleteHandler;
   private Handler<Throwable> writeStreamExceptionHandler;
 
   public WriteStreamSubscriberImpl(WriteStream<T> writeStream, Function<R, T> mapping) {
@@ -152,14 +152,14 @@ public class WriteStreamSubscriberImpl<R, T> implements WriteStreamSubscriber<R>
       return;
     }
 
-    Handler<Void> h;
+    Runnable r;
     synchronized (this) {
-      h = flowableCompleteHandler;
+      r = flowableCompleteHandler;
     }
     try {
       writeStream.end();
-      if (h != null) {
-        h.handle(null);
+      if (r != null) {
+        r.run();
       }
     } catch (Throwable t) {
       Exceptions.throwIfFatal(t);
@@ -219,20 +219,20 @@ public class WriteStreamSubscriberImpl<R, T> implements WriteStreamSubscriber<R>
   }
 
   @Override
-  public synchronized WriteStreamSubscriber<R> flowableErrorHandler(Handler<Throwable> flowableErrorHandler) {
-    this.flowableErrorHandler = flowableErrorHandler;
+  public synchronized WriteStreamSubscriber<R> onError(Handler<Throwable> handler) {
+    this.flowableErrorHandler = handler;
     return this;
   }
 
   @Override
-  public synchronized WriteStreamSubscriber<R> flowableCompleteHandler(Handler<Void> flowableCompleteHandler) {
-    this.flowableCompleteHandler = flowableCompleteHandler;
+  public synchronized WriteStreamSubscriber<R> onComplete(Runnable handler) {
+    this.flowableCompleteHandler = handler;
     return this;
   }
 
   @Override
-  public synchronized WriteStreamSubscriber<R> writeStreamExceptionHandler(Handler<Throwable> writeStreamExceptionHandler) {
-    this.writeStreamExceptionHandler = writeStreamExceptionHandler;
+  public synchronized WriteStreamSubscriber<R> onWriteStreamError(Handler<Throwable> handler) {
+    this.writeStreamExceptionHandler = handler;
     return this;
   }
 }

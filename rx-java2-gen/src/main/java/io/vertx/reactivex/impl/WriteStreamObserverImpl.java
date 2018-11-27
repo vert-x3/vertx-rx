@@ -40,7 +40,7 @@ public class WriteStreamObserverImpl<R, T> implements WriteStreamObserver<R> {
   private boolean done;
 
   private Handler<Throwable> observableErrorHandler;
-  private Handler<Void> observableCompleteHandler;
+  private Runnable observableCompleteHandler;
   private Handler<Throwable> writeStreamExceptionHandler;
 
   public WriteStreamObserverImpl(WriteStream<T> writeStream, Function<R, T> mapping) {
@@ -137,14 +137,14 @@ public class WriteStreamObserverImpl<R, T> implements WriteStreamObserver<R> {
       return;
     }
 
-    Handler<Void> h;
+    Runnable r;
     synchronized (this) {
-      h = observableCompleteHandler;
+      r = observableCompleteHandler;
     }
     try {
       writeStream.end();
-      if (h != null) {
-        h.handle(null);
+      if (r != null) {
+        r.run();
       }
     } catch (Throwable t) {
       Exceptions.throwIfFatal(t);
@@ -173,20 +173,20 @@ public class WriteStreamObserverImpl<R, T> implements WriteStreamObserver<R> {
   }
 
   @Override
-  public synchronized WriteStreamObserver<R> observableErrorHandler(Handler<Throwable> observableErrorHandler) {
-    this.observableErrorHandler = observableErrorHandler;
+  public synchronized WriteStreamObserver<R> onError(Handler<Throwable> handler) {
+    this.observableErrorHandler = handler;
     return this;
   }
 
   @Override
-  public synchronized WriteStreamObserver<R> observableCompleteHandler(Handler<Void> observableCompleteHandler) {
-    this.observableCompleteHandler = observableCompleteHandler;
+  public synchronized WriteStreamObserver<R> onComplete(Runnable handler) {
+    this.observableCompleteHandler = handler;
     return this;
   }
 
   @Override
-  public synchronized WriteStreamObserver<R> writeStreamExceptionHandler(Handler<Throwable> writeStreamExceptionHandler) {
-    this.writeStreamExceptionHandler = writeStreamExceptionHandler;
+  public synchronized WriteStreamObserver<R> onWriteStreamError(Handler<Throwable> handler) {
+    this.writeStreamExceptionHandler = handler;
     return this;
   }
 }

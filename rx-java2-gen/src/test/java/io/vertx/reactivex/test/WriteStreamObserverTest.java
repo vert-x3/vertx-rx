@@ -43,7 +43,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
   public void testObservableErrorReported() throws Exception {
     Exception expected = new Exception();
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Observer<Integer> observer = RxHelper.toObserver(writeStream).observableErrorHandler(throwable -> {
+    Observer<Integer> observer = RxHelper.toObserver(writeStream).onError(throwable -> {
       assertThat(throwable, is(sameInstance(expected)));
       complete();
     });
@@ -58,7 +58,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
   @Test
   public void testObservableToWriteStream() throws Exception {
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Observer<Integer> observer = RxHelper.toObserver(writeStream).observableCompleteHandler(v -> complete());
+    Observer<Integer> observer = RxHelper.toObserver(writeStream).onComplete(this::complete);
     int count = 10000;
     Observable.range(0, count)
       .observeOn(RxHelper.scheduler(vertx))
@@ -77,7 +77,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
       assertThat(throwable, is(instanceOf(ProtocolViolationException.class)));
       complete();
     });
-    Observer<Integer> observer = RxHelper.toObserver(new FakeWriteStream(vertx)).observableCompleteHandler(v -> complete());
+    Observer<Integer> observer = RxHelper.toObserver(new FakeWriteStream(vertx)).onComplete(this::complete);
     Observable.range(0, 100)
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
@@ -115,7 +115,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
     FakeWriteStream writeStream = new FakeWriteStream(vertx).setOnWrite(() -> {
       throw expected;
     });
-    Observer<Integer> observer = RxHelper.toObserver(writeStream).observableErrorHandler(throwable -> {
+    Observer<Integer> observer = RxHelper.toObserver(writeStream).onError(throwable -> {
       assertThat(throwable, is(sameInstance(expected)));
       complete();
     });
@@ -138,7 +138,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
       complete();
     });
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Observer<Integer> observer = RxHelper.toObserver(writeStream).observableErrorHandler(throwable -> {
+    Observer<Integer> observer = RxHelper.toObserver(writeStream).onError(throwable -> {
       throw expected;
     });
     Observable.<Integer>error(new RuntimeException())
@@ -158,7 +158,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
       complete();
     });
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Observer<Integer> observer = RxHelper.toObserver(writeStream).observableCompleteHandler(v -> {
+    Observer<Integer> observer = RxHelper.toObserver(writeStream).onComplete(() -> {
       throw expected;
     });
     Observable.just(0)
@@ -174,7 +174,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
     waitFor(2);
     RuntimeException expected = new RuntimeException();
     FakeWriteStream writeStream = new FakeWriteStream(vertx).failAfterWrite(expected);
-    Observer<Integer> observer = RxHelper.toObserver(writeStream).writeStreamExceptionHandler(throwable -> {
+    Observer<Integer> observer = RxHelper.toObserver(writeStream).onWriteStreamError(throwable -> {
       assertThat(throwable, is(sameInstance(expected)));
       complete();
     });
