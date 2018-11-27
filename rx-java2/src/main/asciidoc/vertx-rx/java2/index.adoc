@@ -99,7 +99,7 @@ a `Flowable` to a Vert.x read stream:
 
 === Write stream support
 
-A {@link io.vertx.core.streams.WriteStream}, like a `org.reactivestreams.Subscriber`, consumes items and collaborates with producers to avoid overflows.
+A {@link io.vertx.core.streams.WriteStream}, like a `org.reactivestreams.Subscriber`, consumes items, and, when it can't keep-up, collaborates with the producer to avoid an ever-growing backlog.
 
 Vert.x provides the {@link io.vertx.reactivex.WriteStreamSubscriber} adapter that you can use to send `Flowable` items to any {@link io.vertx.core.streams.WriteStream}:
 
