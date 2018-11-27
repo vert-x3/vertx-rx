@@ -6,8 +6,8 @@ import io.vertx.core.Verticle;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.streams.ReadStream;
 import io.vertx.docgen.Source;
+import io.vertx.rx.java.WriteStreamSubscriber;
 import io.vertx.rxjava.core.RxHelper;
 import io.vertx.rxjava.core.Vertx;
 import io.vertx.rxjava.core.WorkerExecutor;
@@ -17,13 +17,7 @@ import io.vertx.rxjava.core.eventbus.Message;
 import io.vertx.rxjava.core.eventbus.MessageConsumer;
 import io.vertx.rxjava.core.file.AsyncFile;
 import io.vertx.rxjava.core.file.FileSystem;
-import io.vertx.rxjava.core.http.HttpClient;
-import io.vertx.rxjava.core.http.HttpClientRequest;
-import io.vertx.rxjava.core.http.HttpClientResponse;
-import io.vertx.rxjava.core.http.HttpServer;
-import io.vertx.rxjava.core.http.HttpServerRequest;
-import io.vertx.rxjava.core.http.ServerWebSocket;
-import io.vertx.rxjava.core.http.WebSocket;
+import io.vertx.rxjava.core.http.*;
 import rx.*;
 import rx.plugins.RxJavaHooks;
 import rx.plugins.RxJavaSchedulersHook;
@@ -355,5 +349,39 @@ public class RxifiedExamples {
           public void onCompleted() {}
         });
   }
-}
 
+  public void writeStreamSubscriberAdapter(Observable<io.vertx.core.buffer.Buffer> observable, io.vertx.core.http.HttpServerResponse response) {
+    response.setChunked(true);
+    WriteStreamSubscriber<io.vertx.core.buffer.Buffer> subscriber = io.vertx.rx.java.RxHelper.toSubscriber(response);
+    observable.subscribe(subscriber);
+  }
+
+  public void writeStreamSubscriberAdapterCallbacks(Observable<io.vertx.core.buffer.Buffer> observable, io.vertx.core.http.HttpServerResponse response) {
+    response.setChunked(true);
+
+    WriteStreamSubscriber<io.vertx.core.buffer.Buffer> subscriber = io.vertx.rx.java.RxHelper.toSubscriber(response);
+
+    subscriber.observableErrorHandler(throwable -> {
+      if (!response.headWritten() && response.closed()) {
+        response.setStatusCode(500).end("oops");
+      } else {
+        // log error
+      }
+    });
+
+    subscriber.writeStreamExceptionHandler(throwable -> {
+      // log error
+    });
+
+    subscriber.observableCompleteHandler(v -> {
+      // log end of transaction to audit system...
+    });
+
+    observable.subscribe(subscriber);
+  }
+
+  public void rxWriteStreamToSubscriber(Observable<Buffer> observable, HttpServerResponse response) {
+    response.setChunked(true);
+    observable.subscribe(response.toSubscriber());
+  }
+}
