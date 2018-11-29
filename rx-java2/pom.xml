@@ -73,11 +73,6 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-mongo-service</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
       <artifactId>vertx-cassandra-client</artifactId>
       <optional>true</optional>
     </dependency>
@@ -214,17 +209,7 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-mail-service</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
       <artifactId>vertx-consul-client</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-consul-service</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -279,22 +264,12 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-amqp-bridge</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
       <artifactId>vertx-kafka-client</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-mqtt</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-mysql-postgresql-client</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -350,6 +325,11 @@
       <artifactId>vertx-rx-java2-gen</artifactId>
       <version>4.0.0-SNAPSHOT</version>
       <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-service-proxy</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -484,7 +464,6 @@
             vertx-bridge-common,
             vertx-sql-common,
             vertx-mongo-client,
-            vertx-mongo-service,
             vertx-cassandra-client,
             vertx-jdbc-client,
             vertx-auth-common,
@@ -512,9 +491,7 @@
             vertx-redis-client,
             vertx-stomp,
             vertx-mail-client,
-            vertx-mail-service,
             vertx-consul-client,
-            vertx-consul-service,
             vertx-service-discovery,
             vertx-service-discovery-backend-consul,
             vertx-service-discovery-backend-redis,
@@ -525,10 +502,8 @@
             vertx-service-discovery-bridge-zookeeper,
             vertx-service-discovery-bridge-docker-links,
             vertx-config,
-            vertx-amqp-bridge,
             vertx-kafka-client,
             vertx-mqtt,
-            vertx-mysql-postgresql-client,
             vertx-rabbitmq-client,
             vertx-health-check,
             vertx-shell,

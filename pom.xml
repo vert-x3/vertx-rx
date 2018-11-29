@@ -124,21 +124,4 @@
     </plugins>
   </build>
 
-  <profiles>
-    <profile>
-      <id>java-8</id>
-      <activation>
-        <jdk>1.8</jdk>
-      </activation>
-      <modules>
-        <module>rx-gen</module>
-        <module>rx-java-gen</module>
-        <module>rx-java2-gen</module>
-        <module>rx-java</module>
-        <module>rx-java2</module>
-        <module>rx-groovy</module>
-      </modules>
-    </profile>
-  </profiles>
-
 </project>
