@@ -19,6 +19,7 @@ import io.vertx.test.core.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import rx.Observable;
+import rx.Single;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -95,33 +96,45 @@ public class ApiTCKTest {
 
   @Test
   public void testMethodWithFutureBasicTypes() throws Exception {
-    assertEquals((byte) 123, (byte) get(obj.methodWithHandlerAsyncResultByteObservable(false)));
-    assertEquals((short) 12345, (short) get(obj.methodWithHandlerAsyncResultShortObservable(false)));
-    assertEquals(1234567, (int) get(obj.methodWithHandlerAsyncResultIntegerObservable(false)));
-    assertEquals(1265615234l, (long) get(obj.methodWithHandlerAsyncResultLongObservable(false)));
-    assertEquals(12.345f, (float) get(obj.methodWithHandlerAsyncResultFloatObservable(false)), 0);
-    assertEquals(12.34566d, (double) get(obj.methodWithHandlerAsyncResultDoubleObservable(false)), 0);
-    assertEquals(true, get(obj.methodWithHandlerAsyncResultBooleanObservable(false)));
-    assertEquals('X', (char) get(obj.methodWithHandlerAsyncResultCharacterObservable(false)));
-    assertEquals("quux!", get(obj.methodWithHandlerAsyncResultStringObservable(false)));
-    assertFailure("foobar!", obj.methodWithHandlerAsyncResultByteObservable(true));
-    assertFailure("foobar!", obj.methodWithHandlerAsyncResultShortObservable(true));
-    assertFailure("foobar!", obj.methodWithHandlerAsyncResultIntegerObservable(true));
-    assertFailure("foobar!", obj.methodWithHandlerAsyncResultLongObservable(true));
-    assertFailure("foobar!", obj.methodWithHandlerAsyncResultFloatObservable(true));
-    assertFailure("foobar!", obj.methodWithHandlerAsyncResultDoubleObservable(true));
-    assertFailure("foobar!", obj.methodWithHandlerAsyncResultBooleanObservable(true));
-    assertFailure("foobar!", obj.methodWithHandlerAsyncResultCharacterObservable(true));
-    assertFailure("foobar!", obj.methodWithHandlerAsyncResultStringObservable(true));
+    assertEquals((byte) 123, (byte) get(obj.rxMethodWithHandlerAsyncResultByte(false)));
+    assertEquals((short) 12345, (short) get(obj.rxMethodWithHandlerAsyncResultShort(false)));
+    assertEquals(1234567, (int) get(obj.rxMethodWithHandlerAsyncResultInteger(false)));
+    assertEquals(1265615234l, (long) get(obj.rxMethodWithHandlerAsyncResultLong(false)));
+    assertEquals(12.345f, (float) get(obj.rxMethodWithHandlerAsyncResultFloat(false)), 0);
+    assertEquals(12.34566d, (double) get(obj.rxMethodWithHandlerAsyncResultDouble(false)), 0);
+    assertEquals(true, get(obj.rxMethodWithHandlerAsyncResultBoolean(false)));
+    assertEquals('X', (char) get(obj.rxMethodWithHandlerAsyncResultCharacter(false)));
+    assertEquals("quux!", get(obj.rxMethodWithHandlerAsyncResultString(false)));
+    assertFailure("foobar!", obj.rxMethodWithHandlerAsyncResultByte(true));
+    assertFailure("foobar!", obj.rxMethodWithHandlerAsyncResultShort(true));
+    assertFailure("foobar!", obj.rxMethodWithHandlerAsyncResultInteger(true));
+    assertFailure("foobar!", obj.rxMethodWithHandlerAsyncResultLong(true));
+    assertFailure("foobar!", obj.rxMethodWithHandlerAsyncResultFloat(true));
+    assertFailure("foobar!", obj.rxMethodWithHandlerAsyncResultDouble(true));
+    assertFailure("foobar!", obj.rxMethodWithHandlerAsyncResultBoolean(true));
+    assertFailure("foobar!", obj.rxMethodWithHandlerAsyncResultCharacter(true));
+    assertFailure("foobar!", obj.rxMethodWithHandlerAsyncResultString(true));
   }
 
   static <T> T get(Observable<T> future) throws Exception {
     return future.toBlocking().first();
   }
 
+  static <T> T get(Single<T> future) throws Exception {
+    return future.toBlocking().value();
+  }
+
   private <T> void assertFailure(String message, Observable<T> future) throws Exception {
     try {
       future.toBlocking().first();
+    } catch (Exception e) {
+//      assertEquals(message, e.getCause().getMessage());
+    }
+  }
+
+  private <T> void assertFailure(String message, Single<T> future) throws Exception {
+    try {
+      future.toBlocking().value();
     } catch (Exception e) {
 //      assertEquals(message, e.getCause().getMessage());
     }
@@ -287,7 +300,7 @@ public class ApiTCKTest {
 
   @Test
   public void testMethodWithFutureUserTypes() throws Exception {
-    RefedInterface1 result = get(obj.methodWithHandlerAsyncResultUserTypesObservable());
+    RefedInterface1 result = get(obj.rxMethodWithHandlerAsyncResultUserTypes());
     assertEquals("cheetahs", result.getString());
   }
 
@@ -307,7 +320,7 @@ public class ApiTCKTest {
 
   @Test
   public void testMethodWithFutureVoid() throws Exception {
-    Void result = get(obj.methodWithHandlerAsyncResultVoidObservable(false));
+    Void result = get(obj.rxMethodWithHandlerAsyncResultVoid(false));
     assertEquals(null, result);
   }
 
@@ -320,7 +333,7 @@ public class ApiTCKTest {
 
   @Test
   public void testMethodWithFutureVoidFails() throws Exception {
-    assertFailure("foo!", obj.methodWithHandlerAsyncResultVoidObservable(true));
+    assertFailure("foo!", obj.rxMethodWithHandlerAsyncResultVoid(true));
   }
 
   @Test
@@ -363,11 +376,11 @@ public class ApiTCKTest {
 
   @Test
   public void testMethodWithGenericObservable() throws Exception {
-    assertEquals("foo", get(obj.methodWithGenericHandlerAsyncResultObservable("String")));
-    RefedInterface1Impl ref = get(obj.<RefedInterface1Impl>methodWithGenericHandlerAsyncResultObservable("Ref"));
+    assertEquals("foo", get(obj.rxMethodWithGenericHandlerAsyncResult("String")));
+    RefedInterface1Impl ref = get(obj.<RefedInterface1Impl>rxMethodWithGenericHandlerAsyncResult("Ref"));
     assertEquals("bar", ref.getString());
-    assertEquals(new JsonObject().put("foo", "hello").put("bar", 123), get(obj.methodWithGenericHandlerAsyncResultObservable("JsonObject")));
-    assertEquals(new JsonArray().add("foo").add("bar").add("wib"), get(obj.methodWithGenericHandlerAsyncResultObservable("JsonArray")));
+    assertEquals(new JsonObject().put("foo", "hello").put("bar", 123), get(obj.rxMethodWithGenericHandlerAsyncResult("JsonObject")));
+    assertEquals(new JsonArray().add("foo").add("bar").add("wib"), get(obj.rxMethodWithGenericHandlerAsyncResult("JsonArray")));
   }
 
   @Test
@@ -545,14 +558,14 @@ public class ApiTCKTest {
 
   @Test
   public void testJsonFutureParams() throws Exception {
-    assertEquals(new JsonObject().put("cheese", "stilton"), get(obj.methodWithHandlerAsyncResultJsonObjectObservable()));
-    assertEquals(new JsonArray().add("socks").add("shoes"), get(obj.methodWithHandlerAsyncResultJsonArrayObservable()));
+    assertEquals(new JsonObject().put("cheese", "stilton"), get(obj.rxMethodWithHandlerAsyncResultJsonObject()));
+    assertEquals(new JsonArray().add("socks").add("shoes"), get(obj.rxMethodWithHandlerAsyncResultJsonArray()));
   }
 
   @Test
   public void testNullJsonFutureParams() throws Exception {
-    assertEquals(null, get(obj.methodWithHandlerAsyncResultNullJsonObjectObservable()));
-    assertEquals(null, get(obj.methodWithHandlerAsyncResultNullJsonArrayObservable()));
+    assertEquals(null, get(obj.rxMethodWithHandlerAsyncResultNullJsonObject()));
+    assertEquals(null, get(obj.rxMethodWithHandlerAsyncResultNullJsonArray()));
   }
 
   @Test

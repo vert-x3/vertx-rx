@@ -88,52 +88,6 @@ class RxJavaGenerator extends AbstractRxGenerator {
     ClassTypeInfo type = model.getType();
     String packageName = type.getPackageName();
     writer.print("  ");
-    if (packageName.startsWith("io.vertx.codegen") ||
-      packageName.startsWith("io.vertx.core") ||
-      packageName.startsWith("io.vertx.ext.web") ||
-      packageName.startsWith("io.vertx.ext.sql") ||
-      packageName.startsWith("io.vertx.ext.jdbc") ||
-      packageName.startsWith("io.vertx.ext.mongo") ||
-      packageName.startsWith("io.vertx.ext.auth") ||
-      packageName.startsWith("io.vertx.ext.jwt") ||
-      packageName.startsWith("io.vertx.redis") ||
-      packageName.startsWith("io.vertx.ext.mail") ||
-      packageName.startsWith("io.vertx.ext.asyncsql") ||
-      packageName.startsWith("io.vertx.ext.stomp") ||
-      packageName.startsWith("io.vertx.ext.shell") ||
-      packageName.startsWith("io.vertx.ext.dropwizard") ||
-      packageName.startsWith("io.vertx.amqpbridge") ||
-      packageName.startsWith("io.vertx.rabbitmq") ||
-      packageName.startsWith("io.vertx.ext.unit")) {
-      List<ParamInfo> futureParams = new ArrayList<>(method.getParams());
-      ParamInfo futureParam = futureParams.remove(futureParams.size() - 1);
-      ParameterizedTypeInfo handlerType = (ParameterizedTypeInfo) futureParam.getType();
-      ParameterizedTypeInfo asyncResultType = (ParameterizedTypeInfo) handlerType.getArg(0);
-      TypeInfo futureType = asyncResultType.getArg(0);
-      ParameterizedTypeInfo futureReturnType = new ParameterizedTypeInfo(TypeReflectionFactory.create(rx.Observable.class).getRaw(), false, Collections.singletonList(futureType));
-      MethodInfo futureMethod = method.copy().setName(method.getName() + "Observable").setParams(futureParams).setReturnType(futureReturnType);
-      startMethodTemplate(type, futureMethod, "use {@link #" + genFutureMethodName(method) + "} instead", writer);
-      writer.println(" { ");
-      writer.print("    io.vertx.rx.java.ObservableFuture<");
-      writer.print(genTypeName(futureType));
-      writer.print("> ");
-      writer.print(futureParam.getName());
-      writer.println(" = io.vertx.rx.java.RxHelper.observableFuture();");
-      writer.print("    ");
-      writer.print(method.getName());
-      writer.print("(");
-      writer.print(futureParams.stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
-      if (futureParams.size() > 0) {
-        writer.print(", ");
-      }
-      writer.print(futureParam.getName());
-      writer.println(".toHandler());");
-      writer.print("    return ");
-      writer.print(futureParam.getName());
-      writer.println(";");
-      writer.println("  }");
-      writer.println();
-    }
     MethodInfo futMethod = genFutureMethod(method);
     startMethodTemplate(type, futMethod, "", writer);
     writer.println(" { ");
@@ -149,7 +103,6 @@ class RxJavaGenerator extends AbstractRxGenerator {
     writer.println("    }));");
     writer.println("  }");
     writer.println();
-
   }
 
 //  private String genFutureMethodName(MethodInfo method) {

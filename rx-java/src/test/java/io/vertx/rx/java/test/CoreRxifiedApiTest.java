@@ -22,6 +22,7 @@ import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 import rx.Observable;
+import rx.Single;
 import rx.Subscriber;
 import rx.functions.Action1;
 
@@ -42,8 +43,8 @@ public class CoreRxifiedApiTest extends VertxTestBase {
         });
         HttpServer s2 = vertx.createHttpServer(new HttpServerOptions().setPort(8081)).requestHandler(req -> {
         });
-        Observable<HttpServer> f1 = s1.listenObservable();
-        Observable<HttpServer> f2 = s2.listenObservable();
+        Single<HttpServer> f1 = s1.rxListen();
+        Single<HttpServer> f2 = s2.rxListen();
         Action1<HttpServer> done = server -> {
           if (count.incrementAndGet() == 2) {
             testComplete();

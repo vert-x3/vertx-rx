@@ -53,10 +53,10 @@ public class CollectionTCKTest {
 
   @Test
   public void testMethodWithFutureListAndSet() throws Exception {
-    assertEquals(Arrays.asList("foo", "bar", "wibble"), get(obj.methodWithHandlerAsyncResultListStringObservable()));
-    assertEquals(Arrays.asList(5, 12, 100), get(obj.methodWithHandlerAsyncResultListIntegerObservable()));
-    assertEquals(new HashSet<>(Arrays.asList("foo", "bar", "wibble")), get(obj.methodWithHandlerAsyncResultSetStringObservable()));
-    assertEquals(new HashSet<>(Arrays.asList(5, 12, 100)), get(obj.methodWithHandlerAsyncResultSetIntegerObservable()));
+    assertEquals(Arrays.asList("foo", "bar", "wibble"), get(obj.rxMethodWithHandlerAsyncResultListString()));
+    assertEquals(Arrays.asList(5, 12, 100), get(obj.rxMethodWithHandlerAsyncResultListInteger()));
+    assertEquals(new HashSet<>(Arrays.asList("foo", "bar", "wibble")), get(obj.rxMethodWithHandlerAsyncResultSetString()));
+    assertEquals(new HashSet<>(Arrays.asList(5, 12, 100)), get(obj.rxMethodWithHandlerAsyncResultSetInteger()));
   }
 
   @Test
@@ -101,7 +101,7 @@ public class CollectionTCKTest {
 
   @Test
   public void testMethodWithFutureListVertxGen() throws Exception {
-    List<RefedInterface1> result = get(obj.methodWithHandlerAsyncResultListVertxGenObservable());
+    List<RefedInterface1> result = get(obj.rxMethodWithHandlerAsyncResultListVertxGen());
     assertEquals(2, result.size());
     assertEquals("foo", result.get(0).getString());
     assertEquals("bar", result.get(1).getString());
@@ -155,7 +155,7 @@ public class CollectionTCKTest {
 
   @Test
   public void testMethodWithFutureSetVertxGen() throws Exception {
-    Set<RefedInterface1> result = get(obj.methodWithHandlerAsyncResultSetVertxGenObservable());
+    Set<RefedInterface1> result = get(obj.rxMethodWithHandlerAsyncResultSetVertxGen());
     List<String> list = result.stream().map(RefedInterface1::getString).collect(Collectors.toList());
     Collections.sort(list);
     assertEquals(Arrays.asList("bar", "foo"), list);
@@ -180,7 +180,7 @@ public class CollectionTCKTest {
 
   @Test
   public void testMethodWithFutureListJsonObject() throws Exception {
-    List<JsonObject> result = get(obj.methodWithHandlerAsyncResultListJsonObjectObservable());
+    List<JsonObject> result = get(obj.rxMethodWithHandlerAsyncResultListJsonObject());
     assertEquals(Arrays.asList(new JsonObject().put("cheese", "stilton"), new JsonObject().put("socks", "tartan")), result);
   }
 
@@ -204,7 +204,7 @@ public class CollectionTCKTest {
 
   @Test
   public void testMethodWithFutureSetJsonObject() throws Exception {
-    Set<JsonObject> result = get(obj.methodWithHandlerAsyncResultSetJsonObjectObservable());
+    Set<JsonObject> result = get(obj.rxMethodWithHandlerAsyncResultSetJsonObject());
     assertEquals(Arrays.asList(new JsonObject().put("cheese", "stilton"), new JsonObject().put("socks", "tartan")), new ArrayList<>(result));
   }
 
@@ -226,7 +226,7 @@ public class CollectionTCKTest {
 
   @Test
   public void testMethodWithFutureListJsonArray() throws Exception {
-    List<JsonArray> result = get(obj.methodWithHandlerAsyncResultListJsonArrayObservable());
+    List<JsonArray> result = get(obj.rxMethodWithHandlerAsyncResultListJsonArray());
     assertEquals(result, Arrays.asList(new JsonArray().add("green").add("blue"), new JsonArray().add("yellow").add("purple")));
   }
 
@@ -250,7 +250,7 @@ public class CollectionTCKTest {
 
   @Test
   public void testMethodWithFutureSetJsonArray() throws Exception {
-    Set<JsonArray> result = get(obj.methodWithHandlerAsyncResultSetJsonArrayObservable());
+    Set<JsonArray> result = get(obj.rxMethodWithHandlerAsyncResultSetJsonArray());
     assertEquals(Arrays.asList(new JsonArray().add("green").add("blue"), new JsonArray().add("yellow").add("purple")), new ArrayList<>(result));
   }
 

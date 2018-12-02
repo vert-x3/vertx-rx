@@ -29,6 +29,7 @@ import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 import rx.Observable;
 import rx.Observer;
+import rx.Single;
 import rx.Subscriber;
 
 import java.util.ArrayList;
@@ -194,10 +195,10 @@ public class CoreApiTest extends VertxTestBase {
     eb.<String>consumer("the-address", msg -> {
       msg.reply(msg.body());
     });
-    Observable<Message<String>> obs1 = eb.sendObservable("the-address", "msg1");
-    Observable<Message<String>> obs2 = eb.sendObservable("the-address", "msg2");
+    Single<Message<String>> obs1 = eb.rxSend("the-address", "msg1");
+    Single<Message<String>> obs2 = eb.rxSend("the-address", "msg2");
     eb.send("the-address", "done", reply -> {
-      Observable<Message<String>> all = Observable.concat(obs1, obs2);
+      Observable<Message<String>> all = Single.concat(obs1, obs2);
       LinkedList<String> values = new LinkedList<String>();
       all.subscribe(next -> {
         values.add(next.body());
@@ -360,7 +361,7 @@ public class CoreApiTest extends VertxTestBase {
         testComplete();
       }
     });
-    Observable<HttpServer> onListen = server.listenObservable();
+    Single<HttpServer> onListen = server.rxListen();
     onListen.subscribe(
         s -> {
           HttpClientRequest req = vertx.createHttpClient(new HttpClientOptions()).request(HttpMethod.PUT, 8080, "localhost", "/some/path", resp -> {
@@ -503,7 +504,7 @@ public class CoreApiTest extends VertxTestBase {
         count.incrementAndGet();
       }
     };
-    Observable<HttpServer> onListen = server.listenObservable();
+    Single<HttpServer> onListen = server.rxListen();
     onListen.subscribe(observer);
     await();
   }

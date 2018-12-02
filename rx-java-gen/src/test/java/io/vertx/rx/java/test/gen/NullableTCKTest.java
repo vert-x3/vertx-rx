@@ -56,7 +56,7 @@ public class NullableTCKTest {
 
   @Test
   public void testMethodWithFutureListNullJsonObject() throws Exception {
-    List<JsonObject> result = get(obj.methodWithListNullableJsonObjectHandlerAsyncResultObservable());
+    List<JsonObject> result = get(obj.rxMethodWithListNullableJsonObjectHandlerAsyncResult());
     assertEquals(EXPECTED, result);
   }
 
@@ -76,7 +76,7 @@ public class NullableTCKTest {
 
   @Test
   public void testMethodWithFutureSetNullJsonObject() throws Exception {
-    Set<JsonObject> result = get(obj.methodWithSetNullableJsonObjectHandlerAsyncResultObservable());
+    Set<JsonObject> result = get(obj.rxMethodWithSetNullableJsonObjectHandlerAsyncResult());
     assertEquals(EXPECTED, new ArrayList<>(result));
   }
 
@@ -96,7 +96,7 @@ public class NullableTCKTest {
 
   @Test
   public void testMethodWithFutureListNullJsonArray() throws Exception {
-    List<JsonArray> result = get(obj.methodWithListNullableJsonArrayHandlerAsyncResultObservable());
+    List<JsonArray> result = get(obj.rxMethodWithListNullableJsonArrayHandlerAsyncResult());
     assertEquals(result, EXPECTED1BILT);
   }
 
@@ -116,7 +116,7 @@ public class NullableTCKTest {
 
   @Test
   public void testMethodWithFutureSetNullJsonArray() throws Exception {
-    Set<JsonArray> result = get(obj.methodWithSetNullableJsonArrayHandlerAsyncResultObservable());
+    Set<JsonArray> result = get(obj.rxMethodWithSetNullableJsonArrayHandlerAsyncResult());
     assertEquals(EXPECTED1BILT, new ArrayList<>(result));
   }
 
