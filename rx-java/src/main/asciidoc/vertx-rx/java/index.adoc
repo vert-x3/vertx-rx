@@ -238,19 +238,6 @@ for you, it deploys a `Verticle` and returns an `Observable<String>` of the depl
 {@link examples.RxifiedExamples#deployVerticle}
 ----
 
-=== HttpClient GET on subscription
-
-The {@link io.vertx.rxjava.core.RxHelper#get(io.vertx.rxjava.core.http.HttpClient, int, java.lang.String, java.lang.String)}
-is a convenient helper method that performs an HTTP GET upon subscription:
-
-[source,java]
-----
-{@link examples.RxifiedExamples#get}
-----
-
-WARNING: this API is different from the HttpClient that performs the GET request when the method is called and returns
-a one shot `Observable`.
-
 = Rxified API
 
 The _Rxified_ API is a code generated version of the Vert.x API, just like the _JavaScript_ or _Groovy_
@@ -338,8 +325,8 @@ The observable can be cancelled with an unsubscription:
 
 === Http client requests
 
-{@link io.vertx.rxjava.core.http.HttpClientRequest#toObservable()} provides a one shot callback with the
-{@link io.vertx.core.http.HttpClientResponse} object. The observable reports a request failure.
+{@link io.vertx.rxjava.core.http.HttpClient#rxGetNow} provides a single of an
+{@link io.vertx.core.http.HttpClientResponse}. The single reports a request failure.
 
 [source,java]
 ----
@@ -351,14 +338,14 @@ The response can be processed as an `Observable<Buffer>` with the
 
 [source,java]
 ----
-{@link examples.RxifiedExamples#httpClientResponse(io.vertx.rxjava.core.http.HttpClientRequest)}
+{@link examples.RxifiedExamples#httpClientResponse(io.vertx.rxjava.core.http.HttpClient)}
 ----
 
 The same flow can be achieved with the `flatMap` operation:
 
 [source,java]
 ----
-{@link examples.RxifiedExamples#httpClientResponseFlatMap(io.vertx.rxjava.core.http.HttpClientRequest)}
+{@link examples.RxifiedExamples#httpClientResponseFlatMap(io.vertx.rxjava.core.http.HttpClient)}
 ----
 
 We can also unmarshall the `Observable<Buffer>` into an object using the {@link io.vertx.rxjava.core.RxHelper#unmarshaller(java.lang.Class)}
@@ -366,7 +353,7 @@ static method. This method creates an `Rx.Observable.Operator` unmarshalling buf
 
 [source,java]
 ----
-{@link examples.RxifiedExamples#httpClientResponseFlatMapUnmarshall(io.vertx.rxjava.core.http.HttpClientRequest)}
+{@link examples.RxifiedExamples#httpClientResponseFlatMapUnmarshall(io.vertx.rxjava.core.http.HttpClient)}
 ----
 
 === Http server requests

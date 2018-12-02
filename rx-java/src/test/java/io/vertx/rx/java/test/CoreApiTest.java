@@ -542,14 +542,14 @@ public class CoreApiTest extends VertxTestBase {
     try {
       server.listen(ar -> {
         HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-        client.request(HttpMethod.GET, 8080, "localhost", "/the_uri", resp -> {
+        client.rxGetNow(8080, "localhost", "/the_uri").subscribe(resp -> {
           Buffer content = Buffer.buffer();
           Observable<Buffer> observable = resp.toObservable();
           observable.forEach(content::appendBuffer, err -> fail(), () -> {
             assertEquals("some_content", content.toString("UTF-8"));
             testComplete();
           });
-        }).end();
+        });
       });
       await();
     } finally {
@@ -565,17 +565,15 @@ public class CoreApiTest extends VertxTestBase {
     });
     server.listen(ar -> {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-      HttpClientRequest req = client.request(HttpMethod.GET, 8080, "localhost", "/the_uri");
-      Observable<HttpClientResponse> obs =  req.toObservable();
+      Single<HttpClientResponse> req = client.rxGetNow(8080, "localhost", "/the_uri");
       Buffer content = Buffer.buffer();
-      obs.flatMap(HttpClientResponse::toObservable).forEach(
+      req.flatMapObservable(HttpClientResponse::toObservable).forEach(
           content::appendBuffer,
           err -> fail(), () -> {
         server.close();
         assertEquals("some_content", content.toString("UTF-8"));
         testComplete();
       });
-      req.end();
     });
     await();
   }
@@ -588,10 +586,9 @@ public class CoreApiTest extends VertxTestBase {
     });
     server.listen(ar -> {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-      HttpClientRequest req = client.request(HttpMethod.GET, 8080, "localhost", "/the_uri");
-      Observable<HttpClientResponse> obs =  req.toObservable();
+      Single<HttpClientResponse> req = client.rxGetNow(8080, "localhost", "/the_uri");
       ArrayList<SimplePojo> objects = new ArrayList<>();
-      obs.flatMap(HttpClientResponse::toObservable).
+      req.flatMapObservable(HttpClientResponse::toObservable).
           lift(io.vertx.rxjava.core.RxHelper.unmarshaller(SimplePojo.class)).
           forEach(
               objects::add,
@@ -599,8 +596,7 @@ public class CoreApiTest extends VertxTestBase {
                 server.close();
                 assertEquals(Arrays.asList(new SimplePojo("bar")), objects);
                 testComplete();
-              });;
-      req.end();
+              });
     });
     await();
   }
@@ -608,26 +604,21 @@ public class CoreApiTest extends VertxTestBase {
   @Test
   public void testHttpClientConnectionFailure() {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-    HttpClientRequest req = client.request(HttpMethod.GET, 9998, "255.255.255.255", "/the_uri");
-    Observable<HttpClientResponse> obs = req.toObservable();
-    obs.subscribe(
-        buffer -> fail(),
-        err -> testComplete(),
-        this::fail);
-    req.end();
+    Single<HttpClientResponse> req = client.rxGetNow(9998, "255.255.255.255", "/the_uri");
+    req.subscribe(
+        resp -> fail(),
+        err -> testComplete());
     await();
   }
 
   @Test
   public void testHttpClientConnectionFailureFlatMap() {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-    HttpClientRequest req = client.request(HttpMethod.GET, 9998, "255.255.255.255", "/the_uri");
-    Observable<HttpClientResponse> obs = req.toObservable();
-    obs.flatMap(HttpClientResponse::toObservable).forEach(
+    Single<HttpClientResponse> req = client.rxGetNow(9998, "255.255.255.255", "/the_uri");
+    req.flatMapObservable(HttpClientResponse::toObservable).forEach(
         buffer -> fail(),
         err -> testComplete(),
         this::fail);
-    req.end();
     await();
   }
 
@@ -673,34 +664,6 @@ public class CoreApiTest extends VertxTestBase {
             testComplete();
           });
     });
-    await();
-  }
-
-  @Test
-  public void testGetHelper() throws Exception {
-    CountDownLatch listenLatch = new CountDownLatch(1);
-    HttpServer server = vertx.createHttpServer();
-    AtomicInteger count = new AtomicInteger();
-    server.requestHandler(req -> {
-      req.response().end(Buffer.buffer("request=" + count.getAndIncrement()));
-    }).listen(8080, onSuccess(s -> {
-      listenLatch.countDown();
-    }));
-    awaitLatch(listenLatch);
-    HttpClient client = vertx.createHttpClient();
-    Observable<HttpClientResponse> obs = io.vertx.rxjava.core.RxHelper.get(client, 8080, "localhost", "/foo");
-    List<Buffer> bodies = Collections.synchronizedList(new ArrayList<>());
-    CountDownLatch reqLatch = new CountDownLatch(1);
-    obs.subscribe(resp -> {
-      resp.toObservable().subscribe(bodies::add, this::fail, reqLatch::countDown);
-    }, this::fail);
-    awaitLatch(reqLatch);
-    obs.subscribe(resp -> {
-      resp.toObservable().subscribe(bodies::add, this::fail, () -> {
-        assertEquals(Arrays.asList("request=0", "request=1"), bodies.stream().map(Buffer::toString).collect(Collectors.toList()));
-        testComplete();
-      });
-    }, this::fail);
     await();
   }
 

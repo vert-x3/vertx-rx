@@ -286,40 +286,40 @@ public class RxifiedExamples {
 
   public void httpClientRequest(Vertx vertx) {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-    HttpClientRequest request = client.request(HttpMethod.GET, 8080, "localhost", "/the_uri");
-    request.toObservable().subscribe(
-        response -> {
-          // Process the response
-        },
-        error -> {
-          // Could not connect
-        }
+    Single<HttpClientResponse> request = client.rxGetNow( 8080, "localhost", "/the_uri");
+    request.subscribe(
+      response -> {
+        // Process the response
+      },
+      error -> {
+        // Could not connect
+      }
     );
-    request.end();
   }
 
-  public void httpClientResponse(HttpClientRequest request) {
-    request.toObservable().
-        subscribe(
-            response -> {
-              Observable<Buffer> observable = response.toObservable();
-              observable.forEach(
-                  buffer -> {
-                    // Process buffer
-                  }
-              );
-            }
+  public void httpClientResponse(HttpClient client) {
+    Single<HttpClientResponse> request = client.rxGetNow( 8080, "localhost", "/the_uri");
+    request.subscribe(
+      response -> {
+        Observable<Buffer> observable = response.toObservable();
+        observable.forEach(
+          buffer -> {
+            // Process buffer
+          }
         );
+      }
+    );
   }
 
-  public void httpClientResponseFlatMap(HttpClientRequest request) {
-    request.toObservable().
-        flatMap(HttpClientResponse::toObservable).
-        forEach(
-            buffer -> {
-              // Process buffer
-            }
-        );
+  public void httpClientResponseFlatMap(HttpClient client) {
+    Single<HttpClientResponse> request = client.rxGetNow(8080, "localhost", "/the_uri");
+    request.
+      flatMapObservable(HttpClientResponse::toObservable).
+      forEach(
+        buffer -> {
+          // Process buffer
+        }
+      );
   }
 
   public void httpServerRequest(HttpServer server) {
