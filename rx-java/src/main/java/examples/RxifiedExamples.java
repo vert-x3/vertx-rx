@@ -132,7 +132,7 @@ public class RxifiedExamples {
   }
 
   public void get(HttpClient client) {
-    Observable<HttpClientResponse> get = RxHelper.get(client, "http://the-server");
+    Single<HttpClientResponse> get = client.rxGetNow( "http://the-server");
 
     // Do the request
     get.subscribe(resp -> {
@@ -248,8 +248,8 @@ public class RxifiedExamples {
 
   public void httpClientRequest(Vertx vertx) {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-    HttpClientRequest request = client.request(HttpMethod.GET, 8080, "localhost", "/the_uri");
-    request.toObservable().subscribe(
+    Single<HttpClientResponse> request = client.rxGetNow(8080, "localhost", "/the_uri");
+    request.subscribe(
         response -> {
           // Process the response
         },
@@ -257,10 +257,10 @@ public class RxifiedExamples {
           // Could not connect
         }
     );
-    request.end();
   }
 
-  public void httpClientResponse(HttpClientRequest request) {
+  public void httpClientResponse(HttpClient client) {
+    Single<HttpClientResponse> request = client.rxGetNow(8080, "localhost", "/the_uri");
     request.toObservable().
         subscribe(
             response -> {
@@ -274,7 +274,8 @@ public class RxifiedExamples {
         );
   }
 
-  public void httpClientResponseFlatMap(HttpClientRequest request) {
+  public void httpClientResponseFlatMap(HttpClient client) {
+    Single<HttpClientResponse> request = client.rxGetNow(8080, "localhost", "/the_uri");
     request.toObservable().
         flatMap(HttpClientResponse::toObservable).
         forEach(
@@ -287,7 +288,8 @@ public class RxifiedExamples {
   private class MyPojo {
   }
 
-  public void httpClientResponseFlatMapUnmarshall(HttpClientRequest request) {
+  public void httpClientResponseFlatMapUnmarshall(HttpClient client) {
+    Single<HttpClientResponse> request = client.rxGetNow(8080, "localhost", "/the_uri");
     request.toObservable().
         flatMap(HttpClientResponse::toObservable).
         lift(io.vertx.rxjava.core.RxHelper.unmarshaller(MyPojo.class)).
