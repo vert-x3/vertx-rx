@@ -141,6 +141,21 @@ Such single are *cold* singles, and the corresponding API method is called on su
 {@link examples.RxifiedExamples#completable}
 ----
 
+[TIP]
+====
+If you cannot use the Vert.x _Rxified_ API or, if you have your own, callback-based, asynchronous methods, Vert.x provides adapters:
+
+* {@link io.vertx.reactivex.SingleHelper#toSingle},
+* {@link io.vertx.reactivex.MaybeHelper#toMaybe} and
+* {@link io.vertx.reactivex.CompletableHelper#toCompletable}.
+====
+
+[source,java]
+.Adapting Vert.x core _executeBlocking_ method
+----
+{@link examples.RxifiedExamples#executeBlockingAdapter}
+----
+
 === Scheduler support
 
 The reactive extension sometimes needs to schedule actions, for instance `Flowable#timer` creates and returns
