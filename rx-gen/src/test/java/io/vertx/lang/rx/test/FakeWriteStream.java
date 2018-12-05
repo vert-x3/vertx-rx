@@ -63,17 +63,6 @@ public class FakeWriteStream implements WriteStream<Integer> {
       throw new IllegalStateException("Expected " + (last + 1) + ", got " + data);
     }
     last = data;
-    if (last == 3001) {
-      writeQueueFull = true;
-      vertx.setTimer(50, l -> {
-        writeQueueFull = false;
-        Handler<Void> h = drainHandler;
-        if (h != null) {
-          drainHandlerInvoked = true;
-          h.handle(null);
-        }
-      });
-    }
     Throwable t = failAfterWrite;
     if (t != null) {
       vertx.runOnContext(v -> {
@@ -98,6 +87,18 @@ public class FakeWriteStream implements WriteStream<Integer> {
 
   @Override
   public boolean writeQueueFull() {
+    if (last % 4 == 0) {
+      writeQueueFull = true;
+      vertx.runOnContext(v -> {
+        writeQueueFull = false;
+        Handler<Void> h = drainHandler;
+        if (h != null) {
+          drainHandlerInvoked = true;
+          h.handle(null);
+        }
+      });
+      return true;
+    }
     return writeQueueFull;
   }
 

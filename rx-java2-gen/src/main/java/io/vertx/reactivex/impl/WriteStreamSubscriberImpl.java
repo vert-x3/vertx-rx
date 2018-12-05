@@ -40,7 +40,6 @@ public class WriteStreamSubscriberImpl<R, T> implements WriteStreamSubscriber<R>
 
   private Subscription subscription;
   private int outstanding;
-  private boolean drainHandlerSet;
   private boolean done;
 
   private Handler<Throwable> flowableErrorHandler;
@@ -76,6 +75,7 @@ public class WriteStreamSubscriberImpl<R, T> implements WriteStreamSubscriber<R>
         h.handle(t);
       }
     });
+    writeStream.drainHandler(v -> requestMore());
     requestMore();
   }
 
@@ -116,9 +116,7 @@ public class WriteStreamSubscriberImpl<R, T> implements WriteStreamSubscriber<R>
       return;
     }
 
-    if (writeStream.writeQueueFull()) {
-      setDrainHandler();
-    } else {
+    if (!writeStream.writeQueueFull()) {
       requestMore();
     }
   }
@@ -199,23 +197,6 @@ public class WriteStreamSubscriberImpl<R, T> implements WriteStreamSubscriber<R>
       outstanding = BATCH_SIZE;
     }
     s.request(BATCH_SIZE);
-  }
-
-  private void setDrainHandler() {
-    boolean set;
-    synchronized (this) {
-      set = drainHandlerSet ? false : (drainHandlerSet = true);
-    }
-    if (set) {
-      writeStream.drainHandler(this::drain);
-    }
-  }
-
-  private void drain(Void v) {
-    synchronized (this) {
-      drainHandlerSet = false;
-    }
-    requestMore();
   }
 
   @Override

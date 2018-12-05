@@ -18,10 +18,15 @@ package io.vertx.rx.java.test;
 
 import io.vertx.lang.rx.test.FakeWriteStream;
 import io.vertx.rx.java.RxHelper;
+import io.vertx.test.core.Repeat;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscriber;
+import rx.schedulers.Schedulers;
+
+import java.util.concurrent.Executors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -48,13 +53,25 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
   }
 
   @Test
-  public void testObservableToWriteStream() throws Exception {
+  @Repeat(times = 10)
+  public void testObservableToWriteStreamVertxThread() throws Exception {
+    testObservableToWriteStream(RxHelper.scheduler(vertx.getOrCreateContext()));
+  }
+
+  @Test
+  @Repeat(times = 10)
+  public void testObservableToWriteStreamNonVertxThread() throws Exception {
+    testObservableToWriteStream(Schedulers.from(Executors.newFixedThreadPool(5)));
+  }
+
+  private void testObservableToWriteStream(Scheduler scheduler) throws Exception {
+    disableThreadChecks();
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
     Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).onComplete(this::complete);
     int count = 10000;
     Observable.range(0, count)
-      .observeOn(RxHelper.scheduler(vertx))
-      .subscribeOn(RxHelper.scheduler(vertx))
+      .observeOn(scheduler)
+      .subscribeOn(scheduler)
       .subscribe(subscriber);
     await();
     assertTrue("Expected drainHandler to be invoked", writeStream.drainHandlerInvoked());

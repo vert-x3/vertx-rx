@@ -18,14 +18,19 @@ package io.vertx.reactivex.test;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.Scheduler;
 import io.reactivex.exceptions.ProtocolViolationException;
 import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.plugins.RxJavaPlugins;
+import io.reactivex.schedulers.Schedulers;
 import io.vertx.lang.rx.test.FakeWriteStream;
 import io.vertx.reactivex.RxHelper;
+import io.vertx.test.core.Repeat;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 import org.reactivestreams.Subscriber;
+
+import java.util.concurrent.Executors;
 
 import static org.hamcrest.CoreMatchers.*;
 
@@ -57,7 +62,18 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
   }
 
   @Test
-  public void testFlowableToWriteStream() throws Exception {
+  @Repeat(times = 10)
+  public void testFlowableToWriteStreamVertxThread() throws Exception {
+    testFlowableToWriteStream(RxHelper.scheduler(vertx.getOrCreateContext()));
+  }
+
+  @Test
+  @Repeat(times = 10)
+  public void testFlowableToWriteStreamNonVertxThread() throws Exception {
+    testFlowableToWriteStream(Schedulers.from(Executors.newFixedThreadPool(5)));
+  }
+
+  private void testFlowableToWriteStream(Scheduler scheduler) throws Exception {
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
     Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).onComplete(this::complete);
     int count = 10000;
