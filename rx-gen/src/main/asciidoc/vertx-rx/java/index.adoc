@@ -1,0 +1,2 @@
+= Common generator API for RxJava/RxJava2
+:toc: left
