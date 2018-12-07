@@ -1,9 +1,6 @@
 package examples;
 
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Observer;
+import io.reactivex.*;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.plugins.RxJavaPlugins;
@@ -14,6 +11,7 @@ import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.docgen.Source;
+import io.vertx.reactivex.MaybeHelper;
 import io.vertx.reactivex.core.ObservableHelper;
 import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
@@ -25,16 +23,7 @@ import io.vertx.reactivex.core.eventbus.Message;
 import io.vertx.reactivex.core.eventbus.MessageConsumer;
 import io.vertx.reactivex.core.file.AsyncFile;
 import io.vertx.reactivex.core.file.FileSystem;
-import io.vertx.reactivex.core.http.HttpClient;
-import io.vertx.reactivex.core.http.HttpClientRequest;
-import io.vertx.reactivex.core.http.HttpClientResponse;
-import io.vertx.reactivex.core.http.HttpServer;
-import io.vertx.reactivex.core.http.HttpServerRequest;
-import io.vertx.reactivex.core.http.ServerWebSocket;
-import io.vertx.reactivex.core.http.WebSocket;
-import io.reactivex.Observable;
-import io.reactivex.Scheduler;
-import io.reactivex.Single;
+import io.vertx.reactivex.core.http.*;
 
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -137,6 +126,16 @@ public class RxifiedExamples {
           // Server closed but encoutered issue
         }
       );
+  }
+
+  public void executeBlockingAdapter(io.vertx.core.Vertx vertx) {
+    Maybe<String> maybe = MaybeHelper.toMaybe(handler -> {
+      vertx.executeBlocking(fut -> fut.complete(invokeBlocking()), handler);
+    });
+  }
+
+  private String invokeBlocking() {
+    return null;
   }
 
   public void scheduler(Vertx vertx) {
