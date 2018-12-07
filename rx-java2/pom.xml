@@ -29,6 +29,15 @@
 
   <dependencies>
 
+    <dependency>
+      <groupId>io.reactivex.rxjava2</groupId>
+      <artifactId>rxjava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.reactivestreams</groupId>
+      <artifactId>reactive-streams</artifactId>
+    </dependency>
+
     <!-- Stack dependencies -->
     <dependency>
       <groupId>io.vertx</groupId>
@@ -323,6 +332,7 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-rx-java2-gen</artifactId>
       <version>3.6.1-SNAPSHOT</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Test dependencies -->
@@ -445,6 +455,11 @@
               io.vertx.core.spi.logging,\
               io.vertx.core.spi.metrics,\
               io.vertx.core.streams,\
+              io.reactivex,\
+              io.reactivex.disposables,\
+              io.reactivex.functions,\
+              io.reactivex.internal.subscriptions,\
+              io.reactivex.plugins,\
               *;resolution:=optional
           Export-Package: \
               io.vertx.reactivex*,\

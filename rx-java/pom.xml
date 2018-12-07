@@ -30,6 +30,11 @@
 
   <dependencies>
 
+    <dependency>
+      <groupId>io.reactivex</groupId>
+      <artifactId>rxjava</artifactId>
+    </dependency>
+
     <!-- Stack dependencies -->
     <dependency>
       <groupId>io.vertx</groupId>
@@ -324,6 +329,7 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-rx-java-gen</artifactId>
       <version>3.6.1-SNAPSHOT</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Test dependencies -->
@@ -660,6 +666,9 @@
               io.vertx.core.spi.logging,\
               io.vertx.core.spi.metrics,\
               io.vertx.core.streams,\
+              rx,\
+              rx.functions,\
+              rx.plugins,\
               *;resolution:=optional
           Export-Package: \
               io.vertx.rxjava*,\
