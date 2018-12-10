@@ -16,8 +16,9 @@
 
 package io.vertx.rx.java;
 
-import io.vertx.core.Handler;
 import rx.Subscriber;
+import rx.functions.Action0;
+import rx.functions.Action1;
 
 /**
  * A {@link io.vertx.core.streams.WriteStream} to {@link Subscriber} adapter.
@@ -33,7 +34,7 @@ public abstract class WriteStreamSubscriber<R> extends Subscriber<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  public abstract WriteStreamSubscriber<R> onError(Handler<Throwable> handler);
+  public abstract WriteStreamSubscriber<R> onError(Action1<Throwable> handler);
 
   /**
    * Sets the handler to invoke if the {@link rx.Observable} that was subscribed to terminates successfully.
@@ -42,7 +43,7 @@ public abstract class WriteStreamSubscriber<R> extends Subscriber<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  public abstract WriteStreamSubscriber<R> onComplete(Runnable handler);
+  public abstract WriteStreamSubscriber<R> onComplete(Action0 handler);
 
   /**
    * Sets the handler to invoke if the adapted {@link io.vertx.core.streams.WriteStream} fails.
@@ -51,5 +52,5 @@ public abstract class WriteStreamSubscriber<R> extends Subscriber<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  public abstract WriteStreamSubscriber<R> onWriteStreamError(Handler<Throwable> handler);
+  public abstract WriteStreamSubscriber<R> onWriteStreamError(Action1<Throwable> handler);
 }

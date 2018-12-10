@@ -17,7 +17,8 @@
 package io.vertx.reactivex;
 
 import io.reactivex.Observer;
-import io.vertx.core.Handler;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 
 /**
  * A {@link io.vertx.core.streams.WriteStream} to {@link Observer} adapter.
@@ -33,7 +34,7 @@ public interface WriteStreamObserver<R> extends Observer<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  WriteStreamObserver<R> onError(Handler<Throwable> handler);
+  WriteStreamObserver<R> onError(Consumer<? super Throwable> handler);
 
   /**
    * Sets the handler to invoke if the {@link io.reactivex.Observable} that was subscribed to terminates successfully.
@@ -42,7 +43,7 @@ public interface WriteStreamObserver<R> extends Observer<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  WriteStreamObserver<R> onComplete(Runnable handler);
+  WriteStreamObserver<R> onComplete(Action handler);
 
   /**
    * Sets the handler to invoke if the adapted {@link io.vertx.core.streams.WriteStream} fails.
@@ -51,5 +52,5 @@ public interface WriteStreamObserver<R> extends Observer<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  WriteStreamObserver<R> onWriteStreamError(Handler<Throwable> handler);
+  WriteStreamObserver<R> onWriteStreamError(Consumer<? super Throwable> handler);
 }

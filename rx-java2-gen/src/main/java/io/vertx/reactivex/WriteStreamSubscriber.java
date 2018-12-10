@@ -17,7 +17,8 @@
 package io.vertx.reactivex;
 
 import io.reactivex.FlowableSubscriber;
-import io.vertx.core.Handler;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 
 /**
  * A {@link io.vertx.core.streams.WriteStream} to {@link org.reactivestreams.Subscriber} adapter.
@@ -33,7 +34,7 @@ public interface WriteStreamSubscriber<R> extends FlowableSubscriber<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  WriteStreamSubscriber<R> onError(Handler<Throwable> handler);
+  WriteStreamSubscriber<R> onError(Consumer<? super Throwable> handler);
 
   /**
    * Sets the handler to invoke if the {@link io.reactivex.Flowable} that was subscribed to terminates successfully.
@@ -42,7 +43,7 @@ public interface WriteStreamSubscriber<R> extends FlowableSubscriber<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  WriteStreamSubscriber<R> onComplete(Runnable handler);
+  WriteStreamSubscriber<R> onComplete(Action handler);
 
   /**
    * Sets the handler to invoke if the adapted {@link io.vertx.core.streams.WriteStream} fails.
@@ -51,5 +52,5 @@ public interface WriteStreamSubscriber<R> extends FlowableSubscriber<R> {
    *
    * @return a reference to this, so the API can be used fluently
    */
-  WriteStreamSubscriber<R> onWriteStreamError(Handler<Throwable> handler);
+  WriteStreamSubscriber<R> onWriteStreamError(Consumer<? super Throwable> handler);
 }

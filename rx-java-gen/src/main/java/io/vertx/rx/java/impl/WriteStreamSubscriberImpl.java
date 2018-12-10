@@ -16,9 +16,10 @@
 
 package io.vertx.rx.java.impl;
 
-import io.vertx.core.Handler;
 import io.vertx.core.streams.WriteStream;
 import io.vertx.rx.java.WriteStreamSubscriber;
+import rx.functions.Action0;
+import rx.functions.Action1;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -35,9 +36,9 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
 
   private int outstanding;
 
-  private Handler<Throwable> observableErrorHandler;
-  private Runnable observableCompleteHandler;
-  private Handler<Throwable> writeStreamExceptionHandler;
+  private Action1<Throwable> observableErrorHandler;
+  private Action0 observableCompleteHandler;
+  private Action1<Throwable> writeStreamExceptionHandler;
 
   public WriteStreamSubscriberImpl(WriteStream<T> writeStream, Function<R, T> mapping) {
     Objects.requireNonNull(writeStream, "writeStream");
@@ -50,12 +51,12 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
   public void onStart() {
     writeStream.exceptionHandler(t -> {
       unsubscribe();
-      Handler<Throwable> h;
+      Action1<Throwable> a;
       synchronized (this) {
-        h = this.writeStreamExceptionHandler;
+        a = this.writeStreamExceptionHandler;
       }
-      if (h != null) {
-        h.handle(t);
+      if (a != null) {
+        a.call(t);
       }
     });
     writeStream.drainHandler(v -> requestMore());
@@ -75,24 +76,24 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
 
   @Override
   public void onError(Throwable t) {
-    Handler<Throwable> h;
+    Action1<Throwable> a;
     synchronized (this) {
-      h = this.observableErrorHandler;
+      a = this.observableErrorHandler;
     }
-    if (h != null) {
-      h.handle(t);
+    if (a != null) {
+      a.call(t);
     }
   }
 
   @Override
   public void onCompleted() {
-    Runnable r;
+    Action0 a;
     synchronized (this) {
-      r = this.observableCompleteHandler;
+      a = this.observableCompleteHandler;
     }
     writeStream.end();
-    if (r != null) {
-      r.run();
+    if (a != null) {
+      a.call();
     }
   }
 
@@ -107,19 +108,19 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
   }
 
   @Override
-  public synchronized WriteStreamSubscriber<R> onError(Handler<Throwable> handler) {
+  public synchronized WriteStreamSubscriber<R> onError(Action1<Throwable> handler) {
     this.observableErrorHandler = handler;
     return this;
   }
 
   @Override
-  public synchronized WriteStreamSubscriber<R> onComplete(Runnable handler) {
+  public synchronized WriteStreamSubscriber<R> onComplete(Action0 handler) {
     this.observableCompleteHandler = handler;
     return this;
   }
 
   @Override
-  public synchronized WriteStreamSubscriber<R> onWriteStreamError(Handler<Throwable> handler) {
+  public synchronized WriteStreamSubscriber<R> onWriteStreamError(Action1<Throwable> handler) {
     this.writeStreamExceptionHandler = handler;
     return this;
   }
