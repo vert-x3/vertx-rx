@@ -388,10 +388,15 @@ public class RxifiedExamples {
     flowable.subscribe(subscriber);
   }
 
-  public void writeStreamSubscriberAdapterCallbacks(Flowable<io.vertx.core.buffer.Buffer> flowable, io.vertx.core.http.HttpServerResponse response) {
+  public void rxWriteStreamSubscriberAdapter(Flowable<Buffer> flowable, HttpServerResponse response) {
+    response.setChunked(true);
+    flowable.subscribe(response.toSubscriber());
+  }
+
+  public void writeStreamSubscriberAdapterCallbacks(Flowable<Buffer> flowable, HttpServerResponse response) {
     response.setChunked(true);
 
-    WriteStreamSubscriber<io.vertx.core.buffer.Buffer> subscriber = io.vertx.reactivex.RxHelper.toSubscriber(response);
+    WriteStreamSubscriber<Buffer> subscriber = response.toSubscriber();
 
     subscriber.onError(throwable -> {
       if (!response.headWritten() && response.closed()) {
@@ -410,10 +415,5 @@ public class RxifiedExamples {
     });
 
     flowable.subscribe(subscriber);
-  }
-
-  public void rxWriteStreamToSubscriber(Flowable<Buffer> flowable, HttpServerResponse response) {
-    response.setChunked(true);
-    flowable.subscribe(response.toSubscriber());
   }
 }

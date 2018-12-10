@@ -101,15 +101,23 @@ Vert.x provides the {@link io.vertx.rx.java.WriteStreamSubscriber} adapter that 
 {@link examples.RxifiedExamples#writeStreamSubscriberAdapter}
 ----
 
-NOTE: When the `Observable` terminates successfully, the adapter invokes the {@link io.vertx.core.streams.WriteStream#end()} method.
+If you are progamming with the _Rxified_ Vert.x API, the {@link io.vertx.rxjava.core.streams.WriteStream} implementations provide a `toSubscriber` method.
+The previous example then becomes even more straightforward:
 
-CAUTION: The adapter sets the {@link io.vertx.core.streams.WriteStream} `drain` and `exception` handlers, so don't use them after subscribing.
+[source,java]
+----
+{@link examples.RxifiedExamples#rxWriteStreamSubscriberAdapter}
+----
+
+NOTE: When the `Observable` terminates successfully, the adapter invokes the {@link io.vertx.rxjava.core.streams.WriteStream#end()} method.
+
+CAUTION: The adapter sets the {@link io.vertx.rxjava.core.streams.WriteStream} `drain` and `exception` handlers, so don't use them after subscribing.
 
 The {@link io.vertx.rx.java.WriteStreamSubscriber} adapter is able to invoke callbacks when:
 
 * the `Observable` completes, or
 * the `Observable` terminates with an error, or
-* the {@link io.vertx.core.streams.WriteStream} fails (e.g. HTTP connection is closed or filesystem is full)
+* the {@link io.vertx.rxjava.core.streams.WriteStream} fails (e.g. HTTP connection is closed or filesystem is full)
 
 This allows for a more robust program design, as well as scheduling other tasks after the stream has been handled:
 
@@ -118,15 +126,7 @@ This allows for a more robust program design, as well as scheduling other tasks 
 {@link examples.RxifiedExamples#writeStreamSubscriberAdapterCallbacks}
 ----
 
-NOTE: If the {@link io.vertx.core.streams.WriteStream} fails, the adapter unsubscribes from the `Observable`.
-
-If you are progamming with the _Rxified_ Vert.x API, the {@link io.vertx.rxjava.core.streams.WriteStream} implementations provide a `toSubscriber` method.
-The previous example then becomes even more straightforward:
-
-[source,java]
-----
-{@link examples.RxifiedExamples#rxWriteStreamToSubscriber}
-----
+NOTE: If the {@link io.vertx.rxjava.core.streams.WriteStream} fails, the adapter unsubscribes from the `Observable`.
 
 === Handler support
 

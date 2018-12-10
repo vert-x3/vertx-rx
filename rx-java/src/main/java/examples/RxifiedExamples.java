@@ -356,10 +356,15 @@ public class RxifiedExamples {
     observable.subscribe(subscriber);
   }
 
-  public void writeStreamSubscriberAdapterCallbacks(Observable<io.vertx.core.buffer.Buffer> observable, io.vertx.core.http.HttpServerResponse response) {
+  public void rxWriteStreamSubscriberAdapter(Observable<Buffer> observable, HttpServerResponse response) {
+    response.setChunked(true);
+    observable.subscribe(response.toSubscriber());
+  }
+
+  public void writeStreamSubscriberAdapterCallbacks(Observable<Buffer> observable, HttpServerResponse response) {
     response.setChunked(true);
 
-    WriteStreamSubscriber<io.vertx.core.buffer.Buffer> subscriber = io.vertx.rx.java.RxHelper.toSubscriber(response);
+    WriteStreamSubscriber<Buffer> subscriber = response.toSubscriber();
 
     subscriber.onError(throwable -> {
       if (!response.headWritten() && response.closed()) {
@@ -378,10 +383,5 @@ public class RxifiedExamples {
     });
 
     observable.subscribe(subscriber);
-  }
-
-  public void rxWriteStreamToSubscriber(Observable<Buffer> observable, HttpServerResponse response) {
-    response.setChunked(true);
-    observable.subscribe(response.toSubscriber());
   }
 }
