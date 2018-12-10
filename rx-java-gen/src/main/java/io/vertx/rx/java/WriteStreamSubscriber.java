@@ -20,7 +20,7 @@ import io.vertx.core.Handler;
 import rx.Subscriber;
 
 /**
- * A {@link io.vertx.core.streams.WriteStream} to {@link Subscriber} adpater.
+ * A {@link io.vertx.core.streams.WriteStream} to {@link Subscriber} adapter.
  *
  * @author Thomas Segismont
  */

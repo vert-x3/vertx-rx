@@ -20,7 +20,7 @@ import io.reactivex.FlowableSubscriber;
 import io.vertx.core.Handler;
 
 /**
- * A {@link io.vertx.core.streams.WriteStream} to {@link org.reactivestreams.Subscriber} adpater.
+ * A {@link io.vertx.core.streams.WriteStream} to {@link org.reactivestreams.Subscriber} adapter.
  *
  * @author Thomas Segismont
  */

@@ -20,7 +20,7 @@ import io.reactivex.Observer;
 import io.vertx.core.Handler;
 
 /**
- * A {@link io.vertx.core.streams.WriteStream} to {@link Observer} adpater.
+ * A {@link io.vertx.core.streams.WriteStream} to {@link Observer} adapter.
  *
  * @author Thomas Segismont
  */
