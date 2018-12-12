@@ -12,6 +12,10 @@ import io.vertx.codegen.type.*;
 import javax.lang.model.element.Element;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.function.Function;
@@ -330,6 +334,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     if (api.isReadStream()) {
       genToObservable(api, writer);
     }
+    if (api.isWriteStream()) {
+      genToSubscriber(api, writer);
+    }
     List<String> cacheDecls = new ArrayList<>();
     for (MethodInfo method : model.getMethods()) {
       genMethods(model, method, cacheDecls, writer);
@@ -350,6 +357,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
   }
 
   protected abstract void genToObservable(ApiTypeInfo type, PrintWriter writer);
+
+  protected abstract void genToSubscriber(ApiTypeInfo type, PrintWriter writer);
 
   protected abstract void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, PrintWriter writer);
 

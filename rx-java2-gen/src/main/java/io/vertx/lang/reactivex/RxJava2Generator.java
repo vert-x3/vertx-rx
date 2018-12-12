@@ -47,7 +47,6 @@ class RxJava2Generator extends AbstractRxGenerator {
 
     genToXXXAble(streamType, "Observable", "observable", writer);
     genToXXXAble(streamType, "Flowable", "flowable", writer);
-
   }
 
   private void genToXXXAble(TypeInfo streamType, String rxType, String rxName, PrintWriter writer) {
@@ -113,6 +112,43 @@ class RxJava2Generator extends AbstractRxGenerator {
     writer.print("    return ");
     writer.print(rxName);
     writer.println(";");
+    writer.println("  }");
+    writer.println();
+  }
+
+  @Override
+  protected void genToSubscriber(ApiTypeInfo type, PrintWriter writer) {
+    TypeInfo streamType = type.getWriteStreamArg();
+    writer.format("  private io.vertx.reactivex.WriteStreamObserver<%s> observer;%n", genTypeName(streamType));
+
+    writer.format("  private io.vertx.reactivex.WriteStreamSubscriber<%s> subscriber;%n", genTypeName(streamType));
+
+    writer.println();
+
+    genToXXXEr(streamType, "Observer", "observer", writer);
+    genToXXXEr(streamType, "Subscriber", "subscriber", writer);
+  }
+
+  private void genToXXXEr(TypeInfo streamType, String rxType, String rxName, PrintWriter writer) {
+    writer.format("  public synchronized io.vertx.reactivex.WriteStream%s<%s> to%s() {%n", rxType, genTypeName(streamType), rxType);
+
+    writer.format("    if (%s == null) {%n", rxName);
+
+    if (streamType.getKind() == ClassKind.API) {
+      writer.format("      java.util.function.Function<%s, %s> conv = %s::getDelegate;%n", genTypeName(streamType.getRaw()), streamType.getName(), genTypeName(streamType));
+
+      writer.format("      %s = io.vertx.reactivex.RxHelper.to%s(getDelegate(), conv);%n", rxName, rxType);
+    } else if (streamType.isVariable()) {
+      String typeVar = streamType.getSimpleName();
+      writer.format("      java.util.function.Function<%s, %s> conv = (java.util.function.Function<%s, %s>) __typeArg_0.unwrap;%n", typeVar, typeVar, typeVar, typeVar);
+
+      writer.format("      %s = io.vertx.reactivex.RxHelper.to%s(getDelegate(), conv);%n", rxName, rxType);
+    } else {
+      writer.format("      %s = io.vertx.reactivex.RxHelper.to%s(getDelegate());%n", rxName, rxType);
+    }
+
+    writer.println("    }");
+    writer.format("    return %s;%n", rxName);
     writer.println("  }");
     writer.println();
   }
