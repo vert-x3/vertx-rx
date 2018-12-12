@@ -1,14 +1,12 @@
 package io.vertx.rx.java;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Context;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.vertx.core.*;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
+import io.vertx.core.streams.WriteStream;
+import io.vertx.rx.java.impl.WriteStreamSubscriberImpl;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
@@ -28,7 +26,7 @@ import java.util.function.Function;
 public class RxHelper {
 
   /**
-   * Adapts an Vert.x {@code Handler<AsyncResult<T>>} to an RxJava {@link Subscriber}.
+   * Adapts a Vert.x {@code Handler<AsyncResult<T>>} to an RxJava {@link Subscriber}.
    * <p>
    * The returned subscriber can be subscribed to an {@link Observable#subscribe(Subscriber)} or
    * {@link rx.Single#subscribe(Subscriber)}.
@@ -461,5 +459,25 @@ public class RxHelper {
     }
     catch(Exception ignore) {
     }
+  }
+
+  /**
+   * Adapts a Vert.x {@link WriteStream} to an RxJava {@link Subscriber}.
+   * <p>
+   * After subscription, the original {@link WriteStream} handlers should not be used anymore as they will be used by the adapter.
+   *
+   * @param stream the stream to adapt
+   *
+   * @return the adapted {@link Subscriber}
+   */
+  public static <T> WriteStreamSubscriber<T> toSubscriber(WriteStream<T> stream) {
+    return toSubscriber(stream, Function.identity());
+  }
+
+  /**
+   * Like {@link #toSubscriber(WriteStream)}, except the provided {@code mapping} function is applied to each {@link Observable} item.
+   */
+  public static <R, T> WriteStreamSubscriber<R> toSubscriber(WriteStream<T> stream, Function<R, T> mapping) {
+    return new WriteStreamSubscriberImpl<>(stream, mapping);
   }
 }

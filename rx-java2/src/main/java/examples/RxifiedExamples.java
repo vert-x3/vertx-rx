@@ -12,6 +12,7 @@ import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.docgen.Source;
 import io.vertx.reactivex.MaybeHelper;
+import io.vertx.reactivex.WriteStreamSubscriber;
 import io.vertx.reactivex.core.ObservableHelper;
 import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
@@ -380,5 +381,39 @@ public class RxifiedExamples {
           public void onComplete() {}
         });
   }
-}
 
+  public void writeStreamSubscriberAdapter(Flowable<io.vertx.core.buffer.Buffer> flowable, io.vertx.core.http.HttpServerResponse response) {
+    response.setChunked(true);
+    WriteStreamSubscriber<io.vertx.core.buffer.Buffer> subscriber = io.vertx.reactivex.RxHelper.toSubscriber(response);
+    flowable.subscribe(subscriber);
+  }
+
+  public void rxWriteStreamSubscriberAdapter(Flowable<Buffer> flowable, HttpServerResponse response) {
+    response.setChunked(true);
+    flowable.subscribe(response.toSubscriber());
+  }
+
+  public void writeStreamSubscriberAdapterCallbacks(Flowable<Buffer> flowable, HttpServerResponse response) {
+    response.setChunked(true);
+
+    WriteStreamSubscriber<Buffer> subscriber = response.toSubscriber();
+
+    subscriber.onError(throwable -> {
+      if (!response.headWritten() && response.closed()) {
+        response.setStatusCode(500).end("oops");
+      } else {
+        // log error
+      }
+    });
+
+    subscriber.onWriteStreamError(throwable -> {
+      // log error
+    });
+
+    subscriber.onComplete(() -> {
+      // log end of transaction to audit system...
+    });
+
+    flowable.subscribe(subscriber);
+  }
+}
