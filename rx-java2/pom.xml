@@ -301,6 +301,11 @@
       <artifactId>vertx-micrometer-metrics</artifactId>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-tcp-eventbus-bridge</artifactId>
+      <optional>true</optional>
+    </dependency>
 
     <!-- Extra dependencies -->
     <dependency>
@@ -522,7 +527,8 @@
             vertx-rabbitmq-client,
             vertx-health-check,
             vertx-shell,
-            vertx-micrometer-metrics
+            vertx-micrometer-metrics,
+            vertx-tcp-eventbus-bridge
           </includeArtifactIds>
           <classifier>sources</classifier>
           <includeTypes>jar</includeTypes>
