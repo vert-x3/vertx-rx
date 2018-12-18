@@ -402,31 +402,6 @@
     <plugins>
 
       <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.0.2</version>
-        <executions>
-          <execution>
-            <id>copy-codegen-extra</id>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <phase>generate-test-sources</phase>
-            <configuration>
-              <outputDirectory>${project.basedir}/src/test/java/</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${project.basedir}/../rx-java/src/test/java</directory>
-                  <includes>
-                    <include>io/vertx/codegen/extra/**</include>
-                  </includes>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
         <groupId>biz.aQute.bnd</groupId>
         <artifactId>bnd-maven-plugin</artifactId>
         <version>3.2.0</version>
