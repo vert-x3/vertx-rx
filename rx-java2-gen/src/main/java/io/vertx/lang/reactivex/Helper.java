@@ -1,4 +1,6 @@
-package io.vertx.lang.rx;
+package io.vertx.lang.reactivex;
+
+import io.vertx.lang.rx.RxGen;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -11,11 +13,10 @@ public class Helper {
    * @param type the type to unwrap
    * @return the unwrapped type
    */
-  public static <T> Class<T> unwrap(Class<T> type) {
+  public static Class unwrap(Class<?> type) {
     if (type != null) {
       RxGen rxgen = type.getAnnotation(RxGen.class);
       if (rxgen != null) {
-        // Unsafe-ish
         return rxgen.value();
       }
     }
