@@ -623,7 +623,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     } else if (kind == API) {
       return expr + ".getDelegate()";
     } else if (kind == CLASS_TYPE) {
-      return "io.vertx.lang." + id + ".Helper.unwrap(" + expr + ")";
+      return "io.vertx.lang.rx.Helper.unwrap(" + expr + ")";
     } else if (type.isParameterized()) {
       ParameterizedTypeInfo parameterizedTypeInfo = (ParameterizedTypeInfo) type;
       if (kind == HANDLER) {
