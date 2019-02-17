@@ -129,7 +129,7 @@
               <includeTypes>jar</includeTypes>
               <includeClassifiers>sources</includeClassifiers>
               <outputDirectory>${basedir}/src/test/java</outputDirectory>
-              <includes>io/vertx/core/streams/ReadStream.java,io/vertx/core/streams/StreamBase.java</includes>
+              <includes>io/vertx/core/streams/*.java</includes>
             </configuration>
           </execution>
         </executions>
