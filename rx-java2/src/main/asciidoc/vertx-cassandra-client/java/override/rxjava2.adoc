@@ -12,13 +12,6 @@ Then use one of the `create` methods to get an instance:
 {@link examples.RxCassandraClientExamples#createClient(io.vertx.reactivex.core.Vertx)}
 ----
 
-Before querying, connect to the cluster:
-
-[source,java]
-----
-{@link examples.RxCassandraClientExamples#connect(io.vertx.reactivex.cassandra.CassandraClient)}
-----
-
 === Querying
 
 In this section, we will reconsider some of the previous use cases with the Rxified API.
