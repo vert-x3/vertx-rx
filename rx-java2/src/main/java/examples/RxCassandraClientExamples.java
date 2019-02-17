@@ -15,14 +15,6 @@ public class RxCassandraClientExamples {
     CassandraClient cassandraClient = CassandraClient.createShared(vertx, options);
   }
 
-  public void connect(CassandraClient cassandraClient) {
-    cassandraClient.rxConnect().subscribe(() -> {
-      // Connected succesfully
-    }, throwable -> {
-      // Handle failure
-    });
-  }
-
   public void simpleQueryStream(CassandraClient cassandraClient) {
     cassandraClient.rxQueryStream("SELECT my_key FROM my_keyspace.my_table where my_key = my_value")
       // Convert the stream to a Flowable
