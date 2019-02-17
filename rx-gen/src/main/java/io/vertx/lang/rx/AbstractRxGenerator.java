@@ -712,7 +712,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
           tmp.append(", ");
           ClassKind argKind = arg.getKind();
           if (argKind == API) {
-            tmp.append(arg.translateName(id)).append(".__TYPE_ARG");
+            tmp.append("(io.vertx.lang.rx.TypeArg)").append(arg.getRaw().translateName(id)).append(".__TYPE_ARG");
           } else {
             String typeArg = "io.vertx.lang.rx.TypeArg.unknown()";
             if (argKind == OBJECT && arg.isVariable()) {
