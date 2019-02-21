@@ -390,7 +390,7 @@ public class CollectionTCKTest {
         map("foo", (short) 12, "eek", (short) 13),
         map("foo", 1234, "eek", 1345), map("foo", 123l, "eek", 456l), map("foo", new JsonObject().put("foo", "bar"), "eek", new JsonObject().put("eek", "wibble")),
         map("foo", new JsonArray().add("foo"), "eek", new JsonArray().add("blah")), map("foo", refed1, "eek", refed2),
-        m
+        map("foo", new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1)), map("foo", TestEnum.JULIEN), m
       );
   }
 

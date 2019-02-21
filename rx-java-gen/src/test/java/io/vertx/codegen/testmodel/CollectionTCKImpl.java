@@ -89,7 +89,7 @@ public class CollectionTCKImpl implements CollectionTCK {
   }
 
   @Override
-  public void methodWithMapParams(Map<String, String> mapString, Map<String, Byte> mapByte, Map<String, Short> mapShort, Map<String, Integer> mapInt, Map<String, Long> mapLong, Map<String, JsonObject> mapJsonObject, Map<String, JsonArray> mapJsonArray, Map<String, RefedInterface1> mapVertxGen, Map<String, Object> mapObject) {
+  public void methodWithMapParams(Map<String, String> mapString, Map<String, Byte> mapByte, Map<String, Short> mapShort, Map<String, Integer> mapInt, Map<String, Long> mapLong, Map<String, JsonObject> mapJsonObject, Map<String, JsonArray> mapJsonArray, Map<String, RefedInterface1> mapVertxGen, Map<String, TestDataObject> mapDataObject, Map<String, TestEnum> mapEnum, Map<String, Object> mapObject) {
     assertEquals("bar", mapString.get("foo"));
     assertEquals("wibble", mapString.get("eek"));
     assertEquals((byte) 2, mapByte.get("foo").byteValue());
@@ -110,6 +110,8 @@ public class CollectionTCKImpl implements CollectionTCK {
     assertEquals(4, ((Number)mapObject.get("integer")).intValue());
     assertEquals(3.4f, ((Number)mapObject.get("float")).floatValue(), 0.1);
     assertEquals(true, mapObject.get("boolean"));
+    assertEquals(new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1), mapDataObject.get("foo"));
+    assertEquals(TestEnum.JULIEN, mapEnum.get("foo"));
     assertEquals(new JsonObject().put("wibble", "eek"), mapObject.get("object"));
     assertEquals(new JsonArray().add("one").add(2), mapObject.get("array"));
   }
@@ -459,6 +461,27 @@ public class CollectionTCKImpl implements CollectionTCK {
   }
 
   @Override
+  public Map<String, RefedInterface1> methodWithMapVertxGenReturn(Handler<String> handler) {
+    Map<String, RefedInterface1> map = new VertxGenHandlerTestMap(handler);
+    map.put("foo", new RefedInterface1Impl().setString("foo"));
+    return map;
+  }
+
+  @Override
+  public Map<String, TestDataObject> methodWithMapDataObjectReturn(Handler<String> handler) {
+    Map<String, TestDataObject> map = new DataObjectHandlerTestMap(handler);
+    map.put("foo", new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1));
+    return map;
+  }
+
+  @Override
+  public Map<String, TestEnum> methodWithMapEnumReturn(Handler<String> handler) {
+    Map<String, TestEnum> map = new EnumHandlerTestMap(handler);
+    map.put("foo", TestEnum.JULIEN);
+    return map;
+  }
+
+  @Override
   public List<Long> methodWithListLongReturn() {
     return Arrays.asList(123l, 456l);
   }
@@ -750,36 +773,6 @@ public class CollectionTCKImpl implements CollectionTCK {
     }
   }
 
-  private static class DataObjectHandlerTestMap extends HandlerTestMap<TestDataObject> {
-    public DataObjectHandlerTestMap(Handler<String> handler) {
-      super(handler);
-    }
-
-    /**
-     * This method exists on purpose. On a put, this force a cast to JsonArray allowing us to test
-     * that values are converted properly.
-     */
-    @Override
-    public TestDataObject put(String key, TestDataObject value) {
-      return super.put(key, value);
-    }
-  }
-
-  private static class EnumHandlerTestMap extends HandlerTestMap<TestEnum> {
-    public EnumHandlerTestMap(Handler<String> handler) {
-      super(handler);
-    }
-
-    /**
-     * This method exists on purpose. On a put, this force a cast to JsonArray allowing us to test
-     * that values are converted properly.
-     */
-    @Override
-    public TestEnum put(String key, TestEnum value) {
-      return super.put(key, value);
-    }
-  }
-
   private static class JsonObjectHandlerTestMap extends HandlerTestMap<JsonObject> {
     public JsonObjectHandlerTestMap(Handler<String> handler) {
       super(handler);
@@ -835,6 +828,48 @@ public class CollectionTCKImpl implements CollectionTCK {
      */
     @Override
     public Double put(String key, Double value) {
+      return super.put(key, value);
+    }
+  }
+
+  static class VertxGenHandlerTestMap extends HandlerTestMap<RefedInterface1> {
+    public VertxGenHandlerTestMap(Handler<String> handler) {
+      super(handler);
+    }
+    /**
+     * This method exists on purpose. On a put, this force a cast to Double allowing us to test
+     * that values are converted properly.
+     */
+    @Override
+    public RefedInterface1 put(String key, RefedInterface1 value) {
+      return super.put(key, value);
+    }
+  }
+
+  static class DataObjectHandlerTestMap extends HandlerTestMap<TestDataObject> {
+    public DataObjectHandlerTestMap(Handler<String> handler) {
+      super(handler);
+    }
+    /**
+     * This method exists on purpose. On a put, this force a cast to Double allowing us to test
+     * that values are converted properly.
+     */
+    @Override
+    public TestDataObject put(String key, TestDataObject value) {
+      return super.put(key, value);
+    }
+  }
+
+  static class EnumHandlerTestMap extends HandlerTestMap<TestEnum> {
+    public EnumHandlerTestMap(Handler<String> handler) {
+      super(handler);
+    }
+    /**
+     * This method exists on purpose. On a put, this force a cast to Double allowing us to test
+     * that values are converted properly.
+     */
+    @Override
+    public TestEnum put(String key, TestEnum value) {
       return super.put(key, value);
     }
   }

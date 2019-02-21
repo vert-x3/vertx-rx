@@ -751,6 +751,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         }
       } else if (kind == LIST || kind == SET) {
         return expr + ".stream().map(elt -> " + genConvReturn(parameterizedTypeInfo.getArg(0), method, "elt") + ").collect(java.util.stream.Collectors.to" + type.getRaw().getSimpleName() + "())";
+      } else if (kind == MAP) {
+        return expr + ".entrySet().stream().collect(java.util.stream.Collectors.toMap(_e -> _e.getKey(), _e -> " + genConvReturn(parameterizedTypeInfo.getArg(1), method, "_e.getValue()") + "))";
       }
     }
     return expr;

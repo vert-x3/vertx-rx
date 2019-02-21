@@ -20,7 +20,7 @@ public interface CollectionTCK {
 
   void methodWithSetParams(Set<String> setString, Set<Byte> setByte, Set<Short> setShort, Set<Integer> setInt, Set<Long> setLong, Set<JsonObject> setJsonObject, Set<JsonArray> setJsonArray, Set<RefedInterface1> setVertxGen, Set<TestDataObject> setDataObject, Set<TestEnum> setEnum, Set<Object> setObject);
 
-  void methodWithMapParams(Map<String, String> mapString, Map<String, Byte> mapByte, Map<String, Short> mapShort, Map<String, Integer> mapInt, Map<String, Long> mapLong, Map<String, JsonObject> mapJsonObject, Map<String, JsonArray> mapJsonArray, Map<String, RefedInterface1> mapVertxGen, Map<String, Object> mapObject);
+  void methodWithMapParams(Map<String, String> mapString, Map<String, Byte> mapByte, Map<String, Short> mapShort, Map<String, Integer> mapInt, Map<String, Long> mapLong, Map<String, JsonObject> mapJsonObject, Map<String, JsonArray> mapJsonArray, Map<String, RefedInterface1> mapVertxGen, Map<String, TestDataObject> mapDataObject, Map<String, TestEnum> mapEnum, Map<String, Object> mapObject);
 
   void methodWithHandlerListAndSet(Handler<List<String>> listStringHandler, Handler<List<Integer>> listIntHandler,
                                    Handler<Set<String>> setStringHandler, Handler<Set<Integer>> setIntHandler);
@@ -74,6 +74,9 @@ public interface CollectionTCK {
   Map<String, Boolean> methodWithMapBooleanReturn(Handler<String> handler);
   Map<String, Float> methodWithMapFloatReturn(Handler<String> handler);
   Map<String, Double> methodWithMapDoubleReturn(Handler<String> handler);
+  Map<String, RefedInterface1> methodWithMapVertxGenReturn(Handler<String> handler);
+  Map<String, TestDataObject> methodWithMapDataObjectReturn(Handler<String> handler);
+  Map<String, TestEnum> methodWithMapEnumReturn(Handler<String> handler);
   Map<String, JsonObject> methodWithMapJsonObjectReturn(Handler<String> handler);
   Map<String, JsonObject> methodWithMapComplexJsonObjectReturn(Handler<String> handler);
   Map<String, JsonArray> methodWithMapJsonArrayReturn(Handler<String> handler);
