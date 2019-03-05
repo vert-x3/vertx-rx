@@ -190,6 +190,12 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
+      <artifactId>vertx-web-graphql</artifactId>
+      <version>${project.version}</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
       <artifactId>vertx-circuit-breaker</artifactId>
       <optional>true</optional>
     </dependency>
@@ -407,6 +413,7 @@
             vertx-web-templ-pebble,
             vertx-web-templ-rocker,
             vertx-web-templ-thymeleaf,
+            vertx-web-graphql,
             vertx-circuit-breaker,
             vertx-dropwizard-metrics,
             vertx-redis-client,
