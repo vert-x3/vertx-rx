@@ -3,11 +3,6 @@ branches:
   only:
   - master
   - /^\d+\.\d+$/
-cache:
-  directories:
-    - $HOME/.m2
-before_cache:
-  - rm -rf $HOME/.m2/repository/io/vertx/
 jobs:
   include:
     - stage: test
