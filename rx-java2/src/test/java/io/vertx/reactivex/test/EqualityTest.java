@@ -17,7 +17,6 @@
 package io.vertx.reactivex.test;
 
 import io.vertx.core.net.impl.SocketAddressImpl;
-import io.vertx.reactivex.codegen.extra.AnotherInterface;
 import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.core.net.SocketAddress;
 import org.junit.Test;
@@ -60,20 +59,5 @@ public class EqualityTest {
     SocketAddress address1 = SocketAddress.newInstance(new SocketAddressImpl(8888, "guest"));
     SocketAddress address2 = SocketAddress.newInstance(new SocketAddressImpl(8888, "guest"));
     assertEquals(1, Stream.of(address1, address2).collect(toSet()).size());
-  }
-
-  @Test
-  public void testAnotherInterfaceEquality() {
-    AnotherInterface ai1 = AnotherInterface.create();
-    AnotherInterface ai2 = AnotherInterface.create();
-    assertNotSame(ai1, ai2);
-    assertNotEquals(ai1, ai2);
-  }
-
-  @Test
-  public void testAnotherInterfaceSet() {
-    AnotherInterface ai1 = AnotherInterface.create();
-    AnotherInterface ai2 = AnotherInterface.create();
-    assertEquals(2, Stream.of(ai1, ai2).collect(toSet()).size());
   }
 }
