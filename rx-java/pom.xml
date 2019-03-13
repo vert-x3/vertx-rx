@@ -191,7 +191,6 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web-graphql</artifactId>
-      <version>${project.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
