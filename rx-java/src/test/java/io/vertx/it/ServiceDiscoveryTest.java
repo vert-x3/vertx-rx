@@ -187,14 +187,14 @@ public class ServiceDiscoveryTest {
       }));
 
       vertx.eventBus().<JsonObject>send("redis-sugar", "", tc.asyncAssertSuccess(reply -> {
-        tc.assertTrue(reply.body().getString("client").contains("RedisClient"));
+        tc.assertTrue(reply.body().getString("client").contains("Redis"));
         tc.assertTrue(reply.body().getString("client").contains("rx"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         redis_sugar.complete();
       }));
 
       vertx.eventBus().<JsonObject>send("redis-ref", "", tc.asyncAssertSuccess(reply -> {
-        tc.assertTrue(reply.body().getString("client").contains("RedisClient"));
+        tc.assertTrue(reply.body().getString("client").contains("Redis"));
         tc.assertTrue(reply.body().getString("client").contains("rx"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         redis_ref.complete();
