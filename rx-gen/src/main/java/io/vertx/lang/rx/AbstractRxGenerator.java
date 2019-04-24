@@ -13,9 +13,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static io.vertx.codegen.type.ClassKind.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractRxGenerator extends Generator<ClassModel> {
   private String id;
@@ -74,39 +75,34 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.print(" ");
     writer.print(Helper.getSimpleName(model.getIfaceFQCN()));
 
-    if ("io.vertx.core.buffer.Buffer".equals(type.getName())) {
-      writer.print(" implements io.vertx.core.shareddata.impl.ClusterSerializable");
-    }
     if (model.isConcrete() && model.getConcreteSuperType() != null) {
       writer.print(" extends ");
       writer.print(genTypeName(model.getConcreteSuperType()));
     }
-    List<TypeInfo> abstractSuperTypes = model.getAbstractSuperTypes();
-    if (abstractSuperTypes.size() > 0) {
-      writer.print(" ");
-      if (model.isConcrete()) {
-        writer.print("implements");
-      } else {
-        writer.print("extends");
-      }
-      writer.print(abstractSuperTypes.stream().map(it -> " " + genTypeName(it)).collect(Collectors.joining(", ")));
+
+    List<String> interfaces = new ArrayList<>();
+    if ("io.vertx.core.buffer.Buffer".equals(type.getName())) {
+      interfaces.add("io.vertx.core.shareddata.impl.ClusterSerializable");
     }
-    TypeInfo handlerType = model.getHandlerArg();
-    if (handlerType != null) {
-      if (abstractSuperTypes.isEmpty()) {
-        writer.print(" ");
-        if (model.isConcrete()) {
-          writer.print("implements ");
-        } else {
-          writer.print("extends ");
-        }
-      } else {
-        writer.print(", ");
-      }
-      writer.print("io.vertx.core.Handler<");
-      writer.print(genTypeName(handlerType));
-      writer.print(">");
+    interfaces.addAll(model.getAbstractSuperTypes().stream().map(this::genTypeName).collect(toList()));
+    if (model.isHandler()) {
+      interfaces.add("io.vertx.core.Handler<" + genTypeName(model.getHandlerArg()) + ">");
     }
+    if (model.isIterable()) {
+      interfaces.add("java.lang.Iterable<" + genTypeName(model.getIterableArg()) + ">");
+    }
+    if (model.isIterator()) {
+      interfaces.add("java.util.Iterator<" + genTypeName(model.getIteratorArg()) + ">");
+    }
+    if (model.isFunction()) {
+      TypeInfo[] functionArgs = model.getFunctionArgs();
+      interfaces.add("java.util.function.Function<" + genTypeName(functionArgs[0]) + ", " + genTypeName(functionArgs[1]) + ">");
+    }
+
+    if (!interfaces.isEmpty()) {
+      writer.print(interfaces.stream().collect(joining(", ", model.isConcrete() ? " implements " : " extends ", "")));
+    }
+
     writer.println(" {");
     writer.println();
 
@@ -151,6 +147,16 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.println("    return delegate.hashCode();");
       writer.println("  }");
       writer.println();
+
+      if (model.isIterable()) {
+        generateIterableMethod(model, writer);
+      }
+      if (model.isIterator()) {
+        generateIteratorMethods(model, writer);
+      }
+      if (model.isFunction()) {
+        generateFunctionMethod(model, writer);
+      }
 
       generateClassBody(model, model.getIfaceSimpleName(), writer);
     } else {
@@ -234,6 +240,92 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     }
   }
 
+  private void generateIterableMethod(ClassModel model, PrintWriter writer) {
+    if (model.getMethods().stream().noneMatch(it -> it.getParams().isEmpty() && "iterator".equals(it.getName()))) {
+      TypeInfo iterableArg = model.getIterableArg();
+
+      writer.println("  @Override");
+      writer.printf("  public java.util.Iterator<%s> iterator() {%n", genTypeName(iterableArg));
+
+      if (iterableArg.getKind() == ClassKind.API) {
+        writer.format("    java.util.function.Function<%s, %s> conv = %s::newInstance;%n", iterableArg.getName(), genTypeName(iterableArg.getRaw()), genTypeName(iterableArg));
+        writer.println("    return new io.vertx.lang.rx.MappingIterator<>(delegate.iterator(), conv);");
+      } else if (iterableArg.isVariable()) {
+        String typeVar = iterableArg.getSimpleName();
+        writer.format("    java.util.function.Function<%s, %s> conv = (java.util.function.Function<%s, %s>) __typeArg_0.wrap;%n", typeVar, typeVar, typeVar, typeVar);
+        writer.println("    return new io.vertx.lang.rx.MappingIterator<>(delegate.iterator(), conv);");
+      } else {
+        writer.println("    return delegate.iterator();");
+      }
+
+      writer.println("  }");
+      writer.println();
+    }
+  }
+
+  private void generateIteratorMethods(ClassModel model, PrintWriter writer) {
+    if (model.getMethods().stream().noneMatch(it -> it.getParams().isEmpty() && "hasNext".equals(it.getName()))) {
+      writer.println("  @Override");
+      writer.println("  public boolean hasNext() {");
+      writer.println("    return delegate.hasNext();");
+      writer.println("  }");
+      writer.println();
+    }
+    if (model.getMethods().stream().noneMatch(it -> it.getParams().isEmpty() && "next".equals(it.getName()))) {
+      TypeInfo iteratorArg = model.getIteratorArg();
+
+      writer.println("  @Override");
+      writer.printf("  public %s next() {%n", genTypeName(iteratorArg));
+
+      if (iteratorArg.getKind() == ClassKind.API) {
+        writer.format("    return %s.newInstance(delegate.next());%n", genTypeName(iteratorArg));
+      } else if (iteratorArg.isVariable()) {
+        writer.println("    return __typeArg_0.wrap(delegate.next());");
+      } else {
+        writer.println("    return delegate.next();");
+      }
+
+      writer.println("  }");
+      writer.println();
+    }
+  }
+
+  private void generateFunctionMethod(ClassModel model, PrintWriter writer) {
+    if (model.getMethods().stream().noneMatch(it -> it.getParams().size() == 1 && "apply".equals(it.getName()))) {
+      TypeInfo[] functionArgs = model.getFunctionArgs();
+      TypeInfo inArg = functionArgs[0];
+      TypeInfo outArg = functionArgs[1];
+
+      writer.println("  @Override");
+      writer.printf("  public %s apply(%s in) {%n", genTypeName(outArg), genTypeName(inArg));
+      writer.printf("    %s ret;%n", outArg.getName());
+
+      if (inArg.getKind() == ClassKind.API) {
+        writer.println("    ret = getDelegate().apply(in.getDelegate());");
+      } else if (inArg.isVariable()) {
+        String typeVar = inArg.getSimpleName();
+        writer.format("    java.util.function.Function<%s, %s> inConv = (java.util.function.Function<%s, %s>) __typeArg_0.unwrap;%n", typeVar, typeVar, typeVar, typeVar);
+        writer.println("    ret = getDelegate().apply(inConv.apply);");
+      } else {
+        writer.println("    ret = getDelegate().apply(in);");
+      }
+
+      if (outArg.getKind() == ClassKind.API) {
+        writer.format("    java.util.function.Function<%s, %s> outConv = %s::newInstance;%n", outArg.getName(), genTypeName(outArg.getRaw()), genTypeName(outArg));
+        writer.println("    return outConv.apply(ret);");
+      } else if (outArg.isVariable()) {
+        String typeVar = outArg.getSimpleName();
+        writer.format("    java.util.function.Function<%s, %s> outConv = (java.util.function.Function<%s, %s>) __typeArg_1.wrap;%n", typeVar, typeVar, typeVar, typeVar);
+        writer.println("    return outConv.apply(ret);");
+      } else {
+        writer.println("    return delegate.iterator();");
+      }
+
+      writer.println("  }");
+      writer.println();
+    }
+  }
+
   protected abstract void genReadStream(List<? extends TypeParamInfo> typeParams, PrintWriter writer);
 
   private void generateClassBody(ClassModel model, String constructor, PrintWriter writer) {
@@ -258,7 +350,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.print(Helper.getNonGenericType(model.getIfaceFQCN()));
     List<TypeParamInfo.Class> typeParams = model.getTypeParams();
     if (typeParams.size() > 0) {
-      writer.print(typeParams.stream().map(TypeParamInfo.Class::getName).collect(Collectors.joining(",", "<", ">")));
+      writer.print(typeParams.stream().map(TypeParamInfo.Class::getName).collect(joining(",", "<", ">")));
     }
     writer.println(" delegate;");
 
@@ -411,14 +503,14 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.print("static ");
     }
     if (method.getTypeParams().size() > 0) {
-      writer.print(method.getTypeParams().stream().map(TypeParamInfo::getName).collect(Collectors.joining(", ", "<", ">")));
+      writer.print(method.getTypeParams().stream().map(TypeParamInfo::getName).collect(joining(", ", "<", ">")));
       writer.print(" ");
     }
     writer.print(genTypeName(method.getReturnType()));
     writer.print(" ");
     writer.print(method.getName());
     writer.print("(");
-    writer.print(method.getParams().stream().map(it -> genTypeName(it.getType()) + " " + it.getName()).collect(Collectors.joining(", ")));
+    writer.print(method.getParams().stream().map(it -> genTypeName(it.getType()) + " " + it.getName()).collect(joining(", ")));
     writer.print(")");
 
   }
@@ -426,7 +518,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
   protected final String genTypeName(TypeInfo type) {
     if (type.isParameterized()) {
       ParameterizedTypeInfo pt = (ParameterizedTypeInfo) type;
-      return genTypeName(pt.getRaw()) + pt.getArgs().stream().map(this::genTypeName).collect(Collectors.joining(", ", "<", ">"));
+      return genTypeName(pt.getRaw()) + pt.getArgs().stream().map(this::genTypeName).collect(joining(", ", "<", ">"));
     } else if (type.getKind() == ClassKind.API) {
       return type.translateName(id);
     } else {
@@ -762,7 +854,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
 
   private String genOptTypeParamsDecl(ClassTypeInfo type, String deflt) {
     if (type.getParams().size() > 0) {
-      return type.getParams().stream().map(TypeParamInfo::getName).collect(Collectors.joining(",", "<", ">"));
+      return type.getParams().stream().map(TypeParamInfo::getName).collect(joining(",", "<", ">"));
     } else {
       return deflt;
     }
