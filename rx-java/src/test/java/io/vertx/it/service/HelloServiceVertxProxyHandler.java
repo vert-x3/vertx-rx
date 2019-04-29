@@ -35,11 +35,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import io.vertx.serviceproxy.ProxyHelper;
 import io.vertx.serviceproxy.ProxyHandler;
 import io.vertx.serviceproxy.ServiceException;
 import io.vertx.serviceproxy.ServiceExceptionMessageCodec;
 import io.vertx.serviceproxy.HelperUtils;
+import io.vertx.serviceproxy.ServiceBinder;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.AsyncResult;
@@ -58,6 +58,7 @@ public class HelloServiceVertxProxyHandler extends ProxyHandler {
   private final long timerID;
   private long lastAccessed;
   private final long timeoutSeconds;
+  private final boolean includeDebugInfo;
 
   public HelloServiceVertxProxyHandler(Vertx vertx, HelloService service){
     this(vertx, service, DEFAULT_CONNECTION_TIMEOUT);
@@ -67,9 +68,14 @@ public class HelloServiceVertxProxyHandler extends ProxyHandler {
     this(vertx, service, true, timeoutInSecond);
   }
 
-  public HelloServiceVertxProxyHandler(Vertx vertx, HelloService service, boolean topLevel, long timeoutSeconds) {
+  public HelloServiceVertxProxyHandler(Vertx vertx, HelloService service, boolean topLevel, long timeoutInSecond){
+    this(vertx, service, true, timeoutInSecond, false);
+  }
+
+  public HelloServiceVertxProxyHandler(Vertx vertx, HelloService service, boolean topLevel, long timeoutSeconds, boolean includeDebugInfo) {
       this.vertx = vertx;
       this.service = service;
+      this.includeDebugInfo = includeDebugInfo;
       this.timeoutSeconds = timeoutSeconds;
       try {
         this.vertx.eventBus().registerDefaultCodec(ServiceException.class,
@@ -116,13 +122,14 @@ public class HelloServiceVertxProxyHandler extends ProxyHandler {
       switch (action) {
         case "hello": {
           service.hello((io.vertx.core.json.JsonObject)json.getValue("name"),
-                        HelperUtils.createHandler(msg));
+                        HelperUtils.createHandler(msg, includeDebugInfo));
           break;
         }
         default: throw new IllegalStateException("Invalid action: " + action);
       }
     } catch (Throwable t) {
-      msg.reply(new ServiceException(500, t.getMessage()));
+      if (includeDebugInfo) msg.reply(new ServiceException(500, t.getMessage(), HelperUtils.generateDebugInfo(t)));
+      else msg.reply(new ServiceException(500, t.getMessage()));
       throw t;
     }
   }
