@@ -16,6 +16,7 @@
 
 package io.vertx.lang.rx.test;
 
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.streams.WriteStream;
@@ -76,8 +77,18 @@ public class FakeWriteStream implements WriteStream<Integer> {
   }
 
   @Override
+  public FakeWriteStream write(Integer data, Handler<AsyncResult<Void>> handler) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void end() {
     endInvoked = true;
+  }
+
+  @Override
+  public void end(Handler<AsyncResult<Void>> handler) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
