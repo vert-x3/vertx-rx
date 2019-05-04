@@ -14,6 +14,7 @@ package io.vertx.core.streams;
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.Nullable;
 import io.vertx.codegen.annotations.VertxGen;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 
 /**
@@ -49,11 +50,22 @@ public interface WriteStream<T> extends StreamBase {
   WriteStream<T> write(T data);
 
   /**
+   * Same as {@link #write(T)} but with an {@code handler} called when the operation completes
+   */
+  @Fluent
+  WriteStream<T> write(T data, Handler<AsyncResult<Void>> handler);
+
+  /**
    * Ends the stream.
    * <p>
    * Once the stream has ended, it cannot be used any more.
    */
   void end();
+
+  /**
+   * Same as {@link #end()} but with an {@code handler} called when the operation completes
+   */
+  void end(Handler<AsyncResult<Void>> handler);
 
   /**
    * Same as {@link #end()} but writes some data to the stream before ending.
