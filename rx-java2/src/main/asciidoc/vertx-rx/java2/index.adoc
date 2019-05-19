@@ -394,7 +394,7 @@ a json request to an object:
 
 === Websocket client
 
-The {@link io.vertx.reactivex.core.http.HttpClient#websocketStream} provides a single callback when the websocket
+The {@link io.vertx.reactivex.core.http.HttpClient#webSocket} provides a single callback when the websocket
 connects, otherwise a failure:
 
 [source,java]

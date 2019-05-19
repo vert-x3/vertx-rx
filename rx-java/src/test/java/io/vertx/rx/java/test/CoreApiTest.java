@@ -271,11 +271,15 @@ public class CoreApiTest extends VertxTestBase {
   public void testObservableWebSocket() {
     ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
     onListen.subscribe(
-        server -> vertx.createHttpClient(new HttpClientOptions()).websocket(8080, "localhost", "/some/path", ws -> {
-          ws.write(Buffer.buffer("foo"));
-          ws.close();
-        }),
-        error -> fail(error.getMessage())
+        server -> vertx.createHttpClient(new HttpClientOptions()).webSocket(8080, "localhost", "/some/path", ar -> {
+          if (ar.succeeded()) {
+            WebSocket ws = ar.result();
+            ws.write(Buffer.buffer("foo"));
+            ws.close();
+          } else {
+            fail(ar.cause().getMessage());
+          }
+        })
     );
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
     Observable<ServerWebSocket> socketObs = server.websocketStream().toObservable();
@@ -631,14 +635,17 @@ public class CoreApiTest extends VertxTestBase {
     });
     server.listen(ar -> {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-      client.websocket(8080, "localhost", "/the_uri", ws -> {
-        Buffer content = Buffer.buffer();
-        Observable<Buffer> observable = ws.toObservable();
-        observable.forEach(content::appendBuffer, err -> fail(), () -> {
-          server.close();
-          assertEquals("some_content", content.toString("UTF-8"));
-          testComplete();
-        });
+      client.webSocket(8080, "localhost", "/the_uri", ar2 -> {
+        if (ar2.succeeded()) {
+          WebSocket ws = ar2.result();
+          Buffer content = Buffer.buffer();
+          Observable<Buffer> observable = ws.toObservable();
+          observable.forEach(content::appendBuffer, err -> fail(), () -> {
+            server.close();
+            assertEquals("some_content", content.toString("UTF-8"));
+            testComplete();
+          });
+        }
       });
     });
     await();
@@ -655,9 +662,8 @@ public class CoreApiTest extends VertxTestBase {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
       Buffer content = Buffer.buffer();
       client.
-          websocketStream(8080, "localhost", "/the_uri").
-          toObservable().
-          flatMap(WebSocket::toObservable).
+          rxWebSocket(8080, "localhost", "/the_uri").
+          flatMapObservable(WebSocket::toObservable).
           forEach(content::appendBuffer, err -> fail(), () -> {
             server.close();
             assertEquals("some_content", content.toString("UTF-8"));
