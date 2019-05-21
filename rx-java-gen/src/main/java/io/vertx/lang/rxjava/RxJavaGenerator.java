@@ -27,8 +27,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
   }
 
   @Override
-  protected void genToObservable(ApiTypeInfo type, PrintWriter writer) {
-    TypeInfo streamType = type.getReadStreamArg();
+  protected void genToObservable(TypeInfo streamType, PrintWriter writer) {
     writer.print("  private rx.Observable<");
     writer.print(genTypeName(streamType));
     writer.println("> observable;");
@@ -75,8 +74,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
   }
 
   @Override
-  protected void genToSubscriber(ApiTypeInfo type, PrintWriter writer) {
-    TypeInfo streamType = type.getWriteStreamArg();
+  protected void genToSubscriber(TypeInfo streamType, PrintWriter writer) {
     writer.format("  private io.vertx.rx.java.WriteStreamSubscriber<%s> subscriber;%n", genTypeName(streamType));
     writer.println();
 

@@ -1,7 +1,6 @@
 package io.vertx.lang.rx;
 
 import io.vertx.codegen.*;
-import io.vertx.codegen.Helper;
 import io.vertx.codegen.annotations.ModuleGen;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.codegen.doc.Doc;
@@ -12,13 +11,8 @@ import io.vertx.codegen.type.*;
 import javax.lang.model.element.Element;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.lang.annotation.Annotation;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static io.vertx.codegen.type.ClassKind.*;
@@ -97,7 +91,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       }
       writer.print(abstractSuperTypes.stream().map(it -> " " + genTypeName(it)).collect(Collectors.joining(", ")));
     }
-    TypeInfo handlerType = model.getHandlerType();
+    TypeInfo handlerType = model.getHandlerArg();
     if (handlerType != null) {
       if (abstractSuperTypes.isEmpty()) {
         writer.print(" ");
@@ -330,12 +324,11 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println("  }");
     writer.println();
 
-    ApiTypeInfo api = (ApiTypeInfo) type;
-    if (api.isReadStream()) {
-      genToObservable(api, writer);
+    if (model.isReadStream()) {
+      genToObservable(model.getReadStreamArg(), writer);
     }
-    if (api.isWriteStream()) {
-      genToSubscriber(api, writer);
+    if (model.isWriteStream()) {
+      genToSubscriber(model.getWriteStreamArg(), writer);
     }
     List<String> cacheDecls = new ArrayList<>();
     for (MethodInfo method : model.getMethods()) {
@@ -356,9 +349,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     }
   }
 
-  protected abstract void genToObservable(ApiTypeInfo type, PrintWriter writer);
+  protected abstract void genToObservable(TypeInfo streamType, PrintWriter writer);
 
-  protected abstract void genToSubscriber(ApiTypeInfo type, PrintWriter writer);
+  protected abstract void genToSubscriber(TypeInfo streamType, PrintWriter writer);
 
   protected abstract void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, PrintWriter writer);
 

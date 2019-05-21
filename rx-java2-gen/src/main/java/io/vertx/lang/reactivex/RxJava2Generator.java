@@ -4,7 +4,10 @@ import io.vertx.codegen.ClassModel;
 import io.vertx.codegen.MethodInfo;
 import io.vertx.codegen.ParamInfo;
 import io.vertx.codegen.TypeParamInfo;
-import io.vertx.codegen.type.*;
+import io.vertx.codegen.type.ClassKind;
+import io.vertx.codegen.type.ClassTypeInfo;
+import io.vertx.codegen.type.ParameterizedTypeInfo;
+import io.vertx.codegen.type.TypeInfo;
 import io.vertx.lang.rx.AbstractRxGenerator;
 
 import java.io.PrintWriter;
@@ -33,8 +36,7 @@ class RxJava2Generator extends AbstractRxGenerator {
   }
 
   @Override
-  protected void genToObservable(ApiTypeInfo type, PrintWriter writer) {
-    TypeInfo streamType = type.getReadStreamArg();
+  protected void genToObservable(TypeInfo streamType, PrintWriter writer) {
     writer.print("  private io.reactivex.Observable<");
     writer.print(genTypeName(streamType));
     writer.println("> observable;");
@@ -117,8 +119,7 @@ class RxJava2Generator extends AbstractRxGenerator {
   }
 
   @Override
-  protected void genToSubscriber(ApiTypeInfo type, PrintWriter writer) {
-    TypeInfo streamType = type.getWriteStreamArg();
+  protected void genToSubscriber(TypeInfo streamType, PrintWriter writer) {
     writer.format("  private io.vertx.reactivex.WriteStreamObserver<%s> observer;%n", genTypeName(streamType));
 
     writer.format("  private io.vertx.reactivex.WriteStreamSubscriber<%s> subscriber;%n", genTypeName(streamType));
