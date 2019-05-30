@@ -783,8 +783,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       } else if (kind == FUNCTION) {
         TypeInfo argType = parameterizedTypeInfo.getArg(0);
         TypeInfo retType = parameterizedTypeInfo.getArg(1);
-        return "(arg) -> {\n" +
-          "      " + genTypeName(retType) + " result = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
+        return "(a0) -> {\n" +
+          "      " + genTypeName(retType) + " result = " + expr + ".apply(" + genConvReturn(argType, method, "a0") + ");\n" +
           "      return " + genConvParam(retType, method, "result") + ";\n" +
           "    }";
       } else if (kind == LIST || kind == SET) {
