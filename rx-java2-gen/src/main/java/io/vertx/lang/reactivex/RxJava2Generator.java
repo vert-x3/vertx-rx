@@ -180,7 +180,7 @@ class RxJava2Generator extends AbstractRxGenerator {
     String rxType = raw.getName();
     startMethodTemplate(model.getType(), futMethod, "", writer);
     if (genBody) {
-      writer.println(" { ");
+      writer.println(" {");
       writer.print("    return ");
       writer.print(adapterType);
       writer.println("(handler -> {");

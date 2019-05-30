@@ -13,9 +13,7 @@ import io.vertx.lang.rx.AbstractRxGenerator;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 class RxJavaGenerator extends AbstractRxGenerator {
   RxJavaGenerator() {
@@ -145,7 +143,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
     MethodInfo futMethod = genFutureMethod(method);
     startMethodTemplate(type, futMethod, "", writer);
     if (genBody) {
-      writer.println(" { ");
+      writer.println(" {");
       writer.println("    return Single.create(new io.vertx.rx.java.SingleOnSubscribeAdapter<>(fut -> {");
       writer.print("      ");
       writer.print(method.getName());
