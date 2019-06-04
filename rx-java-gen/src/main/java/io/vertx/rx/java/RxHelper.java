@@ -7,10 +7,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
 import io.vertx.rx.java.impl.WriteStreamSubscriberImpl;
-import rx.Observable;
-import rx.Observer;
-import rx.Scheduler;
-import rx.Subscriber;
+import rx.*;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.plugins.RxJavaSchedulersHook;
@@ -173,6 +170,12 @@ public class RxHelper {
     ObservableFuture<T> observable = RxHelper.<T>observableFuture();
     observable.subscribe(observer);
     return observable.toHandler();
+  }
+
+  public static <T> Future<T> toFuture(Single<T> single) {
+    Future<T> fut = Future.future();
+    single.subscribe(fut::complete, fut::fail);
+    return fut;
   }
 
   /**

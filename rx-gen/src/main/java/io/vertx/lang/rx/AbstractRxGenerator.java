@@ -7,12 +7,15 @@ import io.vertx.codegen.doc.Doc;
 import io.vertx.codegen.doc.Tag;
 import io.vertx.codegen.doc.Token;
 import io.vertx.codegen.type.*;
+import io.vertx.core.Handler;
 
 import javax.lang.model.element.Element;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static io.vertx.codegen.type.ClassKind.*;
 import static java.util.stream.Collectors.joining;
@@ -510,12 +513,24 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.print(" ");
     writer.print(method.getName());
     writer.print("(");
-    writer.print(method.getParams().stream().map(it -> genTypeName(it.getType()) + " " + it.getName()).collect(joining(", ")));
+    writer.print(method.getParams().stream().map(it -> genTypeNameMethodParam(it.getType()) + " " + it.getName()).collect(joining(", ")));
     writer.print(")");
 
   }
 
-  protected final String genTypeName(TypeInfo type) {
+  protected String genTypeNameMethodParam(TypeInfo type) {
+    if (isAsyncFunctionType(type)) {
+      ParameterizedTypeInfo pt = (ParameterizedTypeInfo) type;
+      return "java.util.function.Function<" + genTypeName(pt.getArg(0)) + ", Single<" + genTypeName(((ParameterizedTypeInfo)pt.getArg(1)).getArg(0)) + ">>";
+    } else if (isAsyncSupplierType(type)) {
+      ParameterizedTypeInfo pt = (ParameterizedTypeInfo) type;
+      return "java.util.function.Supplier<Single<" + genTypeName(((ParameterizedTypeInfo)pt.getArg(0)).getArg(0)) + ">>";
+    } else {
+      return genTypeName(type);
+    }
+  }
+
+  protected String genTypeName(TypeInfo type) {
     if (type.isParameterized()) {
       ParameterizedTypeInfo pt = (ParameterizedTypeInfo) type;
       return genTypeName(pt.getRaw()) + pt.getArgs().stream().map(this::genTypeName).collect(joining(", ", "<", ">"));
@@ -668,6 +683,20 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     return ret.toString();
   }
 
+  protected abstract String genConvertRxToFuture(TypeInfo type, String paramName);
+
+  private boolean isAsyncFunctionType(TypeInfo type) {
+    if (!type.isParameterized() || !type.getRaw().getName().equals(Function.class.getCanonicalName())) return false;
+    TypeInfo returnType = ((ParameterizedTypeInfo)type).getArg(1);
+    return returnType.getRaw() != null && returnType.getRaw().getName().equals("io.vertx.core.Future");
+  }
+
+  private boolean isAsyncSupplierType(TypeInfo type) {
+    if (!type.isParameterized() || !type.getRaw().getName().equals(Handler.class.getCanonicalName())) return false;
+    TypeInfo returnType = ((ParameterizedTypeInfo)type).getArg(0);
+    return returnType.getRaw() != null && returnType.getRaw().getName().equals("io.vertx.core.Future");
+  }
+
   private boolean isSameType(TypeInfo type, MethodInfo method) {
     ClassKind kind = type.getKind();
     if (kind.basic || kind.json || kind == DATA_OBJECT || kind == ENUM || kind == OTHER || kind == THROWABLE || kind == VOID) {
@@ -693,6 +722,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     return false;
   }
 
+  protected String getRxFutureType() {
+    return "Single";
+  }
+
   private String genConvParam(TypeInfo type, MethodInfo method, String expr) {
     ClassKind kind = type.getKind();
     if (isSameType(type, method)) {
@@ -714,7 +747,16 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       if (kind == HANDLER) {
         TypeInfo eventType = parameterizedTypeInfo.getArg(0);
         ClassKind eventKind = eventType.getKind();
-        if (eventKind == ASYNC_RESULT) {
+        if (isAsyncSupplierType(type)) {
+          TypeInfo resultType = ((ParameterizedTypeInfo) eventType).getArg(0);
+          String retTypeConversion = genConvParam(resultType, method, "r");
+          String finalMapping = retTypeConversion.equals("r") ? "" : ".map(r -> " + retTypeConversion + ")";
+          return "new Handler<io.vertx.core.Future<" + resultType.getName() + ">>() {\n" +
+            "      public void handle(io.vertx.core.Future<" + resultType.getName() + "> fut) {\n" +
+            "        " + expr + ".get()" + finalMapping + ".subscribe(fut::complete, fut::fail);\n" +
+            "      }\n" +
+            "    }";
+        } else if (eventKind == ASYNC_RESULT) {
           TypeInfo resultType = ((ParameterizedTypeInfo) eventType).getArg(0);
           return "new Handler<AsyncResult<" + resultType.getName() + ">>() {\n" +
             "      public void handle(AsyncResult<" + resultType.getName() + "> ar) {\n" +
@@ -733,14 +775,27 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
             "    }";
         }
       } else if (kind == FUNCTION) {
-        TypeInfo argType = parameterizedTypeInfo.getArg(0);
-        TypeInfo retType = parameterizedTypeInfo.getArg(1);
-        return "new java.util.function.Function<" + argType.getName() + "," + retType.getName() + ">() {\n" +
-          "      public " + retType.getName() + " apply(" + argType.getName() + " arg) {\n" +
-          "        " + genTypeName(retType) + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
-          "        return " + genConvParam(retType, method, "ret") + ";\n" +
-          "      }\n" +
-          "    }";
+        if (isAsyncFunctionType(type)) {
+          TypeInfo argType = parameterizedTypeInfo.getArg(0);
+          TypeInfo asyncRetType = ((ParameterizedTypeInfo)parameterizedTypeInfo.getArg(1)).getArg(0);
+          String retTypeConversion = genConvParam(asyncRetType, method, "r");
+          String finalMapping = retTypeConversion.equals("r") ? "" : ".map(r -> " + retTypeConversion + ")";
+          return "new java.util.function.Function<" + argType.getName() + ",io.vertx.core.Future<" + asyncRetType.getName() + ">>() {\n" +
+            "      public io.vertx.core.Future<" + asyncRetType.getName() + "> apply(" + argType.getName() + " arg) {\n" +
+            "        " + getRxFutureType() + "<" + genTypeName(asyncRetType) + "> ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
+            "        return " + genConvertRxToFuture(asyncRetType, "ret") + finalMapping + ";\n" +
+            "      }\n" +
+            "    }";
+        } else {
+          TypeInfo argType = parameterizedTypeInfo.getArg(0);
+          TypeInfo retType = parameterizedTypeInfo.getArg(1);
+          return "new java.util.function.Function<" + argType.getName() + "," + retType.getName() + ">() {\n" +
+            "      public " + retType.getName() + " apply(" + argType.getName() + " arg) {\n" +
+            "        " + genTypeName(retType) + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
+            "        return " + genConvParam(retType, method, "ret") + ";\n" +
+            "      }\n" +
+            "    }";
+        }
       } else if (kind == LIST || kind == SET) {
         return expr + ".stream().map(elt -> " + genConvParam(parameterizedTypeInfo.getArg(0), method, "elt") + ").collect(java.util.stream.Collectors.to" + type.getRaw().getSimpleName() + "())";
       } else if (kind == MAP) {

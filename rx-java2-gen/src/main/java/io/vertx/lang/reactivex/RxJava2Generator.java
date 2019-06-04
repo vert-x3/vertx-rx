@@ -36,6 +36,11 @@ class RxJava2Generator extends AbstractRxGenerator {
   }
 
   @Override
+  protected String genConvertRxToFuture(TypeInfo type, String paramName) {
+    return "io.vertx.reactivex.SingleHelper.fromSingle(" + paramName + ")";
+  }
+
+  @Override
   protected void genToObservable(TypeInfo streamType, PrintWriter writer) {
     writer.print("  private io.reactivex.Observable<");
     writer.print(genTypeName(streamType));
