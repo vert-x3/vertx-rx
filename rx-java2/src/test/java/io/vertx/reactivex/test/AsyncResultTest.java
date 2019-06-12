@@ -20,6 +20,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.reactivex.impl.AsyncResultCompletable;
 import io.vertx.reactivex.impl.AsyncResultMaybe;
 import io.vertx.reactivex.impl.AsyncResultSingle;
@@ -31,11 +32,11 @@ public class AsyncResultTest {
 
   @Test
   public void testSingle() {
-    Future<String> fut = Future.future();
+    Promise<String> promise = Promise.promise();
     try {
       Single justMe = Single.just("me");
       RxJavaPlugins.setOnSingleAssembly(single -> justMe);
-      Single<String> single = AsyncResultSingle.toSingle(fut::setHandler);
+      Single<String> single = AsyncResultSingle.toSingle(promise.future()::setHandler);
       assertSame(single, justMe);
     } finally {
       RxJavaPlugins.reset();
@@ -44,11 +45,11 @@ public class AsyncResultTest {
 
   @Test
   public void testMaybe() {
-    Future<String> fut = Future.future();
+    Promise<String> promise = Promise.promise();
     try {
       Maybe justMe = Maybe.just("me");
       RxJavaPlugins.setOnMaybeAssembly(single -> justMe);
-      Maybe<String> maybe = AsyncResultMaybe.toMaybe(fut::setHandler);
+      Maybe<String> maybe = AsyncResultMaybe.toMaybe(promise.future()::setHandler);
       assertSame(maybe, justMe);
     } finally {
       RxJavaPlugins.reset();
@@ -57,11 +58,11 @@ public class AsyncResultTest {
 
   @Test
   public void testCompletable() {
-    Future<Void> fut = Future.future();
+    Promise<Void> promise = Promise.promise();
     try {
       Completable complete = Completable.complete();
       RxJavaPlugins.setOnCompletableAssembly(single -> complete);
-      Completable completable = AsyncResultCompletable.toCompletable(fut::setHandler);
+      Completable completable = AsyncResultCompletable.toCompletable(promise.future()::setHandler);
       assertSame(completable, complete);
     } finally {
       RxJavaPlugins.reset();

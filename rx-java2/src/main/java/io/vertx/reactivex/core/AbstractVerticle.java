@@ -17,7 +17,7 @@ package io.vertx.reactivex.core;
 
 import io.reactivex.Completable;
 import io.vertx.core.Context;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 
 /**
@@ -35,7 +35,7 @@ public class AbstractVerticle extends io.vertx.core.AbstractVerticle {
   }
 
   @Override
-  public void start(Future<Void> startFuture) throws Exception {
+  public void start(Promise<Void> startFuture) throws Exception {
     Completable completable = rxStart();
     if (completable != null) {
       completable.subscribe(startFuture::complete, startFuture::fail);
@@ -56,7 +56,7 @@ public class AbstractVerticle extends io.vertx.core.AbstractVerticle {
   }
 
   @Override
-  public void stop(Future<Void> stopFuture) throws Exception {
+  public void stop(Promise<Void> stopFuture) throws Exception {
     Completable completable = rxStop();
     if (completable != null) {
       completable.subscribe(stopFuture::complete, stopFuture::fail);

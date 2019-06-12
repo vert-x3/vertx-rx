@@ -19,7 +19,7 @@ package io.vertx.reactivex.test;
 import io.reactivex.Single;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.RxHelper;
@@ -92,7 +92,7 @@ public class RxHelperTest {
     }
 
     @Override
-    public void start(Future<Void> startFuture) throws Exception {
+    public void start(Promise<Void> startFuture) throws Exception {
       config = config();
       if (failDeployment) {
         startFuture.fail(new MyException());

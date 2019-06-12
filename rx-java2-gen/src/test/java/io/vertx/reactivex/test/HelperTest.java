@@ -11,6 +11,7 @@ import io.reactivex.SingleObserver;
 import io.reactivex.functions.Function;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.reactivex.CompletableHelper;
 import io.vertx.reactivex.FlowableHelper;
 import io.vertx.reactivex.MaybeHelper;
@@ -29,75 +30,75 @@ public class HelperTest extends VertxTestBase {
 
   @Test
   public void testToSingleObserverSuccess() {
-    Future<String> fut = Future.future();
-    SingleObserver<String> observer = SingleHelper.toObserver(fut);
+    Promise<String> promise = Promise.promise();
+    SingleObserver<String> observer = SingleHelper.toObserver(promise);
     Single<String> s = Single.just("foobar");
     s.subscribe(observer);
-    assertTrue(fut.succeeded());
-    assertSame("foobar", fut.result());
+    assertTrue(promise.future().succeeded());
+    assertSame("foobar", promise.future().result());
   }
 
   @Test
   public void testToSingleObserverFailure() {
-    Future<String> fut = Future.future();
-    SingleObserver<String> observer = SingleHelper.toObserver(fut);
+    Promise<String> promise = Promise.promise();
+    SingleObserver<String> observer = SingleHelper.toObserver(promise);
     RuntimeException cause = new RuntimeException();
     Single<String> s = Single.error(cause);
     s.subscribe(observer);
-    assertTrue(fut.failed());
-    assertSame(cause, fut.cause());
+    assertTrue(promise.future().failed());
+    assertSame(cause, promise.future().cause());
   }
 
   @Test
   public void testToMaybeObserverSuccess() {
-    Future<String> fut = Future.future();
-    MaybeObserver<String> observer = MaybeHelper.toObserver(fut);
+    Promise<String> promise = Promise.promise();
+    MaybeObserver<String> observer = MaybeHelper.toObserver(promise);
     Maybe<String> s = Maybe.just("foobar");
     s.subscribe(observer);
-    assertTrue(fut.succeeded());
-    assertSame("foobar", fut.result());
+    assertTrue(promise.future().succeeded());
+    assertSame("foobar", promise.future().result());
   }
 
   @Test
   public void testToMaybeObserverEmpty() {
-    Future<String> fut = Future.future();
-    MaybeObserver<String> observer = MaybeHelper.toObserver(fut);
+    Promise<String> promise = Promise.promise();
+    MaybeObserver<String> observer = MaybeHelper.toObserver(promise);
     Maybe<String> s = Maybe.empty();
     s.subscribe(observer);
-    assertTrue(fut.succeeded());
-    assertNull(fut.result());
+    assertTrue(promise.future().succeeded());
+    assertNull(promise.future().result());
   }
 
   @Test
   public void testToMaybeObserverFailure() {
-    Future<String> fut = Future.future();
-    MaybeObserver<String> observer = MaybeHelper.toObserver(fut);
+    Promise<String> promise = Promise.promise();
+    MaybeObserver<String> observer = MaybeHelper.toObserver(promise);
     RuntimeException cause = new RuntimeException();
     Maybe<String> s = Maybe.error(cause);
     s.subscribe(observer);
-    assertTrue(fut.failed());
-    assertSame(cause, fut.cause());
+    assertTrue(promise.future().failed());
+    assertSame(cause, promise.future().cause());
   }
 
   @Test
   public void testToCompletableObserverSuccess() {
-    Future<String> fut = Future.future();
-    CompletableObserver observer = CompletableHelper.toObserver(fut);
+    Promise<String> promise = Promise.promise();
+    CompletableObserver observer = CompletableHelper.toObserver(promise);
     Completable s = Completable.complete();
     s.subscribe(observer);
-    assertTrue(fut.succeeded());
-    assertNull(fut.result());
+    assertTrue(promise.future().succeeded());
+    assertNull(promise.future().result());
   }
 
   @Test
   public void testToCompletableObserverFailure() {
-    Future<String> fut = Future.future();
-    CompletableObserver observer = CompletableHelper.toObserver(fut);
+    Promise<String> promise = Promise.promise();
+    CompletableObserver observer = CompletableHelper.toObserver(promise);
     RuntimeException cause = new RuntimeException();
     Completable s = Completable.error(cause);
     s.subscribe(observer);
-    assertTrue(fut.failed());
-    assertSame(cause, fut.cause());
+    assertTrue(promise.future().failed());
+    assertSame(cause, promise.future().cause());
   }
 
   @Test
