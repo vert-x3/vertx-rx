@@ -8,6 +8,9 @@ cache:
     - $HOME/.m2
 before_cache:
   - rm -rf $HOME/.m2/repository/io/vertx/
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install --only-upgrade openjdk-8-jdk
 jobs:
   include:
     - stage: test
