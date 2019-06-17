@@ -16,6 +16,7 @@ import io.vertx.reactivex.impl.SingleUnmarshaller;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -39,6 +40,12 @@ public class SingleHelper {
    */
   public static <T> Single<T> toSingle(Consumer<Handler<AsyncResult<T>>> handler) {
     return AsyncResultSingle.toSingle(handler);
+  }
+
+  public static <T> Future<T> fromSingle(Single<T> single) {
+    Future<T> fut = Future.future();
+    single.subscribe(fut::complete, fut::fail);
+    return fut;
   }
 
   /**

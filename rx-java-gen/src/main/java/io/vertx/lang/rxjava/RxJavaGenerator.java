@@ -29,6 +29,11 @@ class RxJavaGenerator extends AbstractRxGenerator {
   }
 
   @Override
+  protected String genConvertRxToFuture(TypeInfo type, String paramName) {
+    return "io.vertx.rx.java.RxHelper.toFuture(" + paramName + ")";
+  }
+
+  @Override
   protected void genToObservable(TypeInfo streamType, PrintWriter writer) {
     writer.print("  private rx.Observable<");
     writer.print(genTypeName(streamType));
