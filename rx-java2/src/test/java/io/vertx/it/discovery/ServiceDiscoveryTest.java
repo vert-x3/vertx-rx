@@ -129,96 +129,96 @@ public class ServiceDiscoveryTest {
 
     vertx.deployVerticle(MyRX2Verticle.class.getName(), deployed -> {
 
-      vertx.eventBus().<JsonObject>send("http-ref", "", tc.asyncAssertSuccess(reply -> {
+      vertx.eventBus().<JsonObject>request("http-ref", "", tc.asyncAssertSuccess(reply -> {
         tc.assertTrue(reply.body().getString("client").contains("HttpClient"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         http_ref.complete();
       }));
 
-      vertx.eventBus().<JsonObject>send("http-sugar", "", tc.asyncAssertSuccess(reply -> {
+      vertx.eventBus().<JsonObject>request("http-sugar", "", tc.asyncAssertSuccess(reply -> {
         tc.assertTrue(reply.body().getString("client").contains("HttpClient"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         http_sugar.complete();
       }));
 
-      vertx.eventBus().<JsonObject>send("web-ref", "", tc.asyncAssertSuccess(reply -> {
+      vertx.eventBus().<JsonObject>request("web-ref", "", tc.asyncAssertSuccess(reply -> {
         tc.assertTrue(reply.body().getString("client").contains("WebClient"));
         tc.assertTrue(reply.body().getString("client").contains("reactivex"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         web_ref.complete();
       }));
 
-      vertx.eventBus().<JsonObject>send("web-sugar", "", tc.asyncAssertSuccess(reply -> {
+      vertx.eventBus().<JsonObject>request("web-sugar", "", tc.asyncAssertSuccess(reply -> {
         tc.assertTrue(reply.body().getString("client").contains("WebClient"));
         tc.assertTrue(reply.body().getString("client").contains("reactivex"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         web_sugar.complete();
       }));
 
-      vertx.eventBus().<JsonObject>send("service-sugar", "", tc.asyncAssertSuccess(reply -> {
+      vertx.eventBus().<JsonObject>request("service-sugar", "", tc.asyncAssertSuccess(reply -> {
         tc.assertTrue(reply.body().getString("client").contains("HelloService"));
         tc.assertTrue(reply.body().getString("client").contains("reactivex"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         svc_sugar.complete();
       }));
 
-      vertx.eventBus().<JsonObject>send("service-ref", "", tc.asyncAssertSuccess(reply -> {
+      vertx.eventBus().<JsonObject>request("service-ref", "", tc.asyncAssertSuccess(reply -> {
         tc.assertTrue(reply.body().getString("client").contains("HelloService"));
         tc.assertTrue(reply.body().getString("client").contains("reactivex"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         svc_ref.complete();
       }));
 
-      vertx.eventBus().<JsonObject>send("ds-sugar", "", tc.asyncAssertSuccess(reply -> {
+      vertx.eventBus().<JsonObject>request("ds-sugar", "", tc.asyncAssertSuccess(reply -> {
         tc.assertTrue(reply.body().getString("client").contains("JDBCClient"));
         tc.assertTrue(reply.body().getString("client").contains("reactivex"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         ds_sugar.complete();
       }));
 
-      vertx.eventBus().<JsonObject>send("ds-ref", "", tc.asyncAssertSuccess(reply -> {
+      vertx.eventBus().<JsonObject>request("ds-ref", "", tc.asyncAssertSuccess(reply -> {
         tc.assertTrue(reply.body().getString("client").contains("JDBCClient"));
         tc.assertTrue(reply.body().getString("client").contains("reactivex"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         ds_ref.complete();
       }));
 
-      vertx.eventBus().<JsonObject>send("redis-sugar", "", tc.asyncAssertSuccess(reply -> {
+      vertx.eventBus().<JsonObject>request("redis-sugar", "", tc.asyncAssertSuccess(reply -> {
         tc.assertTrue(reply.body().getString("client").contains("Redis"));
         tc.assertTrue(reply.body().getString("client").contains("reactivex"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         redis_sugar.complete();
       }));
 
-      vertx.eventBus().<JsonObject>send("redis-ref", "", tc.asyncAssertSuccess(reply -> {
+      vertx.eventBus().<JsonObject>request("redis-ref", "", tc.asyncAssertSuccess(reply -> {
         tc.assertTrue(reply.body().getString("client").contains("Redis"));
         tc.assertTrue(reply.body().getString("client").contains("reactivex"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         redis_ref.complete();
       }));
 
-      vertx.eventBus().<JsonObject>send("mongo-sugar", "", tc.asyncAssertSuccess(reply -> {
+      vertx.eventBus().<JsonObject>request("mongo-sugar", "", tc.asyncAssertSuccess(reply -> {
         tc.assertTrue(reply.body().getString("client").contains("MongoClient"));
         tc.assertTrue(reply.body().getString("client").contains("reactivex"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         mongo_sugar.complete();
       }));
 
-      vertx.eventBus().<JsonObject>send("mongo-ref", "", tc.asyncAssertSuccess(reply -> {
+      vertx.eventBus().<JsonObject>request("mongo-ref", "", tc.asyncAssertSuccess(reply -> {
         tc.assertTrue(reply.body().getString("client").contains("MongoClient"));
         tc.assertTrue(reply.body().getString("client").contains("reactivex"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         mongo_ref.complete();
       }));
 
-      vertx.eventBus().<JsonObject>send("source1-sugar", "", tc.asyncAssertSuccess(reply -> {
+      vertx.eventBus().<JsonObject>request("source1-sugar", "", tc.asyncAssertSuccess(reply -> {
         tc.assertTrue(reply.body().getString("client").contains("MessageConsumer"));
         tc.assertTrue(reply.body().getString("client").contains("reactivex"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());
         ms_sugar.complete();
       }));
 
-      vertx.eventBus().<JsonObject>send("source1-ref", "", tc.asyncAssertSuccess(reply -> {
+      vertx.eventBus().<JsonObject>request("source1-ref", "", tc.asyncAssertSuccess(reply -> {
         tc.assertTrue(reply.body().getString("client").contains("MessageConsumer"));
         tc.assertTrue(reply.body().getString("client").contains("reactivex"));
         tc.assertTrue(reply.body().getJsonArray("bindings").isEmpty());

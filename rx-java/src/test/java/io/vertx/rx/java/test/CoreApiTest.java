@@ -195,9 +195,9 @@ public class CoreApiTest extends VertxTestBase {
     eb.<String>consumer("the-address", msg -> {
       msg.reply(msg.body());
     });
-    Single<Message<String>> obs1 = eb.rxSend("the-address", "msg1");
-    Single<Message<String>> obs2 = eb.rxSend("the-address", "msg2");
-    eb.send("the-address", "done", reply -> {
+    Single<Message<String>> obs1 = eb.rxRequest("the-address", "msg1");
+    Single<Message<String>> obs2 = eb.rxRequest("the-address", "msg2");
+    eb.request("the-address", "done", reply -> {
       Observable<Message<String>> all = Single.concat(obs1, obs2);
       LinkedList<String> values = new LinkedList<String>();
       all.subscribe(next -> {
