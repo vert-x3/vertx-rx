@@ -13,7 +13,9 @@ import io.vertx.lang.rx.AbstractRxGenerator;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class RxJavaGenerator extends AbstractRxGenerator {
   RxJavaGenerator() {
@@ -104,33 +106,60 @@ class RxJavaGenerator extends AbstractRxGenerator {
   }
 
   @Override
-  protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, PrintWriter writer) {
-    genMethod(model, method, cacheDecls, writer);
+  protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
+    genMethod(model, method, cacheDecls, genBody, writer);
     MethodInfo overloaded = genOverloadedMethod(method);
     if (overloaded != null) {
-      genMethod(model, overloaded, cacheDecls, writer);
+      genMethod(model, overloaded, cacheDecls, genBody, writer);
     }
   }
 
+  private static TypeInfo unwrap(TypeInfo type) {
+    if (type instanceof ParameterizedTypeInfo) {
+      return type.getRaw();
+    } else {
+      return type;
+    }
+  }
+
+  private boolean foo(MethodInfo m1, MethodInfo m2) {
+    int numParams = m1.getParams().size();
+    if (m1.getName().equals(m2.getName()) && numParams == m2.getParams().size()) {
+      for (int index = 0; index < numParams; index++) {
+        TypeInfo t1 = unwrap(m1.getParam(index).getType());
+        TypeInfo t2 = unwrap(m2.getParam(index).getType());
+        if (!t1.equals(t2)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
   @Override
-  protected void genRxMethod(ClassModel model, MethodInfo method, PrintWriter writer) {
+  protected void genRxMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
     ClassTypeInfo type = model.getType();
     String packageName = type.getPackageName();
     writer.print("  ");
     MethodInfo futMethod = genFutureMethod(method);
     startMethodTemplate(type, futMethod, "", writer);
-    writer.println(" { ");
-    writer.println("    return Single.create(new io.vertx.rx.java.SingleOnSubscribeAdapter<>(fut -> {");
-    writer.print("      ");
-    writer.print(method.getName());
-    writer.print("(");
-    writer.print(futMethod.getParams().stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
-    if (futMethod.getParams().size() > 0) {
-      writer.print(", ");
+    if (genBody) {
+      writer.println(" { ");
+      writer.println("    return Single.create(new io.vertx.rx.java.SingleOnSubscribeAdapter<>(fut -> {");
+      writer.print("      ");
+      writer.print(method.getName());
+      writer.print("(");
+      writer.print(futMethod.getParams().stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
+      if (futMethod.getParams().size() > 0) {
+        writer.print(", ");
+      }
+      writer.println("fut);");
+      writer.println("    }));");
+      writer.println("  }");
+    } else {
+      writer.println(";");
     }
-    writer.println("fut);");
-    writer.println("    }));");
-    writer.println("  }");
     writer.println();
   }
 

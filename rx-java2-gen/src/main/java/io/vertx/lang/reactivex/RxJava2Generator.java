@@ -159,41 +159,45 @@ class RxJava2Generator extends AbstractRxGenerator {
 //  }
 
   @Override
-  protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, PrintWriter writer) {
-    genMethod(model, method, cacheDecls, writer);
+  protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
+    genMethod(model, method, cacheDecls, genBody, writer);
     MethodInfo flowableOverload = genOverloadedMethod(method, io.reactivex.Flowable.class);
     MethodInfo observableOverload = genOverloadedMethod(method, io.reactivex.Observable.class);
     if (flowableOverload != null) {
-      genMethod(model, flowableOverload, cacheDecls, writer);
+      genMethod(model, flowableOverload, cacheDecls, genBody, writer);
     }
     if (observableOverload != null) {
-      genMethod(model, observableOverload, cacheDecls, writer);
+      genMethod(model, observableOverload, cacheDecls, genBody, writer);
     }
   }
 
   @Override
-  protected void genRxMethod(ClassModel model, MethodInfo method, PrintWriter writer) {
+  protected void genRxMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
     MethodInfo futMethod = genFutureMethod(method);
     ClassTypeInfo raw = futMethod.getReturnType().getRaw();
     String methodSimpleName = raw.getSimpleName();
     String adapterType = "io.vertx.reactivex.impl.AsyncResult" + methodSimpleName + ".to" + methodSimpleName;
     String rxType = raw.getName();
     startMethodTemplate(model.getType(), futMethod, "", writer);
-    writer.println(" { ");
-    writer.print("    return ");
-    writer.print(adapterType);
-    writer.println("(handler -> {");
-    writer.print("      ");
-    writer.print(method.getName());
-    writer.print("(");
-    List<ParamInfo> params = futMethod.getParams();
-    writer.print(params.stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
-    if (params.size() > 0) {
-      writer.print(", ");
+    if (genBody) {
+      writer.println(" { ");
+      writer.print("    return ");
+      writer.print(adapterType);
+      writer.println("(handler -> {");
+      writer.print("      ");
+      writer.print(method.getName());
+      writer.print("(");
+      List<ParamInfo> params = futMethod.getParams();
+      writer.print(params.stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
+      if (params.size() > 0) {
+        writer.print(", ");
+      }
+      writer.println("handler);");
+      writer.println("    });");
+      writer.println("  }");
+    } else {
+      writer.println(";");
     }
-    writer.println("handler);");
-    writer.println("    });");
-    writer.println("  }");
     writer.println();
   }
 

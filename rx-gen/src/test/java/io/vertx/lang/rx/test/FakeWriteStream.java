@@ -17,6 +17,7 @@
 package io.vertx.lang.rx.test;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.streams.WriteStream;
@@ -52,7 +53,7 @@ public class FakeWriteStream implements WriteStream<Integer> {
   }
 
   @Override
-  public FakeWriteStream write(Integer data) {
+  public Future<Void> write(Integer data) {
     if (data == null) {
       throw new IllegalArgumentException("data is null");
     }
@@ -73,17 +74,18 @@ public class FakeWriteStream implements WriteStream<Integer> {
         }
       });
     }
-    return this;
+    return Future.succeededFuture();
   }
 
   @Override
-  public FakeWriteStream write(Integer data, Handler<AsyncResult<Void>> handler) {
+  public void write(Integer data, Handler<AsyncResult<Void>> handler) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void end() {
+  public Future<Void> end() {
     endInvoked = true;
+    return Future.succeededFuture();
   }
 
   @Override
