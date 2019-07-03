@@ -3,6 +3,7 @@ package io.vertx.reactivex.impl;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.exceptions.Exceptions;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -45,12 +46,16 @@ public class AsyncResultCompletable extends Completable {
             if (ar.succeeded()) {
               try {
                 observer.onComplete();
-              } catch (Throwable ignore) {
+              } catch (Throwable t) {
+                Exceptions.throwIfFatal(t);
+                RxJavaPlugins.onError(t);
               }
             } else {
               try {
                 observer.onError(ar.cause());
-              } catch (Throwable ignore) {
+              } catch (Throwable t) {
+                Exceptions.throwIfFatal(t);
+                RxJavaPlugins.onError(t);
               }
             }
           }
@@ -59,7 +64,9 @@ public class AsyncResultCompletable extends Completable {
         if (!disposed.getAndSet(true)) {
           try {
             observer.onError(e);
-          } catch (Throwable ignore) {
+          } catch (Throwable t) {
+            Exceptions.throwIfFatal(t);
+            RxJavaPlugins.onError(t);
           }
         }
       }

@@ -3,6 +3,7 @@ package io.vertx.reactivex.impl;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeObserver;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.exceptions.Exceptions;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -50,12 +51,16 @@ public class AsyncResultMaybe<T> extends Maybe<T> {
                 } else {
                   observer.onComplete();
                 }
-              } catch (Throwable ignore) {
+              } catch (Throwable t) {
+                Exceptions.throwIfFatal(t);
+                RxJavaPlugins.onError(t);
               }
             } else if (ar.failed()) {
               try {
                 observer.onError(ar.cause());
-              } catch (Throwable ignore) {
+              } catch (Throwable t) {
+                Exceptions.throwIfFatal(t);
+                RxJavaPlugins.onError(t);
               }
             }
           }
@@ -64,7 +69,9 @@ public class AsyncResultMaybe<T> extends Maybe<T> {
         if (!disposed.getAndSet(true)) {
           try {
             observer.onError(e);
-          } catch (Throwable ignore) {
+          } catch (Throwable t) {
+            Exceptions.throwIfFatal(t);
+            RxJavaPlugins.onError(t);
           }
         }
       }
