@@ -4,11 +4,10 @@ import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.exceptions.Exceptions;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.impl.logging.Logger;
-import io.vertx.core.impl.logging.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -17,8 +16,6 @@ import java.util.function.Consumer;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class AsyncResultSingle<T> extends Single<T> {
-
-  private static final Logger log = LoggerFactory.getLogger(AsyncResultSingle.class);
 
   public static <T> Single<T> toSingle(Consumer<Handler<AsyncResult<T>>> subscriptionConsumer) {
     return RxJavaPlugins.onAssembly(new AsyncResultSingle<T>(subscriptionConsumer));
@@ -50,14 +47,16 @@ public class AsyncResultSingle<T> extends Single<T> {
             if (ar.succeeded()) {
               try {
                 observer.onSuccess(ar.result());
-              } catch (Exception err) {
-                log.error("Unexpected error", err);
+              } catch (Throwable t) {
+                Exceptions.throwIfFatal(t);
+                RxJavaPlugins.onError(t);
               }
             } else if (ar.failed()) {
               try {
                 observer.onError(ar.cause());
-              } catch (Exception err) {
-                log.error("Unexpected error", err);
+              } catch (Throwable t) {
+                Exceptions.throwIfFatal(t);
+                RxJavaPlugins.onError(t);
               }
             }
           }
@@ -66,8 +65,9 @@ public class AsyncResultSingle<T> extends Single<T> {
         if (!disposed.getAndSet(true)) {
           try {
             observer.onError(e);
-          } catch (Exception err) {
-            log.error("Unexpected error", err);
+          } catch (Throwable t) {
+            Exceptions.throwIfFatal(t);
+            RxJavaPlugins.onError(t);
           }
         }
       }
