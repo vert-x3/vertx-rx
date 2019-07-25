@@ -10,7 +10,6 @@ import io.vertx.reactivex.ext.jdbc.JDBCClient;
 import io.vertx.reactivex.ext.mongo.MongoClient;
 import io.vertx.reactivex.ext.web.client.WebClient;
 import io.vertx.reactivex.it.discovery.service.HelloService;
-import io.vertx.reactivex.redis.RedisClient;
 import io.vertx.reactivex.redis.client.Redis;
 import io.vertx.reactivex.servicediscovery.ServiceDiscovery;
 import io.vertx.reactivex.servicediscovery.ServiceReference;

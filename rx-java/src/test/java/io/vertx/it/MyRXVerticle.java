@@ -10,7 +10,6 @@ import io.vertx.rxjava.ext.jdbc.JDBCClient;
 import io.vertx.rxjava.ext.mongo.MongoClient;
 import io.vertx.rxjava.ext.web.client.WebClient;
 import io.vertx.rxjava.it.service.HelloService;
-import io.vertx.rxjava.redis.RedisClient;
 import io.vertx.rxjava.redis.client.Redis;
 import io.vertx.rxjava.servicediscovery.ServiceDiscovery;
 import io.vertx.rxjava.servicediscovery.ServiceReference;
