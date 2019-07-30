@@ -17,6 +17,7 @@ import io.vertx.rxjava.ext.sql.impl.InTransactionSingle;
 import rx.Completable;
 import rx.Observable;
 import rx.Single;
+import rx.exceptions.Exceptions;
 
 import java.util.function.Function;
 
@@ -119,7 +120,13 @@ public class SQLClientHelper {
    */
   public static <T> Observable<T> usingConnectionObservable(SQLClient client, Function<SQLConnection, Observable<T>> sourceSupplier) {
     return client.rxGetConnection().flatMapObservable(conn -> {
-      return sourceSupplier.apply(conn).doAfterTerminate(conn::close);
+      try {
+        return sourceSupplier.apply(conn).doAfterTerminate(conn::close);
+      } catch (Throwable t) {
+        Exceptions.throwIfFatal(t);
+        conn.close();
+        return Observable.error(t);
+      }
     });
   }
 
@@ -133,7 +140,13 @@ public class SQLClientHelper {
    */
   public static <T> Single<T> usingConnectionSingle(SQLClient client, Function<SQLConnection, Single<T>> sourceSupplier) {
     return client.rxGetConnection().flatMap(conn -> {
-      return sourceSupplier.apply(conn).doAfterTerminate(conn::close);
+      try {
+        return sourceSupplier.apply(conn).doAfterTerminate(conn::close);
+      } catch (Throwable t) {
+        Exceptions.throwIfFatal(t);
+        conn.close();
+        return Single.error(t);
+      }
     });
   }
 
@@ -146,7 +159,13 @@ public class SQLClientHelper {
    */
   public static Completable usingConnectionCompletable(SQLClient client, Function<SQLConnection, Completable> sourceSupplier) {
     return client.rxGetConnection().flatMapCompletable(conn -> {
-      return sourceSupplier.apply(conn).doAfterTerminate(conn::close);
+      try {
+        return sourceSupplier.apply(conn).doAfterTerminate(conn::close);
+      } catch (Throwable t) {
+        Exceptions.throwIfFatal(t);
+        conn.close();
+        return Completable.error(t);
+      }
     });
   }
 
