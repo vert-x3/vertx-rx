@@ -516,8 +516,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.println("   */");
     }
     writer.print(model.isConcrete() ? "  public static final" : "");
-    writer.println(" " + constant.getType().getSimpleName() + " " + constant.getName() + " = "
-      + genConvReturn(constant.getType(), null, model.getType().getName() + "." + constant.getName()) + ";");
+    writer.format(" %s %s = %s;\n",
+      genTypeName(constant.getType()),
+      constant.getName(),
+      genConvReturn(constant.getType(), null, model.getType().getName() + "." + constant.getName()));
   }
 
   protected void startMethodTemplate(ClassTypeInfo type, MethodInfo method, String deprecated, PrintWriter writer) {
