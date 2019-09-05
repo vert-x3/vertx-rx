@@ -4,11 +4,11 @@
 @ModuleGen(
   name = "testmodel",
   groupPackage = "io.vertx",
-  codecs = {
-    MyPojoToJsonArray.MyPojoToJsonArrayCodec.class,
-    MyPojoToJsonObject.MyPojoToJsonObjectCodec.class,
-    MyPojoToInteger.MyPojoToIntegerCodec.class,
-    ZonedDateTimeCodec.class
+  mappers = {
+    MyPojoToJsonArray.MyPojoToJsonArrayMapper.class,
+    MyPojoToJsonObject.MyPojoToJsonObjectMapper.class,
+    MyPojoToInteger.MyPojoToIntegerMapper.class,
+    ZonedDateTimeMapper.class
   }
 )
 package io.vertx.codegen.testmodel;

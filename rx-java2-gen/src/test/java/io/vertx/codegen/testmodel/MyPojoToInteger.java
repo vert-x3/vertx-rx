@@ -1,6 +1,6 @@
 package io.vertx.codegen.testmodel;
 
-import io.vertx.core.spi.json.JsonCodec;
+import io.vertx.core.spi.json.JsonMapper;
 
 import java.util.Objects;
 
@@ -8,17 +8,17 @@ public class MyPojoToInteger {
 
   int a;
 
-  public static class MyPojoToIntegerCodec implements JsonCodec<MyPojoToInteger, Number> {
+  public static class MyPojoToIntegerMapper implements JsonMapper<MyPojoToInteger, Number> {
 
-    public static final MyPojoToIntegerCodec INSTANCE = new MyPojoToIntegerCodec();
+    public static final MyPojoToIntegerMapper INSTANCE = new MyPojoToIntegerMapper();
 
     @Override
-    public MyPojoToInteger decode(Number value) throws IllegalArgumentException {
+    public MyPojoToInteger deserialize(Number value) throws IllegalArgumentException {
       return new MyPojoToInteger(value.intValue());
     }
 
     @Override
-    public Number encode(MyPojoToInteger value) throws IllegalArgumentException {
+    public Number serialize(MyPojoToInteger value) throws IllegalArgumentException {
       return value.getA();
     }
 
