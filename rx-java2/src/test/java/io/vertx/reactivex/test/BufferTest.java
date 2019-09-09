@@ -1,12 +1,13 @@
 package io.vertx.reactivex.test;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.JacksonYAMLParseException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.reactivex.*;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.DecodeException;
 import io.vertx.reactivex.FlowableHelper;
 import io.vertx.reactivex.MaybeHelper;
 import io.vertx.reactivex.ObservableHelper;
@@ -116,7 +117,7 @@ public class BufferTest {
     TestUtils.subscribe(mapped, subscriber);
     subscriber
       .request(1)
-      .assertError(err -> assertTrue(err instanceof JsonParseException))
+      .assertError(err -> assertTrue(err instanceof JacksonYAMLParseException | err instanceof DecodeException))
       .assertEmpty();
   }
 
@@ -135,7 +136,7 @@ public class BufferTest {
     TestSubscriber<SimplePojo> subscriber = new TestSubscriber<SimplePojo>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
-      .assertError(err -> assertTrue(err instanceof JsonParseException))
+      .assertError(err -> assertTrue(err instanceof JacksonYAMLParseException | err instanceof DecodeException))
       .assertEmpty();
   }
 
@@ -154,7 +155,7 @@ public class BufferTest {
     TestSubscriber<SimplePojo> subscriber = new TestSubscriber<>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
-      .assertError(err -> assertTrue(err instanceof JsonParseException))
+      .assertError(err -> assertTrue(err instanceof JacksonYAMLParseException | err instanceof DecodeException))
       .assertEmpty();
   }
 
@@ -173,7 +174,7 @@ public class BufferTest {
     TestSubscriber<SimplePojo> subscriber = new TestSubscriber<>();
     TestUtils.subscribe(mapped, subscriber);
     subscriber
-      .assertError(err -> assertTrue(err instanceof JsonParseException))
+      .assertError(err -> assertTrue(err instanceof JacksonYAMLParseException | err instanceof DecodeException))
       .assertEmpty();
   }
 

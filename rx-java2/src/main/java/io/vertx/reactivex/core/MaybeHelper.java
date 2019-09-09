@@ -1,7 +1,7 @@
 package io.vertx.reactivex.core;
 
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.MaybeTransformer;
 import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.impl.MaybeUnmarshaller;
@@ -19,11 +19,11 @@ public class MaybeHelper {
     return new MaybeUnmarshaller<>(Buffer::getDelegate, mappedTypeRef);
   }
 
-  public static <T> MaybeTransformer<Buffer, T> unmarshaller(Class<T> mappedType, ObjectMapper mapper) {
+  public static <T> MaybeTransformer<Buffer, T> unmarshaller(Class<T> mappedType, ObjectCodec mapper) {
     return new MaybeUnmarshaller<>(Buffer::getDelegate, mappedType, mapper);
   }
 
-  public static <T> MaybeTransformer<Buffer, T> unmarshaller(TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+  public static <T> MaybeTransformer<Buffer, T> unmarshaller(TypeReference<T> mappedTypeRef, ObjectCodec mapper) {
     return new MaybeUnmarshaller<>(Buffer::getDelegate, mappedTypeRef, mapper);
   }
 }

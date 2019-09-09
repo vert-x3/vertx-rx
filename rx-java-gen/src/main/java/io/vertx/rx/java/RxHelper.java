@@ -1,7 +1,7 @@
 package io.vertx.rx.java;
 
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.*;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
@@ -363,7 +363,7 @@ public class RxHelper {
    * @param mapper the mapper to use to unmarshell
    * @return the unmarshaller operator
    */
-  public static <T> Observable.Operator<T, Buffer> unmarshaller(Class<T> mappedType, ObjectMapper mapper) {
+  public static <T> Observable.Operator<T, Buffer> unmarshaller(Class<T> mappedType, ObjectCodec mapper) {
     return new UnmarshallerOperator<T, Buffer>(mappedType, mapper) {
       @Override
       public Buffer unwrap(Buffer buffer) {
@@ -430,7 +430,7 @@ public class RxHelper {
    * @param mappedTypeRef the type reference to unmarshall
    * @return the unmarshaller operator
    */
-  public static <T> Observable.Operator<T, Buffer> unmarshaller(TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+  public static <T> Observable.Operator<T, Buffer> unmarshaller(TypeReference<T> mappedTypeRef, ObjectCodec mapper) {
     return new UnmarshallerOperator<T, Buffer>(mappedTypeRef, mapper) {
       @Override
       public Buffer unwrap(Buffer buffer) {

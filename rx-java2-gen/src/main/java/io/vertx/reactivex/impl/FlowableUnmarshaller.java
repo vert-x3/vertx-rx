@@ -1,14 +1,16 @@
 package io.vertx.reactivex.impl;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.Json;
+import io.vertx.core.json.impl.JacksonCodec;
+import io.vertx.core.spi.json.JsonCodec;
 import org.reactivestreams.Publisher;
 
 import java.io.IOException;
@@ -25,25 +27,25 @@ public class FlowableUnmarshaller<T, B> implements FlowableTransformer<B, T> {
   private final java.util.function.Function<B, Buffer> unwrap;
   private final Class<T> mappedType;
   private final TypeReference<T> mappedTypeRef;
-  private final ObjectMapper mapper;
+  private final ObjectCodec mapper;
 
   public FlowableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType) {
-    this(unwrap, mappedType, null, Json.mapper);
+    this(unwrap, mappedType, null, null);
   }
 
   public FlowableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef) {
-    this(unwrap, null, mappedTypeRef, Json.mapper);
+    this(unwrap, null, mappedTypeRef, null);
   }
 
-  public FlowableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, ObjectMapper mapper) {
+  public FlowableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, ObjectCodec mapper) {
     this(unwrap, mappedType, null, mapper);
   }
 
-  public FlowableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+  public FlowableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef, ObjectCodec mapper) {
     this(unwrap, null, mappedTypeRef, mapper);
   }
 
-  private FlowableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+  private FlowableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, TypeReference<T> mappedTypeRef, ObjectCodec mapper) {
     this.unwrap = unwrap;
     this.mappedType = mappedType;
     this.mappedTypeRef = mappedTypeRef;
@@ -57,10 +59,17 @@ public class FlowableUnmarshaller<T, B> implements FlowableTransformer<B, T> {
     Maybe<T> unmarshalled = aggregated.toMaybe().concatMap(buffer -> {
       if (buffer.length() > 0) {
         try {
-          T obj = nonNull(mappedType) ? mapper.readValue(buffer.getBytes(), mappedType) :
-            mapper.readValue(buffer.getBytes(), mappedTypeRef);
+          T obj;
+          if (mapper != null) {
+            JsonParser parser = mapper.getFactory().createParser(buffer.getBytes());
+            obj = nonNull(mappedType) ? mapper.readValue(parser, mappedType) :
+              mapper.readValue(parser, mappedTypeRef);
+          } else {
+            obj = nonNull(mappedType) ? JsonCodec.INSTANCE.fromBuffer(buffer, mappedType) :
+              ((JacksonCodec)(JsonCodec.INSTANCE)).fromBuffer(buffer, mappedTypeRef);
+          }
           return Maybe.just(obj);
-        } catch (IOException e) {
+        } catch (Exception e) {
           return Maybe.error(e);
         }
       } else {

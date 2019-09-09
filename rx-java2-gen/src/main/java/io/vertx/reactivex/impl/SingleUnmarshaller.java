@@ -1,15 +1,15 @@
 package io.vertx.reactivex.impl;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.SingleTransformer;
 import io.reactivex.annotations.NonNull;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.Json;
-
-import java.io.IOException;
+import io.vertx.core.json.impl.JacksonCodec;
+import io.vertx.core.spi.json.JsonCodec;
 
 import static java.util.Objects.nonNull;
 
@@ -23,27 +23,27 @@ public class SingleUnmarshaller<T, B> implements SingleTransformer<B, T> {
   private final java.util.function.Function<B, Buffer> unwrap;
   private final Class<T> mappedType;
   private final TypeReference<T> mappedTypeRef;
-  private final ObjectMapper mapper;
+  private final ObjectCodec mapper;
 
 
   public SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType) {
-    this(unwrap, mappedType,null,  Json.mapper);
+    this(unwrap, mappedType,null,  null);
 
   }
 
   public SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef) {
-    this(unwrap, null, mappedTypeRef, Json.mapper);
+    this(unwrap, null, mappedTypeRef, null);
   }
 
-  public SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, ObjectMapper mapper) {
+  public SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, ObjectCodec mapper) {
     this(unwrap, mappedType,null,  mapper);
   }
 
-  public SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+  public SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef, ObjectCodec mapper) {
     this(unwrap, null, mappedTypeRef, mapper);
   }
 
-  private SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+  private SingleUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, TypeReference<T> mappedTypeRef, ObjectCodec mapper) {
     this.unwrap = unwrap;
     this.mappedType = mappedType;
     this.mappedTypeRef = mappedTypeRef;
@@ -55,10 +55,17 @@ public class SingleUnmarshaller<T, B> implements SingleTransformer<B, T> {
     Single<Buffer> unwrapped = upstream.map(unwrap::apply);
     Single<T> unmarshalled = unwrapped.flatMap(buffer -> {
       try {
-        T obj = nonNull(mappedType) ? mapper.readValue(buffer.getBytes(), mappedType) :
-          mapper.readValue(buffer.getBytes(), mappedTypeRef);
+        T obj;
+        if (mapper != null) {
+          JsonParser parser = mapper.getFactory().createParser(buffer.getBytes());
+          obj = nonNull(mappedType) ? mapper.readValue(parser, mappedType) :
+            mapper.readValue(parser, mappedTypeRef);
+        } else {
+          obj = nonNull(mappedType) ? JsonCodec.INSTANCE.fromBuffer(buffer, mappedType) :
+            ((JacksonCodec)(JsonCodec.INSTANCE)).fromBuffer(buffer, mappedTypeRef);
+        }
         return Single.just(obj);
-      } catch (IOException e) {
+      } catch (Exception e) {
         return Single.error(e);
       }
     });
