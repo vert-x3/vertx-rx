@@ -16,7 +16,7 @@ public class RxPgClientExamples {
   public void simpleQuery01Example(PgPool pool) {
 
     // A simple query
-    Single<RowSet> single = pool.rxQuery("SELECT * FROM users WHERE id='julien'");
+    Single<RowSet<Row>> single = pool.rxQuery("SELECT * FROM users WHERE id='julien'");
 
     // Execute the query
     single.subscribe(result -> {
