@@ -651,57 +651,6 @@
       </plugin>
 
       <plugin>
-        <groupId>biz.aQute.bnd</groupId>
-        <artifactId>bnd-maven-plugin</artifactId>
-        <version>3.2.0</version>
-
-        <executions>
-          <execution>
-            <id>default-bnd-process</id>
-            <goals>
-              <goal>bnd-process</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <bnd><![CDATA[
-          Import-Package: \
-              io.vertx.codegen.annotations;resolution:=optional,\
-              io.vertx.core,\
-              io.vertx.core.buffer,\
-              io.vertx.core.cli,\
-              io.vertx.core.cli.annotations,\
-              io.vertx.core.cli.converters,\
-              io.vertx.core.datagram,\
-              io.vertx.core.dns,\
-              io.vertx.core.eventbus,\
-              io.vertx.core.file,\
-              io.vertx.core.http,\
-              io.vertx.core.json,\
-              io.vertx.core.logging,\
-              io.vertx.core.metrics,\
-              io.vertx.core.net,\
-              io.vertx.core.parsetools,\
-              io.vertx.core.shareddata,\
-              io.vertx.core.spi,\
-              io.vertx.core.spi.cluster,\
-              io.vertx.core.spi.launcher,\
-              io.vertx.core.spi.logging,\
-              io.vertx.core.spi.metrics,\
-              io.vertx.core.streams,\
-              rx,\
-              rx.functions,\
-              rx.plugins,\
-              *;resolution:=optional
-          Export-Package: \
-              io.vertx.rxjava*,\
-              io.vertx.lang.rxjava*, \
-              io.vertx.rx*
-          ]]></bnd>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
@@ -716,9 +665,6 @@
               <descriptors>
                 <descriptor>${rxjava.descriptor}</descriptor>
               </descriptors>
-              <archive>
-                <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-              </archive>
             </configuration>
           </execution>
         </executions>
