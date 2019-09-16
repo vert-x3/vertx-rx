@@ -18,10 +18,6 @@
   <properties>
     <asciidoc.dir>${project.basedir}/src/main/asciidoc</asciidoc.dir>
     <lang>java</lang>
-    <!-- There is an issue with source plugin because we don't get the generated sources
-         because of BSC plugin, also the source is messy because we keep a version of vert.x core
-         so better use the assembly plugin instead -->
-    <source.skip>true</source.skip>
   </properties>
 
   <dependencies>
