@@ -4,7 +4,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.impl.JacksonCodec;
+import io.vertx.core.json.Json;
+import io.vertx.core.json.jackson.JacksonCodec;
 import io.vertx.core.spi.json.JsonCodec;
 import rx.Observable;
 import rx.Subscriber;
@@ -64,8 +65,8 @@ public abstract class UnmarshallerOperator<T, B> implements Observable.Operator<
               obj = nonNull(mappedType) ? mapper.readValue(parser, mappedType) :
                 mapper.readValue(parser, mappedTypeRef);
             } else {
-              obj = nonNull(mappedType) ? JsonCodec.INSTANCE.fromBuffer(buffer, mappedType) :
-                ((JacksonCodec)(JsonCodec.INSTANCE)).fromBuffer(buffer, mappedTypeRef);
+              obj = nonNull(mappedType) ? Json.CODEC.fromBuffer(buffer, mappedType) :
+                JacksonCodec.INSTANCE.fromBuffer(buffer, mappedTypeRef);
             }
           }
           subscriber.onNext(obj);

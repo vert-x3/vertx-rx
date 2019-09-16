@@ -8,9 +8,8 @@ import io.reactivex.SingleSource;
 import io.reactivex.SingleTransformer;
 import io.reactivex.annotations.NonNull;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.impl.JacksonCodec;
-import io.vertx.core.spi.json.JsonCodec;
 
+import static io.vertx.reactivex.impl.ObservableUnmarshaller.getT;
 import static java.util.Objects.nonNull;
 
 /**
@@ -61,8 +60,7 @@ public class SingleUnmarshaller<T, B> implements SingleTransformer<B, T> {
           obj = nonNull(mappedType) ? mapper.readValue(parser, mappedType) :
             mapper.readValue(parser, mappedTypeRef);
         } else {
-          obj = nonNull(mappedType) ? JsonCodec.INSTANCE.fromBuffer(buffer, mappedType) :
-            ((JacksonCodec)(JsonCodec.INSTANCE)).fromBuffer(buffer, mappedTypeRef);
+          obj = getT(buffer, mappedType, mappedTypeRef);
         }
         return Single.just(obj);
       } catch (Exception e) {

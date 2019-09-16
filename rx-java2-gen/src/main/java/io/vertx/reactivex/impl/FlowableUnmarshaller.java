@@ -9,12 +9,9 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.impl.JacksonCodec;
-import io.vertx.core.spi.json.JsonCodec;
 import org.reactivestreams.Publisher;
 
-import java.io.IOException;
-
+import static io.vertx.reactivex.impl.ObservableUnmarshaller.getT;
 import static java.util.Objects.nonNull;
 
 /**
@@ -65,8 +62,7 @@ public class FlowableUnmarshaller<T, B> implements FlowableTransformer<B, T> {
             obj = nonNull(mappedType) ? mapper.readValue(parser, mappedType) :
               mapper.readValue(parser, mappedTypeRef);
           } else {
-            obj = nonNull(mappedType) ? JsonCodec.INSTANCE.fromBuffer(buffer, mappedType) :
-              ((JacksonCodec)(JsonCodec.INSTANCE)).fromBuffer(buffer, mappedTypeRef);
+            obj = getT(buffer, mappedType, mappedTypeRef);
           }
           return Maybe.just(obj);
         } catch (Exception e) {

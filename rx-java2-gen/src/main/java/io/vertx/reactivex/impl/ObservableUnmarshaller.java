@@ -10,8 +10,8 @@ import io.reactivex.ObservableTransformer;
 import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.impl.JacksonCodec;
-import io.vertx.core.spi.json.JsonCodec;
+import io.vertx.core.json.Json;
+import io.vertx.core.json.jackson.JacksonCodec;
 
 import static java.util.Objects.nonNull;
 
@@ -64,8 +64,7 @@ public class ObservableUnmarshaller<T, B> implements ObservableTransformer<B, T>
             obj = nonNull(mappedType) ? mapper.readValue(parser, mappedType) :
               mapper.readValue(parser, mappedTypeRef);
           } else {
-            obj = nonNull(mappedType) ? JsonCodec.INSTANCE.fromBuffer(buffer, mappedType) :
-              ((JacksonCodec)(JsonCodec.INSTANCE)).fromBuffer(buffer, mappedTypeRef);
+            obj = getT(buffer, mappedType, mappedTypeRef);
           }
           return Maybe.just(obj);
         } catch (Exception e) {
@@ -76,5 +75,12 @@ public class ObservableUnmarshaller<T, B> implements ObservableTransformer<B, T>
       }
     });
     return unmarshalled.toObservable();
+  }
+
+  static <T> T getT(Buffer buffer, Class<T> mappedType, TypeReference<T> mappedTypeRef) {
+    T obj;
+    obj = nonNull(mappedType) ? Json.CODEC.fromBuffer(buffer, mappedType) :
+      JacksonCodec.INSTANCE.fromBuffer(buffer, mappedTypeRef);
+    return obj;
   }
 }
