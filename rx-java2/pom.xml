@@ -667,6 +667,15 @@
         </dependencies>
       </plugin>
 
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>package-docs</id>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- Run it to preview docs : mvn asciidoctor:process-asciidoc -->
       <plugin>
         <groupId>org.asciidoctor</groupId>
