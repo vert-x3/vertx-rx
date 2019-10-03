@@ -37,13 +37,7 @@
       <dependency>
         <groupId>io.reactivex.rxjava2</groupId>
         <artifactId>rxjava</artifactId>
-        <version>2.2.12</version>
-        <exclusions>
-          <exclusion>
-            <groupId>io.reactivestreams</groupId>
-            <artifactId>reactive-streams</artifactId>
-          </exclusion>
-        </exclusions>
+        <version>2.2.13</version>
       </dependency>
       <dependency>
         <groupId>org.reactivestreams</groupId>
