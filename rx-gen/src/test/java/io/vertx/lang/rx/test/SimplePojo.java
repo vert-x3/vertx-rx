@@ -16,4 +16,9 @@ public class SimplePojo {
     SimplePojo that = (SimplePojo) obj;
     return foo.equals(that.foo);
   }
+
+  @Override
+  public String toString() {
+    return "SimplePojo[" + foo + "]";
+  }
 }

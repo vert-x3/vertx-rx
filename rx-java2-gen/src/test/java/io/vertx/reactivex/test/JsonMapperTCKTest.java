@@ -1,20 +1,20 @@
 package io.vertx.reactivex.test;
 
-import io.vertx.codegen.testmodel.JsonCodecTCKImpl;
+import io.vertx.codegen.testmodel.JsonMapperTCKImpl;
 import io.vertx.codegen.testmodel.MyPojoToInteger;
-import io.vertx.reactivex.codegen.testmodel.JsonCodecTCK;
+import io.vertx.reactivex.codegen.testmodel.JsonMapperTCK;
 import org.junit.Test;
 
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class JsonCodecTCKTest {
+public class JsonMapperTCKTest {
 
   @Test
   public void testInteger(){
-    JsonCodecTCKImpl impl = new JsonCodecTCKImpl(); // Impl has asserts! So i reuse the same
-    JsonCodecTCK test = JsonCodecTCK.newInstance(impl);
+    JsonMapperTCKImpl impl = new JsonMapperTCKImpl(); // Impl has asserts! So i reuse the same
+    JsonMapperTCK test = JsonMapperTCK.newInstance(impl);
     impl.methodWithTypeToIntegerParam(
       test.rxMethodWithHandlerAsyncResultTypeToIntegerParam().blockingGet()
     );
@@ -34,8 +34,8 @@ public class JsonCodecTCKTest {
 
   @Test
   public void testString(){
-    JsonCodecTCKImpl impl = new JsonCodecTCKImpl(); // Impl has asserts! So i reuse the same
-    JsonCodecTCK test = JsonCodecTCK.newInstance(impl);
+    JsonMapperTCKImpl impl = new JsonMapperTCKImpl(); // Impl has asserts! So i reuse the same
+    JsonMapperTCK test = JsonMapperTCK.newInstance(impl);
     impl.methodWithTypeToStringParam(
       test.rxMethodWithHandlerAsyncResultTypeToStringParam().blockingGet()
     );
@@ -55,8 +55,8 @@ public class JsonCodecTCKTest {
 
   @Test
   public void testJsonArray(){
-    JsonCodecTCKImpl impl = new JsonCodecTCKImpl(); // Impl has asserts! So i reuse the same
-    JsonCodecTCK test = JsonCodecTCK.newInstance(impl);
+    JsonMapperTCKImpl impl = new JsonMapperTCKImpl(); // Impl has asserts! So i reuse the same
+    JsonMapperTCK test = JsonMapperTCK.newInstance(impl);
     impl.methodWithTypeToJsonArrayParam(
       test.rxMethodWithHandlerAsyncResultTypeToJsonArrayParam().blockingGet()
     );
@@ -76,8 +76,8 @@ public class JsonCodecTCKTest {
 
   @Test
   public void testJsonObject(){
-    JsonCodecTCKImpl impl = new JsonCodecTCKImpl(); // Impl has asserts! So i reuse the same
-    JsonCodecTCK test = JsonCodecTCK.newInstance(impl);
+    JsonMapperTCKImpl impl = new JsonMapperTCKImpl(); // Impl has asserts! So i reuse the same
+    JsonMapperTCK test = JsonMapperTCK.newInstance(impl);
     impl.methodWithTypeToJsonObjectParam(
       test.rxMethodWithHandlerAsyncResultTypeToJsonObjectParam().blockingGet()
     );

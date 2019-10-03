@@ -1,31 +1,8 @@
 package io.vertx.codegen.testmodel;
 
-import io.vertx.core.spi.json.JsonCodec;
-import io.vertx.core.json.JsonObject;
-
 import java.util.Objects;
 
 public class MyPojoToJsonObject {
-
-  public static class MyPojoToJsonObjectCodec implements JsonCodec<MyPojoToJsonObject, JsonObject> {
-
-    public static final MyPojoToJsonObjectCodec INSTANCE = new MyPojoToJsonObjectCodec();
-
-    @Override
-    public MyPojoToJsonObject decode(JsonObject value) throws IllegalArgumentException {
-      return new MyPojoToJsonObject(value.getInteger("v"));
-    }
-
-    @Override
-    public JsonObject encode(MyPojoToJsonObject value) throws IllegalArgumentException {
-      return new JsonObject().put("v", value.getV());
-    }
-
-    @Override
-    public Class<MyPojoToJsonObject> getTargetClass() {
-      return MyPojoToJsonObject.class;
-    }
-  }
 
   int v;
 

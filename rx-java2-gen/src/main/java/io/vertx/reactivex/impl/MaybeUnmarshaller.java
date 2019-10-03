@@ -1,16 +1,15 @@
 package io.vertx.reactivex.impl;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.MaybeTransformer;
 import io.reactivex.annotations.NonNull;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.Json;
 
-import java.io.IOException;
-
+import static io.vertx.reactivex.impl.ObservableUnmarshaller.getT;
 import static java.util.Objects.nonNull;
 
 /**
@@ -23,25 +22,25 @@ public class MaybeUnmarshaller<T, B> implements MaybeTransformer<B, T> {
   private final java.util.function.Function<B, Buffer> unwrap;
   private final Class<T> mappedType;
   private final TypeReference<T> mappedTypeRef;
-  private final ObjectMapper mapper;
+  private final ObjectCodec mapper;
 
   public MaybeUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType) {
-    this(unwrap, mappedType, null, Json.mapper);
+    this(unwrap, mappedType, null, null);
   }
 
   public MaybeUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef) {
-    this(unwrap, null, mappedTypeRef, Json.mapper);
+    this(unwrap, null, mappedTypeRef, null);
   }
 
-  public MaybeUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, ObjectMapper mapper) {
+  public MaybeUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, ObjectCodec mapper) {
     this(unwrap, mappedType, null, mapper);
   }
 
-  public MaybeUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+  public MaybeUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef, ObjectCodec mapper) {
     this(unwrap, null, mappedTypeRef, mapper);
   }
 
-  private MaybeUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+  private MaybeUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, TypeReference<T> mappedTypeRef, ObjectCodec mapper) {
     this.unwrap = unwrap;
     this.mappedType = mappedType;
     this.mappedTypeRef = mappedTypeRef;
@@ -54,10 +53,16 @@ public class MaybeUnmarshaller<T, B> implements MaybeTransformer<B, T> {
     Maybe<T> unmarshalled = unwrapped.concatMap(buffer -> {
       if (buffer.length() > 0) {
         try {
-          T obj = nonNull(mappedType) ? mapper.readValue(buffer.getBytes(), mappedType) :
-            mapper.readValue(buffer.getBytes(), mappedTypeRef);
+          T obj;
+          if (mapper != null) {
+            JsonParser parser = mapper.getFactory().createParser(buffer.getBytes());
+            obj = nonNull(mappedType) ? mapper.readValue(parser, mappedType) :
+              mapper.readValue(parser, mappedTypeRef);
+          } else {
+            obj = getT(buffer, mappedType, mappedTypeRef);
+          }
           return Maybe.just(obj);
-        } catch (IOException e) {
+        } catch (Exception e) {
           return Maybe.error(e);
         }
       } else {

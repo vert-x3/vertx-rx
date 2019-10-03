@@ -1,7 +1,8 @@
 package io.vertx.reactivex.impl;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -10,8 +11,7 @@ import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
-
-import java.io.IOException;
+import io.vertx.core.json.jackson.JacksonFactory;
 
 import static java.util.Objects.nonNull;
 
@@ -25,32 +25,30 @@ public class ObservableUnmarshaller<T, B> implements ObservableTransformer<B, T>
   private final java.util.function.Function<B, Buffer> unwrap;
   private final Class<T> mappedType;
   private final TypeReference<T> mappedTypeRef;
-  private ObjectMapper mapper;
+  private ObjectCodec mapper;
 
   public ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType) {
-    this(unwrap, mappedType, null, Json.mapper);
+    this(unwrap, mappedType, null, null);
 
   }
 
   public ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef) {
-    this(unwrap, null, mappedTypeRef, Json.mapper);
+    this(unwrap, null, mappedTypeRef, null);
   }
 
-  public ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, ObjectMapper mapper) {
+  public ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, ObjectCodec mapper) {
     this(unwrap, mappedType, null, mapper);
-
   }
 
-  public ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+  public ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, TypeReference<T> mappedTypeRef, ObjectCodec mapper) {
     this(unwrap, null, mappedTypeRef, mapper);
   }
 
-  private ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+  private ObservableUnmarshaller(java.util.function.Function<B, Buffer> unwrap, Class<T> mappedType, TypeReference<T> mappedTypeRef, ObjectCodec mapper) {
     this.unwrap = unwrap;
     this.mappedType = mappedType;
     this.mappedTypeRef = mappedTypeRef;
     this.mapper = mapper;
-
   }
 
   @Override
@@ -60,10 +58,16 @@ public class ObservableUnmarshaller<T, B> implements ObservableTransformer<B, T>
     Maybe<T> unmarshalled = aggregated.toMaybe().concatMap(buffer -> {
       if (buffer.length() > 0) {
         try {
-          T obj = nonNull(mappedType) ? mapper.readValue(buffer.getBytes(), mappedType) :
-            mapper.readValue(buffer.getBytes(), mappedTypeRef);
+          T obj;
+          if (mapper != null) {
+            JsonParser parser = mapper.getFactory().createParser(buffer.getBytes());
+            obj = nonNull(mappedType) ? mapper.readValue(parser, mappedType) :
+              mapper.readValue(parser, mappedTypeRef);
+          } else {
+            obj = getT(buffer, mappedType, mappedTypeRef);
+          }
           return Maybe.just(obj);
-        } catch (IOException e) {
+        } catch (Exception e) {
           return Maybe.error(e);
         }
       } else {
@@ -71,5 +75,12 @@ public class ObservableUnmarshaller<T, B> implements ObservableTransformer<B, T>
       }
     });
     return unmarshalled.toObservable();
+  }
+
+  static <T> T getT(Buffer buffer, Class<T> mappedType, TypeReference<T> mappedTypeRef) {
+    T obj;
+    obj = nonNull(mappedType) ? Json.CODEC.fromBuffer(buffer, mappedType) :
+      JacksonFactory.CODEC.fromBuffer(buffer, mappedTypeRef);
+    return obj;
   }
 }

@@ -16,14 +16,8 @@
   <name>Vert.x Rx Code Generator</name>
 
   <properties>
-    <!-- The path to the assembly jar descriptor -->
-    <rxgen.descriptor>${basedir}/src/main/assembly/artifact.xml</rxgen.descriptor>
     <asciidoc.dir>${project.basedir}/src/main/asciidoc</asciidoc.dir>
     <lang>java</lang>
-    <!-- There is an issue with source plugin because we don't get the generated sources
-         because of BSC plugin, also the source is messy because we keep a version of vert.x core
-         so better use the assembly plugin instead -->
-    <source.skip>true</source.skip>
   </properties>
 
   <dependencies>
@@ -48,61 +42,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>biz.aQute.bnd</groupId>
-        <artifactId>bnd-maven-plugin</artifactId>
-        <version>3.2.0</version>
-        <executions>
-          <execution>
-            <id>default-bnd-process</id>
-            <goals>
-              <goal>bnd-process</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <bnd><![CDATA[
-          Import-Package: \
-              io.vertx.codegen,\
-              io.vertx.codegen.annotations,\
-              io.vertx.codegen.doc,\
-              io.vertx.codegen.type,\
-              javax.lang.model.element,\
-              *;resolution:=optional
-          Export-Package: \
-              io.vertx.lang.rx*
-          ]]></bnd>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>package-jar</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <attach>true</attach>
-              <appendAssemblyId>false</appendAssemblyId>
-              <descriptors>
-                <descriptor>${rxgen.descriptor}</descriptor>
-              </descriptors>
-              <archive>
-                <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-              </archive>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-
-    </plugins>
-  </build>
-
 </project>

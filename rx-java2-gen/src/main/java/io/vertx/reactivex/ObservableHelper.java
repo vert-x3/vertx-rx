@@ -1,7 +1,7 @@
 package io.vertx.reactivex;
 
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.Observable;
 import io.reactivex.ObservableTransformer;
 import io.reactivex.plugins.RxJavaPlugins;
@@ -56,11 +56,11 @@ public class ObservableHelper {
     return new ObservableUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef);
   }
 
-  public static <T> ObservableTransformer<Buffer, T> unmarshaller(Class<T> mappedType, ObjectMapper mapper) {
+  public static <T> ObservableTransformer<Buffer, T> unmarshaller(Class<T> mappedType, ObjectCodec mapper) {
     return new ObservableUnmarshaller<>(java.util.function.Function.identity(), mappedType, mapper);
   }
 
-  public static <T> ObservableTransformer<Buffer, T> unmarshaller(TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+  public static <T> ObservableTransformer<Buffer, T> unmarshaller(TypeReference<T> mappedTypeRef, ObjectCodec mapper) {
     return new ObservableUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef, mapper);
   }
 }

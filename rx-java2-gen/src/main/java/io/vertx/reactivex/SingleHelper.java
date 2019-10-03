@@ -1,7 +1,7 @@
 package io.vertx.reactivex;
 
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.SingleTransformer;
@@ -78,11 +78,11 @@ public class SingleHelper {
     return new SingleUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef);
   }
 
-  public static <T> SingleTransformer<Buffer, T> unmarshaller(Class<T> mappedType, ObjectMapper mapper) {
+  public static <T> SingleTransformer<Buffer, T> unmarshaller(Class<T> mappedType, ObjectCodec mapper) {
     return new SingleUnmarshaller<>(java.util.function.Function.identity(), mappedType, mapper);
   }
 
-  public static <T> SingleTransformer<Buffer, T> unmarshaller(TypeReference<T> mappedTypeRef, ObjectMapper mapper) {
+  public static <T> SingleTransformer<Buffer, T> unmarshaller(TypeReference<T> mappedTypeRef, ObjectCodec mapper) {
     return new SingleUnmarshaller<>(java.util.function.Function.identity(), mappedTypeRef, mapper);
   }
 }

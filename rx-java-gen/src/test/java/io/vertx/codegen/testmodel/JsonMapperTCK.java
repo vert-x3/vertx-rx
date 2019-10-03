@@ -1,16 +1,68 @@
 package io.vertx.codegen.testmodel;
 
+import io.vertx.codegen.annotations.Mapper;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Locale;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @VertxGen
-public interface JsonCodecTCK {
+public interface JsonMapperTCK {
+
+  @Mapper
+  static Integer serializeMyPojoToInteger(MyPojoToInteger value) {
+    return value.getA();
+  }
+
+  @Mapper
+  static MyPojoToInteger deserializeMyPojoToInteger(Integer value) {
+    return new MyPojoToInteger(value);
+  }
+
+  @Mapper
+  static JsonObject serializeMyPojoToJsonObject(MyPojoToJsonObject value) {
+    return new JsonObject().put("v", value.getV());
+  }
+
+  @Mapper
+  static MyPojoToJsonObject deserializeMyPojoToJsonObject(JsonObject value) {
+    return new MyPojoToJsonObject(value.getInteger("v"));
+  }
+
+  @Mapper
+  static JsonArray serializeMyPojoToJsonArray(MyPojoToJsonArray value) {
+    return new JsonArray((List)value.stuff);
+  }
+
+  @Mapper
+  static MyPojoToJsonArray deserializeMyPojoToJsonArray(JsonArray value) {
+    return new MyPojoToJsonArray(value.stream().map(j -> (Integer)j).collect(Collectors.toList()));
+  }
+
+  @Mapper
+  static String serializeZoneDateTime(ZonedDateTime value) {
+    return value.toString();
+  }
+
+  @Mapper
+  static ZonedDateTime deserializeZoneDateTime(String value) {
+    return ZonedDateTime.parse(value);
+  }
+
+  @Mapper
+  Function<String, Locale> URL_DESERIALIZER = Locale::new;
+
+  @Mapper
+  Function<Locale, String> URL_SERIALIZER = Locale::toString;
 
   // Java Type <-> Integer
   
@@ -100,4 +152,23 @@ public interface JsonCodecTCK {
   void methodWithHandlerAsyncResultSetOfTypeToJsonObjectParam(Handler<AsyncResult<Set<MyPojoToJsonObject>>> myPojoToJsonObjectSetHandler);
   void methodWithHandlerAsyncResultMapOfTypeToJsonObjectParam(Handler<AsyncResult<Map<String, MyPojoToJsonObject>>> myPojoToJsonObjectMapHandler);
 
+  void methodWithFunctionMappedParam(Locale locale);
+  void methodWithListOfFunctionMappedParam(List<Locale> localeList);
+  void methodWithSetOfFunctionMappedParam(Set<Locale> localeSet);
+  void methodWithMapOfFunctionMappedParam(Map<String, Locale> localeMap);
+
+  Locale methodWithFunctionMappedReturn();
+  List<Locale> methodWithListOfFunctionMappedReturn();
+  Set<Locale> methodWithSetOfFunctionMappedReturn();
+  Map<String, Locale> methodWithMapOfFunctionMappedReturn();
+
+  void methodWithHandlerFunctionMapped(Handler<Locale> handler);
+  void methodWithHandlerListOfFunctionMapped(Handler<List<Locale>> handler);
+  void methodWithHandlerSetOfFunctionMapped(Handler<Set<Locale>> handler);
+  void methodWithHandlerMapOfFunctionMapped(Handler<Map<String, Locale>> handler);
+
+  void methodWithHandlerAsyncResultFunctionMapped(Handler<AsyncResult<Locale>> handler);
+  void methodWithHandlerAsyncResultListOfFunctionMapped(Handler<AsyncResult<List<Locale>>> handler);
+  void methodWithHandlerAsyncResultSetOfFunctionMapped(Handler<AsyncResult<Set<Locale>>> handler);
+  void methodWithHandlerAsyncResultMapOfFunctionMapped(Handler<AsyncResult<Map<String, Locale>>> handler);
 }

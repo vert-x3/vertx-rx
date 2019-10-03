@@ -6,11 +6,12 @@ import io.vertx.core.Handler;
 
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class JsonCodecTCKImpl implements JsonCodecTCK {
+public class JsonMapperTCKImpl implements JsonMapperTCK {
   @Override
   public void methodWithTypeToIntegerParam(MyPojoToInteger myPojoToInteger) {
     assertEquals(1, myPojoToInteger.getA());
@@ -365,5 +366,88 @@ public class JsonCodecTCKImpl implements JsonCodecTCK {
   @Override
   public void methodWithHandlerAsyncResultMapOfTypeToJsonObjectParam(Handler<AsyncResult<Map<String, MyPojoToJsonObject>>> myPojoToJsonObjectMapHandler) {
     myPojoToJsonObjectMapHandler.handle(Future.succeededFuture(methodWithMapOfTypeToJsonObjectReturn()));
+  }
+
+  @Override
+  public void methodWithFunctionMappedParam(Locale locale) {
+    assertEquals(new Locale("en_US"), locale);
+  }
+
+  @Override
+  public void methodWithListOfFunctionMappedParam(List<Locale> localeList) {
+    assertEquals(Arrays.asList(new Locale("en_US"), new Locale("en_GB")), localeList);
+  }
+
+  @Override
+  public void methodWithSetOfFunctionMappedParam(Set<Locale> localeSet) {
+    assertEquals(new HashSet<>(Arrays.asList(new Locale("en_US"), new Locale("en_GB"))), localeSet);
+  }
+
+  @Override
+  public void methodWithMapOfFunctionMappedParam(Map<String, Locale> localeMap) {
+    Map<String, Locale> map = new HashMap<>();
+    map.put("en_US", new Locale("en_US"));
+    map.put("en_GB", new Locale("en_GB"));
+    assertEquals(map, localeMap);
+  }
+
+  @Override
+  public Locale methodWithFunctionMappedReturn() {
+    return new Locale("en_US");
+  }
+
+  @Override
+  public List<Locale> methodWithListOfFunctionMappedReturn() {
+    return Arrays.asList(new Locale("en_US"), new Locale("en_GB"));
+  }
+
+  @Override
+  public Set<Locale> methodWithSetOfFunctionMappedReturn() {
+    return new HashSet<>(methodWithListOfFunctionMappedReturn());
+  }
+
+  @Override
+  public Map<String, Locale> methodWithMapOfFunctionMappedReturn() {
+    return methodWithListOfFunctionMappedReturn().stream().collect(Collectors.toMap(Locale::toString, elt -> elt));
+  }
+
+  @Override
+  public void methodWithHandlerFunctionMapped(Handler<Locale> handler) {
+    handler.handle(methodWithFunctionMappedReturn());
+  }
+
+  @Override
+  public void methodWithHandlerListOfFunctionMapped(Handler<List<Locale>> handler) {
+    handler.handle(methodWithListOfFunctionMappedReturn());
+  }
+
+  @Override
+  public void methodWithHandlerSetOfFunctionMapped(Handler<Set<Locale>> handler) {
+    handler.handle(methodWithSetOfFunctionMappedReturn());
+  }
+
+  @Override
+  public void methodWithHandlerMapOfFunctionMapped(Handler<Map<String, Locale>> handler) {
+    handler.handle(methodWithMapOfFunctionMappedReturn());
+  }
+
+  @Override
+  public void methodWithHandlerAsyncResultFunctionMapped(Handler<AsyncResult<Locale>> handler) {
+    handler.handle(Future.succeededFuture(methodWithFunctionMappedReturn()));
+  }
+
+  @Override
+  public void methodWithHandlerAsyncResultListOfFunctionMapped(Handler<AsyncResult<List<Locale>>> handler) {
+    handler.handle(Future.succeededFuture(methodWithListOfFunctionMappedReturn()));
+  }
+
+  @Override
+  public void methodWithHandlerAsyncResultSetOfFunctionMapped(Handler<AsyncResult<Set<Locale>>> handler) {
+    handler.handle(Future.succeededFuture(methodWithSetOfFunctionMappedReturn()));
+  }
+
+  @Override
+  public void methodWithHandlerAsyncResultMapOfFunctionMapped(Handler<AsyncResult<Map<String, Locale>>> handler) {
+    handler.handle(Future.succeededFuture(methodWithMapOfFunctionMappedReturn()));
   }
 }

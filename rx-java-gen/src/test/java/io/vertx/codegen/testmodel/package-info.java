@@ -3,14 +3,7 @@
  */
 @ModuleGen(
   name = "testmodel",
-  groupPackage = "io.vertx",
-  codecs = {
-    MyPojoToJsonArray.MyPojoToJsonArrayCodec.class,
-    MyPojoToJsonObject.MyPojoToJsonObjectCodec.class,
-    MyPojoToInteger.MyPojoToIntegerCodec.class,
-    ZonedDateTimeCodec.class
-  }
-)
+  groupPackage = "io.vertx")
 package io.vertx.codegen.testmodel;
 
 import io.vertx.codegen.annotations.ModuleGen;

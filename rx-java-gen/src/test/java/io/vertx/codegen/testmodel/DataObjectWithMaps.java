@@ -13,7 +13,7 @@ import io.vertx.core.json.JsonObject;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-@DataObject
+@DataObject(generateConverter = true)
 public class DataObjectWithMaps {
 
   private static <T> JsonObject toObject(Map<String, T> map) {
