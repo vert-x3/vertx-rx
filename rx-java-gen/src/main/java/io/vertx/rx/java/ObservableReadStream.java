@@ -71,7 +71,10 @@ public class ObservableReadStream<T, R> implements Observable.OnSubscribe<R> {
         }
         RxHelper.setNullHandlers(stream);
         if (resume) {
-          stream.resume();
+          try {
+            stream.resume();
+          } catch (Exception ignore) {
+          }
         }
         subscribed = false;
       }

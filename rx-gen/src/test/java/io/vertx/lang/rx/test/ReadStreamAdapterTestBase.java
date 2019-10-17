@@ -137,4 +137,26 @@ public abstract class ReadStreamAdapterTestBase<B, O> extends VertxTestBase {
     assertNull(stream.endHandler());
     assertNull(stream.exceptionHandler());
   }
+
+  @Test
+  public void testFailureInResumeDuringUnsubscribe() {
+    FakeStream<Buffer> stream = new FakeStream<Buffer>() {
+      @Override
+      public synchronized FakeStream<Buffer> fetch(long amount) {
+        if (handler() == null) {
+          // When handler is null it means it's a fetch after unsubscribe
+          // we throw NPE to check the subscriber will not be affected
+          throw new NullPointerException();
+        }
+        return super.fetch(amount);
+      }
+    };
+    O observable = toObservable(stream);
+    TestSubscriber<B> subscriber = new TestSubscriber<>();
+    subscribe(observable, subscriber);
+    Exception failure = new Exception();
+    stream.fail(failure);
+    subscriber.assertError(failure);
+    subscriber.assertEmpty();
+  }
 }
