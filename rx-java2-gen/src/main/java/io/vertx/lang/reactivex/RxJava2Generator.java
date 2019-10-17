@@ -183,7 +183,7 @@ class RxJava2Generator extends AbstractRxGenerator {
       writer.println(" { ");
       writer.print("    return ");
       writer.print(adapterType);
-      writer.println("(handler -> {");
+      writer.println("($handler -> {");
       writer.print("      ");
       writer.print(method.getName());
       writer.print("(");
@@ -192,7 +192,7 @@ class RxJava2Generator extends AbstractRxGenerator {
       if (params.size() > 0) {
         writer.print(", ");
       }
-      writer.println("handler);");
+      writer.println("$handler);");
       writer.println("    });");
       writer.println("  }");
     } else {
