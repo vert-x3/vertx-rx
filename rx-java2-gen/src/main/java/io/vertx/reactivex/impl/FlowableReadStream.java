@@ -42,7 +42,10 @@ public class FlowableReadStream<T, U> extends Flowable<U> {
           stream.handler(null);
         } catch (Exception ignore) {
         } finally {
-          stream.resume();
+          try {
+            stream.resume();
+          } catch (Exception ignore) {
+          }
         }
       }
     }
