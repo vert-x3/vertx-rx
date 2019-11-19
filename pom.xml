@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>vertx-rx</artifactId>
-  <version>3.8.2-SNAPSHOT</version>
+  <version>3.8.4-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Vert.x Reactive Extensions</name>
@@ -23,7 +23,7 @@
   </modules>
 
   <properties>
-    <stack.version>3.8.2-SNAPSHOT</stack.version>
+    <stack.version>3.8.4-SNAPSHOT</stack.version>
   </properties>
 
   <dependencyManagement>
@@ -37,12 +37,18 @@
       <dependency>
         <groupId>io.reactivex.rxjava2</groupId>
         <artifactId>rxjava</artifactId>
-        <version>2.2.4</version>
+        <version>2.2.12</version>
+        <exclusions>
+          <exclusion>
+            <groupId>io.reactivestreams</groupId>
+            <artifactId>reactive-streams</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.reactivestreams</groupId>
         <artifactId>reactive-streams</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
       </dependency>
       <dependency>
         <groupId>io.reactivex</groupId>
