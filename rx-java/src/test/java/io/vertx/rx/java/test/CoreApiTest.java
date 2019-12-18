@@ -282,7 +282,7 @@ public class CoreApiTest extends VertxTestBase {
         })
     );
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
-    Observable<ServerWebSocket> socketObs = server.websocketStream().toObservable();
+    Observable<ServerWebSocket> socketObs = server.webSocketStream().toObservable();
     socketObs.subscribe(new Subscriber<ServerWebSocket>() {
       @Override
       public void onNext(ServerWebSocket o) {
@@ -629,7 +629,7 @@ public class CoreApiTest extends VertxTestBase {
   @Test
   public void testWebsocketClient() {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    server.websocketStream().handler(ws -> {
+    server.webSocketStream().handler(ws -> {
       ws.write(Buffer.buffer("some_content"));
       ws.close();
     });
@@ -654,7 +654,7 @@ public class CoreApiTest extends VertxTestBase {
   @Test
   public void testWebsocketClientFlatMap() {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    server.websocketStream().handler(ws -> {
+    server.webSocketStream().handler(ws -> {
       ws.write(Buffer.buffer("some_content"));
       ws.close();
     });

@@ -196,7 +196,7 @@ public class RxifiedExamples {
   }
 
   public void websocketServer(HttpServer server) {
-    Observable<ServerWebSocket> socketObservable = server.websocketStream().toObservable();
+    Observable<ServerWebSocket> socketObservable = server.webSocketStream().toObservable();
     socketObservable.subscribe(
         socket -> System.out.println("Web socket connect"),
         failure -> System.out.println("Should never be called"),
