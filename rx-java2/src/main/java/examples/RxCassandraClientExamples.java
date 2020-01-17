@@ -9,9 +9,9 @@ public class RxCassandraClientExamples {
 
   public void createClient(Vertx vertx) {
     CassandraClientOptions options = new CassandraClientOptions()
-      .addContactPoint("node1.corp.int")
-      .addContactPoint("node2.corp.int")
-      .addContactPoint("node3.corp.int");
+      .addContactPoint("node1.corp.int", 9142)
+      .addContactPoint("node2.corp.int", 9142)
+      .addContactPoint("node3.corp.int", 9142);
     CassandraClient cassandraClient = CassandraClient.createShared(vertx, options);
   }
 
