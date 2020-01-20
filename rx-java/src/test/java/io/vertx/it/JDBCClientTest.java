@@ -22,7 +22,7 @@ public class JDBCClientTest extends VertxTestBase {
 
   @Test
   public void testStreamRX() {
-    JDBCClient client = new JDBCClient(io.vertx.ext.jdbc.JDBCClient.createNonShared(vertx, config));
+    JDBCClient client = new JDBCClient(io.vertx.ext.jdbc.JDBCClient.create(vertx, config));
     try {
       client.getConnection(onSuccess(conn -> {
 

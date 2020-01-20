@@ -224,6 +224,16 @@ public class TestInterfaceImpl implements TestInterface {
   }
 
   @Override
+  public String methodWithOverloadedUserTypes(RefedInterface1 refed) {
+    return "refed1";
+  }
+
+  @Override
+  public String methodWithOverloadedUserTypes(RefedInterface2 refed) {
+    return "refed2";
+  }
+
+  @Override
   public void methodWithObjectParam(String str, Object obj) {
     switch (str) {
       case "null":

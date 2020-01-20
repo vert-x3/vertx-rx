@@ -48,6 +48,10 @@ public interface TestInterface extends SuperInterface1, SuperInterface2 {
 
   void methodWithUserTypes(RefedInterface1 refed);
 
+  String methodWithOverloadedUserTypes(RefedInterface1 refed);
+
+  String methodWithOverloadedUserTypes(RefedInterface2 refed);
+
   void methodWithObjectParam(String str, Object obj);
 
   void methodWithDataObjectParam(TestDataObject dataObject);

@@ -42,7 +42,7 @@ public class UsingConnectionSafetyTest extends VertxTestBase {
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    client = new JDBCClient(io.vertx.ext.jdbc.JDBCClient.createNonShared(vertx, config));
+    client = new JDBCClient(io.vertx.ext.jdbc.JDBCClient.create(vertx, config));
   }
 
   @Test

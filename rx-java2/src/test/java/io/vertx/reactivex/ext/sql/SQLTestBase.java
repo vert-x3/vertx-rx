@@ -45,7 +45,7 @@ public abstract class SQLTestBase extends VertxTestBase {
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    client = new JDBCClient(io.vertx.ext.jdbc.JDBCClient.createNonShared(vertx, config));
+    client = new JDBCClient(io.vertx.ext.jdbc.JDBCClient.create(vertx, config));
     client.rxGetConnection().flatMapCompletable(conn -> {
       Completable setup = conn.rxExecute("drop table folks if exists")
         .andThen(conn.rxExecute("create table folks (firstname varchar(255) not null)"));
