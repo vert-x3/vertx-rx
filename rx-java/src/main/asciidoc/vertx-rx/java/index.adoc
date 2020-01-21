@@ -364,7 +364,7 @@ The observable can be cancelled with an unsubscription:
 
 === Http client requests
 
-{@link io.vertx.rxjava.core.http.HttpClient#rxGetNow} provides a single of an
+{@link io.vertx.rxjava.core.http.HttpClient#rxGet} provides a single of an
 {@link io.vertx.core.http.HttpClientResponse}. The single reports a request failure.
 
 [source,java]

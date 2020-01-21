@@ -126,7 +126,7 @@ public class RxifiedExamples {
   }
 
   public void get(HttpClient client) {
-    Single<HttpClientResponse> get = client.rxGetNow( "http://the-server");
+    Single<HttpClientResponse> get = client.rxGet( "http://the-server");
 
     // Do the request
     get.subscribe(resp -> {
@@ -242,7 +242,7 @@ public class RxifiedExamples {
 
   public void httpClientRequest(Vertx vertx) {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-    Single<HttpClientResponse> request = client.rxGetNow(8080, "localhost", "/the_uri");
+    Single<HttpClientResponse> request = client.rxGet(8080, "localhost", "/the_uri");
     request.subscribe(
         response -> {
           // Process the response
@@ -254,7 +254,7 @@ public class RxifiedExamples {
   }
 
   public void httpClientResponse(HttpClient client) {
-    Single<HttpClientResponse> request = client.rxGetNow(8080, "localhost", "/the_uri");
+    Single<HttpClientResponse> request = client.rxGet(8080, "localhost", "/the_uri");
     request.toObservable().
         subscribe(
             response -> {
@@ -269,7 +269,7 @@ public class RxifiedExamples {
   }
 
   public void httpClientResponseFlatMap(HttpClient client) {
-    Single<HttpClientResponse> request = client.rxGetNow(8080, "localhost", "/the_uri");
+    Single<HttpClientResponse> request = client.rxGet(8080, "localhost", "/the_uri");
     request.toObservable().
         flatMap(HttpClientResponse::toObservable).
         forEach(
@@ -283,7 +283,7 @@ public class RxifiedExamples {
   }
 
   public void httpClientResponseFlatMapUnmarshall(HttpClient client) {
-    Single<HttpClientResponse> request = client.rxGetNow(8080, "localhost", "/the_uri");
+    Single<HttpClientResponse> request = client.rxGet(8080, "localhost", "/the_uri");
     request.toObservable().
         flatMap(HttpClientResponse::toObservable).
         lift(io.vertx.rxjava.core.RxHelper.unmarshaller(MyPojo.class)).
