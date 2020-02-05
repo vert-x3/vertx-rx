@@ -42,7 +42,10 @@ public interface WriteStreamSubscriber<R> extends FlowableSubscriber<R> {
    * The underlying {@link io.vertx.core.streams.WriteStream#end()} method is invoked <strong>before</strong> the given {@code handler}.
    *
    * @return a reference to this, so the API can be used fluently
+   * @deprecated because the {@code handler} may be called while there are outstanding writes in the underlying {@link io.vertx.core.streams.WriteStream}.
+   * Use {@link #onWriteStreamEnd(Action)} instead.
    */
+  @Deprecated
   WriteStreamSubscriber<R> onComplete(Action handler);
 
   /**
@@ -53,4 +56,18 @@ public interface WriteStreamSubscriber<R> extends FlowableSubscriber<R> {
    * @return a reference to this, so the API can be used fluently
    */
   WriteStreamSubscriber<R> onWriteStreamError(Consumer<? super Throwable> handler);
+
+  /**
+   * Sets the handler to invoke when the adapted {@link io.vertx.core.streams.WriteStream} ends successfully.
+   *
+   * @return a reference to this, so the API can be used fluently
+   */
+  WriteStreamSubscriber<R> onWriteStreamEnd(Action handler);
+
+  /**
+   * Sets the handler to invoke when the adapted {@link io.vertx.core.streams.WriteStream} ends with an error.
+   *
+   * @return a reference to this, so the API can be used fluently
+   */
+  WriteStreamSubscriber<R> onWriteStreamEndError(Consumer<? super Throwable> handler);
 }

@@ -58,7 +58,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
   @Test
   public void testObservableToWriteStream() throws Exception {
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Observer<Integer> observer = RxHelper.toObserver(writeStream).onComplete(this::complete);
+    Observer<Integer> observer = RxHelper.toObserver(writeStream).onWriteStreamEnd(this::complete);
     int count = 10000;
     Observable.range(0, count)
       .observeOn(RxHelper.scheduler(vertx))
@@ -77,7 +77,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
       assertThat(throwable, is(instanceOf(ProtocolViolationException.class)));
       complete();
     });
-    Observer<Integer> observer = RxHelper.toObserver(new FakeWriteStream(vertx)).onComplete(this::complete);
+    Observer<Integer> observer = RxHelper.toObserver(new FakeWriteStream(vertx)).onWriteStreamEnd(this::complete);
     Observable.range(0, 100)
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
@@ -150,7 +150,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
   }
 
   @Test
-  public void testOnCompleteThrowsException() throws Exception {
+  public void testOnWriteStreamEndThrowsException() throws Exception {
     RuntimeException expected = new RuntimeException();
     RxJavaPlugins.setErrorHandler(throwable -> {
       assertThat(throwable, is(instanceOf(UndeliverableException.class)));
@@ -158,7 +158,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
       complete();
     });
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Observer<Integer> observer = RxHelper.toObserver(writeStream).onComplete(() -> {
+    Observer<Integer> observer = RxHelper.toObserver(writeStream).onWriteStreamEnd(() -> {
       throw expected;
     });
     Observable.just(0)

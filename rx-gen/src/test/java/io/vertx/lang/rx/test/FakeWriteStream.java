@@ -90,7 +90,7 @@ public class FakeWriteStream implements WriteStream<Integer> {
 
   @Override
   public void end(Handler<AsyncResult<Void>> handler) {
-    throw new UnsupportedOperationException();
+    end().setHandler(handler);
   }
 
   @Override
