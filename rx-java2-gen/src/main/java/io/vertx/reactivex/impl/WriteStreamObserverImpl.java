@@ -42,7 +42,6 @@ public class WriteStreamObserverImpl<R, T> implements WriteStreamObserver<R> {
   private boolean done;
 
   private Consumer<? super Throwable> observableErrorHandler;
-  private Action observableCompleteHandler;
   private Consumer<? super Throwable> writeStreamExceptionHandler;
   private Action writeStreamEndHandler;
   private Consumer<? super Throwable> writeStreamEndErrorHandler;
@@ -145,15 +144,8 @@ public class WriteStreamObserverImpl<R, T> implements WriteStreamObserver<R> {
       return;
     }
 
-    Action a;
-    synchronized (this) {
-      a = observableCompleteHandler;
-    }
     try {
       writeStream.end(this::writeStreamEnd);
-      if (a != null) {
-        a.run();
-      }
     } catch (Throwable t) {
       Exceptions.throwIfFatal(t);
       RxJavaPlugins.onError(t);
@@ -204,12 +196,6 @@ public class WriteStreamObserverImpl<R, T> implements WriteStreamObserver<R> {
   @Override
   public synchronized WriteStreamObserver<R> onError(Consumer<? super Throwable> handler) {
     this.observableErrorHandler = handler;
-    return this;
-  }
-
-  @Override
-  public synchronized WriteStreamObserver<R> onComplete(Action handler) {
-    this.observableCompleteHandler = handler;
     return this;
   }
 

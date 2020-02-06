@@ -38,7 +38,6 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
   private int outstanding;
 
   private Action1<Throwable> observableErrorHandler;
-  private Action0 observableCompleteHandler;
   private Action1<Throwable> writeStreamExceptionHandler;
   private Action0 writeStreamEndHandler;
   private Action1<Throwable> writeStreamEndErrorHandler;
@@ -90,14 +89,7 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
 
   @Override
   public void onCompleted() {
-    Action0 a;
-    synchronized (this) {
-      a = this.observableCompleteHandler;
-    }
     writeStream.end(this::writeStreamEnd);
-    if (a != null) {
-      a.call();
-    }
   }
 
   private void writeStreamEnd(AsyncResult<Void> result) {
@@ -129,12 +121,6 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
   @Override
   public synchronized WriteStreamSubscriber<R> onError(Action1<Throwable> handler) {
     this.observableErrorHandler = handler;
-    return this;
-  }
-
-  @Override
-  public synchronized WriteStreamSubscriber<R> onComplete(Action0 handler) {
-    this.observableCompleteHandler = handler;
     return this;
   }
 

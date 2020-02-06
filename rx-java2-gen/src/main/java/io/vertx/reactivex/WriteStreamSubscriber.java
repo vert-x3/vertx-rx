@@ -37,18 +37,6 @@ public interface WriteStreamSubscriber<R> extends FlowableSubscriber<R> {
   WriteStreamSubscriber<R> onError(Consumer<? super Throwable> handler);
 
   /**
-   * Sets the handler to invoke if the {@link io.reactivex.Flowable} that was subscribed to terminates successfully.
-   * <p>
-   * The underlying {@link io.vertx.core.streams.WriteStream#end()} method is invoked <strong>before</strong> the given {@code handler}.
-   *
-   * @return a reference to this, so the API can be used fluently
-   * @deprecated because the {@code handler} may be called while there are outstanding writes in the underlying {@link io.vertx.core.streams.WriteStream}.
-   * Use {@link #onWriteStreamEnd(Action)} instead.
-   */
-  @Deprecated
-  WriteStreamSubscriber<R> onComplete(Action handler);
-
-  /**
    * Sets the handler to invoke if the adapted {@link io.vertx.core.streams.WriteStream} fails.
    * <p>
    * The underlying {@link io.vertx.core.streams.WriteStream#end()} method is <strong>not</strong> invoked in this case.

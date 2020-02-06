@@ -37,18 +37,6 @@ public abstract class WriteStreamSubscriber<R> extends Subscriber<R> {
   public abstract WriteStreamSubscriber<R> onError(Action1<Throwable> handler);
 
   /**
-   * Sets the handler to invoke if the {@link rx.Observable} that was subscribed to terminates successfully.
-   * <p>
-   * The underlying {@link io.vertx.core.streams.WriteStream#end()} method is invoked <strong>before</strong> the given {@code handler}.
-   *
-   * @return a reference to this, so the API can be used fluently
-   * @deprecated because the {@code handler} may be called while there are outstanding writes in the underlying {@link io.vertx.core.streams.WriteStream}.
-   * Use {@link #onWriteStreamEnd(Action0)} instead.
-   */
-  @Deprecated
-  public abstract WriteStreamSubscriber<R> onComplete(Action0 handler);
-
-  /**
    * Sets the handler to invoke if the adapted {@link io.vertx.core.streams.WriteStream} fails.
    * <p>
    * The underlying {@link io.vertx.core.streams.WriteStream#end()} method is <strong>not</strong> invoked in this case.
