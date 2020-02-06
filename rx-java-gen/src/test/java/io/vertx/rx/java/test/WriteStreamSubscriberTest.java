@@ -67,7 +67,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
   private void testObservableToWriteStream(Scheduler scheduler) throws Exception {
     disableThreadChecks();
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).onComplete(this::complete);
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).onWriteStreamEnd(this::complete);
     int count = 10000;
     Observable.range(0, count)
       .observeOn(scheduler)

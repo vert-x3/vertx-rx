@@ -126,9 +126,10 @@ CAUTION: The adapter sets the {@link io.vertx.reactivex.core.streams.WriteStream
 
 The {@link io.vertx.reactivex.WriteStreamSubscriber} adapter is able to invoke callbacks when:
 
-* the `Flowable` completes, or
 * the `Flowable` terminates with an error, or
-* the {@link io.vertx.reactivex.core.streams.WriteStream} fails (e.g. HTTP connection is closed or filesystem is full)
+* the {@link io.vertx.reactivex.core.streams.WriteStream} fails (e.g. HTTP connection is closed or filesystem is full), or
+* the {@link io.vertx.reactivex.core.streams.WriteStream} ends (i.e. all writes done and file is closed), or
+* the {@link io.vertx.reactivex.core.streams.WriteStream} ends with an error (i.e. all writes done and an error occured when closing the file)
 
 This allows for a more robust program design, as well as scheduling other tasks after the stream has been handled:
 

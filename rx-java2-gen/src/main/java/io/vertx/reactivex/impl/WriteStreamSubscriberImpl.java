@@ -22,6 +22,7 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.internal.subscriptions.SubscriptionHelper;
 import io.reactivex.plugins.RxJavaPlugins;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.streams.WriteStream;
 import io.vertx.reactivex.WriteStreamSubscriber;
 import org.reactivestreams.Subscription;
@@ -46,6 +47,8 @@ public class WriteStreamSubscriberImpl<R, T> implements WriteStreamSubscriber<R>
   private Consumer<? super Throwable> flowableErrorHandler;
   private Action flowableCompleteHandler;
   private Consumer<? super Throwable> writeStreamExceptionHandler;
+  private Action writeStreamEndHandler;
+  private Consumer<? super Throwable> writeStreamEndErrorHandler;
 
   public WriteStreamSubscriberImpl(WriteStream<T> writeStream, Function<R, T> mapping) {
     Objects.requireNonNull(writeStream, "writeStream");
@@ -160,9 +163,30 @@ public class WriteStreamSubscriberImpl<R, T> implements WriteStreamSubscriber<R>
       a = flowableCompleteHandler;
     }
     try {
-      writeStream.end();
+      writeStream.end(this::writeStreamEnd);
       if (a != null) {
         a.run();
+      }
+    } catch (Throwable t) {
+      Exceptions.throwIfFatal(t);
+      RxJavaPlugins.onError(t);
+    }
+  }
+
+  private void writeStreamEnd(AsyncResult<Void> result) {
+    try {
+      Action a;
+      if (result.succeeded()) {
+        synchronized (this) {
+          a = writeStreamEndHandler;
+        }
+        a.run();
+      } else {
+        Consumer<? super Throwable> c;
+        synchronized (this) {
+          c = this.writeStreamEndErrorHandler;
+        }
+        c.accept(result.cause());
       }
     } catch (Throwable t) {
       Exceptions.throwIfFatal(t);
@@ -219,6 +243,18 @@ public class WriteStreamSubscriberImpl<R, T> implements WriteStreamSubscriber<R>
   @Override
   public synchronized WriteStreamSubscriber<R> onWriteStreamError(Consumer<? super Throwable> handler) {
     this.writeStreamExceptionHandler = handler;
+    return this;
+  }
+
+  @Override
+  public synchronized WriteStreamSubscriber<R> onWriteStreamEnd(Action handler) {
+    this.writeStreamEndHandler = handler;
+    return this;
+  }
+
+  @Override
+  public synchronized WriteStreamSubscriber<R> onWriteStreamEndError(Consumer<? super Throwable> handler) {
+    this.writeStreamEndErrorHandler = handler;
     return this;
   }
 }
