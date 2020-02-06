@@ -75,7 +75,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
 
   private void testFlowableToWriteStream(Scheduler scheduler) throws Exception {
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).onComplete(this::complete);
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).onWriteStreamEnd(this::complete);
     int count = 10000;
     Flowable.range(0, count)
       .observeOn(RxHelper.scheduler(vertx))
@@ -94,7 +94,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
       assertThat(throwable, is(instanceOf(ProtocolViolationException.class)));
       complete();
     });
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx)).onComplete(this::complete);
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(new FakeWriteStream(vertx)).onWriteStreamEnd(this::complete);
     Flowable.range(0, 100)
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
@@ -168,7 +168,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
   }
 
   @Test
-  public void testOnCompleteThrowsException() throws Exception {
+  public void testOnWriteStreamEndThrowsException() throws Exception {
     RuntimeException expected = new RuntimeException();
     RxJavaPlugins.setErrorHandler(throwable -> {
       assertThat(throwable, is(instanceOf(UndeliverableException.class)));
@@ -176,7 +176,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
       complete();
     });
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).onComplete(() -> {
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).onWriteStreamEnd(() -> {
       throw expected;
     });
     Flowable.just(0)

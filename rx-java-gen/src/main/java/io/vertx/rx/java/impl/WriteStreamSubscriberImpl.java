@@ -16,6 +16,7 @@
 
 package io.vertx.rx.java.impl;
 
+import io.vertx.core.AsyncResult;
 import io.vertx.core.streams.WriteStream;
 import io.vertx.rx.java.WriteStreamSubscriber;
 import rx.functions.Action0;
@@ -39,6 +40,8 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
   private Action1<Throwable> observableErrorHandler;
   private Action0 observableCompleteHandler;
   private Action1<Throwable> writeStreamExceptionHandler;
+  private Action0 writeStreamEndHandler;
+  private Action1<Throwable> writeStreamEndErrorHandler;
 
   public WriteStreamSubscriberImpl(WriteStream<T> writeStream, Function<R, T> mapping) {
     Objects.requireNonNull(writeStream, "writeStream");
@@ -91,9 +94,25 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
     synchronized (this) {
       a = this.observableCompleteHandler;
     }
-    writeStream.end();
+    writeStream.end(this::writeStreamEnd);
     if (a != null) {
       a.call();
+    }
+  }
+
+  private void writeStreamEnd(AsyncResult<Void> result) {
+    Action0 a;
+    if (result.succeeded()) {
+      synchronized (this) {
+        a = writeStreamEndHandler;
+      }
+      a.call();
+    } else {
+      Action1<Throwable> c;
+      synchronized (this) {
+        c = this.writeStreamEndErrorHandler;
+      }
+      c.call(result.cause());
     }
   }
 
@@ -122,6 +141,18 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
   @Override
   public synchronized WriteStreamSubscriber<R> onWriteStreamError(Action1<Throwable> handler) {
     this.writeStreamExceptionHandler = handler;
+    return this;
+  }
+
+  @Override
+  public synchronized WriteStreamSubscriber<R> onWriteStreamEnd(Action0 handler) {
+    this.writeStreamEndHandler = handler;
+    return this;
+  }
+
+  @Override
+  public synchronized WriteStreamSubscriber<R> onWriteStreamEndError(Action1<Throwable> handler) {
+    this.writeStreamEndErrorHandler = handler;
     return this;
   }
 }

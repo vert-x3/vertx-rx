@@ -410,7 +410,7 @@ public class RxifiedExamples {
       // log error
     });
 
-    subscriber.onComplete(() -> {
+    subscriber.onWriteStreamEnd(() -> {
       // log end of transaction to audit system...
     });
 
