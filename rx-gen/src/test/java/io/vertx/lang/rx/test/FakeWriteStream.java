@@ -17,6 +17,7 @@
 package io.vertx.lang.rx.test;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.streams.WriteStream;
@@ -88,7 +89,10 @@ public class FakeWriteStream implements WriteStream<Integer> {
 
   @Override
   public void end(Handler<AsyncResult<Void>> handler) {
-    end().setHandler(handler);
+    end();
+    if (handler != null) {
+      handler.handle(Future.succeededFuture());
+    }
   }
 
   @Override
