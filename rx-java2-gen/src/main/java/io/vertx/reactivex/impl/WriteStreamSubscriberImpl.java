@@ -172,13 +172,17 @@ public class WriteStreamSubscriberImpl<R, T> implements WriteStreamSubscriber<R>
         synchronized (this) {
           a = writeStreamEndHandler;
         }
-        a.run();
+        if (a != null) {
+          a.run();
+        }
       } else {
         Consumer<? super Throwable> c;
         synchronized (this) {
           c = this.writeStreamEndErrorHandler;
         }
-        c.accept(result.cause());
+        if (c != null) {
+          c.accept(result.cause());
+        }
       }
     } catch (Throwable t) {
       Exceptions.throwIfFatal(t);

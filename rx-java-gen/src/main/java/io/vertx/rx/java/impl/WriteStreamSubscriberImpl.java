@@ -98,13 +98,17 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
       synchronized (this) {
         a = writeStreamEndHandler;
       }
-      a.call();
+      if (a != null) {
+        a.call();
+      }
     } else {
       Action1<Throwable> c;
       synchronized (this) {
         c = this.writeStreamEndErrorHandler;
       }
-      c.call(result.cause());
+      if (c != null) {
+        c.call(result.cause());
+      }
     }
   }
 
