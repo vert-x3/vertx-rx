@@ -728,7 +728,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
 
   private boolean isSameType(TypeInfo type, MethodInfo method) {
     ClassKind kind = type.getKind();
-    if (kind.basic || kind.json || kind == DATA_OBJECT || kind == ENUM || kind == OTHER || kind == THROWABLE || kind == VOID) {
+    if (type.isDataObjectHolder() || kind.basic || kind.json || kind == ENUM || kind == OTHER || kind == THROWABLE || kind == VOID) {
       return true;
     } else if (kind == OBJECT) {
       if (type.isVariable()) {
@@ -942,23 +942,19 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     ClassTypeInfo rawType = link.getTargetType().getRaw();
     if (rawType.getModule() != null) {
       String label = link.getLabel().trim();
-      if (rawType.getKind() == DATA_OBJECT) {
-        return "{@link " + rawType.getName() + "}";
-      } else {
-        if (rawType.getKind() == ClassKind.API) {
-          Element elt = link.getTargetElement();
-          String eltKind = elt.getKind().name();
-          String ret = "{@link " + rawType.translateName(id);
-          if ("METHOD".equals(eltKind)) {
-            /* todo find a way for translating the complete signature */
-            ret += "#" + elt.getSimpleName().toString();
-          }
-          if (label.length() > 0) {
-            ret += " " + label;
-          }
-          ret += "}";
-          return ret;
+      if (rawType.getKind() == ClassKind.API) {
+        Element elt = link.getTargetElement();
+        String eltKind = elt.getKind().name();
+        String ret = "{@link " + rawType.translateName(id);
+        if ("METHOD".equals(eltKind)) {
+          /* todo find a way for translating the complete signature */
+          ret += "#" + elt.getSimpleName().toString();
         }
+        if (label.length() > 0) {
+          ret += " " + label;
+        }
+        ret += "}";
+        return ret;
       }
     }
     return "{@link " + rawType.getName() + "}";
