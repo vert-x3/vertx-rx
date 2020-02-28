@@ -1,6 +1,6 @@
 package io.vertx.codegen.testmodel;
 
-import io.vertx.codegen.annotations.Mapper;
+import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -18,54 +18,54 @@ import java.util.stream.Collectors;
 @VertxGen
 public interface JsonMapperTCK {
 
-  @Mapper
+  @GenIgnore
   static Integer serializeMyPojoToInteger(MyPojoToInteger value) {
     return value.getA();
   }
 
-  @Mapper
+  @GenIgnore
   static MyPojoToInteger deserializeMyPojoToInteger(Integer value) {
     return new MyPojoToInteger(value);
   }
 
-  @Mapper
+  @GenIgnore
   static JsonObject serializeMyPojoToJsonObject(MyPojoToJsonObject value) {
     return new JsonObject().put("v", value.getV());
   }
 
-  @Mapper
+  @GenIgnore
   static MyPojoToJsonObject deserializeMyPojoToJsonObject(JsonObject value) {
     return new MyPojoToJsonObject(value.getInteger("v"));
   }
 
-  @Mapper
+  @GenIgnore
   static JsonArray serializeMyPojoToJsonArray(MyPojoToJsonArray value) {
     return new JsonArray((List)value.stuff);
   }
 
-  @Mapper
+  @GenIgnore
   static MyPojoToJsonArray deserializeMyPojoToJsonArray(JsonArray value) {
     return new MyPojoToJsonArray(value.stream().map(j -> (Integer)j).collect(Collectors.toList()));
   }
 
-  @Mapper
-  static String serializeZoneDateTime(ZonedDateTime value) {
+  @GenIgnore
+  static String serializeZonedDateTime(ZonedDateTime value) {
     return value.toString();
   }
 
-  @Mapper
-  static ZonedDateTime deserializeZoneDateTime(String value) {
+  @GenIgnore
+  static ZonedDateTime deserializeZonedDateTime(String value) {
     return ZonedDateTime.parse(value);
   }
 
-  @Mapper
-  Function<String, Locale> URL_DESERIALIZER = Locale::new;
+  @GenIgnore
+  Function<String, Locale> LOCALE_DESERIALIZER = Locale::new;
 
-  @Mapper
-  Function<Locale, String> URL_SERIALIZER = Locale::toString;
+  @GenIgnore
+  Function<Locale, String> LOCALE_SERIALIZER = Locale::toString;
 
   // Java Type <-> Integer
-  
+
   void methodWithTypeToIntegerParam(MyPojoToInteger myPojoToInteger);
   void methodWithListOfTypeToIntegerParam(List<MyPojoToInteger> myPojoToIntegerList);
   void methodWithSetOfTypeToIntegerParam(Set<MyPojoToInteger> myPojoToIntegerSet);
@@ -109,7 +109,7 @@ public interface JsonMapperTCK {
   void methodWithHandlerAsyncResultMapOfTypeToStringParam(Handler<AsyncResult<Map<String, ZonedDateTime>>> zonedDateTimeMapHandler);
 
   // Java type <-> MyPojoToJsonArray
-  
+
   void methodWithTypeToJsonArrayParam(MyPojoToJsonArray myPojoToJsonArray);
   void methodWithListOfTypeToJsonArrayParam(List<MyPojoToJsonArray> myPojoToJsonArrayList);
   void methodWithSetOfTypeToJsonArrayParam(Set<MyPojoToJsonArray> myPojoToJsonArraySet);
