@@ -36,7 +36,7 @@ public class AsyncResultTest {
     try {
       Single justMe = Single.just("me");
       RxJavaPlugins.setOnSingleAssembly(single -> justMe);
-      Single<String> single = AsyncResultSingle.toSingle(promise.future()::setHandler);
+      Single<String> single = AsyncResultSingle.toSingle(promise.future()::onComplete);
       assertSame(single, justMe);
     } finally {
       RxJavaPlugins.reset();
@@ -49,7 +49,7 @@ public class AsyncResultTest {
     try {
       Maybe justMe = Maybe.just("me");
       RxJavaPlugins.setOnMaybeAssembly(single -> justMe);
-      Maybe<String> maybe = AsyncResultMaybe.toMaybe(promise.future()::setHandler);
+      Maybe<String> maybe = AsyncResultMaybe.toMaybe(promise.future()::onComplete);
       assertSame(maybe, justMe);
     } finally {
       RxJavaPlugins.reset();
@@ -62,7 +62,7 @@ public class AsyncResultTest {
     try {
       Completable complete = Completable.complete();
       RxJavaPlugins.setOnCompletableAssembly(single -> complete);
-      Completable completable = AsyncResultCompletable.toCompletable(promise.future()::setHandler);
+      Completable completable = AsyncResultCompletable.toCompletable(promise.future()::onComplete);
       assertSame(completable, complete);
     } finally {
       RxJavaPlugins.reset();
