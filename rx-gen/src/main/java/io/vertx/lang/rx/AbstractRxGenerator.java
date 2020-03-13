@@ -588,7 +588,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     ClassTypeInfo type = model.getType();
     startMethodTemplate(type, method, "", writer);
     if (genBody) {
-      writer.println(" { ");
+      writer.println(" {");
       if (method.isFluent()) {
         writer.print("    ");
         writer.print(genInvokeDelegate(model, method));
@@ -774,30 +774,20 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         ClassKind eventKind = eventType.getKind();
         if (eventKind == ASYNC_RESULT) {
           TypeInfo resultType = ((ParameterizedTypeInfo) eventType).getArg(0);
-          return "new Handler<AsyncResult<" + resultType.getName() + ">>() {\n" +
-            "      public void handle(AsyncResult<" + resultType.getName() + "> ar) {\n" +
-            "        if (ar.succeeded()) {\n" +
-            "          " + expr + ".handle(io.vertx.core.Future.succeededFuture(" + genConvReturn(resultType, method, "ar.result()") + "));\n" +
-            "        } else {\n" +
-            "          " + expr + ".handle(io.vertx.core.Future.failedFuture(ar.cause()));\n" +
-            "        }\n" +
-            "      }\n" +
+          return "(AsyncResult<" + resultType.getName() + "> ar) -> {\n" +
+            "      " + expr + ".handle(ar.map(r -> " + genConvReturn(resultType, method, "r") + "));\n" +
             "    }";
         } else {
-          return "new Handler<" + eventType.getName() + ">() {\n" +
-            "      public void handle(" + eventType.getName() + " event) {\n" +
-            "        " + expr + ".handle(" + genConvReturn(eventType, method, "event") + ");\n" +
-            "      }\n" +
-            "    }";
+          return "(" + eventType.getName() + " event) -> {\n" +
+            "      " + expr + ".handle(" + genConvReturn(eventType, method, "event") + ");\n" +
+            "  }";
         }
       } else if (kind == FUNCTION) {
         TypeInfo argType = parameterizedTypeInfo.getArg(0);
         TypeInfo retType = parameterizedTypeInfo.getArg(1);
-        return "new java.util.function.Function<" + argType.getName() + "," + retType.getName() + ">() {\n" +
-          "      public " + retType.getName() + " apply(" + argType.getName() + " arg) {\n" +
-          "        " + genTypeName(retType) + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
-          "        return " + genConvParam(retType, method, "ret") + ";\n" +
-          "      }\n" +
+        return "(" + argType.getName() + " a0) -> {\n" +
+          "      " + genTypeName(retType) + " result = " + expr + ".apply(" + genConvReturn(argType, method, "a0") + ");\n" +
+          "      return " + genConvParam(retType, method, "result") + ";\n" +
           "    }";
       } else if (kind == LIST || kind == SET) {
         return expr + ".stream().map(elt -> " + genConvParam(parameterizedTypeInfo.getArg(0), method, "elt") + ").collect(java.util.stream.Collectors.to" + type.getRaw().getSimpleName() + "())";
@@ -839,7 +829,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       if (type.isVariable()) {
         String typeArg = genTypeArg((TypeVariableInfo) type, method);
         if (typeArg != null) {
-          return "(" + type.getName() + ")" + typeArg + ".wrap(" + expr + ")";
+          return "(" + type.getName() + ") " + typeArg + ".wrap(" + expr + ")";
         }
       }
       return "(" + type.getSimpleName() + ") " + expr;
@@ -855,7 +845,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
           tmp.append(", ");
           ClassKind argKind = arg.getKind();
           if (argKind == API) {
-            tmp.append("(io.vertx.lang.rx.TypeArg)").append(arg.getRaw().translateName(id)).append(".__TYPE_ARG");
+            tmp.append("(io.vertx.lang.rx.TypeArg) ").append(arg.getRaw().translateName(id)).append(".__TYPE_ARG");
           } else {
             String typeArg = "io.vertx.lang.rx.TypeArg.unknown()";
             if (argKind == OBJECT && arg.isVariable()) {
@@ -876,20 +866,12 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         TypeInfo abc = parameterizedTypeInfo.getArg(0);
         if (abc.getKind() == ASYNC_RESULT) {
           TypeInfo tutu = ((ParameterizedTypeInfo) abc).getArg(0);
-          return "new Handler<AsyncResult<" + genTypeName(tutu) + ">>() {\n" +
-            "      public void handle(AsyncResult<" + genTypeName(tutu) + "> ar) {\n" +
-            "        if (ar.succeeded()) {\n" +
-            "          " + expr + ".handle(io.vertx.core.Future.succeededFuture(" + genConvParam(tutu, method, "ar.result()") + "));\n" +
-            "        } else {\n" +
-            "          " + expr + ".handle(io.vertx.core.Future.failedFuture(ar.cause()));\n" +
-            "        }\n" +
-            "      }\n" +
+          return "(AsyncResult<" + genTypeName(tutu) + "> ar) -> {\n" +
+            "        " + expr + ".handle(ar.map(r -> " + genConvParam(tutu, method, "r") + "));\n" +
             "    }";
         } else {
-          return "new Handler<" + genTypeName(abc) + ">() {\n" +
-            "      public void handle(" + genTypeName(abc) + " event) {\n" +
-            "          " + expr + ".handle(" + genConvParam(abc, method, "event") + ");\n" +
-            "      }\n" +
+          return "(" + genTypeName(abc) + " event) -> {\n" +
+            "        " + expr + ".handle(" + genConvParam(abc, method, "event") + ");\n" +
             "    }";
         }
       } else if (kind == LIST || kind == SET) {
