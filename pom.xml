@@ -20,6 +20,7 @@
     <module>rx-java2-gen</module>
     <module>rx-java</module>
     <module>rx-java2</module>
+    <module>rx-junit5-providers</module>
   </modules>
 
   <properties>
