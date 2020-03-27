@@ -16,7 +16,7 @@ public class RxPgClientExamples {
   public void simpleQuery01Example(PgPool pool) {
 
     // A simple query
-    Single<RowSet<Row>> single = pool.rxQuery("SELECT * FROM users WHERE id='julien'");
+    Single<RowSet<Row>> single = pool.query("SELECT * FROM users WHERE id='julien'").rxExecute();
 
     // Execute the query
     single.subscribe(result -> {
@@ -97,8 +97,9 @@ public class RxPgClientExamples {
     Completable completable = pool
       .rxBegin()
       .flatMapCompletable(tx -> tx
-        .rxQuery("INSERT INTO Users (first_name,last_name) VALUES ('Julien','Viet')")
-        .flatMap(result -> tx.rxQuery("INSERT INTO Users (first_name,last_name) VALUES ('Emad','Alblueshi')"))
+        .query("INSERT INTO Users (first_name,last_name) VALUES ('Julien','Viet')")
+        .rxExecute()
+        .flatMap(result -> tx.query("INSERT INTO Users (first_name,last_name) VALUES ('Emad','Alblueshi')").rxExecute())
         .flatMapCompletable(result -> tx.rxCommit()));
 
     completable.subscribe(() -> {
