@@ -21,7 +21,9 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractRxGenerator extends Generator<ClassModel> {
+
   private String id;
+  private Map<MethodInfo, Map<TypeInfo, String>> methodTypeArgMap = new HashMap<>();
 
   public AbstractRxGenerator(String id) {
     this.id = id;
@@ -43,6 +45,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
   public String render(ClassModel model, int index, int size, Map<String, Object> session) {
     StringWriter sw = new StringWriter();
     PrintWriter writer = new PrintWriter(sw);
+    methodTypeArgMap.clear();
     generateClass(model, writer);
     return sw.toString();
   }
@@ -175,6 +178,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         genReadStream(type.getParams(), writer);
       }
     }
+
+    // Gen newInstance
     writer.println();
     writer.print("  public static ");
     writer.print(genOptTypeParamsDecl(type, " "));
@@ -183,7 +188,6 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.print(" newInstance(");
     writer.print(type.getName());
     writer.println(" arg) {");
-
     writer.print("    return arg != null ? new ");
     writer.print(type.getSimpleName());
     if (!model.isConcrete()) {
@@ -193,6 +197,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println("(arg) : null;");
     writer.println("  }");
 
+    // Gen parameterized newInstance
     if (type.getParams().size() > 0) {
       writer.println();
       writer.print("  public static ");
@@ -209,7 +214,6 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         writer.print(typeParam.getName());
       }
       writer.println(") {");
-
       writer.print("    return arg != null ? new ");
       writer.print(type.getSimpleName());
       if (!model.isConcrete()) {
@@ -224,6 +228,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.println(") : null;");
       writer.println("  }");
     }
+
     writer.println("}");
 
     if (!model.isConcrete()) {
@@ -381,33 +386,36 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println("  }");
     writer.println();
 
-    if (typeParams.size() > 0) {
-      writer.print("  public ");
-      writer.print(constructor);
-      writer.print("(");
-      writer.print(Helper.getNonGenericType(model.getIfaceFQCN()));
-      writer.print(" delegate");
-      for (TypeParamInfo.Class typeParam : typeParams) {
-        writer.print(", io.vertx.lang.rx.TypeArg<");
-        writer.print(typeParam.getName());
-        writer.print("> typeArg_");
-        writer.print(typeParam.getIndex());
-      }
-      writer.println(") {");
-      if (model.isConcrete() && model.getConcreteSuperType() != null) {
-        writer.println("    super(delegate);");
-      }
-      writer.println("    this.delegate = delegate;");
-      for (TypeParamInfo.Class typeParam : typeParams) {
-        writer.print("    this.__typeArg_");
-        writer.print(typeParam.getIndex());
-        writer.print(" = typeArg_");
-        writer.print(typeParam.getIndex());
-        writer.println(";");
-      }
-      writer.println("  }");
-      writer.println();
+    // Object constructor
+    writer.print("  public ");
+    writer.print(constructor);
+    writer.print("(Object delegate");
+    for (TypeParamInfo.Class typeParam : typeParams) {
+      writer.print(", io.vertx.lang.rx.TypeArg<");
+      writer.print(typeParam.getName());
+      writer.print("> typeArg_");
+      writer.print(typeParam.getIndex());
     }
+    writer.println(") {");
+    if (model.isConcrete() && model.getConcreteSuperType() != null) {
+      // This is incorrect it will not pass the generic type in some case
+      // we haven't yet ran into that bug
+      writer.print("    super((");
+      writer.print(Helper.getNonGenericType(model.getIfaceFQCN()));
+      writer.println(")delegate);");
+    }
+    writer.print("    this.delegate = (");
+    writer.println(Helper.getNonGenericType(model.getIfaceFQCN()));
+    writer.println(")delegate;");
+    for (TypeParamInfo.Class typeParam : typeParams) {
+      writer.print("    this.__typeArg_");
+      writer.print(typeParam.getIndex());
+      writer.print(" = typeArg_");
+      writer.print(typeParam.getIndex());
+      writer.println(";");
+    }
+    writer.println("  }");
+    writer.println();
 
     writer.print("  public ");
     writer.print(type.getName());
@@ -422,11 +430,33 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     if (model.isWriteStream()) {
       genToSubscriber(model.getWriteStreamArg(), writer);
     }
-    List<String> cacheDecls = new ArrayList<>();
-    for (MethodInfo method : model.getMethods()) {
-      genMethods(model, method, cacheDecls, true, writer);
+    List<MethodInfo> methods = new ArrayList<>();
+    methods.addAll(model.getMethods());
+    methods.addAll(model.getAnyJavaTypeMethods());
+    int count = 0;
+    for (MethodInfo method : methods) {
+      TypeInfo returnType = method.getReturnType();
+      if (returnType instanceof ParameterizedTypeInfo) {
+        ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo)returnType;
+        List<TypeInfo> typeArgs = parameterizedType.getArgs();
+        Map<TypeInfo, String> typeArgMap = new HashMap<>();
+        for (TypeInfo typeArg : typeArgs) {
+          if (typeArg.getKind() == API && !containsTypeVariableArgument(typeArg)) {
+            String typeArgRef = "TYPE_ARG_" + count++;
+            typeArgMap.put(typeArg, typeArgRef);
+            genTypeArgDecl(typeArg, method, typeArgRef, writer);
+          }
+        }
+        methodTypeArgMap.put(method, typeArgMap);
+      }
     }
-    for (MethodInfo method : model.getAnyJavaTypeMethods()) {
+    // Cosmetic space
+    if (methodTypeArgMap.size() > 0) {
+      writer.println();
+    }
+
+    List<String> cacheDecls = new ArrayList<>();
+    for (MethodInfo method : methods) {
       genMethods(model, method, cacheDecls, true, writer);
     }
 
@@ -833,6 +863,71 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     return null;
   }
 
+  private void genTypeArgDecl(TypeInfo typeArg, MethodInfo method, String typeArgRef, PrintWriter writer) {
+    StringBuilder sb = new StringBuilder();
+    genTypeArg(typeArg, method, 1, sb);
+    writer.print("  private static final io.vertx.lang.rx.TypeArg<");
+    writer.print(typeArg.translateName(id));
+    writer.print("> ");
+    writer.print(typeArgRef);
+    writer.print(" = ");
+    writer.print(sb);
+    writer.println(";");
+  }
+
+  private void genTypeArg(TypeInfo arg, MethodInfo method, int depth, StringBuilder sb) {
+    ClassKind argKind = arg.getKind();
+    if (argKind == API) {
+      sb.append("new io.vertx.lang.rx.TypeArg<").append(arg.translateName(id))
+        .append(">(o").append(depth).append(" -> ");
+      sb.append(arg.getRaw().translateName(id)).append(".newInstance((").append(arg.getRaw()).append(")o").append(depth);
+      if (arg instanceof ParameterizedTypeInfo) {
+        ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) arg;
+        List<TypeInfo> args = parameterizedType.getArgs();
+        for (int i = 0; i < args.size(); i++) {
+          sb.append(", ");
+          genTypeArg(args.get(i), method, depth + 1, sb);
+        }
+      }
+      sb.append(")");
+      sb.append(", o").append(depth).append(" -> o").append(depth).append(".getDelegate())");
+    } else {
+      String typeArg = "io.vertx.lang.rx.TypeArg.unknown()";
+      if (argKind == OBJECT && arg.isVariable()) {
+        String resolved = genTypeArg((TypeVariableInfo) arg, method);
+        if (resolved != null) {
+          typeArg = resolved;
+        }
+      }
+      sb.append(typeArg);
+    }
+  }
+
+  private String genTypeArg(TypeInfo arg, MethodInfo method) {
+    Map<TypeInfo, String> typeArgMap = methodTypeArgMap.get(method);
+    if (typeArgMap != null) {
+      String typeArgRef = typeArgMap.get(arg);
+      if (typeArgRef != null) {
+        return typeArgRef;
+      }
+    }
+    ClassKind kind = arg.getKind();
+    if (kind == ClassKind.API) {
+      StringBuilder sb = new StringBuilder();
+      genTypeArg(arg, method, 0, sb);
+      return sb.toString();
+    } else {
+      String typeArg = "io.vertx.lang.rx.TypeArg.unknown()";
+      if (arg.isVariable()) {
+        String resolved = genTypeArg((TypeVariableInfo) arg, method);
+        if (resolved != null) {
+          typeArg = resolved;
+        }
+      }
+      return typeArg;
+    }
+  }
+
   private String genConvReturn(TypeInfo type, MethodInfo method, String expr) {
     ClassKind kind = type.getKind();
     if (kind == OBJECT) {
@@ -847,25 +942,15 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       return expr;
     } else if (kind == API) {
       StringBuilder tmp = new StringBuilder(type.getRaw().translateName(id));
-      tmp.append(".newInstance(");
+      tmp.append(".newInstance((");
+      tmp.append(type.getRaw());
+      tmp.append(")");
       tmp.append(expr);
       if (type.isParameterized()) {
         ParameterizedTypeInfo parameterizedTypeInfo = (ParameterizedTypeInfo) type;
         for (TypeInfo arg : parameterizedTypeInfo.getArgs()) {
           tmp.append(", ");
-          ClassKind argKind = arg.getKind();
-          if (argKind == API) {
-            tmp.append("(io.vertx.lang.rx.TypeArg)").append(arg.getRaw().translateName(id)).append(".__TYPE_ARG");
-          } else {
-            String typeArg = "io.vertx.lang.rx.TypeArg.unknown()";
-            if (argKind == OBJECT && arg.isVariable()) {
-              String resolved = genTypeArg((TypeVariableInfo) arg, method);
-              if (resolved != null) {
-                typeArg = resolved;
-              }
-            }
-            tmp.append(typeArg);
-          }
+          tmp.append(genTypeArg(arg, method));
         }
       }
       tmp.append(")");
@@ -958,5 +1043,21 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       }
     }
     return "{@link " + rawType.getName() + "}";
+  }
+
+  private boolean containsTypeVariableArgument(TypeInfo type) {
+    if (type.isVariable()) {
+      return true;
+    } else if (type.isParameterized()) {
+      List<TypeInfo> typeArgs = ((ParameterizedTypeInfo)type).getArgs();
+      for (TypeInfo typeArg : typeArgs) {
+        if (typeArg.isVariable()) {
+          return true;
+        } else if (typeArg.isParameterized() && containsTypeVariableArgument(typeArg)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }
