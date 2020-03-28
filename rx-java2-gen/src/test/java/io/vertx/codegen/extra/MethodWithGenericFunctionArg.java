@@ -10,5 +10,5 @@ import java.util.function.Function;
  */
 @VertxGen
 public interface MethodWithGenericFunctionArg<T> {
-  MethodWithGenericFunctionArg<T> doSomething(Function<Generic<JsonObject>, T> theFunction );
+  MethodWithGenericFunctionArg<T> doSomething(Function<Generic1<JsonObject>, T> theFunction );
 }
