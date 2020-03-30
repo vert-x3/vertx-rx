@@ -409,7 +409,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.println(")delegate);");
     }
     writer.print("    this.delegate = (");
-    writer.println(Helper.getNonGenericType(model.getIfaceFQCN()));
+    writer.print(Helper.getNonGenericType(model.getIfaceFQCN()));
     writer.println(")delegate;");
     for (TypeParamInfo.Class typeParam : typeParams) {
       writer.print("    this.__typeArg_");
