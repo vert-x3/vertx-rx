@@ -180,7 +180,6 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     }
 
     // Gen newInstance
-    writer.println();
     writer.print("  public static ");
     if (type.getParams().size() > 0) {
       writer.print(genTypeParamsDecl(type));
@@ -199,10 +198,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.print(genTypeParamsDecl(type));
     writer.println("(arg) : null;");
     writer.println("  }");
+    writer.println();
 
     // Gen parameterized newInstance
     if (type.getParams().size() > 0) {
-      writer.println();
       writer.print("  public static ");
       writer.print(genTypeParamsDecl(type));
       writer.print(" ");
@@ -231,6 +230,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       }
       writer.println(") : null;");
       writer.println("  }");
+      writer.println();
     }
 
     writer.println("}");
