@@ -182,9 +182,12 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     // Gen newInstance
     writer.println();
     writer.print("  public static ");
-    writer.print(genOptTypeParamsDecl(type, " "));
+    if (type.getParams().size() > 0) {
+      writer.print(genTypeParamsDecl(type));
+      writer.print(" ");
+    }
     writer.print(type.getSimpleName());
-    writer.print(genOptTypeParamsDecl(type, ""));
+    writer.print(genTypeParamsDecl(type));
     writer.print(" newInstance(");
     writer.print(type.getName());
     writer.println(" arg) {");
@@ -193,7 +196,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     if (!model.isConcrete()) {
       writer.print("Impl");
     }
-    writer.print(genOptTypeParamsDecl(type, ""));
+    writer.print(genTypeParamsDecl(type));
     writer.println("(arg) : null;");
     writer.println("  }");
 
@@ -201,9 +204,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     if (type.getParams().size() > 0) {
       writer.println();
       writer.print("  public static ");
-      writer.print(genOptTypeParamsDecl(type, " "));
+      writer.print(genTypeParamsDecl(type));
+      writer.print(" ");
       writer.print(type.getSimpleName());
-      writer.print(genOptTypeParamsDecl(type, ""));
+      writer.print(genTypeParamsDecl(type));
       writer.print(" newInstance(");
       writer.print(type.getName());
       writer.print(" arg");
@@ -219,7 +223,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       if (!model.isConcrete()) {
         writer.print("Impl");
       }
-      writer.print(genOptTypeParamsDecl(type, ""));
+      writer.print(genTypeParamsDecl(type));
       writer.print("(arg");
       for (TypeParamInfo typeParam : type.getParams()) {
         writer.print(", __typeArg_");
@@ -236,7 +240,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.print("class ");
       writer.print(type.getSimpleName());
       writer.print("Impl");
-      writer.print(genOptTypeParamsDecl(type, ""));
+      writer.print(genTypeParamsDecl(type));
       writer.print(" implements ");
       writer.print(Helper.getSimpleName(model.getIfaceFQCN()));
       writer.println(" {");
@@ -937,11 +941,11 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
 //    return false;
 //  }
 
-  private String genOptTypeParamsDecl(ClassTypeInfo type, String deflt) {
+  private String genTypeParamsDecl(ClassTypeInfo type) {
     if (type.getParams().size() > 0) {
       return type.getParams().stream().map(TypeParamInfo::getName).collect(joining(",", "<", ">"));
     } else {
-      return deflt;
+      return "";
     }
   }
 
