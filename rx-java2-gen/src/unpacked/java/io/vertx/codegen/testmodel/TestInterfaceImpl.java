@@ -187,6 +187,16 @@ public class TestInterfaceImpl implements TestInterface {
   }
 
   @Override
+  public void methodWithHandlerAsyncResultStringDataObject(boolean sendFailure, Handler<AsyncResult<TestStringDataObject>> handler) {
+    if (sendFailure) {
+      Exception e = new Exception("foobar!");
+      handler.handle(Future.failedFuture(e));
+    } else {
+      handler.handle(Future.succeededFuture(new TestStringDataObject().setValue("foo")));
+    }
+  }
+
+  @Override
   public Handler<AsyncResult<String>> methodWithHandlerAsyncResultStringReturn(String expected, boolean fail) {
     return ar -> {
       if (!fail) {
@@ -292,6 +302,11 @@ public class TestInterfaceImpl implements TestInterface {
   }
 
   @Override
+  public void methodWithStringDataObjectParam(TestStringDataObject dataObject) {
+    assertEquals("hello", dataObject.getValue());
+  }
+
+  @Override
   public void methodWithHandlerUserTypes(Handler<RefedInterface1> handler) {
     RefedInterface1 refed = new RefedInterface1Impl();
     refed.setString("echidnas");
@@ -348,6 +363,11 @@ public class TestInterfaceImpl implements TestInterface {
   @Override
   public void methodWithHandlerDataObject(Handler<TestDataObject> handler) {
     handler.handle(methodWithDataObjectReturn());
+  }
+
+  @Override
+  public void methodWithHandlerStringDataObject(Handler<TestStringDataObject> handler) {
+    handler.handle(methodWithStringDataObjectReturn());
   }
 
   @Override
@@ -434,6 +454,11 @@ public class TestInterfaceImpl implements TestInterface {
   @Override
   public TestDataObject methodWithDataObjectReturn() {
     return new TestDataObject().setFoo("foo").setBar(123);
+  }
+
+  @Override
+  public TestStringDataObject methodWithStringDataObjectReturn() {
+    return new TestStringDataObject().setValue("foo");
   }
 
   @Override

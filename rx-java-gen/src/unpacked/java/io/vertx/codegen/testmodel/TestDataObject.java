@@ -8,7 +8,7 @@ import java.util.Objects;
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
-@DataObject(generateConverter = true)
+@DataObject
 public class TestDataObject {
 
   private String foo;

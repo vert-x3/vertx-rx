@@ -41,6 +41,7 @@ public interface TestInterface extends SuperInterface1, SuperInterface2 {
   void methodWithHandlerAsyncResultCharacter(boolean sendFailure, Handler<AsyncResult<Character>> handler);
   void methodWithHandlerAsyncResultString(boolean sendFailure, Handler<AsyncResult<String>> handler);
   void methodWithHandlerAsyncResultDataObject(boolean sendFailure, Handler<AsyncResult<TestDataObject>> handler);
+  void methodWithHandlerAsyncResultStringDataObject(boolean sendFailure, Handler<AsyncResult<TestStringDataObject>> handler);
 
   Handler<AsyncResult<String>> methodWithHandlerAsyncResultStringReturn(String expected, boolean fail);
   <T> Handler<AsyncResult<T>> methodWithHandlerAsyncResultGenericReturn(Handler<AsyncResult<T>> handler);
@@ -55,6 +56,8 @@ public interface TestInterface extends SuperInterface1, SuperInterface2 {
   void methodWithObjectParam(String str, Object obj);
 
   void methodWithDataObjectParam(TestDataObject dataObject);
+
+  void methodWithStringDataObjectParam(TestStringDataObject dataObject);
 
   void methodWithHandlerUserTypes(Handler<RefedInterface1> handler);
 
@@ -73,6 +76,8 @@ public interface TestInterface extends SuperInterface1, SuperInterface2 {
   void methodWithHandlerThrowable(Handler<Throwable> handler);
 
   void methodWithHandlerDataObject(Handler<TestDataObject> handler);
+
+  void methodWithHandlerStringDataObject(Handler<TestStringDataObject> handler);
 
   <U> void methodWithHandlerGenericUserType(U value, Handler<GenericRefedInterface<U>> handler);
 
@@ -103,6 +108,8 @@ public interface TestInterface extends SuperInterface1, SuperInterface2 {
   RefedInterface2 methodWithAbstractVertxGenReturn();
 
   TestDataObject methodWithDataObjectReturn();
+
+  TestStringDataObject methodWithStringDataObjectReturn();
 
   TestDataObject methodWithDataObjectNullReturn();
 

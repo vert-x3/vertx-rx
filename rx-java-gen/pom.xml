@@ -59,6 +59,18 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-codegen</artifactId>
+      <classifier>tck</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-codegen</artifactId>
+      <classifier>tck-sources</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
@@ -68,6 +80,25 @@
   </dependencies>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>default-clean</id>
+              <configuration>
+                <filesets>
+                  <fileset>
+                    <directory>${project.basedir}/src/unpacked/java</directory>
+                  </fileset>
+                </filesets>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
 
       <!-- Configure the execution of the compiler to execute the codegen processor -->
@@ -89,9 +120,26 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-test-source</id>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${basedir}/src/unpacked/java</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
-          <!-- Unpack codegen source code to src/test/java -->
+          <!-- Unpack codegen tck source code to src/unpacked/java -->
           <execution>
             <id>unpack-codegen</id>
             <phase>generate-test-sources</phase>
@@ -103,10 +151,11 @@
               <includeArtifactIds>vertx-codegen</includeArtifactIds>
               <includeTypes>jar</includeTypes>
               <includeClassifiers>tck-sources</includeClassifiers>
-              <outputDirectory>${basedir}/src/test/java</outputDirectory>
+              <outputDirectory>${project.basedir}/src/unpacked/java</outputDirectory>
+              <includes>**/*.java</includes>
             </configuration>
           </execution>
-          <!-- Unpack codegen source code to src/test/java -->
+          <!-- Unpack stream vertx core source code to src/unpacked/java -->
           <execution>
             <id>unpack-core</id>
             <phase>generate-test-sources</phase>
@@ -118,7 +167,7 @@
               <includeArtifactIds>vertx-core</includeArtifactIds>
               <includeTypes>jar</includeTypes>
               <includeClassifiers>sources</includeClassifiers>
-              <outputDirectory>${basedir}/src/test/java</outputDirectory>
+              <outputDirectory>${basedir}/src/unpacked/java</outputDirectory>
               <includes>io/vertx/core/streams/*.java</includes>
             </configuration>
           </execution>
