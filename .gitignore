@@ -20,14 +20,6 @@ ScratchTest.java
 test-results
 test-tmp
 *.class
-src/gen
-rx-java/src/main/generated/**
-rx-java/src/main/java/io/vertx/core/**
-rx-java/src/test/java/io/vertx/codegen/testmodel/**
-rx-java/src/test/java/com/acme/**
-rx-java2/src/main/generated/**
-rx-java2/src/main/java/io/vertx/core/**
-rx-java2/src/test/java/io/vertx/codegen/testmodel/**
-rx-java2/src/test/java/io/vertx/codegen/extra/**
-rx-java2/src/test/java/com/acme/**
+rx-java-gen/src/unpacked
+rx-java2-gen/src/unpacked
 
