@@ -69,18 +69,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-codegen</artifactId>
-      <classifier>tck</classifier>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-codegen</artifactId>
-      <classifier>tck-sources</classifier>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-yaml</artifactId>
       <scope>test</scope>
@@ -178,15 +166,19 @@
             <id>unpack-codegen</id>
             <phase>generate-test-sources</phase>
             <goals>
-              <goal>unpack-dependencies</goal>
+              <!-- We use unpack instead of unpack-dependencies on purpose to not depend on the jar because it can confuse the IDE -->
+              <goal>unpack</goal>
             </goals>
             <configuration>
-              <includeGroupIds>io.vertx</includeGroupIds>
-              <includeArtifactIds>vertx-codegen</includeArtifactIds>
-              <includeTypes>jar</includeTypes>
-              <includeClassifiers>tck-sources</includeClassifiers>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>io.vertx</groupId>
+                  <artifactId>vertx-codegen</artifactId>
+                  <classifier>tck-sources</classifier>
+                </artifactItem>
+              </artifactItems>
               <outputDirectory>${project.basedir}/src/unpacked/java</outputDirectory>
-              <includes>**/*.java</includes>
+              <includes>**/*.java,META-INF/vertx/json-mappers.properties</includes>
             </configuration>
           </execution>
           <!-- Unpack stream vertx core source code to src/unpacked/java -->
