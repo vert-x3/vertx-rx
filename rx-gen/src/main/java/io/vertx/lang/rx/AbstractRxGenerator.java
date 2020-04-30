@@ -859,21 +859,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         return typeArgRef;
       }
     }
-    ClassKind kind = arg.getKind();
-    if (kind == ClassKind.API) {
-      StringBuilder sb = new StringBuilder();
-      genTypeArg(arg, method, 0, sb);
-      return sb.toString();
-    } else {
-      String typeArg = "io.vertx.lang.rx.TypeArg.unknown()";
-      if (arg.isVariable()) {
-        String resolved = genTypeArg((TypeVariableInfo) arg, method);
-        if (resolved != null) {
-          typeArg = resolved;
-        }
-      }
-      return typeArg;
-    }
+    StringBuilder sb = new StringBuilder();
+    genTypeArg(arg, method, 0, sb);
+    return sb.toString();
   }
 
   private String genConvReturn(TypeInfo type, MethodInfo method, String expr) {
