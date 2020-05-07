@@ -26,23 +26,36 @@ class RxJava2Generator extends AbstractRxGenerator {
   }
 
   @Override
-  protected void genRxImports(ClassModel model, PrintWriter writer) {
+  protected boolean isImported(TypeInfo type) {
+    return type.getName().startsWith("io.reactivex.") || super.isImported(type);
+  }
+
+  @Override
+  protected void genImports(ClassModel model, PrintWriter writer) {
     writer.println("import io.reactivex.Observable;");
     writer.println("import io.reactivex.Flowable;");
     writer.println("import io.reactivex.Single;");
     writer.println("import io.reactivex.Completable;");
     writer.println("import io.reactivex.Maybe;");
-    super.genRxImports(model, writer);
+    writer.println("import io.vertx.reactivex.RxHelper;");
+    writer.println("import io.vertx.reactivex.ObservableHelper;");
+    writer.println("import io.vertx.reactivex.FlowableHelper;");
+    writer.println("import io.vertx.reactivex.impl.AsyncResultMaybe;");
+    writer.println("import io.vertx.reactivex.impl.AsyncResultSingle;");
+    writer.println("import io.vertx.reactivex.impl.AsyncResultCompletable;");
+    writer.println("import io.vertx.reactivex.WriteStreamObserver;");
+    writer.println("import io.vertx.reactivex.WriteStreamSubscriber;");
+    super.genImports(model, writer);
   }
 
   @Override
   protected void genToObservable(TypeInfo streamType, PrintWriter writer) {
-    writer.print("  private io.reactivex.Observable<");
-    writer.print(genTypeName(streamType));
+    writer.print("  private Observable<");
+    writer.print(genTranslatedTypeName(streamType));
     writer.println("> observable;");
 
-    writer.print("  private io.reactivex.Flowable<");
-    writer.print(genTypeName(streamType));
+    writer.print("  private Flowable<");
+    writer.print(genTranslatedTypeName(streamType));
     writer.println("> flowable;");
 
     writer.println();
@@ -52,10 +65,10 @@ class RxJava2Generator extends AbstractRxGenerator {
   }
 
   private void genToXXXAble(TypeInfo streamType, String rxType, String rxName, PrintWriter writer) {
-    writer.print("  public synchronized io.reactivex.");
+    writer.print("  public synchronized ");
     writer.print(rxType);
     writer.print("<");
-    writer.print(genTypeName(streamType));
+    writer.print(genTranslatedTypeName(streamType));
     writer.print("> to");
     writer.print(rxType);
     writer.println("() {");
@@ -66,28 +79,28 @@ class RxJava2Generator extends AbstractRxGenerator {
     writer.println(" == null) {");
 
     if (streamType.getKind() == ClassKind.API) {
-      writer.print("      java.util.function.Function<");
+      writer.print("      Function<");
       writer.print(streamType.getName());
       writer.print(", ");
-      writer.print(genTypeName(streamType));
+      writer.print(genTranslatedTypeName(streamType));
       writer.print("> conv = ");
-      writer.print(genTypeName(streamType.getRaw()));
+      writer.print(genTranslatedTypeName(streamType.getRaw()));
       writer.println("::newInstance;");
 
       writer.print("      ");
       writer.print(rxName);
-      writer.print(" = io.vertx.reactivex.");
+      writer.print(" = ");
       writer.print(rxType);
       writer.print("Helper.to");
       writer.print(rxType);
       writer.println("(delegate, conv);");
     } else if (streamType.isVariable()) {
       String typeVar = streamType.getSimpleName();
-      writer.print("      java.util.function.Function<");
+      writer.print("      Function<");
       writer.print(typeVar);
       writer.print(", ");
       writer.print(typeVar);
-      writer.print("> conv = (java.util.function.Function<");
+      writer.print("> conv = (Function<");
       writer.print(typeVar);
       writer.print(", ");
       writer.print(typeVar);
@@ -95,7 +108,7 @@ class RxJava2Generator extends AbstractRxGenerator {
 
       writer.print("      ");
       writer.print(rxName);
-      writer.print(" = io.vertx.reactivex.");
+      writer.print(" = ");
       writer.print(rxType);
       writer.print("Helper.to");
       writer.print(rxType);
@@ -103,7 +116,7 @@ class RxJava2Generator extends AbstractRxGenerator {
     } else {
       writer.print("      ");
       writer.print(rxName);
-      writer.print(" = io.vertx.reactivex.");
+      writer.print(" = ");
       writer.print(rxType);
       writer.print("Helper.to");
       writer.print(rxType);
@@ -120,9 +133,9 @@ class RxJava2Generator extends AbstractRxGenerator {
 
   @Override
   protected void genToSubscriber(TypeInfo streamType, PrintWriter writer) {
-    writer.format("  private io.vertx.reactivex.WriteStreamObserver<%s> observer;%n", genTypeName(streamType));
+    writer.format("  private WriteStreamObserver<%s> observer;%n", genTranslatedTypeName(streamType));
 
-    writer.format("  private io.vertx.reactivex.WriteStreamSubscriber<%s> subscriber;%n", genTypeName(streamType));
+    writer.format("  private WriteStreamSubscriber<%s> subscriber;%n", genTranslatedTypeName(streamType));
 
     writer.println();
 
@@ -131,21 +144,21 @@ class RxJava2Generator extends AbstractRxGenerator {
   }
 
   private void genToXXXEr(TypeInfo streamType, String rxType, String rxName, PrintWriter writer) {
-    writer.format("  public synchronized io.vertx.reactivex.WriteStream%s<%s> to%s() {%n", rxType, genTypeName(streamType), rxType);
+    writer.format("  public synchronized WriteStream%s<%s> to%s() {%n", rxType, genTranslatedTypeName(streamType), rxType);
 
     writer.format("    if (%s == null) {%n", rxName);
 
     if (streamType.getKind() == ClassKind.API) {
-      writer.format("      java.util.function.Function<%s, %s> conv = %s::getDelegate;%n", genTypeName(streamType.getRaw()), streamType.getName(), genTypeName(streamType));
+      writer.format("      Function<%s, %s> conv = %s::getDelegate;%n", genTranslatedTypeName(streamType.getRaw()), streamType.getName(), genTranslatedTypeName(streamType));
 
-      writer.format("      %s = io.vertx.reactivex.RxHelper.to%s(getDelegate(), conv);%n", rxName, rxType);
+      writer.format("      %s = RxHelper.to%s(getDelegate(), conv);%n", rxName, rxType);
     } else if (streamType.isVariable()) {
       String typeVar = streamType.getSimpleName();
-      writer.format("      java.util.function.Function<%s, %s> conv = (java.util.function.Function<%s, %s>) __typeArg_0.unwrap;%n", typeVar, typeVar, typeVar, typeVar);
+      writer.format("      Function<%s, %s> conv = (Function<%s, %s>) __typeArg_0.unwrap;%n", typeVar, typeVar, typeVar, typeVar);
 
-      writer.format("      %s = io.vertx.reactivex.RxHelper.to%s(getDelegate(), conv);%n", rxName, rxType);
+      writer.format("      %s = RxHelper.to%s(getDelegate(), conv);%n", rxName, rxType);
     } else {
-      writer.format("      %s = io.vertx.reactivex.RxHelper.to%s(getDelegate());%n", rxName, rxType);
+      writer.format("      %s = RxHelper.to%s(getDelegate());%n", rxName, rxType);
     }
 
     writer.println("    }");
@@ -176,7 +189,7 @@ class RxJava2Generator extends AbstractRxGenerator {
     MethodInfo futMethod = genFutureMethod(method);
     ClassTypeInfo raw = futMethod.getReturnType().getRaw();
     String methodSimpleName = raw.getSimpleName();
-    String adapterType = "io.vertx.reactivex.impl.AsyncResult" + methodSimpleName + ".to" + methodSimpleName;
+    String adapterType = "AsyncResult" + methodSimpleName + ".to" + methodSimpleName;
     String rxType = raw.getName();
     startMethodTemplate(model.getType(), futMethod, "", writer);
     if (genBody) {
@@ -202,12 +215,12 @@ class RxJava2Generator extends AbstractRxGenerator {
   }
 
   protected void genReadStream(List<? extends TypeParamInfo> typeParams, PrintWriter writer){
-    writer.print("  io.reactivex.Observable<");
+    writer.print("  Observable<");
     writer.print(typeParams.get(0).getName());
     writer.println("> toObservable();");
     writer.println();
 
-    writer.print("  io.reactivex.Flowable<");
+    writer.print("  Flowable<");
     writer.print(typeParams.get(0).getName());
     writer.println("> toFlowable();");
     writer.println();

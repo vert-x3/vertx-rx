@@ -13,9 +13,7 @@ import io.vertx.lang.rx.AbstractRxGenerator;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 class RxJavaGenerator extends AbstractRxGenerator {
   RxJavaGenerator() {
@@ -24,51 +22,59 @@ class RxJavaGenerator extends AbstractRxGenerator {
   }
 
   @Override
-  protected void genRxImports(ClassModel model, PrintWriter writer) {
+  protected boolean isImported(TypeInfo type) {
+    return type.getName().startsWith("rx.") || super.isImported(type);
+  }
+
+  @Override
+  protected void genImports(ClassModel model, PrintWriter writer) {
     writer.println("import rx.Observable;");
     writer.println("import rx.Single;");
-    super.genRxImports(model, writer);
+    writer.println("import io.vertx.rx.java.RxHelper;");
+    writer.println("import io.vertx.rx.java.WriteStreamSubscriber;");
+    writer.println("import io.vertx.rx.java.SingleOnSubscribeAdapter;");
+    super.genImports(model, writer);
   }
 
   @Override
   protected void genToObservable(TypeInfo streamType, PrintWriter writer) {
-    writer.print("  private rx.Observable<");
-    writer.print(genTypeName(streamType));
+    writer.print("  private Observable<");
+    writer.print(genTranslatedTypeName(streamType));
     writer.println("> observable;");
     writer.println();
 
-    writer.print("  public synchronized rx.Observable<");
-    writer.print(genTypeName(streamType));
+    writer.print("  public synchronized Observable<");
+    writer.print(genTranslatedTypeName(streamType));
     writer.println("> toObservable() {");
 
     writer.print("    ");
     writer.println("if (observable == null) {");
 
     if (streamType.getKind() == ClassKind.API) {
-      writer.print("      java.util.function.Function<");
+      writer.print("      Function<");
       writer.print(streamType.getName());
       writer.print(", ");
-      writer.print(genTypeName(streamType));
+      writer.print(genTranslatedTypeName(streamType));
       writer.print("> conv = ");
-      writer.print(genTypeName(streamType.getRaw()));
+      writer.print(genTranslatedTypeName(streamType.getRaw()));
       writer.println("::newInstance;");
 
-      writer.println("      observable = io.vertx.rx.java.RxHelper.toObservable(delegate, conv);");
+      writer.println("      observable = RxHelper.toObservable(delegate, conv);");
     } else if (streamType.isVariable()) {
       String typeVar = streamType.getSimpleName();
-      writer.print("      java.util.function.Function<");
+      writer.print("      Function<");
       writer.print(typeVar);
       writer.print(", ");
       writer.print(typeVar);
-      writer.print("> conv = (java.util.function.Function<");
+      writer.print("> conv = (Function<");
       writer.print(typeVar);
       writer.print(", ");
       writer.print(typeVar);
       writer.println(">) __typeArg_0.wrap;");
 
-      writer.println("      observable = io.vertx.rx.java.RxHelper.toObservable(delegate, conv);");
+      writer.println("      observable = RxHelper.toObservable(delegate, conv);");
     } else {
-      writer.println("      observable = io.vertx.rx.java.RxHelper.toObservable(this.getDelegate());");
+      writer.println("      observable = RxHelper.toObservable(this.getDelegate());");
     }
 
     writer.println("    }");
@@ -79,24 +85,24 @@ class RxJavaGenerator extends AbstractRxGenerator {
 
   @Override
   protected void genToSubscriber(TypeInfo streamType, PrintWriter writer) {
-    writer.format("  private io.vertx.rx.java.WriteStreamSubscriber<%s> subscriber;%n", genTypeName(streamType));
+    writer.format("  private WriteStreamSubscriber<%s> subscriber;%n", genTranslatedTypeName(streamType));
     writer.println();
 
-    writer.format("  public synchronized io.vertx.rx.java.WriteStreamSubscriber<%s> toSubscriber() {%n", genTypeName(streamType));
+    writer.format("  public synchronized WriteStreamSubscriber<%s> toSubscriber() {%n", genTranslatedTypeName(streamType));
 
     writer.println("    if (subscriber == null) {");
 
     if (streamType.getKind() == ClassKind.API) {
-      writer.format("      java.util.function.Function<%s, %s> conv = %s::getDelegate;%n", genTypeName(streamType.getRaw()), streamType.getName(), genTypeName(streamType));
+      writer.format("      Function<%s, %s> conv = %s::getDelegate;%n", genTranslatedTypeName(streamType.getRaw()), streamType.getName(), genTranslatedTypeName(streamType));
 
-      writer.println("      subscriber = io.vertx.rx.java.RxHelper.toSubscriber(getDelegate(), conv);");
+      writer.println("      subscriber = RxHelper.toSubscriber(getDelegate(), conv);");
     } else if (streamType.isVariable()) {
       String typeVar = streamType.getSimpleName();
-      writer.format("      java.util.function.Function<%s, %s> conv = (java.util.function.Function<%s, %s>) __typeArg_0.unwrap;%n", typeVar, typeVar, typeVar, typeVar);
+      writer.format("      Function<%s, %s> conv = (Function<%s, %s>) __typeArg_0.unwrap;%n", typeVar, typeVar, typeVar, typeVar);
 
-      writer.println("      subscriber = io.vertx.rx.java.RxHelper.toSubscriber(getDelegate(), conv);");
+      writer.println("      subscriber = RxHelper.toSubscriber(getDelegate(), conv);");
     } else {
-      writer.println("      subscriber = io.vertx.rx.java.RxHelper.toSubscriber(getDelegate());");
+      writer.println("      subscriber = RxHelper.toSubscriber(getDelegate());");
     }
 
     writer.println("    }");
@@ -146,7 +152,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
     startMethodTemplate(type, futMethod, "", writer);
     if (genBody) {
       writer.println(" { ");
-      writer.println("    return Single.create(new io.vertx.rx.java.SingleOnSubscribeAdapter<>(fut -> {");
+      writer.println("    return Single.create(new SingleOnSubscribeAdapter<>(fut -> {");
       writer.print("      ");
       writer.print(method.getName());
       writer.print("(");
