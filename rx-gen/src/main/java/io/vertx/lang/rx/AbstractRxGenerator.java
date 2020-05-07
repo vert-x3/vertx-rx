@@ -58,14 +58,13 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println(";");
     writer.println();
 
-    writer.println("import java.util.Map;");
-    genRxImports(model, writer);
+    genImports(model, writer);
 
     writer.println();
     generateDoc(model, writer);
     writer.println();
 
-    writer.print("@io.vertx.lang.rx.RxGen(");
+    writer.print("@RxGen(");
     writer.print(type.getName());
     writer.println(".class)");
 
@@ -80,26 +79,26 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
 
     if (model.isConcrete() && model.getConcreteSuperType() != null) {
       writer.print(" extends ");
-      writer.print(genTypeName(model.getConcreteSuperType()));
+      writer.print(genTranslatedTypeName(model.getConcreteSuperType()));
     }
 
     List<String> interfaces = new ArrayList<>();
     if ("io.vertx.core.buffer.Buffer".equals(type.getName())) {
       interfaces.add("io.vertx.core.shareddata.impl.ClusterSerializable");
     }
-    interfaces.addAll(model.getAbstractSuperTypes().stream().map(this::genTypeName).collect(toList()));
+    interfaces.addAll(model.getAbstractSuperTypes().stream().map(this::genTranslatedTypeName).collect(toList()));
     if (model.isHandler()) {
-      interfaces.add("io.vertx.core.Handler<" + genTypeName(model.getHandlerArg()) + ">");
+      interfaces.add("Handler<" + genTranslatedTypeName(model.getHandlerArg()) + ">");
     }
     if (model.isIterable()) {
-      interfaces.add("java.lang.Iterable<" + genTypeName(model.getIterableArg()) + ">");
+      interfaces.add("Iterable<" + genTranslatedTypeName(model.getIterableArg()) + ">");
     }
     if (model.isIterator()) {
-      interfaces.add("java.util.Iterator<" + genTypeName(model.getIteratorArg()) + ">");
+      interfaces.add("Iterator<" + genTranslatedTypeName(model.getIteratorArg()) + ">");
     }
     if (model.isFunction()) {
       TypeInfo[] functionArgs = model.getFunctionArgs();
-      interfaces.add("java.util.function.Function<" + genTypeName(functionArgs[0]) + ", " + genTypeName(functionArgs[1]) + ">");
+      interfaces.add("Function<" + genTranslatedTypeName(functionArgs[0]) + ", " + genTranslatedTypeName(functionArgs[1]) + ">");
     }
 
     if (!interfaces.isEmpty()) {
@@ -211,7 +210,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.print(type.getName());
       writer.print(" arg");
       for (TypeParamInfo typeParam : type.getParams()) {
-        writer.print(", io.vertx.lang.rx.TypeArg<");
+        writer.print(", TypeArg<");
         writer.print(typeParam.getName());
         writer.print("> __typeArg_");
         writer.print(typeParam.getName());
@@ -254,15 +253,15 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       TypeInfo iterableArg = model.getIterableArg();
 
       writer.println("  @Override");
-      writer.printf("  public java.util.Iterator<%s> iterator() {%n", genTypeName(iterableArg));
+      writer.printf("  public Iterator<%s> iterator() {%n", genTranslatedTypeName(iterableArg));
 
       if (iterableArg.getKind() == ClassKind.API) {
-        writer.format("    java.util.function.Function<%s, %s> conv = %s::newInstance;%n", iterableArg.getName(), genTypeName(iterableArg.getRaw()), genTypeName(iterableArg));
-        writer.println("    return new io.vertx.lang.rx.MappingIterator<>(delegate.iterator(), conv);");
+        writer.format("    Function<%s, %s> conv = %s::newInstance;%n", iterableArg.getName(), genTranslatedTypeName(iterableArg.getRaw()), genTranslatedTypeName(iterableArg));
+        writer.println("    return new MappingIterator<>(delegate.iterator(), conv);");
       } else if (iterableArg.isVariable()) {
         String typeVar = iterableArg.getSimpleName();
-        writer.format("    java.util.function.Function<%s, %s> conv = (java.util.function.Function<%s, %s>) __typeArg_0.wrap;%n", typeVar, typeVar, typeVar, typeVar);
-        writer.println("    return new io.vertx.lang.rx.MappingIterator<>(delegate.iterator(), conv);");
+        writer.format("    Function<%s, %s> conv = (Function<%s, %s>) __typeArg_0.wrap;%n", typeVar, typeVar, typeVar, typeVar);
+        writer.println("    return new MappingIterator<>(delegate.iterator(), conv);");
       } else {
         writer.println("    return delegate.iterator();");
       }
@@ -284,10 +283,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       TypeInfo iteratorArg = model.getIteratorArg();
 
       writer.println("  @Override");
-      writer.printf("  public %s next() {%n", genTypeName(iteratorArg));
+      writer.printf("  public %s next() {%n", genTranslatedTypeName(iteratorArg));
 
       if (iteratorArg.getKind() == ClassKind.API) {
-        writer.format("    return %s.newInstance(delegate.next());%n", genTypeName(iteratorArg));
+        writer.format("    return %s.newInstance(delegate.next());%n", genTranslatedTypeName(iteratorArg));
       } else if (iteratorArg.isVariable()) {
         writer.println("    return __typeArg_0.wrap(delegate.next());");
       } else {
@@ -306,25 +305,25 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       TypeInfo outArg = functionArgs[1];
 
       writer.println("  @Override");
-      writer.printf("  public %s apply(%s in) {%n", genTypeName(outArg), genTypeName(inArg));
+      writer.printf("  public %s apply(%s in) {%n", genTranslatedTypeName(outArg), genTranslatedTypeName(inArg));
       writer.printf("    %s ret;%n", outArg.getName());
 
       if (inArg.getKind() == ClassKind.API) {
         writer.println("    ret = getDelegate().apply(in.getDelegate());");
       } else if (inArg.isVariable()) {
         String typeVar = inArg.getSimpleName();
-        writer.format("    java.util.function.Function<%s, %s> inConv = (java.util.function.Function<%s, %s>) __typeArg_0.unwrap;%n", typeVar, typeVar, typeVar, typeVar);
+        writer.format("    Function<%s, %s> inConv = (Function<%s, %s>) __typeArg_0.unwrap;%n", typeVar, typeVar, typeVar, typeVar);
         writer.println("    ret = getDelegate().apply(inConv.apply);");
       } else {
         writer.println("    ret = getDelegate().apply(in);");
       }
 
       if (outArg.getKind() == ClassKind.API) {
-        writer.format("    java.util.function.Function<%s, %s> outConv = %s::newInstance;%n", outArg.getName(), genTypeName(outArg.getRaw()), genTypeName(outArg));
+        writer.format("    Function<%s, %s> outConv = %s::newInstance;%n", outArg.getName(), genTranslatedTypeName(outArg.getRaw()), genTranslatedTypeName(outArg));
         writer.println("    return outConv.apply(ret);");
       } else if (outArg.isVariable()) {
         String typeVar = outArg.getSimpleName();
-        writer.format("    java.util.function.Function<%s, %s> outConv = (java.util.function.Function<%s, %s>) __typeArg_1.wrap;%n", typeVar, typeVar, typeVar, typeVar);
+        writer.format("    Function<%s, %s> outConv = (Function<%s, %s>) __typeArg_1.wrap;%n", typeVar, typeVar, typeVar, typeVar);
         writer.println("    return outConv.apply(ret);");
       } else {
         writer.println("    return delegate.iterator();");
@@ -341,9 +340,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     ClassTypeInfo type = model.getType();
     String simpleName = type.getSimpleName();
     if (model.isConcrete()) {
-      writer.print("  public static final io.vertx.lang.rx.TypeArg<");
+      writer.print("  public static final TypeArg<");
       writer.print(simpleName);
-      writer.print("> __TYPE_ARG = new io.vertx.lang.rx.TypeArg<>(");
+      writer.print("> __TYPE_ARG = new TypeArg<>(");
       writer.print("    obj -> new ");
       writer.print(simpleName);
       writer.print("((");
@@ -364,7 +363,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println(" delegate;");
 
     for (TypeParamInfo.Class typeParam : typeParams) {
-      writer.print("  public final io.vertx.lang.rx.TypeArg<");
+      writer.print("  public final TypeArg<");
       writer.print(typeParam.getName());
       writer.print("> __typeArg_");
       writer.print(typeParam.getIndex());
@@ -385,7 +384,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     for (TypeParamInfo.Class typeParam : typeParams) {
       writer.print("    this.__typeArg_");
       writer.print(typeParam.getIndex());
-      writer.print(" = io.vertx.lang.rx.TypeArg.unknown();");
+      writer.print(" = TypeArg.unknown();");
     }
     writer.println("  }");
     writer.println();
@@ -395,7 +394,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.print(constructor);
     writer.print("(Object delegate");
     for (TypeParamInfo.Class typeParam : typeParams) {
-      writer.print(", io.vertx.lang.rx.TypeArg<");
+      writer.print(", TypeArg<");
       writer.print(typeParam.getName());
       writer.print("> typeArg_");
       writer.print(typeParam.getIndex());
@@ -499,7 +498,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     }
     writer.print(model.isConcrete() ? "  public static final" : "");
     writer.format(" %s %s = %s;\n",
-      genTypeName(constant.getType()),
+      genTranslatedTypeName(constant.getType()),
       constant.getName(),
       genConvReturn(constant.getType(), null, model.getType().getName() + "." + constant.getName()));
   }
@@ -542,23 +541,54 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.print(method.getTypeParams().stream().map(TypeParamInfo::getName).collect(joining(", ", "<", ">")));
       writer.print(" ");
     }
-    writer.print(genTypeName(method.getReturnType()));
+    writer.print(genTranslatedTypeName(method.getReturnType()));
     writer.print(" ");
     writer.print(method.getName());
     writer.print("(");
-    writer.print(method.getParams().stream().map(it -> genTypeName(it.getType()) + " " + it.getName()).collect(joining(", ")));
+    writer.print(method.getParams().stream().map(it -> genTranslatedTypeName(it.getType()) + " " + it.getName()).collect(joining(", ")));
     writer.print(")");
+  }
 
+  protected boolean isImported(TypeInfo type) {
+    switch (type.getKind()) {
+      case JSON_OBJECT:
+      case JSON_ARRAY:
+      case ASYNC_RESULT:
+      case HANDLER:
+      case LIST:
+      case SET:
+      case BOXED_PRIMITIVE:
+      case STRING:
+      case VOID:
+      case FUNCTION:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  protected final String genTranslatedTypeName(TypeInfo type) {
+    return genTypeName(type, true);
   }
 
   protected final String genTypeName(TypeInfo type) {
+    return genTypeName(type, false);
+  }
+
+  protected final String genTypeName(TypeInfo type, boolean translate) {
     if (type.isParameterized()) {
       ParameterizedTypeInfo pt = (ParameterizedTypeInfo) type;
-      return genTypeName(pt.getRaw()) + pt.getArgs().stream().map(this::genTypeName).collect(joining(", ", "<", ">"));
-    } else if (type.getKind() == ClassKind.API) {
-      return type.translateName(id);
+      return genTypeName(pt.getRaw(), translate) + pt.getArgs().stream().map(a -> genTypeName(a, translate)).collect(joining(", ", "<", ">"));
     } else {
-      return type.getSimpleName();
+      if (type.getKind() == ClassKind.API && translate) {
+        return type.translateName(id);
+      } else {
+        if (isImported(type)) {
+          return type.getSimpleName();
+        } else {
+          return type.getName();
+        }
+      }
     }
   }
 
@@ -601,10 +631,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       if (method.getReturnType().getKind() == PRIMITIVE) {
         cachedType = ((PrimitiveTypeInfo) returnType).getBoxed().getName();
       } else {
-        cachedType = genTypeName(returnType);
+        cachedType = genTranslatedTypeName(returnType);
       }
       writer.print("    ");
-      writer.print(genTypeName(returnType));
+      writer.print(genTranslatedTypeName(returnType));
       writer.print(" ret = ");
       writer.print(genConvReturn(returnType, method, genInvokeDelegate(model, method)));
       writer.println(";");
@@ -641,25 +671,20 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
 
   }
 
-  protected void genRxImports(ClassModel model, PrintWriter writer) {
-    for (ClassTypeInfo importedType : model.getImportedTypes()) {
-      if (importedType.getKind() == ClassKind.API) {
-      } else {
-        if (!importedType.getPackageName().equals("java.lang")) {
-          addImport(importedType, false, writer);
-        }
-      }
-    }
-  }
-
-  private void addImport(ClassTypeInfo type, boolean translate, PrintWriter writer) {
-    writer.print("import ");
-    if (translate) {
-      writer.print(type.translateName(id));
-    } else {
-      writer.print(type.toString());
-    }
-    writer.println(";");
+  protected void genImports(ClassModel model, PrintWriter writer) {
+    writer.println("import java.util.Map;");
+    writer.println("import java.util.Set;");
+    writer.println("import java.util.List;");
+    writer.println("import java.util.Iterator;");
+    writer.println("import java.util.function.Function;");
+    writer.println("import java.util.stream.Collectors;");
+    writer.println("import io.vertx.core.Handler;");
+    writer.println("import io.vertx.core.AsyncResult;");
+    writer.println("import io.vertx.core.json.JsonObject;");
+    writer.println("import io.vertx.core.json.JsonArray;");
+    writer.println("import io.vertx.lang.rx.RxGen;");
+    writer.println("import io.vertx.lang.rx.TypeArg;");
+    writer.println("import io.vertx.lang.rx.MappingIterator;");
   }
 
   private String genInvokeDelegate(ClassModel model, MethodInfo method) {
@@ -681,7 +706,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
 
         if (parameterizedType.getArg(0).isVariable()) {
-          adapterFunction = "java.util.function.Function.identity()";
+          adapterFunction = "Function.identity()";
         } else {
           adapterFunction = "obj -> (" + parameterizedType.getArg(0).getRaw().getName() + ")obj.getDelegate()";
         }
@@ -690,7 +715,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         String adapterFunction;
         ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
         if (parameterizedType.getArg(0).isVariable()) {
-          adapterFunction = "java.util.function.Function.identity()";
+          adapterFunction = "Function.identity()";
         } else {
           adapterFunction = "obj -> (" + parameterizedType.getArg(0).getRaw().getName() + ")obj.getDelegate()";
         }
@@ -752,8 +777,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         ClassKind eventKind = eventType.getKind();
         if (eventKind == ASYNC_RESULT) {
           TypeInfo resultType = ((ParameterizedTypeInfo) eventType).getArg(0);
-          return "new Handler<AsyncResult<" + resultType.getName() + ">>() {\n" +
-            "      public void handle(AsyncResult<" + resultType.getName() + "> ar) {\n" +
+          return "new Handler<AsyncResult<" + genTypeName(resultType) + ">>() {\n" +
+            "      public void handle(AsyncResult<" + genTypeName(resultType) + "> ar) {\n" +
             "        if (ar.succeeded()) {\n" +
             "          " + expr + ".handle(io.vertx.core.Future.succeededFuture(" + genConvReturn(resultType, method, "ar.result()") + "));\n" +
             "        } else {\n" +
@@ -762,8 +787,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
             "      }\n" +
             "    }";
         } else {
-          return "new Handler<" + eventType.getName() + ">() {\n" +
-            "      public void handle(" + eventType.getName() + " event) {\n" +
+          return "new Handler<" + genTypeName(eventType) + ">() {\n" +
+            "      public void handle(" + genTypeName(eventType) + " event) {\n" +
             "        " + expr + ".handle(" + genConvReturn(eventType, method, "event") + ");\n" +
             "      }\n" +
             "    }";
@@ -771,16 +796,16 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       } else if (kind == FUNCTION) {
         TypeInfo argType = parameterizedTypeInfo.getArg(0);
         TypeInfo retType = parameterizedTypeInfo.getArg(1);
-        return "new java.util.function.Function<" + argType.getName() + "," + retType.getName() + ">() {\n" +
-          "      public " + retType.getName() + " apply(" + argType.getName() + " arg) {\n" +
-          "        " + genTypeName(retType) + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
+        return "new Function<" + genTypeName(argType) + "," + genTypeName(retType) + ">() {\n" +
+          "      public " + genTypeName(retType) + " apply(" + genTypeName(argType) + " arg) {\n" +
+          "        " + genTranslatedTypeName(retType) + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
           "        return " + genConvParam(retType, method, "ret") + ";\n" +
           "      }\n" +
           "    }";
       } else if (kind == LIST || kind == SET) {
-        return expr + ".stream().map(elt -> " + genConvParam(parameterizedTypeInfo.getArg(0), method, "elt") + ").collect(java.util.stream.Collectors.to" + type.getRaw().getSimpleName() + "())";
+        return expr + ".stream().map(elt -> " + genConvParam(parameterizedTypeInfo.getArg(0), method, "elt") + ").collect(Collectors.to" + type.getRaw().getSimpleName() + "())";
       } else if (kind == MAP) {
-        return expr + ".entrySet().stream().collect(java.util.stream.Collectors.toMap(e -> e.getKey(), e -> " + genConvParam(parameterizedTypeInfo.getArg(1), method, "e.getValue()") + "))";
+        return expr + ".entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> " + genConvParam(parameterizedTypeInfo.getArg(1), method, "e.getValue()") + "))";
       }
     }
     return expr;
@@ -802,7 +827,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       TypeArgExpression typeArg = method.resolveTypeArg(typeVar);
       if (typeArg != null) {
         if (typeArg.isClassType()) {
-          return "io.vertx.lang.rx.TypeArg.of(" + typeArg.getParam().getName() + ")";
+          return "TypeArg.of(" + typeArg.getParam().getName() + ")";
         } else {
           return typeArg.getParam().getName() + ".__typeArg_" + typeArg.getIndex();
         }
@@ -814,7 +839,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
   private void genTypeArgDecl(TypeInfo typeArg, MethodInfo method, String typeArgRef, PrintWriter writer) {
     StringBuilder sb = new StringBuilder();
     genTypeArg(typeArg, method, 1, sb);
-    writer.print("  private static final io.vertx.lang.rx.TypeArg<");
+    writer.print("  private static final TypeArg<");
     writer.print(typeArg.translateName(id));
     writer.print("> ");
     writer.print(typeArgRef);
@@ -826,7 +851,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
   private void genTypeArg(TypeInfo arg, MethodInfo method, int depth, StringBuilder sb) {
     ClassKind argKind = arg.getKind();
     if (argKind == API) {
-      sb.append("new io.vertx.lang.rx.TypeArg<").append(arg.translateName(id))
+      sb.append("new TypeArg<").append(arg.translateName(id))
         .append(">(o").append(depth).append(" -> ");
       sb.append(arg.getRaw().translateName(id)).append(".newInstance((").append(arg.getRaw()).append(")o").append(depth);
       if (arg instanceof ParameterizedTypeInfo) {
@@ -840,7 +865,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       sb.append(")");
       sb.append(", o").append(depth).append(" -> o").append(depth).append(".getDelegate())");
     } else {
-      String typeArg = "io.vertx.lang.rx.TypeArg.unknown()";
+      String typeArg = "TypeArg.unknown()";
       if (argKind == OBJECT && arg.isVariable()) {
         String resolved = genTypeArg((TypeVariableInfo) arg, method);
         if (resolved != null) {
@@ -897,8 +922,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         TypeInfo abc = parameterizedTypeInfo.getArg(0);
         if (abc.getKind() == ASYNC_RESULT) {
           TypeInfo tutu = ((ParameterizedTypeInfo) abc).getArg(0);
-          return "new Handler<AsyncResult<" + genTypeName(tutu) + ">>() {\n" +
-            "      public void handle(AsyncResult<" + genTypeName(tutu) + "> ar) {\n" +
+          return "new Handler<AsyncResult<" + genTranslatedTypeName(tutu) + ">>() {\n" +
+            "      public void handle(AsyncResult<" + genTranslatedTypeName(tutu) + "> ar) {\n" +
             "        if (ar.succeeded()) {\n" +
             "          " + expr + ".handle(io.vertx.core.Future.succeededFuture(" + genConvParam(tutu, method, "ar.result()") + "));\n" +
             "        } else {\n" +
@@ -907,8 +932,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
             "      }\n" +
             "    }";
         } else {
-          return "new Handler<" + genTypeName(abc) + ">() {\n" +
-            "      public void handle(" + genTypeName(abc) + " event) {\n" +
+          return "new Handler<" + genTranslatedTypeName(abc) + ">() {\n" +
+            "      public void handle(" + genTranslatedTypeName(abc) + " event) {\n" +
             "          " + expr + ".handle(" + genConvParam(abc, method, "event") + ");\n" +
             "      }\n" +
             "    }";
