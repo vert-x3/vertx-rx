@@ -303,6 +303,11 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
+      <artifactId>vertx-db2-client</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
       <artifactId>vertx-rabbitmq-client</artifactId>
       <optional>true</optional>
     </dependency>
@@ -458,6 +463,7 @@
             vertx-sql-client,
             vertx-pg-client,
             vertx-mysql-client,
+            vertx-db2-client,
             vertx-rabbitmq-client,
             vertx-health-check,
             vertx-shell,
