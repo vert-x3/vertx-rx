@@ -368,9 +368,12 @@ public class CoreApiTest extends VertxTestBase {
     Single<HttpServer> onListen = server.rxListen();
     onListen.subscribe(
         s -> {
-          HttpClientRequest req = vertx.createHttpClient(new HttpClientOptions()).request(HttpMethod.PUT, 8080, "localhost", "/some/path");
-          req.putHeader("Content-Length", "3");
-          req.write("foo");
+          vertx.createHttpClient(new HttpClientOptions())
+            .rxRequest(HttpMethod.PUT, 8080, "localhost", "/some/path")
+            .subscribe(req -> {
+              req.putHeader("Content-Length", "3");
+              req.write("foo");
+            });
         },
         error -> fail(error.getMessage())
     );
