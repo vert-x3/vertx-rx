@@ -57,11 +57,6 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-sql-common</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
       <artifactId>vertx-bridge-common</artifactId>
       <optional>true</optional>
     </dependency>
@@ -415,7 +410,6 @@
             vertx-core,
             vertx-unit,
             vertx-bridge-common,
-            vertx-sql-common,
             vertx-mongo-client,
             vertx-cassandra-client,
             vertx-jdbc-client,
