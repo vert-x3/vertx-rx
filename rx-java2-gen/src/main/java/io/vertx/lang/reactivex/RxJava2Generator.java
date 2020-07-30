@@ -26,17 +26,7 @@ class RxJava2Generator extends AbstractRxGenerator {
   }
 
   @Override
-  protected boolean isImported(TypeInfo type) {
-    return type.getName().startsWith("io.reactivex.") || super.isImported(type);
-  }
-
-  @Override
   protected void genImports(ClassModel model, PrintWriter writer) {
-    writer.println("import io.reactivex.Observable;");
-    writer.println("import io.reactivex.Flowable;");
-    writer.println("import io.reactivex.Single;");
-    writer.println("import io.reactivex.Completable;");
-    writer.println("import io.reactivex.Maybe;");
     writer.println("import io.vertx.reactivex.RxHelper;");
     writer.println("import io.vertx.reactivex.ObservableHelper;");
     writer.println("import io.vertx.reactivex.FlowableHelper;");
@@ -50,11 +40,11 @@ class RxJava2Generator extends AbstractRxGenerator {
 
   @Override
   protected void genToObservable(TypeInfo streamType, PrintWriter writer) {
-    writer.print("  private Observable<");
+    writer.print("  private io.reactivex.Observable<");
     writer.print(genTranslatedTypeName(streamType));
     writer.println("> observable;");
 
-    writer.print("  private Flowable<");
+    writer.print("  private io.reactivex.Flowable<");
     writer.print(genTranslatedTypeName(streamType));
     writer.println("> flowable;");
 
@@ -66,6 +56,7 @@ class RxJava2Generator extends AbstractRxGenerator {
 
   private void genToXXXAble(TypeInfo streamType, String rxType, String rxName, PrintWriter writer) {
     writer.print("  public synchronized ");
+    writer.print("io.reactivex.");
     writer.print(rxType);
     writer.print("<");
     writer.print(genTranslatedTypeName(streamType));
@@ -215,12 +206,12 @@ class RxJava2Generator extends AbstractRxGenerator {
   }
 
   protected void genReadStream(List<? extends TypeParamInfo> typeParams, PrintWriter writer){
-    writer.print("  Observable<");
+    writer.print("  io.reactivex.Observable<");
     writer.print(typeParams.get(0).getName());
     writer.println("> toObservable();");
     writer.println();
 
-    writer.print("  Flowable<");
+    writer.print("  io.reactivex.Flowable<");
     writer.print(typeParams.get(0).getName());
     writer.println("> toFlowable();");
     writer.println();
