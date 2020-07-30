@@ -224,4 +224,20 @@ class RxJavaGenerator extends AbstractRxGenerator {
     writer.println("> toObservable();");
     writer.println();
   }
+
+  @Override
+  protected String genConvParam(TypeInfo type, MethodInfo method, String expr) {
+    if (type.isParameterized() && type.getRaw().getName().equals("rx.Observable")) {
+      String adapterFunction;
+      ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
+
+      if (parameterizedType.getArg(0).isVariable()) {
+        adapterFunction = "Function.identity()";
+      } else {
+        adapterFunction = "obj -> (" + parameterizedType.getArg(0).getRaw().getName() + ")obj.getDelegate()";
+      }
+      return "io.vertx.rx.java.ReadStreamSubscriber.asReadStream(" + expr + "," + adapterFunction + ").resume()";
+    }
+    return super.genConvParam(type, method, expr);
+  }
 }
