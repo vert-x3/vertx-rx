@@ -863,7 +863,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       if (typeArg != null) {
         if (typeArg.isClassType()) {
           return "TypeArg.of(" + typeArg.getParam().getName() + ")";
-        } else {
+        } else if (!method.isStaticMethod()) {
           return typeArg.getParam().getName() + ".__typeArg_" + typeArg.getIndex();
         }
       }

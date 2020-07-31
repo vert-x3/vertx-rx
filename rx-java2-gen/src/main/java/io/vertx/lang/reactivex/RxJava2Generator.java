@@ -220,14 +220,9 @@ class RxJava2Generator extends AbstractRxGenerator {
   @Override
   protected String genConvParam(TypeInfo type, MethodInfo method, String expr) {
     if (type.isParameterized() && (type.getRaw().getName().equals("io.reactivex.Flowable") || type.getRaw().getName().equals("io.reactivex.Observable"))) {
-      String adapterFunction;
       ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-      if (parameterizedType.getArg(0).isVariable()) {
-        adapterFunction = "Function.identity()";
-      } else {
-        adapterFunction = "obj -> (" + parameterizedType.getArg(0).getRaw().getName() + ")obj.getDelegate()";
-      }
-      return "io.vertx.reactivex.impl.ReadStreamSubscriber.asReadStream(" + expr + "," + adapterFunction + ").resume()";
+      String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
+      return "io.vertx.reactivex.impl.ReadStreamSubscriber.asReadStream(" + expr + ", " + adapterFunction + ").resume()";
     } else {
       return super.genConvParam(type, method, expr);
     }
