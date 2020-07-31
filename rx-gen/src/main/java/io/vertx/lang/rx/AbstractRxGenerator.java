@@ -627,7 +627,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     return genTypeName(type, false);
   }
 
-  protected final String genTypeName(TypeInfo type, boolean translate) {
+  protected String genTypeName(TypeInfo type, boolean translate) {
     if (type.isParameterized()) {
       ParameterizedTypeInfo pt = (ParameterizedTypeInfo) type;
       return genTypeName(pt.getRaw(), translate) + pt.getArgs().stream().map(a -> genTypeName(a, translate)).collect(joining(", ", "<", ">"));
@@ -924,7 +924,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     return sb.toString();
   }
 
-  private String genConvReturn(TypeInfo type, MethodInfo method, String expr) {
+  protected String genConvReturn(TypeInfo type, MethodInfo method, String expr) {
     ClassKind kind = type.getKind();
     if (kind == OBJECT) {
       if (type.isVariable()) {

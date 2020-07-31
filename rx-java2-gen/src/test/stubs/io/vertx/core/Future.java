@@ -9,10 +9,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
  */
 
-package io.vertx.core.streams;
+package io.vertx.core;
 
 import io.vertx.codegen.annotations.VertxGen;
 
 @VertxGen
-public interface Pipe<T> {
+public interface Future<T> {
 }

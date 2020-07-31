@@ -1,5 +1,6 @@
 package io.vertx.it;
 
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.vertx.core.http.HttpClientOptions;
@@ -68,7 +69,7 @@ public class WebClientTest extends VertxTestBase {
         Observable<Buffer> stream = Observable.just(Buffer.buffer("one"), Buffer.buffer("two"), Buffer.buffer("three"));
         Single<HttpResponse<Buffer>> single = client
                 .post(8080, "localhost", "/the_uri")
-                .rxSendStream(stream);
+                .rxSendStream(stream.toFlowable(BackpressureStrategy.BUFFER));
         for (int i = 0; i < times; i++) {
           single.subscribe(resp -> complete(), this::fail);
         }
