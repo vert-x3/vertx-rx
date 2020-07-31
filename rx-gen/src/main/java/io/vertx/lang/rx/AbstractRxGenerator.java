@@ -627,7 +627,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     return genTypeName(type, false);
   }
 
-  protected final String genTypeName(TypeInfo type, boolean translate) {
+  protected String genTypeName(TypeInfo type, boolean translate) {
     if (type.isParameterized()) {
       ParameterizedTypeInfo pt = (ParameterizedTypeInfo) type;
       return genTypeName(pt.getRaw(), translate) + pt.getArgs().stream().map(a -> genTypeName(a, translate)).collect(joining(", ", "<", ">"));
@@ -757,28 +757,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         ret.append(", ");
       }
       TypeInfo type = param.getType();
-      if (type.isParameterized() && type.getRaw().getName().equals("rx.Observable")) {
-        String adapterFunction;
-        ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-
-        if (parameterizedType.getArg(0).isVariable()) {
-          adapterFunction = "Function.identity()";
-        } else {
-          adapterFunction = "obj -> (" + parameterizedType.getArg(0).getRaw().getName() + ")obj.getDelegate()";
-        }
-        ret.append("io.vertx.rx.java.ReadStreamSubscriber.asReadStream(").append(param.getName()).append(",").append(adapterFunction).append(").resume()");
-      } else if (type.isParameterized() && (type.getRaw().getName().equals("io.reactivex.Flowable") || type.getRaw().getName().equals("io.reactivex.Observable"))) {
-        String adapterFunction;
-        ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-        if (parameterizedType.getArg(0).isVariable()) {
-          adapterFunction = "Function.identity()";
-        } else {
-          adapterFunction = "obj -> (" + parameterizedType.getArg(0).getRaw().getName() + ")obj.getDelegate()";
-        }
-        ret.append("io.vertx.reactivex.impl.ReadStreamSubscriber.asReadStream(").append(param.getName()).append(",").append(adapterFunction).append(").resume()");
-      } else {
-        ret.append(genConvParam(type, method, param.getName()));
-      }
+      ret.append(genConvParam(type, method, param.getName()));
       index = index + 1;
     }
     ret.append(")");
@@ -810,7 +789,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     return false;
   }
 
-  private String genConvParam(TypeInfo type, MethodInfo method, String expr) {
+  protected String genConvParam(TypeInfo type, MethodInfo method, String expr) {
     ClassKind kind = type.getKind();
     if (isSameType(type, method)) {
       return expr;
@@ -884,7 +863,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       if (typeArg != null) {
         if (typeArg.isClassType()) {
           return "TypeArg.of(" + typeArg.getParam().getName() + ")";
-        } else {
+        } else if (!method.isStaticMethod()) {
           return typeArg.getParam().getName() + ".__typeArg_" + typeArg.getIndex();
         }
       }
@@ -945,7 +924,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     return sb.toString();
   }
 
-  private String genConvReturn(TypeInfo type, MethodInfo method, String expr) {
+  protected String genConvReturn(TypeInfo type, MethodInfo method, String expr) {
     ClassKind kind = type.getKind();
     if (kind == OBJECT) {
       if (type.isVariable()) {
