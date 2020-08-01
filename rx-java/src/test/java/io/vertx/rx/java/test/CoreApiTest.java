@@ -540,7 +540,7 @@ public class CoreApiTest extends VertxTestBase {
   }
 
   @Test
-  public void testHttpClient() {w
+  public void testHttpClient() {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
     server.requestStream().handler(req -> {
       req.response().setChunked(true).end("some_content");
