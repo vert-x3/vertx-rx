@@ -126,7 +126,9 @@ public class RxifiedExamples {
   }
 
   public void get(HttpClient client) {
-    Single<HttpClientResponse> get = client.rxGet( "http://the-server");
+    Single<HttpClientResponse> get = client
+      .rxRequest( HttpMethod.GET, "http://the-server")
+      .flatMap(HttpClientRequest::rxSend);
 
     // Do the request
     get.subscribe(resp -> {
@@ -242,7 +244,9 @@ public class RxifiedExamples {
 
   public void httpClientRequest(Vertx vertx) {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-    Single<HttpClientResponse> request = client.rxGet(8080, "localhost", "/the_uri");
+    Single<HttpClientResponse> request = client
+      .rxRequest(HttpMethod.GET, 8080, "localhost", "/the_uri")
+      .flatMap(HttpClientRequest::rxSend);
     request.subscribe(
         response -> {
           // Process the response
@@ -254,7 +258,9 @@ public class RxifiedExamples {
   }
 
   public void httpClientResponse(HttpClient client) {
-    Single<HttpClientResponse> request = client.rxGet(8080, "localhost", "/the_uri");
+    Single<HttpClientResponse> request = client
+      .rxRequest(HttpMethod.GET, 8080, "localhost", "/the_uri")
+      .flatMap(HttpClientRequest::rxSend);
     request.toObservable().
         subscribe(
             response -> {
@@ -269,7 +275,9 @@ public class RxifiedExamples {
   }
 
   public void httpClientResponseFlatMap(HttpClient client) {
-    Single<HttpClientResponse> request = client.rxGet(8080, "localhost", "/the_uri");
+    Single<HttpClientResponse> request = client
+      .rxRequest(HttpMethod.GET, 8080, "localhost", "/the_uri")
+      .flatMap(HttpClientRequest::rxSend);
     request.toObservable().
         flatMap(HttpClientResponse::toObservable).
         forEach(
@@ -283,7 +291,9 @@ public class RxifiedExamples {
   }
 
   public void httpClientResponseFlatMapUnmarshall(HttpClient client) {
-    Single<HttpClientResponse> request = client.rxGet(8080, "localhost", "/the_uri");
+    Single<HttpClientResponse> request = client
+      .rxRequest(HttpMethod.GET, 8080, "localhost", "/the_uri")
+      .flatMap(HttpClientRequest::rxSend);
     request.toObservable().
         flatMap(HttpClientResponse::toObservable).
         lift(io.vertx.rxjava.core.RxHelper.unmarshaller(MyPojo.class)).

@@ -286,7 +286,9 @@ public class RxifiedExamples {
 
   public void httpClientRequest(Vertx vertx) {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-    Single<HttpClientResponse> request = client.rxGet( 8080, "localhost", "/the_uri");
+    Single<HttpClientResponse> request = client
+      .rxRequest( HttpMethod.GET, 8080, "localhost", "/the_uri")
+      .flatMap(HttpClientRequest::rxSend);
     request.subscribe(
       response -> {
         // Process the response
@@ -298,7 +300,9 @@ public class RxifiedExamples {
   }
 
   public void httpClientResponse(HttpClient client) {
-    Single<HttpClientResponse> request = client.rxGet( 8080, "localhost", "/the_uri");
+    Single<HttpClientResponse> request = client
+      .rxRequest(HttpMethod.GET, 8080, "localhost", "/the_uri")
+      .flatMap(HttpClientRequest::rxSend);
     request.subscribe(
       response -> {
         Observable<Buffer> observable = response.toObservable();
@@ -312,7 +316,9 @@ public class RxifiedExamples {
   }
 
   public void httpClientResponseFlatMap(HttpClient client) {
-    Single<HttpClientResponse> request = client.rxGet(8080, "localhost", "/the_uri");
+    Single<HttpClientResponse> request = client
+      .rxRequest(HttpMethod.GET, 8080, "localhost", "/the_uri")
+      .flatMap(HttpClientRequest::rxSend);
     request.
       flatMapObservable(HttpClientResponse::toObservable).
       forEach(
