@@ -24,7 +24,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>rx-junit5-providers</artifactId>
+  <artifactId>vertx-rx-junit5-providers</artifactId>
+  <name>Vert.x JUnit 5 support</name>
   <packaging>pom</packaging>
 
   <modules>

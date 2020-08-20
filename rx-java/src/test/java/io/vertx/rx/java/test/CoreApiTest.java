@@ -368,9 +368,12 @@ public class CoreApiTest extends VertxTestBase {
     Single<HttpServer> onListen = server.rxListen();
     onListen.subscribe(
         s -> {
-          HttpClientRequest req = vertx.createHttpClient(new HttpClientOptions()).request(HttpMethod.PUT, 8080, "localhost", "/some/path");
-          req.putHeader("Content-Length", "3");
-          req.write("foo");
+          vertx.createHttpClient(new HttpClientOptions())
+            .rxRequest(HttpMethod.PUT, 8080, "localhost", "/some/path")
+            .subscribe(req -> {
+              req.putHeader("Content-Length", "3");
+              req.write("foo");
+            });
         },
         error -> fail(error.getMessage())
     );
@@ -545,7 +548,10 @@ public class CoreApiTest extends VertxTestBase {
     try {
       server.listen(ar -> {
         HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-        client.rxGet(8080, "localhost", "/the_uri").subscribe(resp -> {
+        client
+          .rxRequest(HttpMethod.GET, 8080, "localhost", "/the_uri")
+          .flatMap(HttpClientRequest::rxSend)
+          .subscribe(resp -> {
           Buffer content = Buffer.buffer();
           Observable<Buffer> observable = resp.toObservable();
           observable.forEach(content::appendBuffer, err -> fail(), () -> {
@@ -568,7 +574,9 @@ public class CoreApiTest extends VertxTestBase {
     });
     server.listen(ar -> {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-      Single<HttpClientResponse> req = client.rxGet(8080, "localhost", "/the_uri");
+      Single<HttpClientResponse> req = client
+        .rxRequest(HttpMethod.GET, 8080, "localhost", "/the_uri")
+        .flatMap(HttpClientRequest::rxSend);
       Buffer content = Buffer.buffer();
       req.flatMapObservable(HttpClientResponse::toObservable).forEach(
           content::appendBuffer,
@@ -589,7 +597,9 @@ public class CoreApiTest extends VertxTestBase {
     });
     server.listen(ar -> {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-      Single<HttpClientResponse> req = client.rxGet(8080, "localhost", "/the_uri");
+      Single<HttpClientResponse> req = client
+        .rxRequest(HttpMethod.GET, 8080, "localhost", "/the_uri")
+        .flatMap(HttpClientRequest::rxSend);
       ArrayList<SimplePojo> objects = new ArrayList<>();
       req.flatMapObservable(HttpClientResponse::toObservable).
           lift(io.vertx.rxjava.core.RxHelper.unmarshaller(SimplePojo.class)).
@@ -607,7 +617,9 @@ public class CoreApiTest extends VertxTestBase {
   @Test
   public void testHttpClientConnectionFailure() {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-    Single<HttpClientResponse> req = client.rxGet(9998, "255.255.255.255", "/the_uri");
+    Single<HttpClientResponse> req = client
+      .rxRequest(HttpMethod.GET, 9998, "255.255.255.255", "/the_uri")
+      .flatMap(HttpClientRequest::rxSend);
     req.subscribe(
         resp -> fail(),
         err -> testComplete());
@@ -617,7 +629,9 @@ public class CoreApiTest extends VertxTestBase {
   @Test
   public void testHttpClientConnectionFailureFlatMap() {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-    Single<HttpClientResponse> req = client.rxGet(9998, "255.255.255.255", "/the_uri");
+    Single<HttpClientResponse> req = client
+      .rxRequest(HttpMethod.GET, 9998, "255.255.255.255", "/the_uri")
+      .flatMap(HttpClientRequest::rxSend);
     req.flatMapObservable(HttpClientResponse::toObservable).forEach(
         buffer -> fail(),
         err -> testComplete(),

@@ -29,6 +29,23 @@ import static java.util.function.Function.identity;
 public class HelperTest extends VertxTestBase {
 
   @Test
+  public void testToFutureSuccess() {
+    Single<String> promise = Single.just("foobar");
+    Future<String> future = SingleHelper.toFuture(promise);
+    assertTrue(future.succeeded());
+    assertEquals("foobar", future.result());
+  }
+
+  @Test
+  public void testToFutureFailure() {
+    Exception err = new Exception();
+    Single<String> promise = Single.error(err);
+    Future<String> future = SingleHelper.toFuture(promise);
+    assertTrue(future.failed());
+    assertEquals(err, future.cause());
+  }
+
+  @Test
   public void testToSingleObserverSuccess() {
     Promise<String> promise = Promise.promise();
     SingleObserver<String> observer = SingleHelper.toObserver(promise);

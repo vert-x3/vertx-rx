@@ -10,12 +10,14 @@ import io.reactivex.disposables.Disposable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.reactivex.impl.AsyncResultSingle;
 import io.vertx.reactivex.impl.SingleUnmarshaller;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -68,6 +70,28 @@ public class SingleHelper {
         }
       }
     };
+  }
+
+  /**
+   * Adapts an RxJava2 {@code Single<T>} to a Vert.x {@link Future<T>}.
+   * <p>
+   * The single will be immediately subscribed and the returned future will
+   * be updated with the result of the single.
+   *
+   * @param single the single to adapt
+   * @return the future
+   */
+  public static <T> Future<T> toFuture(Single<T> single) {
+    Promise<T> promise = Promise.promise();
+    single.subscribe(promise::complete, promise::fail);
+    return promise.future();
+  }
+
+  /**
+   * Like {@link SingleHelper#toFuture(Single)} but with an {@code adapter} of the result.
+   */
+  public static <T, U> Future<U> toFuture(Single<T> single, Function<T, U> adapter) {
+    return toFuture(single.map(adapter::apply));
   }
 
   public static <T> SingleTransformer<Buffer, T> unmarshaller(Class<T> mappedType) {

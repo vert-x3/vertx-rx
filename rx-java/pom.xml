@@ -57,11 +57,6 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-sql-common</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
       <artifactId>vertx-bridge-common</artifactId>
       <optional>true</optional>
     </dependency>
@@ -124,11 +119,6 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-auth-webauthn</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-jwt</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -308,6 +298,11 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
+      <artifactId>vertx-db2-client</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
       <artifactId>vertx-rabbitmq-client</artifactId>
       <optional>true</optional>
     </dependency>
@@ -415,7 +410,6 @@
             vertx-core,
             vertx-unit,
             vertx-bridge-common,
-            vertx-sql-common,
             vertx-mongo-client,
             vertx-cassandra-client,
             vertx-jdbc-client,
@@ -428,7 +422,6 @@
             vertx-auth-oauth2,
             vertx-auth-shiro,
             vertx-auth-webauthn,
-            vertx-jwt,
             vertx-web-common,
             vertx-web-client,
             vertx-web,
@@ -464,6 +457,7 @@
             vertx-sql-client,
             vertx-pg-client,
             vertx-mysql-client,
+            vertx-db2-client,
             vertx-rabbitmq-client,
             vertx-health-check,
             vertx-shell,

@@ -21,7 +21,7 @@
 
   <parent>
     <groupId>io.vertx</groupId>
-    <artifactId>rx-junit5-providers</artifactId>
+    <artifactId>vertx-rx-junit5-providers</artifactId>
     <version>4.0.0-SNAPSHOT</version>
   </parent>
 
