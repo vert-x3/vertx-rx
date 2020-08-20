@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -57,7 +58,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     }.prefetch(1);
     O observable = toObservable(stream);
     subscribe(observable, subscriber);
-    stream.emit(buffer("0"), buffer("1"), buffer("2"));
+    stream.emit(Stream.of(buffer("0"), buffer("1"), buffer("2")));
   }
 
   @Test
@@ -73,7 +74,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
       }.prefetch(0);
       O observable = toObservable(stream, 2);
       subscribe(observable, subscriber);
-      stream.emit(buffer("0"), buffer("1"));
+      stream.emit(Stream.of(buffer("0"), buffer("1")));
       subscriber.request(i);
       subscriber.assertItem(Buffer.buffer("0")).assertEmpty();
     }
@@ -113,7 +114,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
-    stream.emit(buffer("0"), buffer("1"));
+    stream.emit(Stream.of(buffer("0"), buffer("1")));
     subscriber.request(1);
     assertEquals(false, resumed.get());
   }
@@ -155,7 +156,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
-    stream.emit(buffer("0"), buffer("1"));
+    stream.emit(Stream.of(buffer("0"), buffer("1")));
     // We send events even though we are paused
     if (err == null) {
       stream.end();
@@ -187,7 +188,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
-    stream.emit(buffer("0"), buffer("1"));
+    stream.emit(Stream.of(buffer("0"), buffer("1")));
     if (err == null) {
       stream.end();
     } else {
@@ -264,10 +265,10 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
   public void testBufferDuringResume() {
     TestSubscriber<Buffer> subscriber = new TestSubscriber<Buffer>().prefetch(0);
     FakeStream<Buffer> stream = new FakeStream<>();
-    stream.drainHandler(v -> stream.emit(buffer("2"), buffer("3")));
+    stream.drainHandler(v -> stream.emit(Stream.of(buffer("2"), buffer("3"))));
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
-    stream.emit(buffer("0"), buffer("1"));
+    stream.emit(Stream.of(buffer("0"), buffer("1")));
     subscriber.request(2);
     subscriber.assertItem(buffer("0")).assertItem(buffer("1")).assertEmpty();
   }
@@ -321,7 +322,7 @@ public abstract class ReadStreamAdapterBackPressureTest<O> extends ReadStreamAda
     FakeStream<Buffer> stream = new FakeStream<>();
     O observable = toObservable(stream, 2);
     subscribe(observable, subscriber);
-    stream.emit(buffer("0"), buffer("1"));
+    stream.emit(Stream.of(buffer("0"), buffer("1")));
     subscriber.unsubscribe();
     subscriber = new TestSubscriber<Buffer>().prefetch(0);
     subscribe(observable, subscriber);
