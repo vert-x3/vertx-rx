@@ -476,6 +476,7 @@
             vertx-pg-client,
             vertx-mysql-client,
             vertx-db2-client,
+            vertx-sql-client-templates,
             vertx-rabbitmq-client,
             vertx-health-check,
             vertx-shell,
