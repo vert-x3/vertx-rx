@@ -24,6 +24,7 @@ import io.vertx.reactivex.ext.sql.SQLConnection;
 import io.vertx.reactivex.sqlclient.Row;
 import io.vertx.reactivex.sqlclient.RowSet;
 import io.vertx.reactivex.sqlclient.SqlClient;
+import io.vertx.reactivex.sqlclient.SqlConnection;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -88,7 +89,7 @@ public class JDBCTest extends VertxTestBase {
   }
 
   private Single<List<String>> withTransaction(Exception e) {
-    return client.rxWithTransaction((Function<SqlClient, Single<List<String>>>) sqlClient ->
+    return client.rxWithTransaction((Function<SqlConnection, Single<List<String>>>) sqlClient ->
       rxInsertExtraFolks(sqlClient)
         .flatMapPublisher(res -> uniqueNames(sqlClient))
         .<List<String>>collect(ArrayList::new, List::add)

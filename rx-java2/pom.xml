@@ -425,6 +425,12 @@
       <artifactId>jackson-dataformat-yaml</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>1.15.0-rc1</version>
+      <scope>test</scope>
+    </dependency>
 
   </dependencies>
 
