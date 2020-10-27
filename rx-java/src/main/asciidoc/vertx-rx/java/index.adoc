@@ -109,7 +109,7 @@ The previous example then becomes even more straightforward:
 {@link examples.RxifiedExamples#rxWriteStreamSubscriberAdapter}
 ----
 
-NOTE: When the `Observable` terminates successfully, the adapter invokes the {@link io.vertx.rxjava.core.streams.WriteStream#end()} method.
+NOTE: When the `Observable` terminates successfully, the adapter invokes the {@link io.vertx.rxjava.core.streams.WriteStream#end} method.
 
 CAUTION: The adapter sets the {@link io.vertx.rxjava.core.streams.WriteStream} `drain` and `exception` handlers, so don't use them after subscribing.
 
