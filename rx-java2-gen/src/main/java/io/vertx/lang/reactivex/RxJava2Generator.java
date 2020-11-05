@@ -220,9 +220,16 @@ class RxJava2Generator extends AbstractRxGenerator {
 
   @Override
   protected String genTypeName(TypeInfo type, boolean translate) {
-    if (!translate && type.isParameterized() && type.getRaw().getName().equals("io.reactivex.Single")) {
-      ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-      return "io.vertx.core.Future<" + super.genTypeName(parameterizedType.getArg(0), translate) + ">";
+    if (!translate) {
+      if (type.isParameterized()) {
+        String rawTypeName = type.getRaw().getName();
+        if (rawTypeName.equals("io.reactivex.Single") || rawTypeName.equals("io.reactivex.Maybe")) {
+          ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
+          return "io.vertx.core.Future<" + super.genTypeName(parameterizedType.getArg(0), translate) + ">";
+        }
+      } else if (type.getName().equals("io.reactivex.Completable")) {
+        return "io.vertx.core.Future<Void>";
+      }
     }
     return super.genTypeName(type, translate);
   }
@@ -237,6 +244,12 @@ class RxJava2Generator extends AbstractRxGenerator {
       ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
       String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
       return "io.vertx.reactivex.SingleHelper.toFuture(" + expr + ", " + adapterFunction + ")";
+    } else if (type.isParameterized() && (type.getRaw().getName().equals("io.reactivex.Maybe"))) {
+      ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
+      String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
+      return "io.vertx.reactivex.MaybeHelper.toFuture(" + expr + ", " + adapterFunction + ")";
+    } else if ((type.getName().equals("io.reactivex.Completable"))) {
+      return "io.vertx.reactivex.CompletableHelper.toFuture(" + expr + ")";
     } else if (type.isParameterized() && type.getRaw().getName().equals("io.reactivex.functions.Function")) {
       ParameterizedTypeInfo parameterizedTypeInfo = (ParameterizedTypeInfo) type;
       TypeInfo argType = parameterizedTypeInfo.getArg(0);
@@ -323,12 +336,15 @@ class RxJava2Generator extends AbstractRxGenerator {
           functionType.isNullable(),
           Arrays.asList(argType, retType));
       }
-    } else if (type.isParameterized() && type.getRaw().getName().equals("io.vertx.core.Future")) {
-      return new io.vertx.codegen.type.ParameterizedTypeInfo(
-        io.vertx.codegen.type.TypeReflectionFactory.create(Single.class).getRaw(),
-        false,
-        java.util.Collections.singletonList(((ParameterizedTypeInfo) type).getArg(0))
-      );
+    } else if (type.getKind() == ClassKind.FUTURE) {
+      TypeInfo futType = ((ParameterizedTypeInfo) type).getArg(0);
+      if (futType.getKind() == VOID) {
+        return io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Completable.class);
+      } else if (futType.isNullable()) {
+        return new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Maybe.class).getRaw(), false, Collections.singletonList(futType));
+      } else {
+        return new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Single.class).getRaw(), false, Collections.singletonList(futType));
+      }
     }
     return type;
   }

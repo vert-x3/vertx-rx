@@ -5,16 +5,20 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeObserver;
 import io.reactivex.MaybeTransformer;
+import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.reactivex.impl.AsyncResultMaybe;
 import io.vertx.reactivex.impl.MaybeUnmarshaller;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -71,6 +75,28 @@ public class MaybeHelper {
         }
       }
     };
+  }
+
+  /**
+   * Adapts an RxJava2 {@code Maybe<T>} to a Vert.x {@link Future<T>}.
+   * <p>
+   * The maybe will be immediately subscribed and the returned future will
+   * be updated with the result of the single.
+   *
+   * @param maybe the single to adapt
+   * @return the future
+   */
+  public static <T> Future<T> toFuture(Maybe<T> maybe) {
+    Promise<T> promise = Promise.promise();
+    maybe.subscribe(promise::complete, promise::fail, promise::complete);
+    return promise.future();
+  }
+
+  /**
+   * Like {@link MaybeHelper#toFuture(Maybe)} but with an {@code adapter} of the result.
+   */
+  public static <T, U> Future<U> toFuture(Maybe<T> maybe, Function<T, U> adapter) {
+    return toFuture(maybe.map(adapter::apply));
   }
 
   public static <T> MaybeTransformer<Buffer, T> unmarshaller(Class<T> mappedType) {
