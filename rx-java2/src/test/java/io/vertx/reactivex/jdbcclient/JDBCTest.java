@@ -11,22 +11,17 @@
 
 package io.vertx.reactivex.jdbcclient;
 
-import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.Vertx;
-import io.vertx.reactivex.ext.sql.SQLClient;
-import io.vertx.reactivex.ext.sql.SQLClientHelper;
-import io.vertx.reactivex.ext.sql.SQLConnection;
 import io.vertx.reactivex.sqlclient.Row;
 import io.vertx.reactivex.sqlclient.RowSet;
 import io.vertx.reactivex.sqlclient.SqlClient;
 import io.vertx.reactivex.sqlclient.SqlConnection;
 import io.vertx.test.core.VertxTestBase;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -88,12 +83,13 @@ public class JDBCTest extends VertxTestBase {
     assertTableContainsInitDataOnly();
   }
 
-  private Single<List<String>> withTransaction(Exception e) {
-    return client.rxWithTransaction((Function<SqlConnection, Single<List<String>>>) sqlClient ->
+  private Maybe<List<String>> withTransaction(Exception e) {
+    return client.rxWithTransaction((Function<SqlConnection, Maybe<List<String>>>) sqlClient ->
       rxInsertExtraFolks(sqlClient)
         .flatMapPublisher(res -> uniqueNames(sqlClient))
         .<List<String>>collect(ArrayList::new, List::add)
-        .compose(upstream -> e == null ? upstream : upstream.flatMap(names -> Single.error(e))));
+        .compose(upstream -> e == null ? upstream : upstream.flatMap(names -> Single.error(e)))
+        .toMaybe());
   }
 
   protected Single<RowSet<Row>> rxInsertExtraFolks(SqlClient conn) {

@@ -11,14 +11,12 @@
 
 package io.vertx.reactivex.sqlclient;
 
-import io.reactivex.Flowable;
-import io.reactivex.Single;
+import io.reactivex.Maybe;
 import io.reactivex.functions.Function;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.reactivex.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
 import io.vertx.test.core.VertxTestBase;
-import org.jetbrains.annotations.NotNull;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,7 +25,6 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,9 +79,11 @@ public class SqlClientTest extends VertxTestBase {
 
   @Test
   public void testStream() {
-    Single<List<String>> single = pool.rxWithTransaction((Function<SqlConnection, Single<List<String>>>) conn -> conn.rxPrepare("SELECT * FROM folks")
+    Maybe<List<String>> single = pool.rxWithTransaction((Function<SqlConnection, Maybe<List<String>>>) conn -> conn
+      .rxPrepare("SELECT * FROM folks")
       .flatMapPublisher(pq -> pq.createStream(2).toFlowable())
-      .collect(ArrayList::new, (l, r) -> l.add(r.getString(0))));
+      .<List<String>>collect(ArrayList::new, (l, r) -> l.add(r.getString(0)))
+      .toMaybe());
     single.subscribe(list -> {
       assertEquals(list, NAMES);
       testComplete();
