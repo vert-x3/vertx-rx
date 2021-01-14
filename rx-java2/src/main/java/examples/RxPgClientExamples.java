@@ -1,5 +1,7 @@
 package examples;
 
+import io.reactivex.Maybe;
+import io.reactivex.functions.Function;
 import io.vertx.reactivex.pgclient.*;
 import io.vertx.reactivex.sqlclient.*;
 import io.reactivex.Completable;
@@ -95,20 +97,35 @@ public class RxPgClientExamples {
     });
   }
 
+  public void connection01Example(PgPool pool) {
+
+    Maybe<RowSet<Row>> maybe = pool.rxWithConnection((Function<SqlConnection, Maybe<RowSet<Row>>>) conn ->
+      conn
+        .query("INSERT INTO Users (first_name,last_name) VALUES ('Julien','Viet')")
+        .rxExecute()
+        .flatMap(result -> conn
+          .query("SELECT * FROM Users")
+          .rxExecute())
+        .toMaybe());
+
+    maybe.subscribe(rows -> {
+      // Success
+    }, err -> {
+      // Failed
+    });
+  }
+
   public void transaction01Example(PgPool pool) {
 
-    Completable completable = pool.rxGetConnection()
-      .flatMapCompletable(conn -> conn
-        .rxBegin()
-        .flatMapCompletable(tx ->
-        conn
-          .query("INSERT INTO Users (first_name,last_name) VALUES ('Julien','Viet')")
-          .rxExecute()
-          .flatMap(result -> conn
-            .query("INSERT INTO Users (first_name,last_name) VALUES ('Emad','Alblueshi')")
-            .rxExecute())
-          .flatMapCompletable(res -> tx.rxCommit())
-      ));
+    Completable completable = pool.rxWithTransaction((Function<SqlConnection, Maybe<RowSet<Row>>>) conn ->
+      conn
+        .query("INSERT INTO Users (first_name,last_name) VALUES ('Julien','Viet')")
+        .rxExecute()
+        .flatMap(result -> conn
+          .query("INSERT INTO Users (first_name,last_name) VALUES ('Emad','Alblueshi')")
+          .rxExecute())
+        .toMaybe())
+      .ignoreElement();
 
     completable.subscribe(() -> {
       // Transaction succeeded
