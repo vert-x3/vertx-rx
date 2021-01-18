@@ -1,14 +1,16 @@
 package io.vertx.lang.rxjava3;
 
+import io.reactivex.rxjava3.core.Flowable;
 import io.vertx.codegen.ClassModel;
 import io.vertx.codegen.MethodInfo;
+import io.vertx.codegen.MethodKind;
 import io.vertx.codegen.ParamInfo;
 import io.vertx.codegen.TypeParamInfo;
 import io.vertx.codegen.type.ClassKind;
 import io.vertx.codegen.type.ClassTypeInfo;
 import io.vertx.codegen.type.ParameterizedTypeInfo;
 import io.vertx.codegen.type.TypeInfo;
-import io.vertx.lang.rx.Vertx3RxGeneratorBase;
+import io.vertx.lang.rx.AbstractRxGenerator;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
 
 import static io.vertx.codegen.type.ClassKind.VOID;
 
-class RxJava3Generator extends Vertx3RxGeneratorBase {
+class RxJava3Generator extends AbstractRxGenerator {
   RxJava3Generator() {
     super("rxjava3");
     this.kinds = Collections.singleton("class");
@@ -126,33 +128,25 @@ class RxJava3Generator extends Vertx3RxGeneratorBase {
   @Override
   protected void genToSubscriber(TypeInfo streamType, PrintWriter writer) {
     writer.format("  private WriteStreamObserver<%s> observer;%n", genTranslatedTypeName(streamType));
-
     writer.format("  private WriteStreamSubscriber<%s> subscriber;%n", genTranslatedTypeName(streamType));
-
     writer.println();
-
     genToXXXEr(streamType, "Observer", "observer", writer);
     genToXXXEr(streamType, "Subscriber", "subscriber", writer);
   }
 
   private void genToXXXEr(TypeInfo streamType, String rxType, String rxName, PrintWriter writer) {
     writer.format("  public synchronized WriteStream%s<%s> to%s() {%n", rxType, genTranslatedTypeName(streamType), rxType);
-
     writer.format("    if (%s == null) {%n", rxName);
-
     if (streamType.getKind() == ClassKind.API) {
       writer.format("      Function<%s, %s> conv = %s::getDelegate;%n", genTranslatedTypeName(streamType.getRaw()), streamType.getName(), genTranslatedTypeName(streamType));
-
       writer.format("      %s = RxHelper.to%s(getDelegate(), conv);%n", rxName, rxType);
     } else if (streamType.isVariable()) {
       String typeVar = streamType.getSimpleName();
       writer.format("      Function<%s, %s> conv = (Function<%s, %s>) __typeArg_0.unwrap;%n", typeVar, typeVar, typeVar, typeVar);
-
       writer.format("      %s = RxHelper.to%s(getDelegate(), conv);%n", rxName, rxType);
     } else {
       writer.format("      %s = RxHelper.to%s(getDelegate());%n", rxName, rxType);
     }
-
     writer.println("    }");
     writer.format("    return %s;%n", rxName);
     writer.println("  }");
@@ -160,13 +154,21 @@ class RxJava3Generator extends Vertx3RxGeneratorBase {
   }
 
   @Override
-  protected void genRxMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
+  protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
+    if (method.getKind() == MethodKind.FUTURE) {
+      genSimpleMethod("private", model, method, cacheDecls, genBody, writer);
+      genRxMethod(model, method, cacheDecls, genBody, writer);
+    } else {
+      genSimpleMethod("public", model, method, cacheDecls, genBody, writer);
+    }
+  }
+
+  private void genRxMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
     MethodInfo futMethod = genFutureMethod(method);
     ClassTypeInfo raw = futMethod.getReturnType().getRaw();
     String methodSimpleName = raw.getSimpleName();
     String adapterType = "AsyncResult" + methodSimpleName + ".to" + methodSimpleName;
-    String rxType = raw.getName();
-    startMethodTemplate(model.getType(), futMethod, "", writer);
+    startMethodTemplate("public", model.getType(), futMethod, "", writer);
     if (genBody) {
       writer.println(" { ");
       writer.print("    return ");
@@ -194,63 +196,72 @@ class RxJava3Generator extends Vertx3RxGeneratorBase {
     writer.print(typeParams.get(0).getName());
     writer.println("> toObservable();");
     writer.println();
-
     writer.print("  io.reactivex.rxjava3.core.Flowable<");
     writer.print(typeParams.get(0).getName());
     writer.println("> toFlowable();");
     writer.println();
   }
 
-  @Override
-  protected String genTypeName(TypeInfo type, boolean translate) {
-    if (!translate) {
-      if (type.isParameterized()) {
-        String rawTypeName = type.getRaw().getName();
-        if (rawTypeName.equals("io.reactivex.rxjava3.core.Single") || rawTypeName.equals("io.reactivex.rxjava3.core.Maybe")) {
-          ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-          return "io.vertx.core.Future<" + super.genTypeName(parameterizedType.getArg(0), translate) + ">";
+  private TypeInfo rewriteParamType(TypeInfo type) {
+    if (type.isParameterized()) {
+      if (type.getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
+        return new io.vertx.codegen.type.ParameterizedTypeInfo(
+          io.vertx.codegen.type.TypeReflectionFactory.create(Flowable.class).getRaw(),
+          false,
+          java.util.Collections.singletonList(((ParameterizedTypeInfo) type).getArg(0))
+        );
+      } else if (type.getKind() == ClassKind.FUTURE) {
+        TypeInfo futType = ((ParameterizedTypeInfo) type).getArg(0);
+        if (futType.getKind() == VOID) {
+          return io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Completable.class);
+        } else if (futType.isNullable()) {
+          return new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Maybe.class).getRaw(), false, Collections.singletonList(futType));
+        } else {
+          return new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Single.class).getRaw(), false, Collections.singletonList(futType));
         }
-      } else if (type.getName().equals("io.reactivex.rxjava3.core.Completable")) {
-        return "io.vertx.core.Future<Void>";
+      } else if (type.getKind() == ClassKind.FUNCTION) {
+        ParameterizedTypeInfo functionType = (ParameterizedTypeInfo) type;
+        TypeInfo argType = rewriteParamType(functionType.getArg(0));
+        TypeInfo retType = rewriteParamType(functionType.getArg(1));
+        if (argType != functionType.getArg(0) || retType != functionType.getArg(1)) {
+          return new ParameterizedTypeInfo(
+            functionType.getRaw(),
+            functionType.isNullable(),
+            Arrays.asList(argType, retType));
+        }
       }
     }
-    return super.genTypeName(type, translate);
+    return type;
+  }
+
+  @Override
+  protected String genParamTypeDecl(TypeInfo type) {
+    return super.genParamTypeDecl(rewriteParamType(type));
   }
 
   @Override
   protected String genConvParam(TypeInfo type, MethodInfo method, String expr) {
-    if (type.isParameterized() && (type.getRaw().getName().equals("io.reactivex.rxjava3.core.Flowable") || type.getRaw().getName().equals("io.reactivex.rxjava3.core.Observable"))) {
-      ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-      String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
-      return "io.vertx.rxjava3.impl.ReadStreamSubscriber.asReadStream(" + expr + ", " + adapterFunction + ").resume()";
-    } else if (type.isParameterized() && (type.getRaw().getName().equals("io.reactivex.rxjava3.core.Single"))) {
-      ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-      String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
-      return "io.vertx.rxjava3.SingleHelper.toFuture(" + expr + ", " + adapterFunction + ")";
-    } else if (type.isParameterized() && (type.getRaw().getName().equals("io.reactivex.rxjava3.core.Maybe"))) {
-      ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-      String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
-      return "io.vertx.rxjava3.MaybeHelper.toFuture(" + expr + ", " + adapterFunction + ")";
-    } else if ((type.getName().equals("io.reactivex.Completable"))) {
-      return "io.vertx.rxjava3.CompletableHelper.toFuture(" + expr + ")";
-    } else if (type.isParameterized() && type.getRaw().getName().equals("io.reactivex.rxjava3.functions.Function")) {
-      ParameterizedTypeInfo parameterizedTypeInfo = (ParameterizedTypeInfo) type;
-      TypeInfo argType = parameterizedTypeInfo.getArg(0);
-      TypeInfo retType = parameterizedTypeInfo.getArg(1);
-      return "new Function<" + genTypeName(argType) + "," + genTypeName(retType) + ">() {\n" +
-        "      public " + genTypeName(retType) + " apply(" + genTypeName(argType) + " arg) {\n" +
-        "        " + genTranslatedTypeName(retType) + " ret;\n" +
-        "        try {\n" +
-        "          ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
-        "        } catch (Throwable e) {\n" +
-        "          return io.vertx.core.Future.failedFuture(e);\n" +
-        "        }\n" +
-        "        return " + genConvParam(retType, method, "ret") + ";\n" +
-        "      }\n" +
-        "    }";
-    } else {
-      return super.genConvParam(type, method, expr);
+    if (type.isParameterized()) {
+      if (type.getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
+        ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
+        String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
+        return "io.vertx.rxjava3.impl.ReadStreamSubscriber.asReadStream(" + expr + ", " + adapterFunction + ").resume()";
+      } else if (type.getKind() == ClassKind.FUTURE) {
+        TypeInfo futType = ((ParameterizedTypeInfo) type).getArg(0);
+        if (futType.getKind() == VOID) {
+          return "io.vertx.rxjava3.CompletableHelper.toFuture(" + expr + ")";
+        } else if (futType.isNullable()) {
+          ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
+          String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
+          return "io.vertx.rxjava3.MaybeHelper.toFuture(" + expr + ", " + adapterFunction + ")";
+        } else {
+          ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
+          String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
+          return "io.vertx.rxjava3.SingleHelper.toFuture(" + expr + ", " + adapterFunction + ")";
+        }
+      }
     }
+    return super.genConvParam(type, method, expr);
   }
 
   private MethodInfo genFutureMethod(MethodInfo method) {
@@ -276,59 +287,5 @@ class RxJava3Generator extends Vertx3RxGeneratorBase {
       futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Single.class).getRaw(), false, Collections.singletonList(futType));
     }
     return method.copy().setName(futMethodName).setReturnType(futReturnType).setParams(futParams);
-  }
-
-  protected MethodInfo genOverloadedMethod(MethodInfo method) {
-    List<ParamInfo> params = null;
-    int count = 0;
-    for (ParamInfo param : method.getParams()) {
-      TypeInfo paramType = genOverloadedType(param.getType());
-      if (paramType != param.getType()) {
-        if (params == null) {
-          params = new ArrayList<>(method.getParams());
-        }
-        params.set(count, new io.vertx.codegen.ParamInfo(
-          param.getIndex(),
-          param.getName(),
-          param.getDescription(),
-          paramType
-        ));
-      }
-      count = count + 1;
-    }
-    if (params != null) {
-      return method.copy().setParams(params);
-    }
-    return null;
-  }
-
-  private TypeInfo genOverloadedType(TypeInfo type) {
-    if (type.isParameterized() && type.getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
-      return new io.vertx.codegen.type.ParameterizedTypeInfo(
-        io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Flowable.class).getRaw(),
-        false,
-        java.util.Collections.singletonList(((ParameterizedTypeInfo) type).getArg(0))
-      );
-    } else if (type.getKind() == ClassKind.FUNCTION) {
-      ParameterizedTypeInfo functionType = (ParameterizedTypeInfo) type;
-      TypeInfo argType = genOverloadedType(functionType.getArg(0));
-      TypeInfo retType = genOverloadedType(functionType.getArg(1));
-      if (argType != functionType.getArg(0) || retType != functionType.getArg(1)) {
-        return new ParameterizedTypeInfo(
-          io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.rxjava3.functions.Function.class).getRaw(),
-          functionType.isNullable(),
-          Arrays.asList(argType, retType));
-      }
-    } else if (type.getKind() == ClassKind.FUTURE) {
-      TypeInfo futType = ((ParameterizedTypeInfo) type).getArg(0);
-      if (futType.getKind() == VOID) {
-        return io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Completable.class);
-      } else if (futType.isNullable()) {
-        return new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Maybe.class).getRaw(), false, Collections.singletonList(futType));
-      } else {
-        return new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Single.class).getRaw(), false, Collections.singletonList(futType));
-      }
-    }
-    return type;
   }
 }

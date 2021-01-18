@@ -125,7 +125,7 @@ class RxJavaGenerator extends Vertx3RxGeneratorBase {
     String packageName = type.getPackageName();
     writer.print("  ");
     MethodInfo futMethod = genFutureMethod(method);
-    startMethodTemplate(type, futMethod, "", writer);
+    startMethodTemplate("public", type, futMethod, "", writer);
     if (genBody) {
       writer.println(" { ");
       writer.println("    return Single.create(new SingleOnSubscribeAdapter<>(fut -> {");

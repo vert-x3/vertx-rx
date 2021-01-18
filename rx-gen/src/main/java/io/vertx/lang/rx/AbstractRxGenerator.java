@@ -13,8 +13,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.vertx.codegen.type.ClassKind.*;
 import static java.util.stream.Collectors.joining;
@@ -494,7 +492,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       genConvReturn(constant.getType(), null, model.getType().getName() + "." + constant.getName()));
   }
 
-  protected void startMethodTemplate(ClassTypeInfo type, MethodInfo method, String deprecated, PrintWriter writer) {
+  protected void startMethodTemplate(String visibility, ClassTypeInfo type, MethodInfo method, String deprecated, PrintWriter writer) {
     Doc doc = method.getDoc();
     if (doc != null) {
       writer.println("  /**");
@@ -524,7 +522,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     if (method.isDeprecated() || deprecated != null && deprecated.length() > 0) {
       writer.println("  @Deprecated()");
     }
-    writer.print("  public ");
+    writer.print("  ");
+    writer.print(visibility);
+    writer.print(" ");
     if (method.isStaticMethod()) {
       writer.print("static ");
     }
@@ -532,11 +532,11 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.print(method.getTypeParams().stream().map(TypeParamInfo::getName).collect(joining(", ", "<", ">")));
       writer.print(" ");
     }
-    writer.print(genTranslatedTypeName(method.getReturnType()));
+    writer.print(genReturnTypeDecl(method.getReturnType()));
     writer.print(" ");
     writer.print(method.getName());
     writer.print("(");
-    writer.print(method.getParams().stream().map(it -> genTranslatedTypeName(it.getType()) + " " + it.getName()).collect(joining(", ")));
+    writer.print(method.getParams().stream().map(it -> genParamTypeDecl(it.getType()) + " " + it.getName()).collect(joining(", ")));
     writer.print(")");
   }
 
@@ -587,9 +587,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     return "rx" + Character.toUpperCase(method.getName().charAt(0)) + method.getName().substring(1);
   }
 
-  protected final void genSimpleMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
+  protected final void genSimpleMethod(String visibility, ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
     ClassTypeInfo type = model.getType();
-    startMethodTemplate(type, method, "", writer);
+    startMethodTemplate(visibility, type, method, "", writer);
     if (genBody) {
       writer.println(" { ");
       if (method.isFluent()) {
@@ -623,10 +623,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         if (method.getReturnType().getKind() == PRIMITIVE) {
           cachedType = ((PrimitiveTypeInfo) returnType).getBoxed().getName();
         } else {
-          cachedType = genTranslatedTypeName(returnType);
+          cachedType = genParamTypeDecl(returnType);
         }
         writer.print("    ");
-        writer.print(genTranslatedTypeName(returnType));
+        writer.print(genParamTypeDecl(returnType));
         writer.print(" ret = ");
         writer.print(genConvReturn(returnType, method, genInvokeDelegate(model, method)));
         writer.println(";");
@@ -724,6 +724,14 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     return false;
   }
 
+  protected String genParamTypeDecl(TypeInfo type) {
+    return genTranslatedTypeName(type);
+  }
+
+  protected String genReturnTypeDecl(TypeInfo type) {
+    return genTranslatedTypeName(type);
+  }
+
   protected String genConvParam(TypeInfo type, MethodInfo method, String expr) {
     ClassKind kind = type.getKind();
     if (isSameType(type, method)) {
@@ -768,7 +776,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         TypeInfo retType = parameterizedTypeInfo.getArg(1);
         return "new Function<" + genTypeName(argType) + "," + genTypeName(retType) + ">() {\n" +
           "      public " + genTypeName(retType) + " apply(" + genTypeName(argType) + " arg) {\n" +
-          "        " + genTranslatedTypeName(retType) + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
+          "        " + genParamTypeDecl(retType) + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
           "        return " + genConvParam(retType, method, "ret") + ";\n" +
           "      }\n" +
           "    }";
@@ -892,8 +900,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         TypeInfo abc = parameterizedTypeInfo.getArg(0);
         if (abc.getKind() == ASYNC_RESULT) {
           TypeInfo tutu = ((ParameterizedTypeInfo) abc).getArg(0);
-          return "new Handler<AsyncResult<" + genTranslatedTypeName(tutu) + ">>() {\n" +
-            "      public void handle(AsyncResult<" + genTranslatedTypeName(tutu) + "> ar) {\n" +
+          return "new Handler<AsyncResult<" + genParamTypeDecl(tutu) + ">>() {\n" +
+            "      public void handle(AsyncResult<" + genParamTypeDecl(tutu) + "> ar) {\n" +
             "        if (ar.succeeded()) {\n" +
             "          " + expr + ".handle(io.vertx.core.Future.succeededFuture(" + genConvParam(tutu, method, "ar.result()") + "));\n" +
             "        } else {\n" +
@@ -902,8 +910,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
             "      }\n" +
             "    }";
         } else {
-          return "new Handler<" + genTranslatedTypeName(abc) + ">() {\n" +
-            "      public void handle(" + genTranslatedTypeName(abc) + " event) {\n" +
+          return "new Handler<" + genParamTypeDecl(abc) + ">() {\n" +
+            "      public void handle(" + genParamTypeDecl(abc) + " event) {\n" +
             "          " + expr + ".handle(" + genConvParam(abc, method, "event") + ");\n" +
             "      }\n" +
             "    }";

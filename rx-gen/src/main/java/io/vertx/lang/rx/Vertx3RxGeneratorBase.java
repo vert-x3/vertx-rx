@@ -42,13 +42,13 @@ public abstract class Vertx3RxGeneratorBase extends AbstractRxGenerator {
       // 2/ the fire and forget overload: void WriteStream#end()
       // 3/ the single: Completable WriteStream#rxEnd()
 
-      genSimpleMethod(model, method, cacheDecls, genBody, writer);
+      genSimpleMethod("public", model, method, cacheDecls, genBody, writer);
 
       MethodInfo copy = method.copy();
       copy.getParams().remove(copy.getParams().size() - 1);
       Optional<MethodInfo> any = Stream.concat(model.getMethods().stream(), model.getAnyJavaTypeMethods().stream()).filter(m -> foo(m, copy)).findAny();
       if (!any.isPresent()) {
-        startMethodTemplate(model.getType(), copy, "", writer);
+        startMethodTemplate("public", model.getType(), copy, "", writer);
         if (genBody) {
           writer.println(" {");
           writer.print("    ");
@@ -72,7 +72,7 @@ public abstract class Vertx3RxGeneratorBase extends AbstractRxGenerator {
 
       genRxMethod(model, method, cacheDecls, genBody, writer);
     } else {
-      genSimpleMethod(model, method, cacheDecls, genBody, writer);
+      genSimpleMethod("public", model, method, cacheDecls, genBody, writer);
     }
   }
 

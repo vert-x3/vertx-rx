@@ -168,7 +168,7 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
     String methodSimpleName = raw.getSimpleName();
     String adapterType = "AsyncResult" + methodSimpleName + ".to" + methodSimpleName;
     String rxType = raw.getName();
-    startMethodTemplate(model.getType(), futMethod, "", writer);
+    startMethodTemplate("public", model.getType(), futMethod, "", writer);
     if (genBody) {
       writer.println(" { ");
       writer.print("    return ");
