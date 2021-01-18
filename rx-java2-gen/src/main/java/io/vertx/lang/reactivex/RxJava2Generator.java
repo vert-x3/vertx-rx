@@ -1,7 +1,6 @@
 package io.vertx.lang.reactivex;
 
 import io.reactivex.Flowable;
-import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import io.vertx.codegen.ClassModel;
 import io.vertx.codegen.MethodInfo;
@@ -20,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.vertx.codegen.type.ClassKind.FUNCTION;
 import static io.vertx.codegen.type.ClassKind.VOID;
 
 class RxJava2Generator extends AbstractRxGenerator {
@@ -162,10 +160,6 @@ class RxJava2Generator extends AbstractRxGenerator {
     writer.println("  }");
     writer.println();
   }
-
-//  private String genFutureMethodName(MethodInfo method) {
-//    return "rx" + Character.toUpperCase(method.getName().charAt(0)) + method.getName().substring(1);
-//  }
 
   @Override
   protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {

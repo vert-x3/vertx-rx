@@ -710,10 +710,6 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println();
   }
 
-//  private void genInvokeDelegate(MethodInfo method, PrintWriter writer) {
-//
-//  }
-
   private void generateDoc(ClassModel model, PrintWriter writer) {
     ClassTypeInfo type = model.getType();
     Doc doc = model.getDoc();
