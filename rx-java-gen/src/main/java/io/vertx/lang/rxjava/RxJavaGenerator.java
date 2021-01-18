@@ -169,10 +169,6 @@ class RxJavaGenerator extends AbstractRxGenerator {
     writer.println();
   }
 
-//  private String genFutureMethodName(MethodInfo method) {
-//    return "rx" + Character.toUpperCase(method.getName().charAt(0)) + method.getName().substring(1);
-//  }
-
   private MethodInfo genFutureMethod(MethodInfo method) {
     String futMethodName = genFutureMethodName(method);
     List<ParamInfo> futParams = new ArrayList<>();

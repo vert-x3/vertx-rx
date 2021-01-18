@@ -986,15 +986,6 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     return expr;
   }
 
-//  private boolean hasReadStream(MethodInfo method) {
-//    for (ParamInfo param : method.getParams()) {
-//      if (param.getType().isParameterized() && param.getType().getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
-//        return true;
-//      }
-//    }
-//    return false;
-//  }
-
   private String genTypeParamsDecl(ClassTypeInfo type) {
     if (type.getParams().size() > 0) {
       return type.getParams().stream().map(TypeParamInfo::getName).collect(joining(",", "<", ">"));
