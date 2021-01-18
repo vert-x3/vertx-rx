@@ -8,14 +8,14 @@ import io.vertx.codegen.type.ClassKind;
 import io.vertx.codegen.type.ClassTypeInfo;
 import io.vertx.codegen.type.ParameterizedTypeInfo;
 import io.vertx.codegen.type.TypeInfo;
-import io.vertx.lang.rx.AbstractRxGenerator;
+import io.vertx.lang.rx.Vertx3RxGeneratorBase;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-class RxJavaGenerator extends AbstractRxGenerator {
+class RxJavaGenerator extends Vertx3RxGeneratorBase {
   RxJavaGenerator() {
     super("rxjava");
     this.name = "RxJava";
@@ -111,15 +111,6 @@ class RxJavaGenerator extends AbstractRxGenerator {
     writer.println();
   }
 
-  @Override
-  protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
-    genMethod(model, method, cacheDecls, genBody, writer);
-    MethodInfo overloaded = genOverloadedMethod(method);
-    if (overloaded != null) {
-      genMethod(model, overloaded, cacheDecls, genBody, writer);
-    }
-  }
-
   private static TypeInfo unwrap(TypeInfo type) {
     if (type instanceof ParameterizedTypeInfo) {
       return type.getRaw();
@@ -171,7 +162,7 @@ class RxJavaGenerator extends AbstractRxGenerator {
     return method.copy().setName(futMethodName).setParams(futParams).setReturnType(futReturnType);
   }
 
-  private MethodInfo genOverloadedMethod(MethodInfo method) {
+  protected MethodInfo genOverloadedMethod(MethodInfo method) {
     List<ParamInfo> params = null;
     int count = 0;
     for (ParamInfo param : method.getParams()) {

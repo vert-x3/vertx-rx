@@ -10,7 +10,7 @@ import io.vertx.codegen.type.ClassKind;
 import io.vertx.codegen.type.ClassTypeInfo;
 import io.vertx.codegen.type.ParameterizedTypeInfo;
 import io.vertx.codegen.type.TypeInfo;
-import io.vertx.lang.rx.AbstractRxGenerator;
+import io.vertx.lang.rx.Vertx3RxGeneratorBase;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 import static io.vertx.codegen.type.ClassKind.VOID;
 
-class RxJava2Generator extends AbstractRxGenerator {
+class RxJava2Generator extends Vertx3RxGeneratorBase {
   RxJava2Generator() {
     super("reactivex");
     this.kinds = Collections.singleton("class");
@@ -162,15 +162,6 @@ class RxJava2Generator extends AbstractRxGenerator {
   }
 
   @Override
-  protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
-    genMethod(model, method, cacheDecls, genBody, writer);
-    MethodInfo flowableOverload = genOverloadedMethod(method);
-    if (flowableOverload != null) {
-      genMethod(model, flowableOverload, cacheDecls, genBody, writer);
-    }
-  }
-
-  @Override
   protected void genRxMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
     MethodInfo futMethod = genFutureMethod(method);
     ClassTypeInfo raw = futMethod.getReturnType().getRaw();
@@ -289,7 +280,7 @@ class RxJava2Generator extends AbstractRxGenerator {
     return method.copy().setName(futMethodName).setReturnType(futReturnType).setParams(futParams);
   }
 
-  private MethodInfo genOverloadedMethod(MethodInfo method) {
+  protected MethodInfo genOverloadedMethod(MethodInfo method) {
     List<ParamInfo> params = null;
     int count = 0;
     for (ParamInfo param : method.getParams()) {

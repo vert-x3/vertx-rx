@@ -160,15 +160,6 @@ class RxJava3Generator extends Vertx3RxGeneratorBase {
   }
 
   @Override
-  protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
-    genMethod(model, method, cacheDecls, genBody, writer);
-    MethodInfo flowableOverload = genOverloadedMethod(method);
-    if (flowableOverload != null) {
-      genMethod(model, flowableOverload, cacheDecls, genBody, writer);
-    }
-  }
-
-  @Override
   protected void genRxMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
     MethodInfo futMethod = genFutureMethod(method);
     ClassTypeInfo raw = futMethod.getReturnType().getRaw();
@@ -287,7 +278,7 @@ class RxJava3Generator extends Vertx3RxGeneratorBase {
     return method.copy().setName(futMethodName).setReturnType(futReturnType).setParams(futParams);
   }
 
-  private MethodInfo genOverloadedMethod(MethodInfo method) {
+  protected MethodInfo genOverloadedMethod(MethodInfo method) {
     List<ParamInfo> params = null;
     int count = 0;
     for (ParamInfo param : method.getParams()) {

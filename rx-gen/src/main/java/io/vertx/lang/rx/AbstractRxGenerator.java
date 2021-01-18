@@ -170,7 +170,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.println();
 
       for (MethodInfo method : model.getMethods()) {
-        genMethod(model, method, Collections.emptyList(), false, writer);
+        genMethods(model, method, Collections.emptyList(), false, writer);
       }
 
       if (type.getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
@@ -479,71 +479,6 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
   protected abstract void genToSubscriber(TypeInfo streamType, PrintWriter writer);
 
   protected abstract void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer);
-
-  protected abstract void genRxMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer);
-
-  private static TypeInfo unwrap(TypeInfo type) {
-    if (type instanceof ParameterizedTypeInfo) {
-      return type.getRaw();
-    } else {
-      return type;
-    }
-  }
-
-  private boolean foo(MethodInfo m1, MethodInfo m2) {
-    int numParams = m1.getParams().size();
-    if (m1.getName().equals(m2.getName()) && numParams == m2.getParams().size()) {
-      for (int index = 0; index < numParams; index++) {
-        TypeInfo t1 = unwrap(m1.getParam(index).getType());
-        TypeInfo t2 = unwrap(m2.getParam(index).getType());
-        if (!t1.equals(t2)) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return false;
-  }
-  protected final void genMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
-    if (method.getKind() == MethodKind.FUTURE) {
-      // Generate 3 methods
-      // 1/ the handler based method: void WriteStream#end(Handler<AsyncResult<Void>>)
-      // 2/ the fire and forget overload: void WriteStream#end()
-      // 3/ the single: Completable WriteStream#rxEnd()
-
-      genSimpleMethod(model, method, cacheDecls, genBody, writer);
-
-      MethodInfo copy = method.copy();
-      copy.getParams().remove(copy.getParams().size() - 1);
-      Optional<MethodInfo> any = Stream.concat(model.getMethods().stream(), model.getAnyJavaTypeMethods().stream()).filter(m -> foo(m, copy)).findAny();
-      if (!any.isPresent()) {
-        startMethodTemplate(model.getType(), copy, "", writer);
-        if (genBody) {
-          writer.println(" {");
-          writer.print("    ");
-          if (!copy.getReturnType().isVoid()) {
-            writer.println("return ");
-          }
-          writer.print(method.getName());
-          writer.print("(");
-          writer.print(copy.getParams().stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
-          if (copy.getParams().size() > 0) {
-            writer.print(", ");
-          }
-          writer.println("ar -> { });");
-          writer.println("  }");
-          writer.println();
-        } else {
-          writer.println(";");
-          writer.println();
-        }
-      }
-
-      genRxMethod(model, method, cacheDecls, genBody, writer);
-    } else {
-      genSimpleMethod(model, method, cacheDecls, genBody, writer);
-    }
-  }
 
   private void genConstant(ClassModel model, ConstantInfo constant, PrintWriter writer) {
     Doc doc = constant.getDoc();
