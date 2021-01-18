@@ -18,11 +18,11 @@ public class AnyJavaTypeTCKTest {
 
   @Test
   public void testHandlersWithAsyncResult() {
-    List<Socket> socketsRxList = obj.rxMethodWithHandlerAsyncResultListOfJavaTypeParam().blockingGet();
+    List<Socket> socketsRxList = obj.methodWithHandlerAsyncResultListOfJavaTypeParam().blockingGet();
 
-    Set<Socket> socketSetRx = obj.rxMethodWithHandlerAsyncResultSetOfJavaTypeParam().blockingGet();
+    Set<Socket> socketSetRx = obj.methodWithHandlerAsyncResultSetOfJavaTypeParam().blockingGet();
 
-    Map<String, Socket> stringSocketMapRx = obj.rxMethodWithHandlerAsyncResultMapOfJavaTypeParam().blockingGet();
+    Map<String, Socket> stringSocketMapRx = obj.methodWithHandlerAsyncResultMapOfJavaTypeParam().blockingGet();
 
     for (Socket socket : socketsRxList) {
       assertFalse(socket.isConnected());

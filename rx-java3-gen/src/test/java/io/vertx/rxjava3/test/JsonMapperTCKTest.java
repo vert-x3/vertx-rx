@@ -16,19 +16,19 @@ public class JsonMapperTCKTest {
     JsonMapperTCKImpl impl = new JsonMapperTCKImpl(); // Impl has asserts! So i reuse the same
     JsonMapperTCK test = JsonMapperTCK.newInstance(impl);
     impl.methodWithTypeToIntegerParam(
-      test.rxMethodWithHandlerAsyncResultTypeToIntegerParam().blockingGet()
+      test.methodWithHandlerAsyncResultTypeToIntegerParam().blockingGet()
     );
 
     impl.methodWithListOfTypeToIntegerParam(
-      test.rxMethodWithHandlerAsyncResultListOfTypeToIntegerParam().blockingGet()
+      test.methodWithHandlerAsyncResultListOfTypeToIntegerParam().blockingGet()
     );
 
     impl.methodWithSetOfTypeToIntegerParam(
-      test.rxMethodWithHandlerAsyncResultSetOfTypeToIntegerParam().blockingGet()
+      test.methodWithHandlerAsyncResultSetOfTypeToIntegerParam().blockingGet()
     );
 
     impl.methodWithMapOfTypeToIntegerParam(
-      test.rxMethodWithHandlerAsyncResultMapOfTypeToIntegerParam().blockingGet()
+      test.methodWithHandlerAsyncResultMapOfTypeToIntegerParam().blockingGet()
     );
   }
 
@@ -37,19 +37,19 @@ public class JsonMapperTCKTest {
     JsonMapperTCKImpl impl = new JsonMapperTCKImpl(); // Impl has asserts! So i reuse the same
     JsonMapperTCK test = JsonMapperTCK.newInstance(impl);
     impl.methodWithTypeToStringParam(
-      test.rxMethodWithHandlerAsyncResultTypeToStringParam().blockingGet()
+      test.methodWithHandlerAsyncResultTypeToStringParam().blockingGet()
     );
 
     impl.methodWithListOfTypeToStringParam(
-      test.rxMethodWithHandlerAsyncResultListOfTypeToStringParam().blockingGet()
+      test.methodWithHandlerAsyncResultListOfTypeToStringParam().blockingGet()
     );
 
     impl.methodWithSetOfTypeToStringParam(
-      test.rxMethodWithHandlerAsyncResultSetOfTypeToStringParam().blockingGet()
+      test.methodWithHandlerAsyncResultSetOfTypeToStringParam().blockingGet()
     );
 
     impl.methodWithMapOfTypeToStringParam(
-      test.rxMethodWithHandlerAsyncResultMapOfTypeToStringParam().blockingGet()
+      test.methodWithHandlerAsyncResultMapOfTypeToStringParam().blockingGet()
     );
   }
 
@@ -58,19 +58,19 @@ public class JsonMapperTCKTest {
     JsonMapperTCKImpl impl = new JsonMapperTCKImpl(); // Impl has asserts! So i reuse the same
     JsonMapperTCK test = JsonMapperTCK.newInstance(impl);
     impl.methodWithTypeToJsonArrayParam(
-      test.rxMethodWithHandlerAsyncResultTypeToJsonArrayParam().blockingGet()
+      test.methodWithHandlerAsyncResultTypeToJsonArrayParam().blockingGet()
     );
 
     impl.methodWithListOfTypeToJsonArrayParam(
-      test.rxMethodWithHandlerAsyncResultListOfTypeToJsonArrayParam().blockingGet()
+      test.methodWithHandlerAsyncResultListOfTypeToJsonArrayParam().blockingGet()
     );
 
     impl.methodWithSetOfTypeToJsonArrayParam(
-      test.rxMethodWithHandlerAsyncResultSetOfTypeToJsonArrayParam().blockingGet()
+      test.methodWithHandlerAsyncResultSetOfTypeToJsonArrayParam().blockingGet()
     );
 
     impl.methodWithMapOfTypeToJsonArrayParam(
-      test.rxMethodWithHandlerAsyncResultMapOfTypeToJsonArrayParam().blockingGet()
+      test.methodWithHandlerAsyncResultMapOfTypeToJsonArrayParam().blockingGet()
     );
   }
 
@@ -79,19 +79,19 @@ public class JsonMapperTCKTest {
     JsonMapperTCKImpl impl = new JsonMapperTCKImpl(); // Impl has asserts! So i reuse the same
     JsonMapperTCK test = JsonMapperTCK.newInstance(impl);
     impl.methodWithTypeToJsonObjectParam(
-      test.rxMethodWithHandlerAsyncResultTypeToJsonObjectParam().blockingGet()
+      test.methodWithHandlerAsyncResultTypeToJsonObjectParam().blockingGet()
     );
 
     impl.methodWithListOfTypeToJsonObjectParam(
-      test.rxMethodWithHandlerAsyncResultListOfTypeToJsonObjectParam().blockingGet()
+      test.methodWithHandlerAsyncResultListOfTypeToJsonObjectParam().blockingGet()
     );
 
     impl.methodWithSetOfTypeToJsonObjectParam(
-      test.rxMethodWithHandlerAsyncResultSetOfTypeToJsonObjectParam().blockingGet()
+      test.methodWithHandlerAsyncResultSetOfTypeToJsonObjectParam().blockingGet()
     );
 
     impl.methodWithMapOfTypeToJsonObjectParam(
-      test.rxMethodWithHandlerAsyncResultMapOfTypeToJsonObjectParam().blockingGet()
+      test.methodWithHandlerAsyncResultMapOfTypeToJsonObjectParam().blockingGet()
     );
   }
 

@@ -583,10 +583,6 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     }
   }
 
-  protected String genFutureMethodName(MethodInfo method) {
-    return "rx" + Character.toUpperCase(method.getName().charAt(0)) + method.getName().substring(1);
-  }
-
   protected final void genSimpleMethod(String visibility, ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
     ClassTypeInfo type = model.getType();
     startMethodTemplate(visibility, type, method, "", writer);
@@ -623,10 +619,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         if (method.getReturnType().getKind() == PRIMITIVE) {
           cachedType = ((PrimitiveTypeInfo) returnType).getBoxed().getName();
         } else {
-          cachedType = genParamTypeDecl(returnType);
+          cachedType = genReturnTypeDecl(returnType);
         }
         writer.print("    ");
-        writer.print(genParamTypeDecl(returnType));
+        writer.print(genReturnTypeDecl(returnType));
         writer.print(" ret = ");
         writer.print(genConvReturn(returnType, method, genInvokeDelegate(model, method)));
         writer.println(";");
@@ -678,7 +674,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println("import io.vertx.lang.rx.MappingIterator;");
   }
 
-  private String genInvokeDelegate(ClassModel model, MethodInfo method) {
+  protected final String genInvokeDelegate(ClassModel model, MethodInfo method) {
     StringBuilder ret;
     if (method.isStaticMethod()) {
       ret = new StringBuilder(Helper.getNonGenericType(model.getIfaceFQCN()));
@@ -923,6 +919,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       }
     }
     return expr;
+  }
+
+  protected final String genFutureMethodName(MethodInfo method) {
+    return "rx" + Character.toUpperCase(method.getName().charAt(0)) + method.getName().substring(1);
   }
 
   private String genTypeParamsDecl(ClassTypeInfo type) {

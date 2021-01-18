@@ -17,7 +17,7 @@ public class AsyncResultAdapterTest extends VertxTestBase {
     MethodWithSingleString meth = new MethodWithSingleString(handler -> {
       throw cause;
     });
-    Single<String> single = meth.rxDoSomethingWithResult();
+    Single<String> single = meth.doSomethingWithResult();
     single.subscribe(result -> fail(), err -> testComplete());
     await();
   }
@@ -28,7 +28,7 @@ public class AsyncResultAdapterTest extends VertxTestBase {
     MethodWithMaybeString meth = new MethodWithMaybeString(handler -> {
       throw cause;
     });
-    Maybe<String> single = meth.rxDoSomethingWithMaybeResult();
+    Maybe<String> single = meth.doSomethingWithMaybeResult();
     single.subscribe(result -> fail(), err -> testComplete(), this::fail);
     await();
   }
@@ -39,7 +39,7 @@ public class AsyncResultAdapterTest extends VertxTestBase {
     MethodWithCompletable meth = new MethodWithCompletable(handler -> {
       throw cause;
     });
-    Completable single = meth.rxDoSomethingWithResult();
+    Completable single = meth.doSomethingWithResult();
     single.subscribe(this::fail, err -> testComplete());
     await();
   }

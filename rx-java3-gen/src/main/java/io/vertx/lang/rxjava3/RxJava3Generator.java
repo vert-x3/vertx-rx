@@ -156,15 +156,42 @@ class RxJava3Generator extends AbstractRxGenerator {
   @Override
   protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
     if (method.getKind() == MethodKind.FUTURE) {
-      genSimpleMethod("private", model, method, cacheDecls, genBody, writer);
-      genRxMethod(model, method, cacheDecls, genBody, writer);
+      genRxMethod(model, method, genBody, writer);
+      genLazyRxMethod(model, method, genBody, writer);
     } else {
       genSimpleMethod("public", model, method, cacheDecls, genBody, writer);
     }
   }
 
-  private void genRxMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
+  private void genRxMethod(ClassModel model, MethodInfo method, boolean genBody, PrintWriter writer) {
     MethodInfo futMethod = genFutureMethod(method);
+    ClassTypeInfo raw = futMethod.getReturnType().getRaw();
+    String methodSimpleName = raw.getSimpleName();
+    startMethodTemplate("public", model.getType(), futMethod, "", writer);
+    if (genBody) {
+      String rxName = genFutureMethodName(method);
+      writer.println(" { ");
+      writer.print("    ");
+      writer.print(genReturnTypeDecl(futMethod.getReturnType()));
+      writer.print(" ret = ");
+      writer.print(rxName);
+      writer.print("(");
+      List<ParamInfo> params = futMethod.getParams();
+      writer.print(params.stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
+      writer.println(");");
+      writer.println("    ret = ret.cache();");
+      writer.println("    ret.subscribe();");
+      writer.println("    return ret;");
+      writer.println("  }");
+    } else {
+      writer.println(";");
+    }
+    writer.println();
+  }
+
+  private void genLazyRxMethod(ClassModel model, MethodInfo method, boolean genBody, PrintWriter writer) {
+    MethodInfo futMethod = genFutureMethod(method);
+    futMethod.setName(genFutureMethodName(futMethod));
     ClassTypeInfo raw = futMethod.getReturnType().getRaw();
     String methodSimpleName = raw.getSimpleName();
     String adapterType = "AsyncResult" + methodSimpleName + ".to" + methodSimpleName;
@@ -173,16 +200,13 @@ class RxJava3Generator extends AbstractRxGenerator {
       writer.println(" { ");
       writer.print("    return ");
       writer.print(adapterType);
-      writer.println("($handler -> {");
+      writer.print("( ");
+      writer.print(method.getParam(futMethod.getParams().size()).getName());
+      writer.println(" -> {");
+
       writer.print("      ");
-      writer.print(method.getName());
-      writer.print("(");
-      List<ParamInfo> params = futMethod.getParams();
-      writer.print(params.stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
-      if (params.size() > 0) {
-        writer.print(", ");
-      }
-      writer.println("$handler);");
+      writer.print(genInvokeDelegate(model, method));
+      writer.println(";");
       writer.println("    });");
       writer.println("  }");
     } else {
@@ -265,7 +289,6 @@ class RxJava3Generator extends AbstractRxGenerator {
   }
 
   private MethodInfo genFutureMethod(MethodInfo method) {
-    String futMethodName = genFutureMethodName(method);
     List<ParamInfo> futParams = new ArrayList<>();
     int count = 0;
     int size = method.getParams().size() - 1;
@@ -286,6 +309,6 @@ class RxJava3Generator extends AbstractRxGenerator {
     } else {
       futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Single.class).getRaw(), false, Collections.singletonList(futType));
     }
-    return method.copy().setName(futMethodName).setReturnType(futReturnType).setParams(futParams);
+    return method.copy().setReturnType(futReturnType).setParams(futParams);
   }
 }

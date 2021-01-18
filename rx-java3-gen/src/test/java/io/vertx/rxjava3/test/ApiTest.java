@@ -32,7 +32,7 @@ public class ApiTest {
   @Test
   public void testSingle() {
     TestInterface obj = new TestInterface(new TestInterfaceImpl());
-    Single<String> fut = obj.rxMethodWithHandlerAsyncResultString(false);
+    Single<String> fut = obj.methodWithHandlerAsyncResultString(false);
     AtomicInteger result = new AtomicInteger();
     AtomicInteger fail = new AtomicInteger();
     fut.subscribe(res -> {
@@ -47,13 +47,13 @@ public class ApiTest {
   @Test
   public void testCompletable() {
     TestInterface obj = new TestInterface(new TestInterfaceImpl());
-    Completable failure = obj.rxMethodWithHandlerAsyncResultVoid(true);
+    Completable failure = obj.methodWithHandlerAsyncResultVoid(true);
     AtomicInteger count = new AtomicInteger();
     failure.subscribe(Assert::fail, err -> {
       count.incrementAndGet();
     });
     assertEquals(1, count.getAndSet(0));
-    Completable success = obj.rxMethodWithHandlerAsyncResultVoid(false);
+    Completable success = obj.methodWithHandlerAsyncResultVoid(false);
     success.subscribe(count::incrementAndGet, err -> fail());
     assertEquals(1, count.get());
   }
@@ -64,13 +64,13 @@ public class ApiTest {
     List<String> result = new ArrayList<>();
     List<Throwable> failure = new ArrayList<>();
     AtomicInteger completions = new AtomicInteger();
-    Maybe<String> maybeNotNull = obj.rxMethodWithNullableStringHandlerAsyncResult(true);
+    Maybe<String> maybeNotNull = obj.methodWithNullableStringHandlerAsyncResult(true);
     maybeNotNull.subscribe(result::add, failure::add, completions::incrementAndGet);
     assertEquals(Collections.singletonList("the_string_value"), result);
     assertEquals(Collections.emptyList(), failure);
     assertEquals(0, completions.get());
     result.clear();
-    maybeNotNull = obj.rxMethodWithNullableStringHandlerAsyncResult(false);
+    maybeNotNull = obj.methodWithNullableStringHandlerAsyncResult(false);
     maybeNotNull.subscribe(result::add, failure::add, completions::incrementAndGet);
     assertEquals(Collections.emptyList(), result);
     assertEquals(Collections.emptyList(), failure);
@@ -98,18 +98,18 @@ public class ApiTest {
       }
     });
     AtomicInteger count = new AtomicInteger();
-    objectMethodWithMultiCompletable.rxMultiCompletable().subscribe(count::incrementAndGet);
+    objectMethodWithMultiCompletable.multiCompletable().subscribe(count::incrementAndGet);
     assertEquals(1, count.getAndSet(0));
-    objectMethodWithMultiCompletable.rxMultiMaybe().subscribe(s -> count.incrementAndGet(), err -> {}, count::incrementAndGet);
+    objectMethodWithMultiCompletable.multiMaybe().subscribe(s -> count.incrementAndGet(), err -> {}, count::incrementAndGet);
     assertEquals(1, count.getAndSet(0));
-    objectMethodWithMultiCompletable.rxMultiSingle().subscribe(s -> count.incrementAndGet());
+    objectMethodWithMultiCompletable.multiSingle().subscribe(s -> count.incrementAndGet());
     assertEquals(1, count.getAndSet(0));
   }
 
   @Test
   public void testNullableTypeVariableParamByVoidArg() {
     MethodWithNullableTypeVariableParamByVoidArg abc = MethodWithNullableTypeVariableParamByVoidArg.newInstance(handler -> handler.handle(Future.succeededFuture()));
-    Maybe<Void> maybe = abc.rxDoSomethingWithMaybeResult();
+    Maybe<Void> maybe = abc.doSomethingWithMaybeResult();
     AtomicInteger count = new AtomicInteger();
     maybe.subscribe(o -> fail(), err -> fail(err.getMessage()), count::incrementAndGet);
     assertEquals(1, count.get());
