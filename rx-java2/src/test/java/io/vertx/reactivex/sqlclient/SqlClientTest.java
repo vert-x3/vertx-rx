@@ -17,8 +17,7 @@ import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.reactivex.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
 import io.vertx.test.core.VertxTestBase;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -35,24 +34,10 @@ public class SqlClientTest extends VertxTestBase {
 
   protected static final List<String> NAMES = Arrays.asList("John", "Paul", "Peter", "Andrew", "Peter", "Steven");
 
-  private static PostgreSQLContainer container;
+  @ClassRule
+  public static final PostgreSQLContainer<?> container = new PostgreSQLContainer<>(DockerImageName.parse("postgres:10.10"));
 
   protected PgPool pool;
-
-  @BeforeClass
-  public static void startPg() {
-    container = new PostgreSQLContainer<>(DockerImageName.parse("postgres:10.10"))
-      .withDatabaseName("postgres")
-      .withUsername("postgres")
-      .withPassword("postgres");
-    // new EnvironmentAndSystemPropertyClientProviderStrategy();
-    container.start();
-  }
-
-  @AfterClass
-  public static void stopPg() {
-    container.stop();
-  }
 
   @Override
   public void setUp() throws Exception {
