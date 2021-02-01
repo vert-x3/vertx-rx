@@ -1,8 +1,6 @@
 package io.vertx.rx.java;
 
-import io.vertx.core.Context;
-import io.vertx.core.Vertx;
-import io.vertx.core.WorkerExecutor;
+import io.vertx.core.*;
 import io.vertx.core.impl.WorkerExecutorInternal;
 import io.vertx.core.json.JsonObject;
 import rx.Scheduler;
@@ -10,11 +8,14 @@ import rx.Subscription;
 import rx.functions.Action0;
 import rx.plugins.RxJavaPlugins;
 import rx.plugins.RxJavaSchedulersHook;
+import rx.subscriptions.Subscriptions;
 
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -76,8 +77,17 @@ public class ContextScheduler extends Scheduler {
 
   public class ContextWorker extends Worker {
 
-    private final ConcurrentHashMap<TimedAction, Object> actions = new ConcurrentHashMap<>();
-    private final AtomicBoolean cancelled = new AtomicBoolean();
+    private final ConcurrentLinkedQueue<TimedAction> blockingQueue;
+    private final AtomicBoolean runningBlocking;
+    private final ConcurrentHashMap<TimedAction, Object> actions;
+    private final AtomicBoolean isDisposed;
+
+    private ContextWorker(){
+      this.blockingQueue = ContextScheduler.this.blocking ? new ConcurrentLinkedQueue<>() : null;
+      this.runningBlocking = new AtomicBoolean(false);
+      this.actions = new ConcurrentHashMap<>();
+      this.isDisposed = new AtomicBoolean(false);
+    }
 
     public int countActions() {
       return actions.size();
@@ -85,116 +95,162 @@ public class ContextScheduler extends Scheduler {
 
     @Override
     public Subscription schedule(Action0 action) {
-      return schedule(action, 0, TimeUnit.MILLISECONDS);
+      return this.schedulePeriodically(action, 0, 0, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public Subscription schedule(Action0 action, long delayTime, TimeUnit unit) {
-      action = schedulersHook.onSchedule(action);
-      long delayMillis = unit.toMillis(delayTime);
-      TimedAction timed = new TimedAction(action, 0);
-      actions.put(timed, DUMB);
-      timed.schedule(delayMillis);
-      return timed;
+      return this.schedulePeriodically(action, delayTime, 0, unit);
     }
 
     @Override
     public Subscription schedulePeriodically(Action0 action, long initialDelay, long period, TimeUnit unit) {
-      action = schedulersHook.onSchedule(action);
-      long delayMillis = unit.toMillis(initialDelay);
-      TimedAction timed = new TimedAction(action, unit.toMillis(period));
-      actions.put(timed, DUMB);
-      timed.schedule(delayMillis);
+      if(this.isUnsubscribed()){
+        return Subscriptions.unsubscribed();
+      }
+      TimedAction timed = new TimedAction(() -> schedulersHook.onSchedule(action).call());
+      this.actions.put(timed, DUMB);
+      timed.schedule(unit.toMillis(initialDelay), unit.toMillis(period));
       return timed;
     }
 
     @Override
     public void unsubscribe() {
-      if (cancelled.compareAndSet(false, true)) {
-        actions.keySet().forEach(TimedAction::unsubscribe);
+      if (this.isDisposed.compareAndSet(false, true)) {
+        this.actions.keySet().forEach(TimedAction::unsubscribe);
       }
     }
 
     @Override
     public boolean isUnsubscribed() {
-      return cancelled.get();
+      return this.isDisposed.get();
     }
 
-    class TimedAction implements Subscription {
+    private void runBlocking(TimedAction action){
+      if(action != null){
+        this.blockingQueue.offer(action);
+      }
+      this.runBlocking();
+    }
 
-      private long id;
-      private final Action0 action;
-      private final long periodMillis;
-      private boolean disposed;
+    private void runBlocking(){
 
-      TimedAction(Action0 action, long periodMillis) {
-        this.disposed = false;
+      if(this.blockingQueue.isEmpty() || !this.runningBlocking.compareAndSet(false, true)){
+        return;
+      }
+      TimedAction action = this.blockingQueue.poll();
+      if(action == null){
+        this.runningBlocking.set(false);
+        this.runBlocking();
+        return;
+      }
+      Handler<Promise<Void>> blockingHandler = promise -> {
+        action.callRunnable();
+        promise.complete();
+      };
+      boolean ordered = ContextScheduler.this.ordered;
+      Handler<AsyncResult<Void>> resultHandler = result -> {
+        this.runningBlocking.set(false);
+        this.runBlocking();
+      };
+      if(ContextScheduler.this.workerExecutor == null){
+        action.context.executeBlocking(blockingHandler, ordered, resultHandler);
+      }else{
+        action.context.runOnContext(ignored -> {
+          ContextScheduler.this.workerExecutor.executeBlocking(blockingHandler, ordered, resultHandler);
+        });
+      }
+
+    }
+
+    private static final long NULL_TIMER = -1;
+
+    private class TimedAction implements Subscription {
+
+      private Runnable action;
+      private final AtomicLong initialTimerId;
+      private final AtomicLong periodicTimerId;
+      private final AtomicBoolean isDisposed;
+      private final Context context;
+
+
+      TimedAction(Runnable action){
         this.action = action;
-        this.periodMillis = periodMillis;
+        this.initialTimerId = new AtomicLong(NULL_TIMER);
+        this.periodicTimerId = new AtomicLong(NULL_TIMER);
+        this.isDisposed = new AtomicBoolean(false);
+        this.context = ContextScheduler.this.context != null ?
+          ContextScheduler.this.context :
+          vertx.getOrCreateContext();
       }
 
-      private synchronized void schedule(long delayMillis) {
-        if (delayMillis > 0) {
-          id = vertx.setTimer(delayMillis, this::execute);
-        } else {
-          id = -1;
-          execute(null);
+      void schedule(long initialDelay, long periodicDelay){
+        if(periodicDelay < 1){
+          Runnable runnable = this.action;
+          this.action = () -> {
+            runnable.run();
+            this.unsubscribe();
+          };
+        }
+        if(initialDelay < 1){
+          this.schedulePeriodic(periodicDelay);
+          this.executeOn();
+        }else {
+          long id = this.context.owner().setTimer(initialDelay, ignored -> {
+            this.schedulePeriodic(periodicDelay);
+            this.executeOn();
+          });
+          this.initialTimerId.set(id);
+          this.testDisposeTimer(initialTimerId);
         }
       }
 
-      private void execute(Object arg) {
-        if (workerExecutor != null) {
-          workerExecutor.executeBlocking(fut -> {
-            run(null);
-            fut.complete();
-          }, ordered, null);
-        } else {
-          Context ctx = context != null ? context : vertx.getOrCreateContext();
-          if (blocking) {
-            ctx.executeBlocking(fut -> {
-              run(null);
-              fut.complete();
-            }, ordered, null);
-          } else {
-            ctx.runOnContext(this::run);
-          }
+      void schedulePeriodic(long periodicDelay){
+        if(periodicDelay > 0){
+          long id = this.context.owner().setPeriodic(periodicDelay, ignored -> this.executeOn());
+          this.periodicTimerId.set(id);
+          this.testDisposeTimer(periodicTimerId);
         }
       }
 
-      private void run(Object arg) {
-        synchronized (TimedAction.this) {
-          if (disposed) {
-            return;
-          }
+      void executeOn(){
+        if(ContextScheduler.this.blocking){
+          ContextWorker.this.runBlocking(this);
+        }else {
+          this.context.runOnContext(ignored -> this.callRunnable());
         }
-        action.call();
-        synchronized (TimedAction.this) {
-          if (!disposed) {
-            if (periodMillis > 0) {
-              schedule(periodMillis);
-            } else {
-              disposed = true;
-              actions.remove(this);
-            }
+      }
+
+      void callRunnable(){
+        if(this.isUnsubscribed()){
+          return;
+        }
+        this.action.run();
+      }
+
+      @Override
+      public void unsubscribe() {
+        if(this.isDisposed.compareAndSet(false, true)){
+          ContextWorker.this.actions.remove(this);
+          this.testDisposeTimer(this.initialTimerId);
+          this.testDisposeTimer(this.periodicTimerId);
+        }
+      }
+
+      private void testDisposeTimer(AtomicLong timerId){
+        if(this.isUnsubscribed()){
+          long id = timerId.getAndSet(NULL_TIMER);
+          if(id != NULL_TIMER){
+            ContextScheduler.this.vertx.cancelTimer(id);
           }
         }
       }
 
       @Override
-      public synchronized void unsubscribe() {
-        if (!disposed) {
-          actions.remove(this);
-          if (id > 0) {
-            vertx.cancelTimer(id);
-          }
-          disposed = true;
-        }
-      }
-
-      @Override
-      public synchronized boolean isUnsubscribed() {
-        return disposed;
+      public boolean isUnsubscribed() {
+        return this.isDisposed.get() || ContextWorker.this.isUnsubscribed();
       }
     }
+
   }
 }
