@@ -21,6 +21,7 @@
     <module>rx-java3-gen</module>
     <module>rx-java</module>
     <module>rx-java2</module>
+    <module>rx-java3</module>
     <module>rx-junit5-providers</module>
   </modules>
 

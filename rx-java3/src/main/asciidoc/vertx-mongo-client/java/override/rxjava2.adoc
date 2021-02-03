@@ -1,0 +1,22 @@
+== RxJava 2 API
+
+The Mongo client provides an Rxified version of the original API.
+
+=== Creating an Rxified client
+
+To create an Rxified Mongo client, make sure to import the {@link io.vertx.rxjava3.ext.mongo.MongoClient} class.
+Then use one of the `create` methods to get an instance:
+
+[source,java]
+----
+{@link examples.RxMongoClientExamples#createClient(io.vertx.rxjava3.core.Vertx,io.vertx.core.json.JsonObject)}
+----
+
+=== Finding documents in batches
+
+A {@link io.vertx.rxjava3.core.streams.ReadStream} can be converted to a {@link io.reactivex.rxjava3.core.Flowable}, which is handy when you have to deal with large data sets:
+
+[source,java]
+----
+{@link examples.RxMongoClientExamples#findBatch(io.vertx.rxjava3.ext.mongo.MongoClient)}
+----
