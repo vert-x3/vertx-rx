@@ -189,6 +189,15 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
 
   @Test
   public void testWriteStreamError() throws Exception {
+    testWriteStreamError(false);
+  }
+
+  @Test
+  public void testWriteStreamErrorAfterComplete() throws Exception {
+    testWriteStreamError(true);
+  }
+
+  private void testWriteStreamError(boolean complete) {
     waitFor(2);
     RuntimeException expected = new RuntimeException();
     FakeWriteStream writeStream = new FakeWriteStream(vertx).failAfterWrite(expected);
@@ -199,11 +208,14 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
     Flowable.<Integer>create(emitter -> {
       emitter.setCancellable(this::complete);
       emitter.onNext(0);
+      if (complete) {
+        emitter.onComplete();
+      }
     }, BackpressureStrategy.MISSING)
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
     await();
-    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
+    assertEquals(complete, writeStream.endInvoked());
   }
 }
