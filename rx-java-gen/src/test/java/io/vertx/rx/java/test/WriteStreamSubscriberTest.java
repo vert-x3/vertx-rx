@@ -21,6 +21,7 @@ import io.vertx.rx.java.RxHelper;
 import io.vertx.test.core.Repeat;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
+import rx.Emitter.BackpressureMode;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -81,6 +82,15 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
 
   @Test
   public void testWriteStreamError() throws Exception {
+    testWriteStreamError(false);
+  }
+
+  @Test
+  public void testWriteStreamErrorAfterComplete() throws Exception {
+    testWriteStreamError(true);
+  }
+
+  private void testWriteStreamError(boolean complete) {
     waitFor(2);
     RuntimeException expected = new RuntimeException();
     FakeWriteStream writeStream = new FakeWriteStream(vertx).failAfterWrite(expected);
@@ -88,11 +98,17 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
       assertThat(throwable, is(sameInstance(expected)));
       complete();
     });
-    Observable.<Integer>create(s -> s.onNext(0)).observeOn(RxHelper.scheduler(vertx))
-      .doOnUnsubscribe(this::complete)
+    Observable.<Integer>create(emitter -> {
+      emitter.setCancellation(this::complete);
+      emitter.onNext(0);
+      if (complete) {
+        emitter.onCompleted();
+      }
+    }, BackpressureMode.NONE)
+      .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
     await();
-    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
+    assertEquals(complete, writeStream.endInvoked());
   }
 }
