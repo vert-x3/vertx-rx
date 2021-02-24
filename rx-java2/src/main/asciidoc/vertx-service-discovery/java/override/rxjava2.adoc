@@ -1,0 +1,10 @@
+=== RxJava 2 API
+
+Service importers do not have a generated RxJava 2 implementation.
+
+You must create an instance and wrap it with {@link io.vertx.reactivex.servicediscovery.spi.ServiceImporter}:
+
+[source,java]
+----
+{@link examples.RxServiceDiscoveryExamples#register(io.vertx.reactivex.servicediscovery.ServiceDiscovery)}
+----
