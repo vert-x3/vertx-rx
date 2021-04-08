@@ -17,6 +17,7 @@ import io.vertx.core.Verticle;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.impl.NoStackTraceThrowable;
 import io.vertx.docgen.Source;
 import io.vertx.rxjava3.MaybeHelper;
 import io.vertx.rxjava3.WriteStreamSubscriber;
@@ -263,6 +264,40 @@ public class RxifiedExamples {
           });
         }
     );
+  }
+
+  public void httpClient(Vertx vertx) {
+    HttpClient client = vertx.createHttpClient();
+    client.request(HttpMethod.GET, 8080, "localhost", "/")
+      .flatMap(request -> request
+        .send()
+        .flatMap(response -> {
+          if (response.statusCode() == 200) {
+            return response.body();
+          } else {
+            return Single.error(new NoStackTraceThrowable("Invalid response"));
+          }
+        }))
+      .subscribe(body -> {
+        // Process the body
+      });
+  }
+
+  public void httpClientResponseStream(Vertx vertx) {
+    HttpClient client = vertx.createHttpClient();
+    client.request(HttpMethod.GET, 8080, "localhost", "/")
+      .flatMapPublisher(request -> request
+        .send()
+        .flatMapPublisher(response -> {
+          if (response.statusCode() == 200) {
+            return response.toFlowable();
+          } else {
+            return Flowable.error(new NoStackTraceThrowable("Invalid response"));
+          }
+        }))
+      .subscribe(chunk -> {
+        // Process the response chunks
+      });
   }
 
   public void webSocketClient(Vertx vertx) {
