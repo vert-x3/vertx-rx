@@ -280,8 +280,38 @@ To deploy existing Verticle instances, you can use {@link io.vertx.rxjava3.core.
 
 = Rxified API
 
-The _Rxified_ API is a code generated version of the Vert.x API. The API uses the `io.vertx.rxjava3` prefix, for instance the `io.vertx.core.Vertx` class is
+The _rxified_ API is a code generated version of the Vert.x API. The API uses the `io.vertx.rxjava3` prefix, for instance the `io.vertx.core.Vertx` class is
 translated to the {@link io.vertx.rxjava3.core.Vertx} class.
+
+IMPORTANT: Vert.x rxified API for RxJava3 takes a different approach to rxification
+
+Since Vert.x 4 has a future based API, this version gets away from the _rx_ prefixed method and original
+method names are used instead, as
+
+- exposing callback methods (still present in Vert.x 4 API for backward compatibility) would make little or no sense
+- exposing future methods would make little or no sense since RxJava is an alternative
+
+In addition, methods are not lazy by default, here is a simple example:
+
+```java
+// A method to write a buffer on HttpServerResponse
+void write(Buffer buffer, Handler<AsyncResult<Void>> handler);
+Future<Void> write(Buffer buffer);
+
+response.write(buffer, ar -> ...);
+
+// RxJava2 rxified versions
+void write(Buffer buffer, Handler<AsyncResult<Void>> handler);
+Completable rxWrite(Buffer buffer);
+
+Completable completable = rxWrite(buffer);
+completable.subscribe(); // Trigger a call to the original method
+
+// RxJava3 rxified version
+Completable write(Buffer buffer);
+
+write(buffer); // No need to subscribe with RxJava3, unless you need to know the result
+```
 
 == Embedding Rxfified Vert.x
 
