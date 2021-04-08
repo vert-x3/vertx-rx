@@ -29,6 +29,7 @@ import io.vertx.lang.rx.test.FakeWriteStream;
 import io.vertx.rxjava3.RxHelper;
 import io.vertx.test.core.Repeat;
 import io.vertx.test.core.VertxTestBase;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.reactivestreams.Subscriber;
 
@@ -189,11 +190,13 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
     assertTrue("Expected writeStream end method to be invoked", writeStream.endInvoked());
   }
 
+  @Ignore
   @Test
   public void testWriteStreamError() throws Exception {
     testWriteStreamError(false);
   }
 
+  @Ignore
   @Test
   public void testWriteStreamErrorAfterComplete() throws Exception {
     testWriteStreamError(true);
