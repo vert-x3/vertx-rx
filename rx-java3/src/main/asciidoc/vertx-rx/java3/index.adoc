@@ -1,7 +1,7 @@
 = Vert.x RxJava
 :toc: left
 
-== Vert.x API for RxJava2
+== Vert.x API for RxJava3
 
 https://github.com/ReactiveX/RxJava[RxJava] is a popular library for composing asynchronous and event based programs using
 observable sequences for the Java VM.
@@ -9,9 +9,9 @@ observable sequences for the Java VM.
 Vert.x integrates naturally with RxJava, allowing to use
 observable wherever you can use streams or asynchronous results.
 
-=== Using Vert.x API for RxJava2
+=== Using Vert.x API for RxJava3
 
-To use Vert.x API for RxJava2, add the following dependency to the _dependencies_ section of your build descriptor:
+To use Vert.x API for RxJava3, add the following dependency to the _dependencies_ section of your build descriptor:
 
 * Maven (in your `pom.xml`):
 
@@ -31,10 +31,10 @@ To use Vert.x API for RxJava2, add the following dependency to the _dependencies
 compile '${maven.groupId}:${maven.artifactId}:${maven.version}'
 ----
 
-There are two ways for using the RxJava 2 API with Vert.x:
+There are two ways for using the RxJava 3 API with Vert.x:
 
 * via the original Vert.x API with helpers class that provides static methods for converting objects between Vert.x core
-API and RxJava 2 API
+API and RxJava 3 API
 ** {@link io.vertx.rxjava3.RxHelper}
 ** {@link io.vertx.rxjava3.ObservableHelper}
 ** {@link io.vertx.rxjava3.FlowableHelper}
@@ -281,11 +281,10 @@ To deploy existing Verticle instances, you can use {@link io.vertx.rxjava3.core.
 
 = Rxified API
 
-The _Rxified_ API is a code generated version of the Vert.x API, just like the _JavaScript_ or _Groovy_
-language. The API uses the `io.vertx.rxjava` prefix, for instance the `io.vertx.core.Vertx` class is
+The _Rxified_ API is a code generated version of the Vert.x API. The API uses the `io.vertx.rxjava3` prefix, for instance the `io.vertx.core.Vertx` class is
 translated to the {@link io.vertx.rxjava3.core.Vertx} class.
 
-=== Embedding Rxfified Vert.x
+== Embedding Rxfified Vert.x
 
 Just use the {@link io.vertx.rxjava3.core.Vertx#vertx()} methods:
 
@@ -294,7 +293,7 @@ Just use the {@link io.vertx.rxjava3.core.Vertx#vertx()} methods:
 {@link examples.RxifiedExamples#embedded()}
 ----
 
-=== As a Verticle
+== As a Verticle
 
 Extend the {@link io.vertx.rxjava3.core.AbstractVerticle} class, it will wrap it for you:
 
@@ -393,36 +392,36 @@ a json request to an object:
 {@link examples.RxifiedExamples#httpServerRequestObservableUnmarshall(io.vertx.rxjava3.core.http.HttpServer)}
 ----
 
-=== Websocket client
+=== WebSocket client
 
-The {@link io.vertx.rxjava3.core.http.HttpClient#webSocket} provides a single callback when the websocket
+The {@link io.vertx.rxjava3.core.http.HttpClient#webSocket} provides a single callback when the WebSocket
 connects, otherwise a failure:
 
 [source,java]
 ----
-{@link examples.RxifiedExamples#websocketClient(io.vertx.rxjava3.core.Vertx)}
+{@link examples.RxifiedExamples#webSocketClient(io.vertx.rxjava3.core.Vertx)}
 ----
 
 The {@link io.vertx.rxjava3.core.http.WebSocket} can then be turned into an `Observable<Buffer>` easily:
 
 [source,java]
 ----
-{@link examples.RxifiedExamples#websocketClientBuffer(io.reactivex.rxjava3.core.Flowable)}
+{@link examples.RxifiedExamples#webSocketClientBuffer(io.reactivex.rxjava3.core.Flowable)}
 ----
 
-=== Websocket server
+=== WebSocket server
 
 The {@link io.vertx.rxjava3.core.http.HttpServer#webSocketStream()} provides a callback for each incoming
 connection:
 
 [source,java]
 ----
-{@link examples.RxifiedExamples#websocketServer(io.vertx.rxjava3.core.http.HttpServer)}
+{@link examples.RxifiedExamples#webSocketServer(io.vertx.rxjava3.core.http.HttpServer)}
 ----
 
 The {@link io.vertx.core.http.ServerWebSocket} can be turned into an `Observable<Buffer>` easily:
 
 [source,java]
 ----
-{@link examples.RxifiedExamples#websocketServerBuffer(io.reactivex.rxjava3.core.Flowable)}
+{@link examples.RxifiedExamples#webSocketServerBuffer(io.reactivex.rxjava3.core.Flowable)}
 ----

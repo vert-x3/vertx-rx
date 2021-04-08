@@ -243,7 +243,7 @@ public class RxifiedExamples {
         });
   }
 
-  public void websocketServer(HttpServer server) {
+  public void webSocketServer(HttpServer server) {
     Observable<ServerWebSocket> socketObservable = server.webSocketStream().toObservable();
     socketObservable.subscribe(
         socket -> System.out.println("Web socket connect"),
@@ -254,7 +254,7 @@ public class RxifiedExamples {
     );
   }
 
-  public void websocketServerBuffer(Flowable<ServerWebSocket> socketObservable) {
+  public void webSocketServerBuffer(Flowable<ServerWebSocket> socketObservable) {
     socketObservable.subscribe(
         socket -> {
           Observable<Buffer> dataObs = socket.toObservable();
@@ -265,7 +265,7 @@ public class RxifiedExamples {
     );
   }
 
-  public void websocketClient(Vertx vertx) {
+  public void webSocketClient(Vertx vertx) {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
     client.webSocket(8080, "localhost", "/the_uri").subscribe(
         ws -> {
@@ -277,7 +277,7 @@ public class RxifiedExamples {
     );
   }
 
-  public void websocketClientBuffer(Flowable<WebSocket> socketObservable) {
+  public void webSocketClientBuffer(Flowable<WebSocket> socketObservable) {
     socketObservable.subscribe(
         socket -> {
           Flowable<Buffer> dataObs = socket.toFlowable();
