@@ -780,6 +780,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         return expr + ".stream().map(elt -> " + genConvParam(parameterizedTypeInfo.getArg(0), method, "elt") + ").collect(Collectors.to" + type.getRaw().getSimpleName() + "())";
       } else if (kind == MAP) {
         return expr + ".entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> " + genConvParam(parameterizedTypeInfo.getArg(1), method, "e.getValue()") + "))";
+      } else if (kind == FUTURE) {
+        ParameterizedTypeInfo futureType = (ParameterizedTypeInfo) type;
+        return expr + ".map(val -> " + genConvParam(futureType.getArg(0), method, "val") + ")";
       }
     }
     return expr;
@@ -916,6 +919,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         return expr + ".stream().map(elt -> " + genConvReturn(parameterizedTypeInfo.getArg(0), method, "elt") + ").collect(Collectors.to" + type.getRaw().getSimpleName() + "())";
       } else if (kind == MAP) {
         return expr + ".entrySet().stream().collect(Collectors.toMap(_e -> _e.getKey(), _e -> " + genConvReturn(parameterizedTypeInfo.getArg(1), method, "_e.getValue()") + "))";
+      } else if (kind == FUTURE) {
+        ParameterizedTypeInfo futureType = (ParameterizedTypeInfo) type;
+        return expr + ".map(val -> " + genConvReturn(futureType.getArg(0), method, "val") + ")";
       }
     }
     return expr;
