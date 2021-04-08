@@ -18,6 +18,8 @@ package io.vertx.rxjava3.test;
 
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.exceptions.ProtocolViolationException;
 import io.reactivex.rxjava3.exceptions.UndeliverableException;
@@ -189,21 +191,33 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
 
   @Test
   public void testWriteStreamError() throws Exception {
+    testWriteStreamError(false);
+  }
+
+  @Test
+  public void testWriteStreamErrorAfterComplete() throws Exception {
+    testWriteStreamError(true);
+  }
+
+  private void testWriteStreamError(boolean complete) {
     waitFor(2);
     RuntimeException expected = new RuntimeException();
     FakeWriteStream writeStream = new FakeWriteStream(vertx).failAfterWrite(expected);
-    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).onWriteStreamError(throwable -> {
+    Observer<Integer> subscriber = RxHelper.toObserver(writeStream).onWriteStreamError(throwable -> {
       assertThat(throwable, is(sameInstance(expected)));
       complete();
     });
-    Flowable.<Integer>create(emitter -> {
+    Observable.<Integer>create(emitter -> {
       emitter.setCancellable(this::complete);
       emitter.onNext(0);
-    }, BackpressureStrategy.MISSING)
+      if (complete) {
+        emitter.onComplete();
+      }
+    })
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
     await();
-    assertFalse("Did not expect writeStream end method to be invoked", writeStream.endInvoked());
+    assertEquals(complete, writeStream.endInvoked());
   }
 }
