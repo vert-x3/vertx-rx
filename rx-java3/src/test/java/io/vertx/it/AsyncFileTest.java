@@ -49,7 +49,6 @@ public class AsyncFileTest extends VertxTestBase {
   }
 
   @Test
-  @Repeat(times = 100)
   public void flowableToAsyncFile() throws Exception {
     sourceToAsyncFile((flow, asyncFile) -> Completable.create(emitter ->
       flow.subscribe(asyncFile.toSubscriber().onWriteStreamEnd(emitter::onComplete))
@@ -57,7 +56,6 @@ public class AsyncFileTest extends VertxTestBase {
   }
 
   @Test
-  @Repeat(times = 100)
   public void observableToAsyncFile() throws Exception {
     sourceToAsyncFile((flow, asyncFile) -> Completable.create(emitter ->
       flow.toObservable().subscribe(asyncFile.toObserver().onWriteStreamEnd(emitter::onComplete))
