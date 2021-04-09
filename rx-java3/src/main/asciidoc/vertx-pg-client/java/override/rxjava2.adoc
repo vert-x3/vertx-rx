@@ -1,0 +1,46 @@
+== RxJava 2 API
+
+The Rxified API supports RxJava 1 and RxJava 2, the following examples use RxJava 2.
+
+[source,java]
+----
+{@link examples.RxPgClientExamples#simpleQuery01Example}
+----
+
+=== Connection
+
+The simplified connection API allows to easily use a connection, the `withConnection` method borrows
+a connection from the pool and return it for you:
+
+[source,java]
+----
+{@link examples.RxPgClientExamples#connection01Example}
+----
+
+=== Transaction
+
+The simplified transaction API allows to easily write transactional asynchronous flows, The `withTransaction`
+method start and commit a transaction for you:
+
+[source,java]
+----
+{@link examples.RxPgClientExamples#transaction01Example}
+----
+
+=== Streaming
+
+RxJava 2 supports `Observable` and `Flowable` types, these are exposed using
+the {@link io.vertx.rxjava3.sqlclient.RowStream} that you can get
+from a {@link io.vertx.rxjava3.sqlclient.PreparedQuery}:
+
+[source,java]
+----
+{@link examples.RxPgClientExamples#streamingQuery01Example}
+----
+
+The same example using `Flowable`:
+
+[source,java]
+----
+{@link examples.RxPgClientExamples#streamingQuery02Example}
+----

@@ -1,0 +1,470 @@
+= Vert.x RxJava
+:toc: left
+
+== Vert.x API for RxJava3
+
+https://github.com/ReactiveX/RxJava[RxJava] is a popular library for composing asynchronous and event based programs using
+observable sequences for the Java VM.
+
+Vert.x integrates naturally with RxJava, allowing using RxJava wherever you can use streams or asynchronous results.
+
+=== Using Vert.x API for RxJava3
+
+To use Vert.x API for RxJava3, add the following dependency to the _dependencies_ section of your build descriptor:
+
+* Maven (in your `pom.xml`):
+
+[source,xml,subs="+attributes"]
+----
+<dependency>
+  <groupId>${maven.groupId}</groupId>
+  <artifactId>${maven.artifactId}</artifactId>
+  <version>${maven.version}</version>
+</dependency>
+----
+
+* Gradle (in your `build.gradle` file):
+
+[source,groovy,subs="+attributes"]
+----
+compile '${maven.groupId}:${maven.artifactId}:${maven.version}'
+----
+
+There are two ways for using the RxJava 3 API with Vert.x:
+
+* via the original Vert.x API with helpers class that provides static methods for converting objects between Vert.x core
+API and RxJava 3 API
+** {@link io.vertx.rxjava3.RxHelper}
+** {@link io.vertx.rxjava3.ObservableHelper}
+** {@link io.vertx.rxjava3.FlowableHelper}
+** {@link io.vertx.rxjava3.SingleHelper}
+** {@link io.vertx.rxjava3.MaybeHelper}
+** {@link io.vertx.rxjava3.CompletableHelper}
+* via the _Rxified_ Vert.x API enhancing the core Vert.x API.
+
+=== Read stream support
+
+RxJava `Flowable` is a perfect match for Vert.x `ReadStream` class : both provide a flow of items.
+
+The {@link io.vertx.rxjava3.FlowableHelper#toFlowable(io.vertx.core.streams.ReadStream)} static methods convert
+a Vert.x read stream to a `Flowable`:
+
+[source,java]
+----
+{@link examples.NativeExamples#toFlowable}
+----
+
+The _Rxified_ Vert.x API provides a {@link io.vertx.rxjava3.core.streams.ReadStream#toFlowable()}  method on
+{@link io.vertx.rxjava3.core.streams.ReadStream}:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#toFlowable}
+----
+
+Such flowables are *hot* flowables, i.e. they will produce notifications regardless of subscriptions because
+a `ReadStream` can potentially emit items spontaneously or not, depending on the implementation:
+
+At subscription time, the adapter calls {@link io.vertx.core.streams.ReadStream#handler(io.vertx.core.Handler)}
+to set its own handler.
+
+Some `ReadStream` implementations can start to emit events after this call, others will emit events wether an
+handler is set:
+
+- `AsyncFile` produces buffer events after the handler is set
+- `HttpServerRequest` produces events independantly of the handler (i.e buffer may be lost if no handler is set)
+
+In both cases, subscribing to the `Flowable` in the same call is safe because the event loop or the worker
+verticles cannot be called concurrently, so the subscription will always happens before the handler starts emitting
+data.
+
+When you need to delay the subscription, you need to `pause` the `ReadStream` and then `resume` it, which is what
+you would do with a `ReadStream`.
+
+[source,java]
+----
+{@link examples.RxifiedExamples#delayFlowable}
+----
+
+Likewise it is possible to turn an existing `Flowable` into a Vert.x `ReadStream`.
+
+The {@link io.vertx.rxjava3.FlowableHelper#toReadStream(io.reactivex.rxjava3.core.Flowable)}  static methods convert
+a `Flowable` to a Vert.x read stream:
+
+[source,java]
+----
+{@link examples.NativeExamples#toReadStream}
+----
+
+=== Write stream support
+
+A {@link io.vertx.core.streams.WriteStream}, like a `org.reactivestreams.Subscriber`, consumes items, and, when it can't keep-up, collaborates with the producer to avoid an ever-growing backlog.
+
+Vert.x provides the {@link io.vertx.rxjava3.WriteStreamSubscriber} adapter that you can use to send `Flowable` items to any {@link io.vertx.core.streams.WriteStream}:
+
+.Sending buffers to an HTTP server response
+[source,java]
+----
+{@link examples.RxifiedExamples#writeStreamSubscriberAdapter}
+----
+
+TIP: There is also a `io.vertx.rxjava3.WriteStreamObserver` adapter for the non-backpressured `io.reactivex.Observable`.
+The difference is that this adapter will send items to the {@link io.vertx.core.streams.WriteStream} even when it can't keep-up with the producer rate.
+
+If you are progamming with the _Rxified_ Vert.x API, the {@link io.vertx.rxjava3.core.streams.WriteStream} implementations provide a `toSubscriber` method.
+The previous example then becomes even more straightforward:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#rxWriteStreamSubscriberAdapter}
+----
+
+NOTE: When the `Flowable` terminates successfully, the adapter invokes the {@link io.vertx.rxjava3.core.streams.WriteStream#end()} method.
+
+CAUTION: The adapter sets the {@link io.vertx.rxjava3.core.streams.WriteStream} `drain` and `exception` handlers, so don't use them after subscribing.
+
+The {@link io.vertx.rxjava3.WriteStreamSubscriber} adapter is able to invoke callbacks when:
+
+* the `Flowable` terminates with an error, or
+* the {@link io.vertx.rxjava3.core.streams.WriteStream} fails (e.g. HTTP connection is closed or filesystem is full), or
+* the {@link io.vertx.rxjava3.core.streams.WriteStream} ends (i.e. all writes done and file is closed), or
+* the {@link io.vertx.rxjava3.core.streams.WriteStream} ends with an error (i.e. all writes done and an error occured when closing the file)
+
+This allows for a more robust program design, as well as scheduling other tasks after the stream has been handled:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#writeStreamSubscriberAdapterCallbacks}
+----
+
+NOTE: If the {@link io.vertx.rxjava3.core.streams.WriteStream} fails, the adapter cancels the `org.reactivestreams.Subscription`.
+
+=== Async result support
+
+You can create an RxJava `Observer` from an existing Vert.x `Handler<AsyncResult<T>>` and subscribe
+it:
+
+[source,java]
+----
+{@link examples.NativeExamples#handlerToSingleObserver}
+----
+
+[source,java]
+----
+{@link examples.NativeExamples#handlerToMaybeObserver}
+----
+
+[source,java]
+----
+{@link examples.NativeExamples#handlerToCompletableObserver}
+----
+
+The _Rxified_ Vert.x API duplicates each such method with the `rx` prefix that returns an RxJava `Single`,
+`Maybe` or `Completable`:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#single(io.vertx.rxjava3.core.Vertx)}
+----
+
+Such single are *cold* singles, and the corresponding API method is called on subscribe.
+
+`Maybe` can produce a result or no result:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#maybe}
+----
+
+`Completable` is usually mapped to `Handler<AsyncResult<Void>>`
+
+[source,java]
+----
+{@link examples.RxifiedExamples#completable}
+----
+
+[TIP]
+====
+If you cannot use the Vert.x _Rxified_ API or, if you have your own, callback-based, asynchronous methods, Vert.x provides adapters:
+
+* {@link io.vertx.rxjava3.SingleHelper#toSingle},
+* {@link io.vertx.rxjava3.MaybeHelper#toMaybe} and
+* {@link io.vertx.rxjava3.CompletableHelper#toCompletable}.
+====
+
+[source,java]
+.Adapting Vert.x core _executeBlocking_ method
+----
+{@link examples.RxifiedExamples#executeBlockingAdapter}
+----
+
+=== Scheduler support
+
+The reactive extension sometimes needs to schedule actions, for instance `Flowable#timer` creates and returns
+a timer that emit periodic events. By default, scheduled actions are managed by RxJava, it means that the
+timer threads are not Vert.x threads and therefore not executing in a Vert.x event loop nor on a Vert.x worker thread.
+
+When an RxJava method deals with a scheduler, it accepts an overloaded method accepting an extra `io.reactivex.Scheduler`,
+the {@link io.vertx.rxjava3.RxHelper#scheduler(io.vertx.core.Vertx)}  method will return a scheduler that can be used
+in such places.
+
+[source,java]
+----
+{@link examples.NativeExamples#scheduler(io.vertx.core.Vertx)}
+----
+
+For blocking scheduled actions, a scheduler can be created with the {@link io.vertx.rxjava3.RxHelper#blockingScheduler}
+method:
+
+[source,java]
+----
+{@link examples.NativeExamples#blockingScheduler}
+----
+
+RxJava can also be reconfigured to use the Vert.x scheduler:
+
+[source,java]
+----
+{@link examples.NativeExamples#schedulerHook(io.vertx.core.Vertx)}
+----
+
+CAUTION: RxJava uses the words _computation_ for non-blocking tasks and _io_ for blocking tasks
+which is the opposite of the Vert.x terminology
+
+The _Rxified_ Vert.x API provides also similar method on the {@link io.vertx.rxjava3.core.RxHelper} class:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#scheduler(io.vertx.rxjava3.core.Vertx)}
+----
+
+[source,java]
+----
+{@link examples.RxifiedExamples#schedulerHook(io.vertx.rxjava3.core.Vertx)}
+----
+
+It is also possible to create a scheduler backed by a named worker pool. This can be useful if you want to re-use
+the specific thread pool for scheduling blocking actions:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#scheduler(io.vertx.rxjava3.core.WorkerExecutor)}
+----
+
+=== Json unmarshalling
+
+The {@link io.vertx.rxjava3.FlowableHelper#unmarshaller(Class)} creates an `io.reactivex.rxjava2.FlowableOperator` that
+transforms an `Flowable<Buffer>` in json format into an object flowable:
+
+[source,java]
+----
+{@link examples.NativeExamples#unmarshaller(io.vertx.core.file.FileSystem)}
+----
+
+The same can be done with the _Rxified_ helper:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#unmarshaller(io.vertx.rxjava3.core.file.FileSystem)}
+----
+
+=== Deploying a Verticle
+
+To deploy existing Verticle instances, you can use {@link io.vertx.rxjava3.core.RxHelper#deployVerticle(io.vertx.rxjava3.core.Vertx, io.vertx.core.Verticle)}
+, it deploys a `Verticle` and returns an `Single<String>` of the deployment ID.
+
+[source,java]
+----
+{@link examples.RxifiedExamples#deployVerticle}
+----
+
+= Rxified API
+
+The _rxified_ API is a code generated version of the Vert.x API. The API uses the `io.vertx.rxjava3` prefix, for instance the `io.vertx.core.Vertx` class is
+translated to the {@link io.vertx.rxjava3.core.Vertx} class.
+
+IMPORTANT: Vert.x rxified API for RxJava3 takes a different approach to rxification
+
+Since Vert.x 4 has a future based API, this version gets away from the _rx_ prefixed method and original
+method names are used instead, as
+
+- exposing callback methods (still present in Vert.x 4 API for backward compatibility) would make little or no sense
+- exposing future methods would make little or no sense since RxJava is an alternative
+
+In addition, methods are not lazy by default, here is a simple example:
+
+```java
+// A method to write a buffer on HttpServerResponse
+void write(Buffer buffer, Handler<AsyncResult<Void>> handler);
+Future<Void> write(Buffer buffer);
+
+response.write(buffer, ar -> ...);
+
+// RxJava2 rxified versions
+void write(Buffer buffer, Handler<AsyncResult<Void>> handler);
+Completable rxWrite(Buffer buffer);
+
+Completable completable = rxWrite(buffer);
+completable.subscribe(); // Trigger a call to the original method
+
+// RxJava3 rxified version
+Completable write(Buffer buffer);
+
+write(buffer); // No need to subscribe with RxJava3, unless you need to know the result
+```
+
+== Embedding Rxfified Vert.x
+
+Just use the {@link io.vertx.rxjava3.core.Vertx#vertx()} methods:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#embedded()}
+----
+
+== As a Verticle
+
+Extend the {@link io.vertx.rxjava3.core.AbstractVerticle} class, it will wrap it for you:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#verticle()}
+----
+
+Deploying an RxJava verticle is still performed by the Java deployer and does not need a specified
+deployer.
+
+Verticles having an asynchronous start can override instead the `rxStart` method and return a `Completable`:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#rxStart()}
+----
+
+== Api examples
+
+Let's study now a few examples of using Vert.x with RxJava.
+
+=== EventBus message stream
+
+The event bus {@link io.vertx.rxjava3.core.eventbus.MessageConsumer} provides naturally an `Observable<Message<T>>`:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#eventBusMessages(io.vertx.rxjava3.core.Vertx)}
+----
+
+The {@link io.vertx.rxjava3.core.eventbus.MessageConsumer} provides a stream of {@link io.vertx.rxjava3.core.eventbus.Message}.
+The {@link io.vertx.rxjava3.core.eventbus.Message#body()} gives access to a new stream of message bodies if needed:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#eventBusBodies(io.vertx.rxjava3.core.Vertx)}
+----
+
+RxJava map/reduce composition style can then be used:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#eventBusMapReduce(io.vertx.rxjava3.core.Vertx)}
+----
+
+=== Timers
+
+Timer task can be created with {@link io.vertx.rxjava3.core.Vertx#timerStream(long)}:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#timer(io.vertx.rxjava3.core.Vertx)}
+----
+
+Periodic task can be created with {@link io.vertx.rxjava3.core.Vertx#periodicStream(long)}:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#periodic(io.vertx.rxjava3.core.Vertx)}
+----
+
+The observable can be cancelled with an unsubscription:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#periodicUnsubscribe(io.vertx.rxjava3.core.Vertx)}
+----
+
+=== Http client requests
+
+You can easily use the http client to create a request and process the response:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#httpClient}
+----
+
+When you need to process large streaming response, you can get a `Flowable<Buffer>` from the http response
+
+[source,java]
+----
+{@link examples.RxifiedExamples#httpClientResponseStream}
+----
+
+You can also use the http://vertx.io/docs/vertx-web-client/java/#_rxjava_api[Vert.x Web Client].
+
+=== Http server requests
+
+The {@link io.vertx.rxjava3.core.http.HttpServer#requestStream()} provides a callback for each incoming
+request:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#httpServerRequest}
+----
+
+The {@link io.vertx.core.http.HttpServerRequest} can then be adapted to an `Observable<Buffer>`:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#httpServerRequestObservable(io.vertx.rxjava3.core.http.HttpServer)}
+----
+
+The {@link io.vertx.rxjava3.ObservableHelper#unmarshaller(Class)} can be used to parse and map
+a json request to an object:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#httpServerRequestObservableUnmarshall(io.vertx.rxjava3.core.http.HttpServer)}
+----
+
+=== WebSocket client
+
+The {@link io.vertx.rxjava3.core.http.HttpClient#webSocket} provides a single callback when the WebSocket
+connects, otherwise a failure:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#webSocketClient(io.vertx.rxjava3.core.Vertx)}
+----
+
+The {@link io.vertx.rxjava3.core.http.WebSocket} can then be turned into an `Observable<Buffer>` easily:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#webSocketClientBuffer(io.reactivex.rxjava3.core.Flowable)}
+----
+
+=== WebSocket server
+
+The {@link io.vertx.rxjava3.core.http.HttpServer#webSocketStream()} provides a callback for each incoming
+connection:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#webSocketServer(io.vertx.rxjava3.core.http.HttpServer)}
+----
+
+The {@link io.vertx.core.http.ServerWebSocket} can be turned into an `Observable<Buffer>` easily:
+
+[source,java]
+----
+{@link examples.RxifiedExamples#webSocketServerBuffer(io.reactivex.rxjava3.core.Flowable)}
+----

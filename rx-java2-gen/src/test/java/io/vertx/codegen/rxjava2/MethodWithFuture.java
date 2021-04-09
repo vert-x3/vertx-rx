@@ -30,4 +30,8 @@ public interface MethodWithFuture {
   static <T> Throwable getCause(Future<T> future) {
     return future.cause();
   }
+
+  static Future<MethodWithFuture> withVertxGen(Future<MethodWithFuture> future) {
+    return future;
+  }
 }

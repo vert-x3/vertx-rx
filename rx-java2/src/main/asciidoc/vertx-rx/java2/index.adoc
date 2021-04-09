@@ -6,8 +6,7 @@
 https://github.com/ReactiveX/RxJava[RxJava] is a popular library for composing asynchronous and event based programs using
 observable sequences for the Java VM.
 
-Vert.x integrates naturally with RxJava, allowing to use
-observable wherever you can use streams or asynchronous results.
+Vert.x integrates naturally with RxJava, allowing using RxJava wherever you can use streams or asynchronous results.
 
 === Using Vert.x API for RxJava2
 
