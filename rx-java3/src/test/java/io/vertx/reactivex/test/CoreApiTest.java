@@ -61,7 +61,7 @@ public class CoreApiTest extends VertxTestBase {
     }).listen(8080, "localhost").blockingGet();
     HttpClient client = vertx.createHttpClient();
     AtomicLong clientReceived = new AtomicLong();
-    client.webSocket(8080, "localhost", "/")
+    client.rxWebSocket(8080, "localhost", "/")
       .doAfterSuccess(ws -> {
         ws.writeTextMessage("ping");
       })
@@ -82,9 +82,9 @@ public class CoreApiTest extends VertxTestBase {
       req.response().end("Hello World");
     }).listen(8080, "localhost").blockingGet();
     HttpClient client = vertx.createHttpClient();
-    Buffer result = client.request(HttpMethod.GET, 8080, "localhost", "/")
+    Buffer result = client.rxRequest(HttpMethod.GET, 8080, "localhost", "/")
       .flatMap(request -> request
-        .send()
+        .rxSend()
         .flatMap(HttpClientResponse::body))
       .blockingGet();
     assertEquals("Hello World", result.toString());
@@ -108,9 +108,9 @@ public class CoreApiTest extends VertxTestBase {
       });
     }).listen(8080, "localhost").blockingGet();
     HttpClient client = vertx.createHttpClient();
-    String result = client.request(HttpMethod.GET, 8080, "localhost", "/")
+    String result = client.rxRequest(HttpMethod.GET, 8080, "localhost", "/")
       .flatMapPublisher(request -> request
-        .send()
+        .rxSend()
         .flatMapPublisher(HttpClientResponse::toFlowable))
       .reduce("", (s, b) -> s + b)
       .blockingGet();

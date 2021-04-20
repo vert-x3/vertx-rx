@@ -280,38 +280,29 @@ To deploy existing Verticle instances, you can use {@link io.vertx.rxjava3.core.
 
 = Rxified API
 
-The _rxified_ API is a code generated version of the Vert.x API. The API uses the `io.vertx.rxjava3` prefix, for instance the `io.vertx.core.Vertx` class is
-translated to the {@link io.vertx.rxjava3.core.Vertx} class.
+The _rxified_ API is a code generated version of the Vert.x API. The API uses the `io.vertx.rxjava3` prefix, for instance
+the `io.vertx.core.Vertx` class is translated to the {@link io.vertx.rxjava3.core.Vertx} class.
 
-IMPORTANT: Vert.x rxified API for RxJava3 takes a different approach to rxification
+Rxified API expose Vert.x asynchronous methods in two fashion
 
-Since Vert.x 4 has a future based API, this version gets away from the _rx_ prefixed method and original
-method names are used instead, as
-
-- exposing callback methods (still present in Vert.x 4 API for backward compatibility) would make little or no sense
-- exposing future methods would make little or no sense since RxJava is an alternative
-
-In addition, methods are not lazy by default, here is a simple example:
+- the original method translated to a RxJava equivalent returning an eager and cached subscription
+- a _rx_ prefixed derived method that invokes the original method at subscription time
 
 ```java
-// A method to write a buffer on HttpServerResponse
-void write(Buffer buffer, Handler<AsyncResult<Void>> handler);
-Future<Void> write(Buffer buffer);
+// Immediate write
+// no need to subscribe
+// completion provides the asynchronous result
+response.write(buffer);
 
-response.write(buffer, ar -> ...);
+// No write happened
+completion = response.rxWrite(buffer);
 
-// RxJava2 rxified versions
-void write(Buffer buffer, Handler<AsyncResult<Void>> handler);
-Completable rxWrite(Buffer buffer);
-
-Completable completable = rxWrite(buffer);
-completable.subscribe(); // Trigger a call to the original method
-
-// RxJava3 rxified version
-Completable write(Buffer buffer);
-
-write(buffer); // No need to subscribe with RxJava3, unless you need to know the result
+// Perform an actual write
+completion.subscribe(() -> ..., err -> ...);
 ```
+
+You can use the original method or the rxified method depending on your needs, e.g when you
+don't want to subscribe or you don't care of the result you can call the original method.
 
 == Embedding Rxfified Vert.x
 

@@ -52,9 +52,9 @@ public class SqlClientTest extends VertxTestBase {
     pool = PgPool.newInstance(io.vertx.pgclient.PgPool.pool(connectOptions, new PoolOptions()));
     pool
       .query("drop table if exists folks")
-      .execute()
-      .flatMap(res -> pool.query("create table folks (firstname varchar(255) not null)").execute())
-      .flatMap(res -> pool.preparedQuery("insert into folks (firstname) values ($1)").executeBatch(NAMES.stream().map(Tuple::of).collect(Collectors.toList())))
+      .rxExecute()
+      .flatMap(res -> pool.query("create table folks (firstname varchar(255) not null)").rxExecute())
+      .flatMap(res -> pool.preparedQuery("insert into folks (firstname) values ($1)").rxExecuteBatch(NAMES.stream().map(Tuple::of).collect(Collectors.toList())))
       .blockingGet();
   }
 
@@ -66,7 +66,7 @@ public class SqlClientTest extends VertxTestBase {
   @Test
   public void testStream() {
     Maybe<List<String>> single = pool.withTransaction(conn -> conn
-      .prepare("SELECT * FROM folks")
+      .rxPrepare("SELECT * FROM folks")
       .flatMapPublisher(pq -> pq.createStream(2).toFlowable())
       .<List<String>>collect(ArrayList::new, (l, r) -> l.add(r.getString(0)))
       .toMaybe());

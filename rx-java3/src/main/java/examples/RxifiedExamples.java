@@ -22,6 +22,7 @@ import io.vertx.docgen.Source;
 import io.vertx.rxjava3.MaybeHelper;
 import io.vertx.rxjava3.WriteStreamSubscriber;
 import io.vertx.rxjava3.core.AbstractVerticle;
+import io.vertx.rxjava3.core.FlowableHelper;
 import io.vertx.rxjava3.core.ObservableHelper;
 import io.vertx.rxjava3.core.RxHelper;
 import io.vertx.rxjava3.core.Vertx;
@@ -83,7 +84,7 @@ public class RxifiedExamples {
     // Obtain a single that performs the actual listen on subscribe
     Single<HttpServer> single = vertx
       .createHttpServer()
-      .listen(1234, "localhost");
+      .rxListen(1234, "localhost");
 
     // Subscribe to bind the server
     single.
@@ -102,7 +103,7 @@ public class RxifiedExamples {
     DnsClient client = vertx.createDnsClient(dnsPort, dnsHost);
 
     // Obtain a maybe that performs the actual reverse lookup on subscribe
-    Maybe<String> maybe = client.reverseLookup(ipAddress);
+    Maybe<String> maybe = client.rxReverseLookup(ipAddress);
 
     // Subscribe to perform the lookup
     maybe.
@@ -122,16 +123,16 @@ public class RxifiedExamples {
   public void completable(HttpServer server) {
 
     // Obtain a completable that performs the actual close on subscribe
-    Completable single = server.close();
+    Completable single = server.rxClose();
 
-    // Subscribe to bind the server
+    // Subscribe to close the server
     single.
       subscribe(
         () -> {
           // Server is closed
         },
         failure -> {
-          // Server closed but encoutered issue
+          // Server closed but encountered issue
         }
       );
   }
@@ -167,7 +168,7 @@ public class RxifiedExamples {
 
   public void unmarshaller(FileSystem fileSystem) {
     fileSystem
-      .open("/data.txt", new OpenOptions())
+      .rxOpen("/data.txt", new OpenOptions())
       .flatMapObservable(file -> file.toObservable())
       .compose(ObservableHelper.unmarshaller((MyPojo.class)))
       .subscribe(mypojo -> {
@@ -202,7 +203,7 @@ public class RxifiedExamples {
       public Completable rxStart() {
         return vertx.createHttpServer()
           .requestHandler(req -> req.response().end("Hello World"))
-          .listen()
+          .rxListen()
           .ignoreElement();
       }
     }
@@ -211,8 +212,8 @@ public class RxifiedExamples {
   public void eventBusMessages(Vertx vertx) {
     EventBus eb = vertx.eventBus();
     MessageConsumer<String> consumer = eb.<String>consumer("the-address");
-    Observable<Message<String>> observable = consumer.toObservable();
-    Disposable sub = observable.subscribe(msg -> {
+    Flowable<Message<String>> flowable = consumer.toFlowable();
+    Disposable sub = flowable.subscribe(msg -> {
       // Got message
     });
 
@@ -225,16 +226,16 @@ public class RxifiedExamples {
   public void eventBusBodies(Vertx vertx) {
     EventBus eb = vertx.eventBus();
     MessageConsumer<String> consumer = eb.<String>consumer("the-address");
-    Observable<String> observable = consumer.bodyStream().toObservable();
+    Flowable<String> flowable = consumer.bodyStream().toFlowable();
   }
 
   public void eventBusMapReduce(Vertx vertx) {
-    Observable<Double> observable = vertx.eventBus().
+    Flowable<Double> flowable = vertx.eventBus().
         <Double>consumer("heat-sensor").
         bodyStream().
-        toObservable();
+        toFlowable();
 
-    observable.
+    flowable.
         buffer(1, TimeUnit.SECONDS).
         map(samples -> samples.
             stream().
@@ -245,8 +246,8 @@ public class RxifiedExamples {
   }
 
   public void webSocketServer(HttpServer server) {
-    Observable<ServerWebSocket> socketObservable = server.webSocketStream().toObservable();
-    socketObservable.subscribe(
+    Flowable<ServerWebSocket> socketFlowable = server.webSocketStream().toFlowable();
+    socketFlowable.subscribe(
         socket -> System.out.println("Web socket connect"),
         failure -> System.out.println("Should never be called"),
         () -> {
@@ -258,7 +259,7 @@ public class RxifiedExamples {
   public void webSocketServerBuffer(Flowable<ServerWebSocket> socketObservable) {
     socketObservable.subscribe(
         socket -> {
-          Observable<Buffer> dataObs = socket.toObservable();
+          Flowable<Buffer> dataObs = socket.toFlowable();
           dataObs.subscribe(buffer -> {
             System.out.println("Got message " + buffer.toString("UTF-8"));
           });
@@ -268,9 +269,9 @@ public class RxifiedExamples {
 
   public void httpClient(Vertx vertx) {
     HttpClient client = vertx.createHttpClient();
-    client.request(HttpMethod.GET, 8080, "localhost", "/")
+    client.rxRequest(HttpMethod.GET, 8080, "localhost", "/")
       .flatMap(request -> request
-        .send()
+        .rxSend()
         .flatMap(response -> {
           if (response.statusCode() == 200) {
             return response.body();
@@ -285,9 +286,9 @@ public class RxifiedExamples {
 
   public void httpClientResponseStream(Vertx vertx) {
     HttpClient client = vertx.createHttpClient();
-    client.request(HttpMethod.GET, 8080, "localhost", "/")
+    client.rxRequest(HttpMethod.GET, 8080, "localhost", "/")
       .flatMapPublisher(request -> request
-        .send()
+        .rxSend()
         .flatMapPublisher(response -> {
           if (response.statusCode() == 200) {
             return response.toFlowable();
@@ -302,7 +303,7 @@ public class RxifiedExamples {
 
   public void webSocketClient(Vertx vertx) {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-    client.webSocket(8080, "localhost", "/the_uri").subscribe(
+    client.rxWebSocket(8080, "localhost", "/the_uri").subscribe(
         ws -> {
           // Use the websocket
         },
@@ -326,8 +327,8 @@ public class RxifiedExamples {
   public void httpClientRequest(Vertx vertx) {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
     Single<HttpClientResponse> request = client
-      .request( HttpMethod.GET, 8080, "localhost", "/the_uri")
-      .flatMap(HttpClientRequest::send);
+      .rxRequest( HttpMethod.GET, 8080, "localhost", "/the_uri")
+      .flatMap(HttpClientRequest::rxSend);
     request.subscribe(
       response -> {
         // Process the response
@@ -340,12 +341,12 @@ public class RxifiedExamples {
 
   public void httpClientResponse(HttpClient client) {
     Single<HttpClientResponse> request = client
-      .request(HttpMethod.GET, 8080, "localhost", "/the_uri")
-      .flatMap(HttpClientRequest::send);
+      .rxRequest(HttpMethod.GET, 8080, "localhost", "/the_uri")
+      .flatMap(HttpClientRequest::rxSend);
     request.subscribe(
       response -> {
-        Observable<Buffer> observable = response.toObservable();
-        observable.forEach(
+        Flowable<Buffer> flowable = response.toFlowable();
+        flowable.forEach(
           buffer -> {
             // Process buffer
           }
@@ -356,10 +357,10 @@ public class RxifiedExamples {
 
   public void httpClientResponseFlatMap(HttpClient client) {
     Single<HttpClientResponse> request = client
-      .request(HttpMethod.GET, 8080, "localhost", "/the_uri")
-      .flatMap(HttpClientRequest::send);
+      .rxRequest(HttpMethod.GET, 8080, "localhost", "/the_uri")
+      .flatMap(HttpClientRequest::rxSend);
     request.
-      flatMapObservable(HttpClientResponse::toObservable).
+      flatMapPublisher(HttpClientResponse::toFlowable).
       forEach(
         buffer -> {
           // Process buffer
@@ -368,25 +369,25 @@ public class RxifiedExamples {
   }
 
   public void httpServerRequest(HttpServer server) {
-    Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
-    requestObservable.subscribe(request -> {
+    Flowable<HttpServerRequest> requestFlowable = server.requestStream().toFlowable();
+    requestFlowable.subscribe(request -> {
       // Process request
     });
   }
 
   public void httpServerRequestObservable(HttpServer server) {
-    Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
-    requestObservable.subscribe(request -> {
+    Flowable<HttpServerRequest> requestFlowable = server.requestStream().toFlowable();
+    requestFlowable.subscribe(request -> {
       Observable<Buffer> observable = request.toObservable();
     });
   }
 
   public void httpServerRequestObservableUnmarshall(HttpServer server) {
-    Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
-    requestObservable.subscribe(request -> {
-      Observable<MyPojo> observable = request.
-        toObservable().
-        compose(ObservableHelper.unmarshaller(MyPojo.class));
+    Flowable<HttpServerRequest> requestFlowable = server.requestStream().toFlowable();
+    requestFlowable.subscribe(request -> {
+      Flowable<MyPojo> flowable = request.
+        toFlowable().
+        compose(FlowableHelper.unmarshaller(MyPojo.class));
     });
   }
 
