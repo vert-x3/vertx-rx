@@ -155,7 +155,7 @@ class RxJava3Generator extends AbstractRxGenerator {
 
   @Override
   protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
-    if (method.getKind() == MethodKind.FUTURE) {
+    if (method.getKind() == MethodKind.CALLBACK) {
       genRxMethod(model, method, genBody, writer);
       genLazyRxMethod(model, method, genBody, writer);
     } else {
