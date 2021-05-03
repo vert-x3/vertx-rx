@@ -2,28 +2,40 @@ package io.vertx.rxjava3.impl;
 
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.MaybeObserver;
+import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.exceptions.Exceptions;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class AsyncResultMaybe<T> extends Maybe<T> {
-
-  private final Consumer<Handler<AsyncResult<T>>> subscriptionConsumer;
+public class AsyncResultMaybe<T, U> extends Maybe<T> {
 
   public static <T> Maybe<T> toMaybe(Consumer<Handler<AsyncResult<T>>> subscriptionConsumer) {
-    return RxJavaPlugins.onAssembly(new AsyncResultMaybe<T>(subscriptionConsumer));
+    return RxJavaPlugins.onAssembly(new AsyncResultMaybe<>(subscriptionConsumer, Function.identity()));
   }
 
-  public AsyncResultMaybe(Consumer<Handler<AsyncResult<T>>> subscriptionConsumer) {
+  public static <T, U> Maybe<T> toMaybe(Future<U> future, Function<U, T> mapping) {
+    if (future == null) {
+      return Maybe.error(new NullPointerException());
+    }
+    return RxJavaPlugins.onAssembly(new AsyncResultMaybe<>(future::onComplete, mapping));
+  }
+
+  private final Consumer<Handler<AsyncResult<U>>> subscriptionConsumer;
+  private final Function<U, T> mapping;
+
+  private AsyncResultMaybe(Consumer<Handler<AsyncResult<U>>> subscriptionConsumer, Function<U, T> mapping) {
     this.subscriptionConsumer = subscriptionConsumer;
+    this.mapping = mapping;
   }
 
   @Override
@@ -45,7 +57,7 @@ public class AsyncResultMaybe<T> extends Maybe<T> {
           if (!disposed.getAndSet(true)) {
             if (ar.succeeded()) {
               try {
-                T val = ar.result();
+                T val = mapping.apply(ar.result());
                 if (val != null) {
                   observer.onSuccess(val);
                 } else {

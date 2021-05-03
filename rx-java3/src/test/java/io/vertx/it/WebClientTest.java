@@ -7,6 +7,7 @@ import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.lang.rx.it.WineAndCheese;
+import io.vertx.rxjava3.core.FlowableHelper;
 import io.vertx.rxjava3.core.Vertx;
 import io.vertx.rxjava3.core.buffer.Buffer;
 import io.vertx.rxjava3.core.http.HttpServer;

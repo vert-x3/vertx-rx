@@ -772,7 +772,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         TypeInfo retType = parameterizedTypeInfo.getArg(1);
         return "new Function<" + genTypeName(argType) + "," + genTypeName(retType) + ">() {\n" +
           "      public " + genTypeName(retType) + " apply(" + genTypeName(argType) + " arg) {\n" +
-          "        " + genParamTypeDecl(retType) + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
+          "        " + genParamTypeDecl(retType) + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg", genParamTypeDecl(retType)) + ");\n" +
           "        return " + genConvParam(retType, method, "ret") + ";\n" +
           "      }\n" +
           "    }";
@@ -864,6 +864,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     StringBuilder sb = new StringBuilder();
     genTypeArg(arg, method, 0, sb);
     return sb.toString();
+  }
+
+  protected String genConvReturn(TypeInfo type, MethodInfo method, String expr, String target) {
+    return genConvReturn(type, method, expr);
   }
 
   protected String genConvReturn(TypeInfo type, MethodInfo method, String expr) {

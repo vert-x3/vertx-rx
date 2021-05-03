@@ -201,7 +201,12 @@ class RxJava3Generator extends AbstractRxGenerator {
         writer.print(adapterType);
         writer.print("(");
         writer.print(genInvokeDelegate(model, method));
-        writer.println("::onComplete);");
+        if (!futMethod.getReturnType().getSimpleName().equals("Completable")) {
+          writer.print(", __value -> ");
+          TypeInfo asyncType = ((ParameterizedTypeInfo) method.getReturnType()).getArg(0);
+          writer.print(genConvReturn(asyncType, method, "__value"));
+        }
+        writer.println(");");
       } else {
         writer.print("    return ");
         writer.print(adapterType);
@@ -291,6 +296,16 @@ class RxJava3Generator extends AbstractRxGenerator {
       }
     }
     return super.genConvParam(type, method, expr);
+  }
+
+  @Override
+  protected String genConvReturn(TypeInfo type, MethodInfo method, String expr, String target) {
+    String v = super.genConvReturn(type, method, expr, target);
+    if (target.startsWith("io.reactivex.rxjava3.core.Flowable")) {
+      // type == ReadStream
+      return v + ".toFlowable()";
+    }
+    return v;
   }
 
   private MethodInfo genFutureMethod(MethodInfo method) {

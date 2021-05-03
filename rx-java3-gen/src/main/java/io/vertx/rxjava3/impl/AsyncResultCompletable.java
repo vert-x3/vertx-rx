@@ -2,27 +2,34 @@ package io.vertx.rxjava3.impl;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.CompletableObserver;
+import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.exceptions.Exceptions;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class AsyncResultCompletable extends Completable {
 
-  private final Consumer<Handler<AsyncResult<Void>>> subscriptionConsumer;
-
   public static Completable toCompletable(Consumer<Handler<AsyncResult<Void>>> subscriptionConsumer) {
     return RxJavaPlugins.onAssembly(new AsyncResultCompletable(subscriptionConsumer));
   }
 
-  public AsyncResultCompletable(Consumer<Handler<AsyncResult<Void>>> subscriptionConsumer) {
+  public static Completable toCompletable(Future<Void> subscriptionConsumer) {
+    return RxJavaPlugins.onAssembly(new AsyncResultCompletable(subscriptionConsumer::onComplete));
+  }
+
+  private final Consumer<Handler<AsyncResult<Void>>> subscriptionConsumer;
+
+  private AsyncResultCompletable(Consumer<Handler<AsyncResult<Void>>> subscriptionConsumer) {
     this.subscriptionConsumer = subscriptionConsumer;
   }
 

@@ -61,7 +61,7 @@ public class RxHelper {
    * @return the response observable
    */
   public static Single<String> deployVerticle(Vertx vertx, Verticle verticle, DeploymentOptions options) {
-    return RxJavaPlugins.onAssembly(new AsyncResultSingle<>(handler -> vertx.getDelegate().deployVerticle(verticle, options, handler)));
+    return RxJavaPlugins.onAssembly(AsyncResultSingle.toSingle(handler -> vertx.getDelegate().deployVerticle(verticle, options, handler)));
   }
 
   /**

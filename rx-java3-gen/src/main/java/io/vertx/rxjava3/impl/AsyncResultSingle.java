@@ -7,24 +7,35 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.exceptions.Exceptions;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class AsyncResultSingle<T> extends Single<T> {
+public class AsyncResultSingle<T, U> extends Single<T> {
 
   public static <T> Single<T> toSingle(Consumer<Handler<AsyncResult<T>>> subscriptionConsumer) {
-    return RxJavaPlugins.onAssembly(new AsyncResultSingle<T>(subscriptionConsumer));
+    return RxJavaPlugins.onAssembly(new AsyncResultSingle<>(subscriptionConsumer, Function.identity()));
   }
 
-  private final Consumer<Handler<AsyncResult<T>>> subscriptionConsumer;
+  public static <T, U> Single<T> toSingle(Future<U> future, Function<U, T> mapping) {
+    if (future == null) {
+      return Single.error(new NullPointerException());
+    }
+    return RxJavaPlugins.onAssembly(new AsyncResultSingle<>(future::onComplete, mapping));
+  }
 
-  public AsyncResultSingle(Consumer<Handler<AsyncResult<T>>> subscriptionConsumer) {
+  private final Consumer<Handler<AsyncResult<U>>> subscriptionConsumer;
+  private final Function<U, T> mapping;
+
+  private AsyncResultSingle(Consumer<Handler<AsyncResult<U>>> subscriptionConsumer, Function<U, T> mapping) {
     this.subscriptionConsumer = subscriptionConsumer;
+    this.mapping = mapping;
   }
 
   @Override
@@ -46,7 +57,7 @@ public class AsyncResultSingle<T> extends Single<T> {
           if (!disposed.getAndSet(true)) {
             if (ar.succeeded()) {
               try {
-                observer.onSuccess(ar.result());
+                observer.onSuccess(mapping.apply(ar.result()));
               } catch (Throwable t) {
                 Exceptions.throwIfFatal(t);
                 RxJavaPlugins.onError(t);

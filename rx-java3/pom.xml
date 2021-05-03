@@ -377,6 +377,11 @@
       <artifactId>vertx-json-schema</artifactId>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-http-proxy</artifactId>
+      <optional>true</optional>
+    </dependency>
 
     <!-- Extra dependencies -->
     <dependency>
@@ -547,7 +552,8 @@
             vertx-shell,
             vertx-micrometer-metrics,
             vertx-tcp-eventbus-bridge,
-            vertx-json-schema
+            vertx-json-schema,
+            vertx-http-proxy
           </includeArtifactIds>
           <classifier>sources</classifier>
           <includeTypes>jar</includeTypes>
