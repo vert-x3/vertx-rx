@@ -155,7 +155,7 @@ class RxJava3Generator extends AbstractRxGenerator {
 
   @Override
   protected void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
-    if (method.getKind() == MethodKind.FUTURE) {
+    if (method.getKind() == MethodKind.CALLBACK || method.getKind() == MethodKind.FUTURE) {
       genRxMethod(model, method, genBody, writer);
       genLazyRxMethod(model, method, genBody, writer);
     } else {
@@ -165,8 +165,6 @@ class RxJava3Generator extends AbstractRxGenerator {
 
   private void genRxMethod(ClassModel model, MethodInfo method, boolean genBody, PrintWriter writer) {
     MethodInfo futMethod = genFutureMethod(method);
-    ClassTypeInfo raw = futMethod.getReturnType().getRaw();
-    String methodSimpleName = raw.getSimpleName();
     startMethodTemplate("public", model.getType(), futMethod, "", writer);
     if (genBody) {
       String rxName = genFutureMethodName(method);
@@ -198,16 +196,23 @@ class RxJava3Generator extends AbstractRxGenerator {
     startMethodTemplate("public", model.getType(), futMethod, "", writer);
     if (genBody) {
       writer.println(" { ");
-      writer.print("    return ");
-      writer.print(adapterType);
-      writer.print("( ");
-      writer.print(method.getParam(futMethod.getParams().size()).getName());
-      writer.println(" -> {");
-
-      writer.print("      ");
-      writer.print(genInvokeDelegate(model, method));
-      writer.println(";");
-      writer.println("    });");
+      if (method.getKind() == MethodKind.FUTURE) {
+        writer.print("    return ");
+        writer.print(adapterType);
+        writer.print("(");
+        writer.print(genInvokeDelegate(model, method));
+        writer.println("::onComplete);");
+      } else {
+        writer.print("    return ");
+        writer.print(adapterType);
+        writer.print("( ");
+        writer.print(method.getParam(futMethod.getParams().size()).getName());
+        writer.println(" -> {");
+        writer.print("      ");
+        writer.print(genInvokeDelegate(model, method));
+        writer.println(";");
+        writer.println("    });");
+      }
       writer.println("  }");
     } else {
       writer.println(";");
@@ -289,18 +294,27 @@ class RxJava3Generator extends AbstractRxGenerator {
   }
 
   private MethodInfo genFutureMethod(MethodInfo method) {
-    List<ParamInfo> futParams = new ArrayList<>();
-    int count = 0;
-    int size = method.getParams().size() - 1;
-    while (count < size) {
-      ParamInfo param = method.getParam(count);
-      /* Transform ReadStream -> Flowable */
-      futParams.add(param);
-      count = count + 1;
+    List<ParamInfo> futParams;
+    TypeInfo futType;
+    TypeInfo futUnresolvedType;
+    if (method.getKind() == MethodKind.FUTURE) {
+      futParams = new ArrayList<>(method.getParams());
+      futType = ((ParameterizedTypeInfo) method.getReturnType()).getArg(0);
+      futUnresolvedType = futType;
+    } else {
+      futParams = new ArrayList<>();
+      int count = 0;
+      int size = method.getParams().size() - 1;
+      while (count < size) {
+        ParamInfo param = method.getParam(count);
+        /* Transform ReadStream -> Flowable */
+        futParams.add(param);
+        count = count + 1;
+      }
+      ParamInfo futParam = method.getParam(size);
+      futType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getType()).getArg(0)).getArg(0);
+      futUnresolvedType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getUnresolvedType()).getArg(0)).getArg(0);
     }
-    ParamInfo futParam = method.getParam(size);
-    TypeInfo futType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getType()).getArg(0)).getArg(0);
-    TypeInfo futUnresolvedType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getUnresolvedType()).getArg(0)).getArg(0);
     TypeInfo futReturnType;
     if (futUnresolvedType.getKind() == VOID) {
       futReturnType = io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Completable.class);

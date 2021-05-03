@@ -36,7 +36,7 @@ public abstract class Vertx3RxGeneratorBase extends AbstractRxGenerator {
   }
 
   private void genMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
-    if (method.getKind() == MethodKind.FUTURE) {
+    if (method.getKind() == MethodKind.CALLBACK) {
       // Generate 3 methods
       // 1/ the handler based method: void WriteStream#end(Handler<AsyncResult<Void>>)
       // 2/ the fire and forget overload: void WriteStream#end()
