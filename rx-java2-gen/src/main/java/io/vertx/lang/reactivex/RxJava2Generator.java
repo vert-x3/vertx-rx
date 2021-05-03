@@ -204,22 +204,6 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
   }
 
   @Override
-  protected String genTypeName(TypeInfo type, boolean translate) {
-    if (!translate) {
-      if (type.isParameterized()) {
-        String rawTypeName = type.getRaw().getName();
-        if (rawTypeName.equals("io.reactivex.Single") || rawTypeName.equals("io.reactivex.Maybe")) {
-          ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-          return "io.vertx.core.Future<" + super.genTypeName(parameterizedType.getArg(0), translate) + ">";
-        }
-      } else if (type.getName().equals("io.reactivex.Completable")) {
-        return "io.vertx.core.Future<Void>";
-      }
-    }
-    return super.genTypeName(type, translate);
-  }
-
-  @Override
   protected String genConvParam(TypeInfo type, MethodInfo method, String expr) {
     if (type.isParameterized() && (type.getRaw().getName().equals("io.reactivex.Flowable") || type.getRaw().getName().equals("io.reactivex.Observable"))) {
       ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
@@ -239,8 +223,10 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
       ParameterizedTypeInfo parameterizedTypeInfo = (ParameterizedTypeInfo) type;
       TypeInfo argType = parameterizedTypeInfo.getArg(0);
       TypeInfo retType = parameterizedTypeInfo.getArg(1);
-      return "new Function<" + genTypeName(argType) + "," + genTypeName(retType) + ">() {\n" +
-        "      public " + genTypeName(retType) + " apply(" + genTypeName(argType) + " arg) {\n" +
+      String argName = rewriteParamType(argType);
+      String retName = rewriteParamType(retType);
+      return "new Function<" + argName + "," + retName + ">() {\n" +
+        "      public " + retName + " apply(" + argName + " arg) {\n" +
         "        " + genTranslatedTypeName(retType) + " ret;\n" +
         "        try {\n" +
         "          ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
@@ -253,6 +239,19 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
     } else {
       return super.genConvParam(type, method, expr);
     }
+  }
+
+  private String rewriteParamType(TypeInfo type) {
+    if (type.isParameterized()) {
+      String rawTypeName = type.getRaw().getName();
+      if (rawTypeName.equals("io.reactivex.Single") || rawTypeName.equals("io.reactivex.Maybe")) {
+        ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
+        return "io.vertx.core.Future<" + super.genTypeName(parameterizedType.getArg(0)) + ">";
+      }
+    } else if (type.getName().equals("io.reactivex.Completable")) {
+      return "io.vertx.core.Future<Void>";
+    }
+    return genTypeName(type);
   }
 
   private MethodInfo genFutureMethod(MethodInfo method) {

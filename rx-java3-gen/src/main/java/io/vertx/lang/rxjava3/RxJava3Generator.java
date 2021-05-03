@@ -255,7 +255,7 @@ class RxJava3Generator extends AbstractRxGenerator {
         }
       } else if (type.getKind() == ClassKind.FUNCTION) {
         ParameterizedTypeInfo functionType = (ParameterizedTypeInfo) type;
-        TypeInfo argType = rewriteParamType(functionType.getArg(0));
+        TypeInfo argType = functionType.getArg(0); // Return not param
         TypeInfo retType = rewriteParamType(functionType.getArg(1));
         if (argType != functionType.getArg(0) || retType != functionType.getArg(1)) {
           return new ParameterizedTypeInfo(
@@ -296,16 +296,6 @@ class RxJava3Generator extends AbstractRxGenerator {
       }
     }
     return super.genConvParam(type, method, expr);
-  }
-
-  @Override
-  protected String genConvReturn(TypeInfo type, MethodInfo method, String expr, String target) {
-    String v = super.genConvReturn(type, method, expr, target);
-    if (target.startsWith("io.reactivex.rxjava3.core.Flowable")) {
-      // type == ReadStream
-      return v + ".toFlowable()";
-    }
-    return v;
   }
 
   private MethodInfo genFutureMethod(MethodInfo method) {
