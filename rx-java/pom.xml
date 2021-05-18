@@ -34,11 +34,6 @@
       <artifactId>vertx-docgen</artifactId>
       <optional>true</optional>
     </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-codetrans</artifactId>
-      <optional>true</optional>
-    </dependency>
 
     <dependency>
       <groupId>io.vertx</groupId>
