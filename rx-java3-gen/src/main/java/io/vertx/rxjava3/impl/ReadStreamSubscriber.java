@@ -49,7 +49,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
   private Handler<Void> endHandler;
   private Handler<Throwable> exceptionHandler;
   private Handler<J> elementHandler;
-  private boolean paused = false;
+  private long demand = Long.MAX_VALUE;
   private Throwable completed;
   private ArrayDeque<R> pending = new ArrayDeque<>();
   private int requested = 0;
@@ -71,23 +71,29 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
   @Override
   public ReadStream<J> pause() {
     synchronized (this) {
-      paused = true;
+      demand = 0L;
     }
     return this;
   }
 
   @Override
   public ReadStream<J> fetch(long amount) {
-    throw new UnsupportedOperationException("todo");
+    if (amount < 0L) {
+      throw new IllegalArgumentException("Invalid amount: " + amount);
+    }
+    synchronized (this) {
+      demand += amount;
+      if (demand < 0L) {
+        demand = Long.MAX_VALUE;
+      }
+    }
+    checkStatus();
+    return this;
   }
 
   @Override
   public ReadStream<J> resume() {
-    synchronized (this) {
-      paused = false;
-    }
-    checkStatus();
-    return this;
+    return fetch(Long.MAX_VALUE);
   }
 
   @Override
@@ -104,7 +110,10 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
       J adapted;
       Handler<J> handler;
       synchronized (this) {
-        if (!paused && (handler = elementHandler) != null && pending.size() > 0) {
+        if (demand > 0L && (handler = elementHandler) != null && pending.size() > 0) {
+          if (demand != Long.MAX_VALUE) {
+            demand--;
+          }
           requested--;
           R item = pending.poll();
           adapted = adapter.apply(item);

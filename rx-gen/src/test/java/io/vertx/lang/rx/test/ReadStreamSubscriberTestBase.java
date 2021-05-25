@@ -127,6 +127,29 @@ public abstract class ReadStreamSubscriberTestBase extends VertxTestBase {
   }
 
   @Test
+  public void testFetch() {
+    Sender sender = sender();
+    sender.stream.pause();
+    Receiver receiver = new Receiver();
+    receiver.subscribe(sender.stream);
+    assertEquals(16L, sender.requested);
+    receiver.assertEmpty();
+    sender.emit();
+    receiver.assertEmpty();
+    sender.stream.fetch(1);
+    receiver.assertItems("0");
+    sender.stream.fetch(1);
+    receiver.assertItems();
+    sender.emit(4);
+    receiver.assertItems("1");
+    sender.complete();
+    receiver.assertEmpty();
+    sender.stream.fetch(3);
+    receiver.assertItems("2", "3", "4");
+    receiver.assertEnded();
+  }
+
+  @Test
   public void testCompletion() {
     Sender sender = sender();
     Receiver receiver = new Receiver();
