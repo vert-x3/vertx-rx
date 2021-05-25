@@ -55,7 +55,7 @@ The _Rxified_ Vert.x API provides a {@link io.vertx.rxjava.core.streams.ReadStre
 {@link examples.RxifiedExamples#toObservable}
 ----
 
-Such observables arehot* observables, i.e. they will produce notifications regardless of subscriptions because
+Such observables are *hot* observables, i.e. they will produce notifications regardless of subscriptions because
 a `ReadStream` can potentially emit items spontaneously or not, depending on the implementation:
 
 At subscription time, the adapter calls {@link io.vertx.core.streams.ReadStream#handler(io.vertx.core.Handler)}
@@ -191,7 +191,7 @@ The _Rxified_ Vert.x API duplicates each such method with the `rx` prefix that r
 {@link examples.RxifiedExamples#single(io.vertx.rxjava.core.Vertx)}
 ----
 
-Such single arecold* singles, and the corresponding API method is called on subscribe.
+Such single are *cold* singles, and the corresponding API method is called on subscribe.
 
 NOTE: the `rx*` methods replace the `*Observable` of the previous _Rxified_ versions with a semantic
 change to be more in line with RxJava.
