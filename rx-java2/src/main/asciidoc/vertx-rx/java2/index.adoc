@@ -278,7 +278,7 @@ To deploy existing Verticle instances, you can use {@link io.vertx.reactivex.cor
 {@link examples.RxifiedExamples#deployVerticle}
 ----
 
-= Rxified API
+== Rxified API
 
 The _Rxified_ API is a code generated version of the Vert.x API, just like the _JavaScript_ or _Groovy_
 language. The API uses the `io.vertx.rxjava` prefix, for instance the `io.vertx.core.Vertx` class is
