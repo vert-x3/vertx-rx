@@ -3,6 +3,7 @@ package io.vertx.rxjava3;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.CompletableObserver;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.MaybeObserver;
 import io.reactivex.rxjava3.core.MaybeTransformer;
@@ -23,6 +24,28 @@ import java.util.function.Function;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class MaybeHelper {
+
+  private static final MaybeObserver<?> NULL_OBSERVER = new MaybeObserver<Object>() {
+    @Override
+    public void onSubscribe(@NonNull Disposable d) {
+    }
+    @Override
+    public void onSuccess(@NonNull Object o) {
+    }
+    @Override
+    public void onError(@NonNull Throwable e) {
+    }
+    @Override
+    public void onComplete() {
+    }
+  };
+
+  /**
+   * @return a {@code MaybeObserver} that does nothing
+   */
+  public static <T> MaybeObserver<T> nullObserver() {
+    return (MaybeObserver<T>) NULL_OBSERVER;
+  }
 
   /**
    * Returns a {@link Maybe} that, when subscribed, uses the provided {@code handler} to adapt a callback-based asynchronous method.

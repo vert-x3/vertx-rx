@@ -20,6 +20,25 @@ import java.util.function.Consumer;
  */
 public class CompletableHelper {
 
+  private static final CompletableObserver NULL_OBSERVER = new CompletableObserver() {
+    @Override
+    public void onSubscribe(@NonNull Disposable d) {
+    }
+    @Override
+    public void onComplete() {
+    }
+    @Override
+    public void onError(@NonNull Throwable e) {
+    }
+  };
+
+  /**
+   * @return a {@code CompletableObserver} that does nothing
+   */
+  public static CompletableObserver nullObserver() {
+    return NULL_OBSERVER;
+  }
+
   /**
    * Returns a {@link Completable} that, when subscribed, uses the provided {@code handler} to adapt a callback-based asynchronous method.
    * <p>

@@ -3,6 +3,7 @@ package io.vertx.rxjava3;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.MaybeObserver;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleObserver;
 import io.reactivex.rxjava3.core.SingleTransformer;
@@ -23,6 +24,25 @@ import java.util.function.Function;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class SingleHelper {
+
+  public static final SingleObserver<?> NULL_OBSERVER = new SingleObserver<Object>() {
+    @Override
+    public void onSubscribe(@NonNull Disposable d) {
+    }
+    @Override
+    public void onSuccess(@NonNull Object o) {
+    }
+    @Override
+    public void onError(@NonNull Throwable e) {
+    }
+  };
+
+  /**
+   * @return a {@code SingleObserver} that does nothing
+   */
+  public static <T> SingleObserver<T> nullObserver() {
+    return (SingleObserver<T>) NULL_OBSERVER;
+  }
 
   /**
    * Returns a {@link Single} that, when subscribed, uses the provided {@code handler} to adapt a callback-based asynchronous method.

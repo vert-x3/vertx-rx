@@ -178,7 +178,9 @@ class RxJava3Generator extends AbstractRxGenerator {
       writer.print(params.stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
       writer.println(");");
       writer.println("    ret = ret.cache();");
-      writer.println("    ret.subscribe();");
+      writer.print("    ret.subscribe(io.vertx.rxjava3.");
+      writer.print(futMethod.getReturnType().getRaw().getSimpleName());
+      writer.println("Helper.nullObserver());");
       writer.println("    return ret;");
       writer.println("  }");
     } else {
