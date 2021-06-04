@@ -27,7 +27,7 @@ Integration tests are placed here:
 
 Integration docs are placed here:
 
-* https://github.com/vert-x3/vertx-rx/tree/master/rx-java2/src/main/asciidoc[RxJava 2]
+* https://github.com/vert-x3/vertx-rx/tree/master/rx-java3/src/main/asciidoc[RxJava 3]
 
 The corresponding component uses an asciidoctor https://asciidoctor.org/docs/user-manual/#include-directive[include] directive
 to embed the doc snippet:
@@ -35,16 +35,16 @@ to embed the doc snippet:
 [source,asciidoc]
 ----
 ifeval::["$lang" == "java"]
-include::override/rxjava2.adoc[]
+include::override/rxjava3.adoc[]
 endif::[]
 ----
 
 Vert.x Web Client example:
 
-* https://github.com/vert-x3/vertx-web/blob/master/vertx-web-client/src/main/asciidoc/override/rxjava2.adoc
+* https://github.com/vert-x3/vertx-web/blob/master/vertx-web-client/src/main/asciidoc/override/rxjava3.adoc
 
 is replaced by
 
-* https://github.com/vert-x3/vertx-rx/blob/master/rx-java2/src/main/asciidoc/vertx-web-client/java/override/rxjava2.adoc
+* https://github.com/vert-x3/vertx-rx/blob/master/rx-java2/src/main/asciidoc/vertx-web-client/java/override/rxjava3.adoc
 
 The final aggregation happens in the https://github.com/vert-x3/vertx-stack/tree/master/stack-docs[stack generation] module.
