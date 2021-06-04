@@ -10,8 +10,6 @@ This module provides helpers for adapting Vert.x stream and future constructs to
 
 * http://vertx.io/docs/vertx-rx/java/[RxJava Documentation]
 * http://vertx.io/docs/vertx-rx/java2/[RxJava 2 Documentation]
-* http://vertx.io/docs/vertx-rx/js/[RxJS Documentation]
-* http://vertx.io/docs/vertx-rx/groovy/[RxGroovy Documentation]
 
 == Stack integration
 
@@ -23,6 +21,7 @@ Integration tests are placed here:
 
 * https://github.com/vert-x3/vertx-rx/tree/master/rx-java/src/test/java/io/vertx/it[RxJava]
 * https://github.com/vert-x3/vertx-rx/tree/master/rx-java2/src/test/java/io/vertx/it[RxJava 2]
+* https://github.com/vert-x3/vertx-rx/tree/master/rx-java3/src/test/java/io/vertx/it[RxJava 3]
 
 === Integration docs
 
