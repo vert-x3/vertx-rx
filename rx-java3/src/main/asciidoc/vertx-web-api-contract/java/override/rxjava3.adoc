@@ -1,4 +1,4 @@
-== RxJava 2 API
+== RxJava 3 API
 
 The Web API Contract provides an rxified version of APIs
 

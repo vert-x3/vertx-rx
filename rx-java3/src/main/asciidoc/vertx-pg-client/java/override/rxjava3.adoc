@@ -1,4 +1,4 @@
-== RxJava 2 API
+== RxJava 3 API
 
 The Rxified API supports RxJava 1 and RxJava 2, the following examples use RxJava 2.
 

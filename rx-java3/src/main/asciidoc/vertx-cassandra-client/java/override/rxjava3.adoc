@@ -1,4 +1,4 @@
-== RxJava 2 API
+== RxJava 3 API
 
 The Cassandra client provides an Rxified version of the original API.
 
