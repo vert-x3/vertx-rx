@@ -1,6 +1,9 @@
 == RxJava 3 API
 
-The Rxified API supports RxJava 1 and RxJava 2, the following examples use RxJava 2.
+The client provides an Rxified version of the original API.
+The following examples use RxJava 3.
+
+=== Simple query
 
 [source,java]
 ----
