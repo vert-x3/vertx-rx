@@ -32,7 +32,7 @@ method start and commit a transaction for you:
 
 === Streaming
 
-RxJava 2 supports `Observable` and `Flowable` types, these are exposed using
+RxJava supports `Observable` and `Flowable` types, these are exposed using
 the {@link io.vertx.rxjava3.sqlclient.RowStream} that you can get
 from a {@link io.vertx.rxjava3.sqlclient.PreparedQuery}:
 
