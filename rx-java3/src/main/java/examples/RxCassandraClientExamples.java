@@ -16,7 +16,7 @@ public class RxCassandraClientExamples {
   }
 
   public void simpleQueryStream(CassandraClient cassandraClient) {
-    cassandraClient.queryStream("SELECT my_key FROM my_keyspace.my_table where my_key = my_value")
+    cassandraClient.rxQueryStream("SELECT my_key FROM my_keyspace.my_table where my_key = my_value")
       // Convert the stream to a Flowable
       .flatMapPublisher(CassandraRowStream::toFlowable)
       .subscribe(row -> {
@@ -29,7 +29,7 @@ public class RxCassandraClientExamples {
   }
 
   public void simpleFullFetch(CassandraClient cassandraClient) {
-    cassandraClient.executeWithFullFetch("SELECT my_key FROM my_keyspace.my_table where my_key = my_value")
+    cassandraClient.rxExecuteWithFullFetch("SELECT my_key FROM my_keyspace.my_table where my_key = my_value")
       .subscribe(rows -> {
         // Handle list of rows
       }, throwable -> {

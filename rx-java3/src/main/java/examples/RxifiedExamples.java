@@ -47,7 +47,7 @@ public class RxifiedExamples {
 
   public void toFlowable(Vertx vertx) {
     FileSystem fs = vertx.fileSystem();
-    fs.open("/data.txt", new OpenOptions())
+    fs.rxOpen("/data.txt", new OpenOptions())
       .flatMapPublisher(file -> file.toFlowable())
       .subscribe(data -> System.out.println("Read data: " + data.toString("UTF-8")));
   }

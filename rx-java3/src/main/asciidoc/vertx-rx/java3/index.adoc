@@ -253,7 +253,7 @@ the specific thread pool for scheduling blocking actions:
 
 === Json unmarshalling
 
-The {@link io.vertx.rxjava3.FlowableHelper#unmarshaller(Class)} creates an `io.reactivex.rxjava2.FlowableOperator` that
+The {@link io.vertx.rxjava3.FlowableHelper#unmarshaller(Class)} creates an `io.reactivex.rxjava3.FlowableOperator` that
 transforms an `Flowable<Buffer>` in json format into an object flowable:
 
 [source,java]

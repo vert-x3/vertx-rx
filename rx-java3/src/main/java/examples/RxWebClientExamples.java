@@ -21,7 +21,7 @@ public class RxWebClientExamples {
     // at this point no HTTP request has been sent to the server
     Single<HttpResponse<Buffer>> single = client
       .get(8080, "myserver.mycompany.com", "/some-uri")
-      .send();
+      .rxSend();
 
     // Send a request upon subscription of the Single
     single.subscribe(response -> System.out.println("Received 1st response with status code" + response.statusCode()), error -> System.out.println("Something went wrong " + error.getMessage()));
@@ -35,12 +35,12 @@ public class RxWebClientExamples {
     // Obtain an URL Single from myserver.mycompany.com
     Single<String> url = client
       .get(8080, "myserver.mycompany.com", "/some-uri")
-      .send()
+      .rxSend()
       .map(HttpResponse::bodyAsString);
 
     // Use the flatMap operator to make a request on the URL Single
     url
-      .flatMap(u -> client.getAbs(u).send())
+      .flatMap(u -> client.getAbs(u).rxSend())
       .subscribe(response -> System.out.println("Received response with status code" + response.statusCode()), error -> System.out.println("Something went wrong " + error.getMessage()));
   }
 
@@ -50,7 +50,7 @@ public class RxWebClientExamples {
       .putHeader("some-header", "header-value")
       .addQueryParam("some-param", "param value")
       .as(BodyCodec.jsonObject())
-      .send();
+      .rxSend();
     single.subscribe(resp -> {
       System.out.println(resp.statusCode());
       System.out.println(resp.body());
@@ -67,7 +67,7 @@ public class RxWebClientExamples {
 
     Single<HttpResponse<Buffer>> single = client
       .post(8080, "myserver.mycompany.com", "/some-uri")
-      .sendStream(body);
+      .rxSendStream(body);
     single.subscribe(resp -> {
       System.out.println(resp.statusCode());
       System.out.println(resp.body());

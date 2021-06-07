@@ -19,7 +19,7 @@ public class RxPgClientExamples {
   public void simpleQuery01Example(PgPool pool) {
 
     // A simple query
-    Single<RowSet<Row>> single = pool.query("SELECT * FROM users WHERE id='julien'").execute();
+    Single<RowSet<Row>> single = pool.query("SELECT * FROM users WHERE id='julien'").rxExecute();
 
     // Execute the query
     single.subscribe(result -> {
@@ -32,11 +32,11 @@ public class RxPgClientExamples {
   public void streamingQuery01Example(PgPool pool) {
 
     // Create an Observable
-    Observable<Row> observable = pool.getConnection().flatMapObservable(conn -> conn
-      .begin()
+    Observable<Row> observable = pool.rxGetConnection().flatMapObservable(conn -> conn
+      .rxBegin()
       .flatMapObservable(tx ->
         conn
-          .prepare("SELECT * FROM users WHERE first_name LIKE $1")
+          .rxPrepare("SELECT * FROM users WHERE first_name LIKE $1")
           .flatMapObservable(preparedQuery -> {
             // Fetch 50 rows at a time
             RowStream<Row> stream = preparedQuery.createStream(50, Tuple.of("julien"));
@@ -57,11 +57,11 @@ public class RxPgClientExamples {
   public void streamingQuery02Example(PgPool pool) {
 
     // Create an Observable
-    Flowable<Row> flowable = pool.getConnection().flatMapPublisher(conn -> conn
-      .begin()
+    Flowable<Row> flowable = pool.rxGetConnection().flatMapPublisher(conn -> conn
+      .rxBegin()
       .flatMapPublisher(tx ->
         conn
-          .prepare("SELECT * FROM users WHERE first_name LIKE $1")
+          .rxPrepare("SELECT * FROM users WHERE first_name LIKE $1")
           .flatMapPublisher(preparedQuery -> {
             // Fetch 50 rows at a time
             RowStream<Row> stream = preparedQuery.createStream(50, Tuple.of("julien"));
@@ -103,10 +103,10 @@ public class RxPgClientExamples {
     Maybe<RowSet<Row>> maybe = pool.withConnection(conn ->
       conn
         .query("INSERT INTO Users (first_name,last_name) VALUES ('Julien','Viet')")
-        .execute()
+        .rxExecute()
         .flatMap(result -> conn
           .query("SELECT * FROM Users")
-          .execute())
+          .rxExecute())
         .toMaybe());
 
     maybe.subscribe(rows -> {
@@ -121,10 +121,10 @@ public class RxPgClientExamples {
     Completable completable = pool.withTransaction(conn ->
       conn
         .query("INSERT INTO Users (first_name,last_name) VALUES ('Julien','Viet')")
-        .execute()
+        .rxExecute()
         .flatMap(result -> conn
           .query("INSERT INTO Users (first_name,last_name) VALUES ('Emad','Alblueshi')")
-          .execute())
+          .rxExecute())
         .toMaybe())
       .ignoreElement();
 

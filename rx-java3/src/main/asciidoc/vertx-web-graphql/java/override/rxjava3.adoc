@@ -1,4 +1,4 @@
-== RxJava 2 API
+== RxJava 3 API
 
 === Setting up with an Rxified router
 
@@ -8,17 +8,17 @@ To handle GraphQL requests on a Rxified {@link io.vertx.rxjava3.ext.web.Route}, 
 
 GraphQL-Java expects `CompletionStage` for asynchronous results in data fetchers and batch loaders.
 
-Therefore, if you work with the Vert.x Rxified APIs (e.g. the https://vertx.io/docs/vertx-web-client/java/#_rxjava_2_api[Web Client] or the https://vertx.io/docs/vertx-cassandra-client/java/#_rxjava_2_api[Cassandra Client]), you will have to adapt the `Single` and `Maybe` objects.
+Therefore, if you work with the Vert.x Rxified APIs (e.g. the https://vertx.io/docs/vertx-web-client/java/#_rxjava_3_api[Web Client] or the https://vertx.io/docs/vertx-cassandra-client/java/#_rxjava_3_api[Cassandra Client]), you will have to adapt the `Single` and `Maybe` objects.
 
-The `RxJava2Jdk8Interop` library provides the tooling to do just that.
+The `RxJavaJdk8Interop` library provides the tooling to do just that.
 Add the following to the _dependencies_ section of your Maven build file:
 
 [source,xml,subs="+attributes"]
 ----
 <dependency>
   <groupId>com.github.akarnokd</groupId>
-  <artifactId>rxjava2-jdk8-interop</artifactId>
-  <version>0.3.5</version>
+  <artifactId>rxjava3-jdk8-interop</artifactId>
+  <version>3.0.0-RC6</version>
 </dependency>
 ----
 
@@ -26,7 +26,7 @@ Or if you use Gradle:
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'com.github.akarnokd:rxjava2-jdk8-interop:0.3.5'
+implementation 'com.github.akarnokd:rxjava3-jdk8-interop:3.0.0-RC6'
 ----
 
 Then you can create a data fetcher from a `Single` result:
