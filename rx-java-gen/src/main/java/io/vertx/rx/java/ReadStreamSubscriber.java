@@ -6,6 +6,7 @@ import rx.Observable;
 import rx.Subscriber;
 
 import java.util.ArrayDeque;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -31,11 +32,10 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
   private static final Throwable DONE_SENTINEL = new Throwable();
 
   public static final int BUFFER_SIZE = 16;
+  private Consumer<Subscriber<R>> execOnHandler;
 
   public static <R, J> ReadStream<J> asReadStream(Observable<R> observable, Function<R, J> adapter) {
-    ReadStreamSubscriber<R, J> observer = new ReadStreamSubscriber<>(adapter);
-    observable.subscribe(observer);
-    return observer;
+    return new ReadStreamSubscriber<>(adapter, observable::subscribe);
   }
 
   private final Function<R, J> adapter;
@@ -48,15 +48,24 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
   private int requested = 0;
 
   public ReadStreamSubscriber(Function<R, J> adapter) {
+    this(adapter, s -> {});
+  }
+
+  public ReadStreamSubscriber(Function<R, J> adapter, Consumer<Subscriber<R>> execOnHandler) {
     this.adapter = adapter;
+    this.execOnHandler = execOnHandler;
     request(0);
   }
 
   @Override
   public ReadStream<J> handler(Handler<J> handler) {
+    Consumer<Subscriber<R>> action;
     synchronized (this) {
       elementHandler = handler;
+      action = execOnHandler;
+      execOnHandler = s -> {};
     }
+    action.accept(this);
     checkStatus();
     return this;
   }
