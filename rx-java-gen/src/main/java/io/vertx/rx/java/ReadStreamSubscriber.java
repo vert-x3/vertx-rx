@@ -59,11 +59,12 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
 
   @Override
   public ReadStream<J> handler(Handler<J> handler) {
+    Consumer<Subscriber<R>> action;
     synchronized (this) {
       elementHandler = handler;
+      action = execOnHandler;
+      execOnHandler = s -> {};
     }
-    Consumer<Subscriber<R>> action = execOnHandler;
-    execOnHandler = s -> {};
     action.accept(this);
     checkStatus();
     return this;
