@@ -7,12 +7,12 @@
   <parent>
     <artifactId>vertx-rx</artifactId>
     <groupId>io.vertx</groupId>
-    <version>4.1.5</version>
+    <version>4.1.6-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>vertx-rx-java2</artifactId>
-  <version>4.1.5</version>
+  <version>4.1.6-SNAPSHOT</version>
 
   <name>Vert.x RxJava2 API</name>
 
@@ -382,12 +382,12 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-rx-java2-gen</artifactId>
-      <version>4.1.5</version>
+      <version>4.1.6-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-rx-gen</artifactId>
-      <version>4.1.5</version>
+      <version>4.1.6-SNAPSHOT</version>
     </dependency>
 
     <!-- Test dependencies -->
@@ -408,12 +408,12 @@
       <artifactId>vertx-rx-gen</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
-      <version>4.1.5</version>
+      <version>4.1.6-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-rx-java2-gen</artifactId>
-      <version>4.1.5</version>
+      <version>4.1.6-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
