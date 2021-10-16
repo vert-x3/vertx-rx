@@ -36,6 +36,7 @@ public interface JsonMapperTCK {
     return new MyPojoToJsonObject(value.getInteger("v"));
   }
 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @GenIgnore
   static JsonArray serializeMyPojoToJsonArray(MyPojoToJsonArray value) {
     return new JsonArray((List)value.stuff);
@@ -56,6 +57,16 @@ public interface JsonMapperTCK {
     return ZonedDateTime.parse(value);
   }
 
+  @GenIgnore
+  static String serializeCustomEnum(TestCustomEnum value) {
+    return (value != null) ? value.getShortName() : null;
+  }
+  
+  @GenIgnore
+  static TestCustomEnum deserializeCustomEnum(String value) {
+    return (value != null) ? TestCustomEnum.of(value) : null;
+  }
+  
   // Java Type <-> Integer
 
   void methodWithTypeToIntegerParam(MyPojoToInteger myPojoToInteger);
@@ -143,5 +154,27 @@ public interface JsonMapperTCK {
   void methodWithHandlerAsyncResultListOfTypeToJsonObjectParam(Handler<AsyncResult<List<MyPojoToJsonObject>>> myPojoToJsonObjectListHandler);
   void methodWithHandlerAsyncResultSetOfTypeToJsonObjectParam(Handler<AsyncResult<Set<MyPojoToJsonObject>>> myPojoToJsonObjectSetHandler);
   void methodWithHandlerAsyncResultMapOfTypeToJsonObjectParam(Handler<AsyncResult<Map<String, MyPojoToJsonObject>>> myPojoToJsonObjectMapHandler);
+
+  // CustomEnum <-> String
+
+  void methodWithCustomEnumToStringParam(TestCustomEnum customEnum);
+  void methodWithListOfCustomEnumToStringParam(List<TestCustomEnum> customEnumList);
+  void methodWithSetOfCustomEnumToStringParam(Set<TestCustomEnum> customEnumSet);
+  void methodWithMapOfCustomEnumToStringParam(Map<String, TestCustomEnum> customEnumMap);
+
+  TestCustomEnum methodWithCustomEnumToStringReturn();
+  List<TestCustomEnum> methodWithListOfCustomEnumToStringReturn();
+  Set<TestCustomEnum> methodWithSetOfCustomEnumToStringReturn();
+  Map<String, TestCustomEnum> methodWithMapOfCustomEnumToStringReturn();
+
+  void methodWithHandlerCustomEnumToStringParam(Handler<TestCustomEnum> customEnumHandler);
+  void methodWithHandlerListOfCustomEnumToStringParam(Handler<List<TestCustomEnum>> customEnumListHandler);
+  void methodWithHandlerSetOfCustomEnumToStringParam(Handler<Set<TestCustomEnum>> customEnumSetHandler);
+  void methodWithHandlerMapOfCustomEnumToStringParam(Handler<Map<String, TestCustomEnum>> customEnumMapHandler);
+
+  void methodWithHandlerAsyncResultCustomEnumToStringParam(Handler<AsyncResult<TestCustomEnum>> customEnumHandler);
+  void methodWithHandlerAsyncResultListOfCustomEnumToStringParam(Handler<AsyncResult<List<TestCustomEnum>>> customEnumListHandler);
+  void methodWithHandlerAsyncResultSetOfCustomEnumToStringParam(Handler<AsyncResult<Set<TestCustomEnum>>> customEnumSetHandler);
+  void methodWithHandlerAsyncResultMapOfCustomEnumToStringParam(Handler<AsyncResult<Map<String, TestCustomEnum>>> customEnumMapHandler);
 
 }
