@@ -94,5 +94,22 @@ public class JsonMapperTCKTest {
       test.methodWithHandlerAsyncResultMapOfTypeToJsonObjectParam().blockingGet()
     );
   }
+  @Test
+  public void testEnumCustom(){
+    JsonMapperTCKImpl impl = new JsonMapperTCKImpl(); // Impl has asserts! So i reuse the same
+    JsonMapperTCK test = JsonMapperTCK.newInstance(impl);
+    impl.methodWithCustomEnumToStringParam(
+        test.methodWithHandlerAsyncResultCustomEnumToStringParam().blockingGet()
+    );
+    impl.methodWithListOfCustomEnumToStringParam(
+        test.methodWithHandlerAsyncResultListOfCustomEnumToStringParam().blockingGet()
+    );
+    impl.methodWithSetOfCustomEnumToStringParam(
+        test.methodWithHandlerAsyncResultSetOfCustomEnumToStringParam().blockingGet()
+    );
+    impl.methodWithMapOfCustomEnumToStringParam(
+        test.methodWithHandlerAsyncResultMapOfCustomEnumToStringParam().blockingGet()
+    );
 
+  }
 }

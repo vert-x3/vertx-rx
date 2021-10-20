@@ -1,13 +1,9 @@
 package io.vertx.reactivex.test;
 
-import io.vertx.codegen.testmodel.JsonMapperTCKImpl;
-import io.vertx.codegen.testmodel.MyPojoToInteger;
-import io.vertx.reactivex.codegen.testmodel.JsonMapperTCK;
 import org.junit.Test;
 
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
+import io.vertx.codegen.testmodel.JsonMapperTCKImpl;
+import io.vertx.reactivex.codegen.testmodel.JsonMapperTCK;
 
 public class JsonMapperTCKTest {
 
@@ -94,5 +90,22 @@ public class JsonMapperTCKTest {
       test.rxMethodWithHandlerAsyncResultMapOfTypeToJsonObjectParam().blockingGet()
     );
   }
-
+  @Test
+  public void testEnumCustom(){
+    JsonMapperTCKImpl impl = new JsonMapperTCKImpl(); // Impl has asserts! So i reuse the same
+    JsonMapperTCK test = JsonMapperTCK.newInstance(impl);
+    impl.methodWithCustomEnumToStringParam(
+        test.rxMethodWithHandlerAsyncResultCustomEnumToStringParam().blockingGet()
+    );
+    impl.methodWithListOfCustomEnumToStringParam(
+        test.rxMethodWithHandlerAsyncResultListOfCustomEnumToStringParam().blockingGet()
+    );
+    impl.methodWithSetOfCustomEnumToStringParam(
+        test.rxMethodWithHandlerAsyncResultSetOfCustomEnumToStringParam().blockingGet()
+    );
+    impl.methodWithMapOfCustomEnumToStringParam(
+        test.rxMethodWithHandlerAsyncResultMapOfCustomEnumToStringParam().blockingGet()
+    );
+    
+  }
 }

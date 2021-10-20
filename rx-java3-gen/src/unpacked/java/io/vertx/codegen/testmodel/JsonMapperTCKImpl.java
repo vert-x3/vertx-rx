@@ -366,4 +366,101 @@ public class JsonMapperTCKImpl implements JsonMapperTCK {
   public void methodWithHandlerAsyncResultMapOfTypeToJsonObjectParam(Handler<AsyncResult<Map<String, MyPojoToJsonObject>>> myPojoToJsonObjectMapHandler) {
     myPojoToJsonObjectMapHandler.handle(Future.succeededFuture(methodWithMapOfTypeToJsonObjectReturn()));
   }
+
+  @Override
+  public void methodWithCustomEnumToStringParam(TestCustomEnum customEnum) {
+    assertEquals(TestCustomEnum.of("development"), customEnum);
+  }
+
+  @Override
+  public void methodWithListOfCustomEnumToStringParam(List<TestCustomEnum> customEnumList) {
+    assertEquals(2, customEnumList.size());
+    assertEquals(TestCustomEnum.of("development"), customEnumList.get(0));
+    assertEquals(TestCustomEnum.of("integration-test"), customEnumList.get(1));
+
+  }
+
+  @Override
+  public void methodWithSetOfCustomEnumToStringParam(Set<TestCustomEnum> customEnumSet) {
+    assertEquals(2, customEnumSet.size());
+    assertTrue(customEnumSet.contains(TestCustomEnum.of("development")));
+    assertTrue(customEnumSet.contains(TestCustomEnum.of("integration-test")));
+    
+  }
+
+  @Override
+  public void methodWithMapOfCustomEnumToStringParam(Map<String, TestCustomEnum> customEnumMap) {
+    assertEquals(2, customEnumMap.size());
+    assertEquals(TestCustomEnum.of("development"), customEnumMap.get("dev"));
+    assertEquals(TestCustomEnum.of("integration-test"), customEnumMap.get("itest"));
+  }
+
+  @Override
+  public TestCustomEnum methodWithCustomEnumToStringReturn() {
+    return TestCustomEnum.of("development");
+  }
+
+  @Override
+  public List<TestCustomEnum> methodWithListOfCustomEnumToStringReturn() {
+    return Arrays.asList(TestCustomEnum.of("development"), TestCustomEnum.of("integration-test"));
+  }
+
+  @Override
+  public Set<TestCustomEnum> methodWithSetOfCustomEnumToStringReturn() {
+    return new HashSet<>(methodWithListOfCustomEnumToStringReturn());
+  }
+
+  @Override
+  public Map<String, TestCustomEnum> methodWithMapOfCustomEnumToStringReturn() {
+    Map<String, TestCustomEnum> map = new HashMap<>();
+    map.put("dev", TestCustomEnum.DEV);
+    map.put("itest", TestCustomEnum.ITEST);
+    return map;
+  }
+
+  @Override
+  public void methodWithHandlerCustomEnumToStringParam(Handler<TestCustomEnum> customEnumHandler) {
+    customEnumHandler.handle(methodWithCustomEnumToStringReturn());
+  }
+
+  @Override
+  public void methodWithHandlerListOfCustomEnumToStringParam(Handler<List<TestCustomEnum>> customEnumListHandler) {
+    customEnumListHandler.handle(methodWithListOfCustomEnumToStringReturn());
+  }
+
+  @Override
+  public void methodWithHandlerSetOfCustomEnumToStringParam(Handler<Set<TestCustomEnum>> customEnumSetHandler) {
+    customEnumSetHandler.handle(methodWithSetOfCustomEnumToStringReturn());
+  }
+
+  @Override
+  public void methodWithHandlerMapOfCustomEnumToStringParam(
+      Handler<Map<String, TestCustomEnum>> customEnumMapHandler) {
+    customEnumMapHandler.handle(methodWithMapOfCustomEnumToStringReturn());
+  }
+
+  @Override
+  public void methodWithHandlerAsyncResultCustomEnumToStringParam(
+      Handler<AsyncResult<TestCustomEnum>> customEnumHandler) {
+    customEnumHandler.handle(Future.succeededFuture(methodWithCustomEnumToStringReturn()));
+  }
+
+  @Override
+  public void methodWithHandlerAsyncResultListOfCustomEnumToStringParam(
+      Handler<AsyncResult<List<TestCustomEnum>>> customEnumListHandler) {
+    customEnumListHandler.handle(Future.succeededFuture(methodWithListOfCustomEnumToStringReturn()));
+  }
+
+  @Override
+  public void methodWithHandlerAsyncResultSetOfCustomEnumToStringParam(
+      Handler<AsyncResult<Set<TestCustomEnum>>> customEnumSetHandler) {
+    customEnumSetHandler.handle(Future.succeededFuture(methodWithSetOfCustomEnumToStringReturn()));
+  }
+
+  @Override
+  public void methodWithHandlerAsyncResultMapOfCustomEnumToStringParam(
+      Handler<AsyncResult<Map<String, TestCustomEnum>>> customEnumMapHandler) {
+    customEnumMapHandler.handle(Future.succeededFuture(methodWithMapOfCustomEnumToStringReturn()));
+  }
+
 }
