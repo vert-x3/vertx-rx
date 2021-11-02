@@ -590,7 +590,7 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
     writer.println("import io.vertx.lang.rx.MappingIterator;");
   }
 
-  protected final String genInvokeDelegate(ClassModel model, MethodInfo method) {
+  protected String genInvokeDelegate(ClassModel model, MethodInfo method) {
     StringBuilder ret;
     if (method.isStaticMethod()) {
       ret = new StringBuilder(Helper.getNonGenericType(model.getIfaceFQCN()));
