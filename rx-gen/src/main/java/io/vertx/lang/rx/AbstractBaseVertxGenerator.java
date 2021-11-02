@@ -467,12 +467,6 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
     writer.println("  }");
     writer.println();
 
-    if (model.isReadStream()) {
-      genToObservable(model.getReadStreamArg(), writer);
-    }
-    if (model.isWriteStream()) {
-      genToSubscriber(model.getWriteStreamArg(), writer);
-    }
     List<MethodInfo> methods = new ArrayList<>();
     methods.addAll(model.getMethods());
     methods.addAll(model.getAnyJavaTypeMethods());
@@ -514,13 +508,9 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
     }
   }
 
-  protected abstract void genToObservable(TypeInfo streamType, PrintWriter writer);
-
-  protected abstract void genToSubscriber(TypeInfo streamType, PrintWriter writer);
-
   protected abstract void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer);
 
-  private void genConstant(ClassModel model, ConstantInfo constant, PrintWriter writer) {
+  protected void genConstant(ClassModel model, ConstantInfo constant, PrintWriter writer) {
     Doc doc = constant.getDoc();
     if (doc != null) {
       writer.println("  /**");
@@ -725,6 +715,9 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
     writer.println("import io.vertx.core.AsyncResult;");
     writer.println("import io.vertx.core.json.JsonObject;");
     writer.println("import io.vertx.core.json.JsonArray;");
+    writer.println("import io.vertx.lang.rx.RxGen;");
+    writer.println("import io.vertx.lang.rx.TypeArg;");
+    writer.println("import io.vertx.lang.rx.MappingIterator;");
   }
 
   protected final String genInvokeDelegate(ClassModel model, MethodInfo method) {
@@ -748,7 +741,7 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
     return ret.toString();
   }
 
-  private boolean isSameType(TypeInfo type, MethodInfo method) {
+  protected boolean isSameType(TypeInfo type, MethodInfo method) {
     ClassKind kind = type.getKind();
     if (type.isDataObjectHolder() || kind.basic || kind.json || kind == ENUM || kind == OTHER || kind == THROWABLE || kind == VOID) {
       return true;
@@ -854,7 +847,7 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
     }
   }
 
-  private String genTypeArg(TypeVariableInfo typeVar, MethodInfo method) {
+  protected String genTypeArg(TypeVariableInfo typeVar, MethodInfo method) {
     if (typeVar.isClassParam()) {
       return "__typeArg_" + typeVar.getParam().getIndex();
     } else {
@@ -870,7 +863,7 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
     return null;
   }
 
-  private void genTypeArgDecl(TypeInfo typeArg, MethodInfo method, String typeArgRef, PrintWriter writer) {
+  protected void genTypeArgDecl(TypeInfo typeArg, MethodInfo method, String typeArgRef, PrintWriter writer) {
     StringBuilder sb = new StringBuilder();
     genTypeArg(typeArg, method, 1, sb);
     writer.print("  private static final TypeArg<");
@@ -882,7 +875,7 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
     writer.println(";");
   }
 
-  private void genTypeArg(TypeInfo arg, MethodInfo method, int depth, StringBuilder sb) {
+  protected void genTypeArg(TypeInfo arg, MethodInfo method, int depth, StringBuilder sb) {
     ClassKind argKind = arg.getKind();
     if (argKind == API) {
       sb.append("new TypeArg<").append(arg.translateName(id))
@@ -1033,7 +1026,7 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
     return "{@link " + rawType.getName() + "}";
   }
 
-  private boolean containsTypeVariableArgument(TypeInfo type) {
+  protected boolean containsTypeVariableArgument(TypeInfo type) {
     if (type.isVariable()) {
       return true;
     } else if (type.isParameterized()) {
