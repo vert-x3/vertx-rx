@@ -204,18 +204,18 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
   }
 
   @Override
-  protected String genConvParam(TypeInfo type, MethodInfo method, String expr) {
+  protected String genConvParam(ClassModel model, TypeInfo type, MethodInfo method, String expr) {
     if (type.isParameterized() && (type.getRaw().getName().equals("io.reactivex.Flowable") || type.getRaw().getName().equals("io.reactivex.Observable"))) {
       ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-      String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
+      String adapterFunction = "obj -> " + genConvParam(model, parameterizedType.getArg(0), method, "obj");
       return "io.vertx.reactivex.impl.ReadStreamSubscriber.asReadStream(" + expr + ", " + adapterFunction + ").resume()";
     } else if (type.isParameterized() && (type.getRaw().getName().equals("io.reactivex.Single"))) {
       ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-      String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
+      String adapterFunction = "obj -> " + genConvParam(model, parameterizedType.getArg(0), method, "obj");
       return "io.vertx.reactivex.SingleHelper.toFuture(" + expr + ", " + adapterFunction + ")";
     } else if (type.isParameterized() && (type.getRaw().getName().equals("io.reactivex.Maybe"))) {
       ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-      String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
+      String adapterFunction = "obj -> " + genConvParam(model, parameterizedType.getArg(0), method, "obj");
       return "io.vertx.reactivex.MaybeHelper.toFuture(" + expr + ", " + adapterFunction + ")";
     } else if ((type.getName().equals("io.reactivex.Completable"))) {
       return "io.vertx.reactivex.CompletableHelper.toFuture(" + expr + ")";
@@ -229,15 +229,15 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
         "      public " + retName + " apply(" + argName + " arg) {\n" +
         "        " + genTranslatedTypeName(retType) + " ret;\n" +
         "        try {\n" +
-        "          ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
+        "          ret = " + expr + ".apply(" + genConvReturn(model, argType, method, "arg") + ");\n" +
         "        } catch (Exception e) {\n" +
         "          return io.vertx.core.Future.failedFuture(e);\n" +
         "        }\n" +
-        "        return " + genConvParam(retType, method, "ret") + ";\n" +
+        "        return " + genConvParam(model, retType, method, "ret") + ";\n" +
         "      }\n" +
         "    }";
     } else {
-      return super.genConvParam(type, method, expr);
+      return super.genConvParam(model, type, method, expr);
     }
   }
 

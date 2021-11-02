@@ -198,7 +198,7 @@ class RxJavaGenerator extends Vertx3RxGeneratorBase {
   }
 
   @Override
-  protected String genConvParam(TypeInfo type, MethodInfo method, String expr) {
+  protected String genConvParam(ClassModel model, TypeInfo type, MethodInfo method, String expr) {
     if (type.isParameterized() && type.getRaw().getName().equals("rx.Observable")) {
       String adapterFunction;
       ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
@@ -210,6 +210,6 @@ class RxJavaGenerator extends Vertx3RxGeneratorBase {
       }
       return "io.vertx.rx.java.ReadStreamSubscriber.asReadStream(" + expr + "," + adapterFunction + ").resume()";
     }
-    return super.genConvParam(type, method, expr);
+    return super.genConvParam(model, type, method, expr);
   }
 }

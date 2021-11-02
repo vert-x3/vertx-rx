@@ -391,7 +391,7 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
     writer.format(" %s %s = %s;\n",
       genTranslatedTypeName(constant.getType()),
       constant.getName(),
-      genConvReturn(constant.getType(), null, model.getType().getName() + "." + constant.getName()));
+      genConvReturn(model, constant.getType(), null, model.getType().getName() + "." + constant.getName()));
   }
 
   protected void startMethodTemplate(String visibility, ClassTypeInfo type, MethodInfo method, String deprecated, PrintWriter writer) {
@@ -540,7 +540,7 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
         writer.print("    ");
         writer.print(genReturnTypeDecl(returnType));
         writer.print(" ret = ");
-        writer.print(genConvReturn(returnType, method, genInvokeDelegate(model, method)));
+        writer.print(genConvReturn(model, returnType, method, genInvokeDelegate(model, method)));
         writer.println(";");
         if (method.isCacheReturn()) {
           writer.print("    cached_");
@@ -604,7 +604,7 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
         ret.append(", ");
       }
       TypeInfo type = param.getType();
-      ret.append(genConvParam(type, method, param.getName()));
+      ret.append(genConvParam(model, type, method, param.getName()));
       index = index + 1;
     }
     ret.append(")");
@@ -644,7 +644,7 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
     return genTranslatedTypeName(type);
   }
 
-  protected String genConvParam(TypeInfo type, MethodInfo method, String expr) {
+  protected String genConvParam(ClassModel model, TypeInfo type, MethodInfo method, String expr) {
     ClassKind kind = type.getKind();
     if (isSameType(type, method)) {
       return expr;
@@ -671,7 +671,7 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
           return "new Handler<AsyncResult<" + resultName + ">>() {\n" +
             "      public void handle(AsyncResult<" + resultName + "> ar) {\n" +
             "        if (ar.succeeded()) {\n" +
-            "          " + expr + ".handle(io.vertx.core.Future.succeededFuture(" + genConvReturn(resultType, method, "ar.result()") + "));\n" +
+            "          " + expr + ".handle(io.vertx.core.Future.succeededFuture(" + genConvReturn(model, resultType, method, "ar.result()") + "));\n" +
             "        } else {\n" +
             "          " + expr + ".handle(io.vertx.core.Future.failedFuture(ar.cause()));\n" +
             "        }\n" +
@@ -681,7 +681,7 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
           String eventName = genTypeName(eventType);
           return "new Handler<" + eventName + ">() {\n" +
             "      public void handle(" + eventName + " event) {\n" +
-            "        " + expr + ".handle(" + genConvReturn(eventType, method, "event") + ");\n" +
+            "        " + expr + ".handle(" + genConvReturn(model, eventType, method, "event") + ");\n" +
             "      }\n" +
             "    }";
         }
@@ -692,17 +692,17 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
         String retName = genTypeName(retType);
         return "new Function<" + argName + "," + retName + ">() {\n" +
           "      public " + retName + " apply(" + argName + " arg) {\n" +
-          "        " + genParamTypeDecl(retType) + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
-          "        return " + genConvParam(retType, method, "ret") + ";\n" +
+          "        " + genParamTypeDecl(retType) + " ret = " + expr + ".apply(" + genConvReturn(model, argType, method, "arg") + ");\n" +
+          "        return " + genConvParam(model, retType, method, "ret") + ";\n" +
           "      }\n" +
           "    }";
       } else if (kind == LIST || kind == SET) {
-        return expr + ".stream().map(elt -> " + genConvParam(parameterizedTypeInfo.getArg(0), method, "elt") + ").collect(Collectors.to" + type.getRaw().getSimpleName() + "())";
+        return expr + ".stream().map(elt -> " + genConvParam(model, parameterizedTypeInfo.getArg(0), method, "elt") + ").collect(Collectors.to" + type.getRaw().getSimpleName() + "())";
       } else if (kind == MAP) {
-        return expr + ".entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> " + genConvParam(parameterizedTypeInfo.getArg(1), method, "e.getValue()") + "))";
+        return expr + ".entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> " + genConvParam(model, parameterizedTypeInfo.getArg(1), method, "e.getValue()") + "))";
       } else if (kind == FUTURE) {
         ParameterizedTypeInfo futureType = (ParameterizedTypeInfo) type;
-        return expr + ".map(val -> " + genConvParam(futureType.getArg(0), method, "val") + ")";
+        return expr + ".map(val -> " + genConvParam(model, futureType.getArg(0), method, "val") + ")";
       }
     }
     return expr;
@@ -786,7 +786,7 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
     return sb.toString();
   }
 
-  protected String genConvReturn(TypeInfo type, MethodInfo method, String expr) {
+  protected String genConvReturn(ClassModel model, TypeInfo type, MethodInfo method, String expr) {
     ClassKind kind = type.getKind();
     if (kind == OBJECT) {
       if (type.isVariable()) {
@@ -822,7 +822,7 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
           return "new Handler<AsyncResult<" + genParamTypeDecl(tutu) + ">>() {\n" +
             "      public void handle(AsyncResult<" + genParamTypeDecl(tutu) + "> ar) {\n" +
             "        if (ar.succeeded()) {\n" +
-            "          " + expr + ".handle(io.vertx.core.Future.succeededFuture(" + genConvParam(tutu, method, "ar.result()") + "));\n" +
+            "          " + expr + ".handle(io.vertx.core.Future.succeededFuture(" + genConvParam(model, tutu, method, "ar.result()") + "));\n" +
             "        } else {\n" +
             "          " + expr + ".handle(io.vertx.core.Future.failedFuture(ar.cause()));\n" +
             "        }\n" +
@@ -831,17 +831,17 @@ public abstract class AbstractBaseVertxGenerator extends Generator<ClassModel> {
         } else {
           return "new Handler<" + genParamTypeDecl(abc) + ">() {\n" +
             "      public void handle(" + genParamTypeDecl(abc) + " event) {\n" +
-            "          " + expr + ".handle(" + genConvParam(abc, method, "event") + ");\n" +
+            "          " + expr + ".handle(" + genConvParam(model, abc, method, "event") + ");\n" +
             "      }\n" +
             "    }";
         }
       } else if (kind == LIST || kind == SET) {
-        return expr + ".stream().map(elt -> " + genConvReturn(parameterizedTypeInfo.getArg(0), method, "elt") + ").collect(Collectors.to" + type.getRaw().getSimpleName() + "())";
+        return expr + ".stream().map(elt -> " + genConvReturn(model, parameterizedTypeInfo.getArg(0), method, "elt") + ").collect(Collectors.to" + type.getRaw().getSimpleName() + "())";
       } else if (kind == MAP) {
-        return expr + ".entrySet().stream().collect(Collectors.toMap(_e -> _e.getKey(), _e -> " + genConvReturn(parameterizedTypeInfo.getArg(1), method, "_e.getValue()") + "))";
+        return expr + ".entrySet().stream().collect(Collectors.toMap(_e -> _e.getKey(), _e -> " + genConvReturn(model, parameterizedTypeInfo.getArg(1), method, "_e.getValue()") + "))";
       } else if (kind == FUTURE) {
         ParameterizedTypeInfo futureType = (ParameterizedTypeInfo) type;
-        return expr + ".map(val -> " + genConvReturn(futureType.getArg(0), method, "val") + ")";
+        return expr + ".map(val -> " + genConvReturn(model, futureType.getArg(0), method, "val") + ")";
       }
     }
     return expr;
