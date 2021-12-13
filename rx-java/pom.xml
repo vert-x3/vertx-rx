@@ -19,6 +19,7 @@
   <properties>
     <asciidoc.dir>${project.build.directory}/asciidoc</asciidoc.dir>
     <lang>java</lang>
+    <log4j2.version>2.15.0</log4j2.version>
     <!-- There is an issue with source plugin because we don't get the generated sources
          because of BSC plugin, also the source is messy because we keep a version of vert.x core
          so better use the assembly plugin instead -->
@@ -633,12 +634,12 @@
           <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.8.2</version>
+            <version>${log4j2.version}</version>
           </dependency>
           <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.8.2</version>
+            <version>${log4j2.version}</version>
           </dependency>
           <dependency>
             <groupId>org.slf4j</groupId>
