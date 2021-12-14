@@ -15,7 +15,7 @@
       
     <artifactId>vertx-rx</artifactId>
       
-    <version>4.1.7</version>
+    <version>4.1.8-SNAPSHOT</version>
       
     <packaging>pom</packaging>
       
@@ -43,7 +43,7 @@
       
     <properties>
             
-        <stack.version>4.1.7</stack.version>
+        <stack.version>4.1.8-SNAPSHOT</stack.version>
           
     </properties>
       
