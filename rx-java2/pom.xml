@@ -355,6 +355,11 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
+      <artifactId>vertx-oracle-client</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
       <artifactId>vertx-sql-client-templates</artifactId>
       <optional>true</optional>
     </dependency>
@@ -562,6 +567,7 @@
             vertx-mysql-client,
             vertx-db2-client,
             vertx-mssql-client,
+            vertx-oracle-client,
             vertx-sql-client-templates,
             vertx-rabbitmq-client,
             vertx-health-check,
