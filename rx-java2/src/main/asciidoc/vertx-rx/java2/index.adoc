@@ -1,6 +1,13 @@
 = Vert.x RxJava
 :toc: left
 
+[WARNING]
+====
+RxJava2 is end-of-life as of February 28, 2021.
+Bindings for new Vert.x modules will not be generated.
+Consider migrating to https://vertx.io/docs/vertx-rx/java3/[Vert.x RxJava3].
+====
+
 == Vert.x API for RxJava2
 
 https://github.com/ReactiveX/RxJava[RxJava] is a popular library for composing asynchronous and event based programs using

@@ -10,10 +10,11 @@ This module provides helpers for adapting Vert.x stream and future constructs to
 
 * http://vertx.io/docs/vertx-rx/java/[RxJava Documentation]
 * http://vertx.io/docs/vertx-rx/java2/[RxJava 2 Documentation]
+* http://vertx.io/docs/vertx-rx/java3/[RxJava 3 Documentation]
 
 == Stack integration
 
-RxJava and RxJava2 are integrated with the Vert.x stack.
+RxJava, RxJava2 and RxJava3 are integrated with the Vert.x stack.
 
 === Integration tests
 
@@ -45,6 +46,6 @@ Vert.x Web Client example:
 
 is replaced by
 
-* https://github.com/vert-x3/vertx-rx/blob/master/rx-java2/src/main/asciidoc/vertx-web-client/java/override/rxjava3.adoc
+* https://github.com/vert-x3/vertx-rx/blob/master/rx-java3/src/main/asciidoc/vertx-web-client/java/override/rxjava3.adoc
 
 The final aggregation happens in the https://github.com/vert-x3/vertx-stack/tree/master/stack-docs[stack generation] module.
