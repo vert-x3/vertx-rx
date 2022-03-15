@@ -145,6 +145,11 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
+      <artifactId>vertx-uri-template</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
       <artifactId>vertx-web-common</artifactId>
       <optional>true</optional>
     </dependency>
@@ -508,6 +513,7 @@
             vertx-auth-ldap,
             vertx-auth-sql-client,
             vertx-auth-otp,
+            vertx-uri-template,
             vertx-web-common,
             vertx-web-client,
             vertx-web,
