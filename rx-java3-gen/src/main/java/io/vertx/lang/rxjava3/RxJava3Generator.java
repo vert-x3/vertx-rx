@@ -206,7 +206,7 @@ class RxJava3Generator extends AbstractRxGenerator {
         if (!futMethod.getReturnType().getSimpleName().equals("Completable")) {
           writer.print(", __value -> ");
           TypeInfo asyncType = ((ParameterizedTypeInfo) method.getReturnType()).getArg(0);
-          writer.print(genConvReturn(asyncType, method, "__value"));
+          writer.print(genConvReturn(model, asyncType, method, "__value"));
         }
         writer.println(");");
       } else {
@@ -276,11 +276,11 @@ class RxJava3Generator extends AbstractRxGenerator {
   }
 
   @Override
-  protected String genConvParam(TypeInfo type, MethodInfo method, String expr) {
+  protected String genConvParam(ClassModel model, TypeInfo type, MethodInfo method, String expr) {
     if (type.isParameterized()) {
       if (type.getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
         ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-        String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
+        String adapterFunction = "obj -> " + genConvParam(model, parameterizedType.getArg(0), method, "obj");
         return "io.vertx.rxjava3.impl.ReadStreamSubscriber.asReadStream(" + expr + ", " + adapterFunction + ").resume()";
       } else if (type.getKind() == ClassKind.FUTURE) {
         TypeInfo futType = ((ParameterizedTypeInfo) type).getArg(0);
@@ -288,16 +288,16 @@ class RxJava3Generator extends AbstractRxGenerator {
           return "io.vertx.rxjava3.CompletableHelper.toFuture(" + expr + ")";
         } else if (futType.isNullable()) {
           ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-          String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
+          String adapterFunction = "obj -> " + genConvParam(model, parameterizedType.getArg(0), method, "obj");
           return "io.vertx.rxjava3.MaybeHelper.toFuture(" + expr + ", " + adapterFunction + ")";
         } else {
           ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-          String adapterFunction = "obj -> " + genConvParam(parameterizedType.getArg(0), method, "obj");
+          String adapterFunction = "obj -> " + genConvParam(model, parameterizedType.getArg(0), method, "obj");
           return "io.vertx.rxjava3.SingleHelper.toFuture(" + expr + ", " + adapterFunction + ")";
         }
       }
     }
-    return super.genConvParam(type, method, expr);
+    return super.genConvParam(model, type, method, expr);
   }
 
   private MethodInfo genFutureMethod(MethodInfo method) {
