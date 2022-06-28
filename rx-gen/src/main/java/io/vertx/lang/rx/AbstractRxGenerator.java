@@ -765,23 +765,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         ClassKind eventKind = eventType.getKind();
         if (eventKind == ASYNC_RESULT) {
           TypeInfo resultType = ((ParameterizedTypeInfo) eventType).getArg(0);
-          String resultName = genTypeName(resultType);
-          return "new Handler<AsyncResult<" + resultName + ">>() {\n" +
-            "      public void handle(AsyncResult<" + resultName + "> ar) {\n" +
-            "        if (ar.succeeded()) {\n" +
-            "          " + expr + ".handle(io.vertx.core.Future.succeededFuture(" + genConvReturn(resultType, method, "ar.result()") + "));\n" +
-            "        } else {\n" +
-            "          " + expr + ".handle(io.vertx.core.Future.failedFuture(ar.cause()));\n" +
-            "        }\n" +
-            "      }\n" +
-            "    }";
+          return "new io.vertx.lang.rx.DelegatingHandler<>(" + expr + ", ar -> ar.map(event -> " + genConvReturn(resultType, method, "event") + "))";
         } else {
-          String eventName = genTypeName(eventType);
-          return "new Handler<" + eventName + ">() {\n" +
-            "      public void handle(" + eventName + " event) {\n" +
-            "        " + expr + ".handle(" + genConvReturn(eventType, method, "event") + ");\n" +
-            "      }\n" +
-            "    }";
+          return "new io.vertx.lang.rx.DelegatingHandler<>(" + expr + ", event -> " + genConvReturn(eventType, method, "event") + ")";
         }
       } else if (kind == FUNCTION) {
         TypeInfo argType = parameterizedTypeInfo.getArg(0);
