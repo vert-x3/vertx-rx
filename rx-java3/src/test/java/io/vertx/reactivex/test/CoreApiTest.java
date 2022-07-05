@@ -1,11 +1,16 @@
 package io.vertx.reactivex.test;
 
+import io.reactivex.rxjava3.core.Completable;
+import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.impl.NoStackTraceThrowable;
 import io.vertx.rxjava3.core.AbstractVerticle;
 import io.vertx.rxjava3.core.RxHelper;
 import io.vertx.rxjava3.core.Vertx;
 import io.vertx.rxjava3.core.buffer.Buffer;
+import io.vertx.rxjava3.core.eventbus.DeliveryContext;
+import io.vertx.rxjava3.core.eventbus.EventBus;
 import io.vertx.rxjava3.core.http.HttpClient;
 import io.vertx.rxjava3.core.http.HttpClientResponse;
 import io.vertx.rxjava3.core.http.HttpServerResponse;
@@ -13,6 +18,7 @@ import io.vertx.rxjava3.core.http.WebSocket;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -115,5 +121,35 @@ public class CoreApiTest extends VertxTestBase {
       .reduce("", (s, b) -> s + b)
       .blockingGet();
     assertEquals("0123456789", result);
+  }
+
+
+  @Test
+  public void shouldRemoveInterceptor() {
+    String headerName = UUID.randomUUID().toString();
+    String headerValue = UUID.randomUUID().toString();
+    Handler<DeliveryContext<Object>> interceptor = dc -> {
+      dc.message().headers().add(headerName, headerValue);
+      dc.next();
+    };
+    EventBus eventBus = vertx.eventBus();
+    eventBus.addInboundInterceptor(interceptor);
+    eventBus.consumer("foo", msg -> msg.reply(msg.headers().get(headerName))).completionHandler()
+      .andThen(eventBus.rxRequest("foo", "bar").flatMapCompletable(reply -> {
+        if (reply.body().equals(headerValue)) {
+          return Completable.complete();
+        } else {
+          return Completable.error(new NoStackTraceThrowable("Expected msg to be intercepted"));
+        }
+      }))
+      .andThen(Completable.fromAction(() -> eventBus.removeInboundInterceptor(interceptor)))
+      .andThen(eventBus.rxRequest("foo", "bar").flatMapCompletable(reply -> {
+        if (reply.body() == null) {
+          return Completable.complete();
+        } else {
+          return Completable.error(new NoStackTraceThrowable("Expected msg not to be intercepted"));
+        }
+      })).subscribe(() -> testComplete(), throwable -> fail(throwable));
+    await();
   }
 }
