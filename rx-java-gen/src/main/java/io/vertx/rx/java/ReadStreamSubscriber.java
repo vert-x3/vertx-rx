@@ -47,10 +47,6 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
   private ArrayDeque<R> pending = new ArrayDeque<>();
   private int requested = 0;
 
-  public ReadStreamSubscriber(Function<R, J> adapter) {
-    this(adapter, s -> {});
-  }
-
   public ReadStreamSubscriber(Function<R, J> adapter, Consumer<Subscriber<R>> execOnHandler) {
     this.adapter = adapter;
     this.execOnHandler = execOnHandler;

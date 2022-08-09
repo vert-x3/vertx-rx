@@ -55,11 +55,6 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
   private Subscription subscription;
   private Consumer<Subscriber<R>> execOnHandler;
 
-  public ReadStreamSubscriber(Function<R, J> adapter) {
-    this(adapter, s -> { });
-  }
-
-
   public ReadStreamSubscriber(Function<R, J> adapter, Consumer<Subscriber<R>> execOnHandler) {
     this.adapter = adapter;
     this.execOnHandler = execOnHandler;

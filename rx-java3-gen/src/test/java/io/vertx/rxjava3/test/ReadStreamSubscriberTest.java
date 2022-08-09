@@ -20,10 +20,7 @@ public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
   protected Sender sender() {
     return new Sender() {
 
-      private ReadStreamSubscriber<String, String> subscriber = new ReadStreamSubscriber<>(Function.identity());
-
-      {
-        stream = subscriber;
+      private ReadStreamSubscriber<String, String> subscriber = new ReadStreamSubscriber<>(Function.identity(), subscriber -> {
         subscriber.onSubscribe(new Subscription() {
           @Override
           public void request(long n) {
@@ -33,6 +30,10 @@ public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
           public void cancel() {
           }
         });
+      });
+
+      {
+        stream = subscriber;
       }
 
       protected void emit() {
