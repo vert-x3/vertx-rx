@@ -20,6 +20,8 @@ public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
   protected Sender sender() {
     return new Sender() {
 
+      private boolean cancelled;
+
       private ReadStreamSubscriber<String, String> subscriber = new ReadStreamSubscriber<>(Function.identity(), subscriber -> {
         subscriber.onSubscribe(new Subscription() {
           @Override
@@ -28,6 +30,7 @@ public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
           }
           @Override
           public void cancel() {
+            cancelled = true;
           }
         });
       });
@@ -48,6 +51,10 @@ public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
         subscriber.onError(cause);
       }
 
+      @Override
+      protected boolean isUnsubscribed() {
+        return cancelled;
+      }
     };
   }
 }

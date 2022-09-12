@@ -1,6 +1,7 @@
 package io.vertx.reactivex.test;
 
 import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Flowable;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
@@ -12,6 +13,7 @@ import io.vertx.rxjava3.core.buffer.Buffer;
 import io.vertx.rxjava3.core.eventbus.DeliveryContext;
 import io.vertx.rxjava3.core.eventbus.EventBus;
 import io.vertx.rxjava3.core.http.HttpClient;
+import io.vertx.rxjava3.core.http.HttpClientRequest;
 import io.vertx.rxjava3.core.http.HttpClientResponse;
 import io.vertx.rxjava3.core.http.HttpServerResponse;
 import io.vertx.rxjava3.core.http.WebSocket;
@@ -20,6 +22,7 @@ import org.junit.Test;
 
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -150,6 +153,39 @@ public class CoreApiTest extends VertxTestBase {
           return Completable.error(new NoStackTraceThrowable("Expected msg not to be intercepted"));
         }
       })).subscribe(() -> testComplete(), throwable -> fail(throwable));
+    await();
+  }
+
+  @Test
+  public void testPipeFailureShouldUnsubscribe() throws Exception {
+    vertx.createHttpServer().requestHandler(req -> {
+        Flowable<Buffer> f = Flowable
+          .<Buffer, Long>generate(
+            () -> 0L,
+            (state, emitter) -> {
+              emitter.onNext(Buffer.buffer("Chunk " + state + "\n"));
+              return state + 1;
+            }
+          )
+          .delay(100, TimeUnit.MILLISECONDS)
+          .rebatchRequests(1)
+          .doOnCancel(this::testComplete);
+        req.response().send(f);
+
+      }).rxListen(8080, "localhost")
+      .blockingGet();
+    HttpClient client = vertx.createHttpClient();
+    client.rxRequest(HttpMethod.GET, 8080, "localhost", "/")
+      .flatMap(HttpClientRequest::rxSend)
+      .subscribe(resp -> {
+        resp
+          .toFlowable()
+          .take(5)
+          .subscribe(buff -> {
+        }, this::fail, () -> {
+          resp.request().reset();
+        });
+      }, this::fail);
     await();
   }
 }

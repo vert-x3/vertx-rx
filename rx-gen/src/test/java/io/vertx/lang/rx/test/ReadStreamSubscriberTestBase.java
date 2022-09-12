@@ -25,7 +25,7 @@ public abstract class ReadStreamSubscriberTestBase extends VertxTestBase {
     protected long requested;
     protected int seq;
 
-    protected  abstract void emit();
+    protected abstract void emit();
 
     void emit(int times) {
       for (int i = 0;i < times;i++) {
@@ -44,6 +44,8 @@ public abstract class ReadStreamSubscriberTestBase extends VertxTestBase {
     long available() {
       return requested - seq;
     }
+
+    protected abstract boolean isUnsubscribed();
   }
 
   private class Receiver extends ArrayDeque<Object> {
@@ -283,5 +285,14 @@ public abstract class ReadStreamSubscriberTestBase extends VertxTestBase {
     sender.stream.exceptionHandler(null);
     sender.stream.endHandler(v -> {});
     sender.stream.endHandler(null);
+  }
+
+  @Test
+  public void testSetNullHandlerUnsubscribes() {
+    Sender sender = sender();
+    sender.stream.handler(item -> {});
+    sender.emit();
+    sender.stream.handler(null);
+    assertTrue(sender.isUnsubscribed());
   }
 }

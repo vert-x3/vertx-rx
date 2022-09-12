@@ -39,6 +39,10 @@ public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
         subscriber.onError(cause);
       }
 
+      @Override
+      protected boolean isUnsubscribed() {
+        return subscriber.isUnsubscribed();
+      }
     };
   }
 }
