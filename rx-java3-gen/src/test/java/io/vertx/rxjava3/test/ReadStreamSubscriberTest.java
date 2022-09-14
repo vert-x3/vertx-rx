@@ -20,10 +20,9 @@ public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
   protected Sender sender() {
     return new Sender() {
 
-      private ReadStreamSubscriber<String, String> subscriber = new ReadStreamSubscriber<>(Function.identity());
+      private boolean cancelled;
 
-      {
-        stream = subscriber;
+      private ReadStreamSubscriber<String, String> subscriber = new ReadStreamSubscriber<>(Function.identity(), subscriber -> {
         subscriber.onSubscribe(new Subscription() {
           @Override
           public void request(long n) {
@@ -31,8 +30,13 @@ public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
           }
           @Override
           public void cancel() {
+            cancelled = true;
           }
         });
+      });
+
+      {
+        stream = subscriber;
       }
 
       protected void emit() {
@@ -47,6 +51,10 @@ public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
         subscriber.onError(cause);
       }
 
+      @Override
+      protected boolean isUnsubscribed() {
+        return cancelled;
+      }
     };
   }
 }

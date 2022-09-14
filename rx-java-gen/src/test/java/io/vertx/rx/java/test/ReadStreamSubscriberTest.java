@@ -19,11 +19,12 @@ public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
   protected ReadStreamSubscriberTestBase.Sender sender() {
     return new ReadStreamSubscriberTestBase.Sender() {
 
-      private io.vertx.rx.java.ReadStreamSubscriber<String, String> subscriber = new io.vertx.rx.java.ReadStreamSubscriber<>(Function.identity());
+      private io.vertx.rx.java.ReadStreamSubscriber<String, String> subscriber = new io.vertx.rx.java.ReadStreamSubscriber<>(Function.identity(), subscriber -> {
+        subscriber.setProducer(n -> requested += n);
+      });
 
       {
         stream = subscriber;
-        subscriber.setProducer(n -> requested += n);
       }
 
       protected void emit() {
@@ -38,6 +39,10 @@ public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
         subscriber.onError(cause);
       }
 
+      @Override
+      protected boolean isUnsubscribed() {
+        return subscriber.isUnsubscribed();
+      }
     };
   }
 }

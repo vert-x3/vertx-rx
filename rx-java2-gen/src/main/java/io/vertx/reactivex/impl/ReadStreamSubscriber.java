@@ -6,6 +6,7 @@ import io.reactivex.Observable;
 import io.reactivex.functions.Action;
 import io.vertx.core.Handler;
 import io.vertx.core.streams.ReadStream;
+import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -38,7 +39,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
   public static final int BUFFER_SIZE = 16;
 
   public static <R, J> ReadStream<J> asReadStream(Flowable<R> flowable, Function<R, J> adapter) {
-    return new ReadStreamSubscriber<>(adapter, flowable::subscribe);
+    return new ReadStreamSubscriber<>(adapter, flowable);
   }
 
   public static <R, J> ReadStream<J> asReadStream(Observable<R> observable, Function<R, J> adapter) {
@@ -54,27 +55,26 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
   private ArrayDeque<R> pending = new ArrayDeque<>();
   private int requested = 0;
   private Subscription subscription;
-  private Consumer<Subscriber<R>> execOnHandler;
+  private Publisher<R> publisher;
 
-
-  public ReadStreamSubscriber(Function<R, J> adapter) {
-    this(adapter, s -> { });
-  }
-
-  public ReadStreamSubscriber(Function<R, J> adapter, Consumer<Subscriber<R>> execOnHandler) {
+  public ReadStreamSubscriber(Function<R, J> adapter, Publisher<R> publisher) {
     this.adapter = adapter;
-    this.execOnHandler = execOnHandler;
+    this.publisher = publisher;
   }
 
   @Override
   public ReadStream<J> handler(Handler<J> handler) {
-    Consumer<Subscriber<R>> action;
+    Runnable action;
     synchronized (this) {
       elementHandler = handler;
-      action = execOnHandler;
-      execOnHandler = s -> {};
+      if (handler != null) {
+        action = () -> publisher.subscribe(this);
+      } else {
+        Subscription s = subscription;
+        action = s::cancel;
+      }
     }
-    action.accept(this);
+    action.run();
     checkStatus();
     return this;
   }

@@ -1,15 +1,30 @@
 package io.vertx.reactivex.test;
 
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.observers.TestObserver;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.RequestOptions;
+import io.vertx.core.streams.ReadStream;
+import io.vertx.core.streams.WriteStream;
 import io.vertx.reactivex.core.AbstractVerticle;
 import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
+import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.core.http.HttpClient;
 import io.vertx.reactivex.core.http.WebSocket;
+import io.vertx.reactivex.impl.AsyncResultCompletable;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -71,4 +86,35 @@ public class CoreApiTest extends VertxTestBase {
     await();
   }
 
+  @Test
+  public void testPipeFailureShouldUnsubscribe() throws Exception {
+    vertx.createHttpServer().requestHandler(req -> {
+        Flowable<Buffer> f = Flowable
+          .<Buffer, Long>generate(
+            () -> 0L,
+            (state, emitter) -> {
+              emitter.onNext(Buffer.buffer("Chunk " + state + "\n"));
+              return state + 1;
+            }
+          )
+          .delay(100, TimeUnit.MILLISECONDS)
+          .rebatchRequests(1)
+          .doOnCancel(this::testComplete);
+        req.response().send(f);
+
+    }).rxListen(8080, "localhost")
+      .blockingGet();
+    HttpClient client = vertx.createHttpClient();
+    client.request(HttpMethod.GET, 8080, "localhost", "/", onSuccess(req -> {
+      req.send(onSuccess(resp -> {
+        AtomicInteger count = new AtomicInteger();
+        resp.handler(buff -> {
+          if (count.incrementAndGet() > 5) {
+            resp.request().reset();
+          }
+        });
+      }));
+    }));
+    await();
+  }
 }

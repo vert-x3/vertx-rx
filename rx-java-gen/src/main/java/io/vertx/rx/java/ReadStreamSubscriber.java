@@ -32,7 +32,6 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
   private static final Throwable DONE_SENTINEL = new Throwable();
 
   public static final int BUFFER_SIZE = 16;
-  private Consumer<Subscriber<R>> execOnHandler;
 
   public static <R, J> ReadStream<J> asReadStream(Observable<R> observable, Function<R, J> adapter) {
     return new ReadStreamSubscriber<>(adapter, observable::subscribe);
@@ -46,26 +45,26 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
   private Throwable completed;
   private ArrayDeque<R> pending = new ArrayDeque<>();
   private int requested = 0;
+  private Consumer<Subscriber<R>> doSubscribe;
 
-  public ReadStreamSubscriber(Function<R, J> adapter) {
-    this(adapter, s -> {});
-  }
-
-  public ReadStreamSubscriber(Function<R, J> adapter, Consumer<Subscriber<R>> execOnHandler) {
+  public ReadStreamSubscriber(Function<R, J> adapter, Consumer<Subscriber<R>> doSubscribe) {
     this.adapter = adapter;
-    this.execOnHandler = execOnHandler;
+    this.doSubscribe = doSubscribe;
     request(0);
   }
 
   @Override
   public ReadStream<J> handler(Handler<J> handler) {
-    Consumer<Subscriber<R>> action;
+    Runnable action;
     synchronized (this) {
       elementHandler = handler;
-      action = execOnHandler;
-      execOnHandler = s -> {};
+      if (handler != null) {
+        action = () -> doSubscribe.accept(this);
+      } else {
+        action = this::unsubscribe;
+      }
     }
-    action.accept(this);
+    action.run();
     checkStatus();
     return this;
   }
