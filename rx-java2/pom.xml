@@ -379,6 +379,13 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <!-- Transitive dependency declared as optional in vertx-micrometer-metrics, and used in @GenIgnore API -->
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+      <version>${micrometer.version}</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-tcp-eventbus-bridge</artifactId>
       <optional>true</optional>
@@ -723,25 +730,25 @@
           <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>1.0.0</version>
+            <version>${micrometer.version}</version>
             <optional>true</optional>
           </dependency>
           <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-influx</artifactId>
-            <version>1.0.0</version>
+            <version>${micrometer.version}</version>
             <optional>true</optional>
           </dependency>
           <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-jmx</artifactId>
-            <version>1.0.0</version>
+            <version>${micrometer.version}</version>
             <optional>true</optional>
           </dependency>
           <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-graphite</artifactId>
-            <version>1.0.0</version>
+            <version>${micrometer.version}</version>
             <optional>true</optional>
           </dependency>
         </dependencies>
