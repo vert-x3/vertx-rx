@@ -1,29 +1,23 @@
 package io.vertx.reactivex.test;
 
-import io.reactivex.Completable;
 import io.reactivex.Flowable;
-import io.reactivex.observers.TestObserver;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
+import io.reactivex.Single;
+import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.core.http.RequestOptions;
-import io.vertx.core.streams.ReadStream;
-import io.vertx.core.streams.WriteStream;
 import io.vertx.reactivex.core.AbstractVerticle;
 import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.buffer.Buffer;
+import io.vertx.reactivex.core.file.AsyncFile;
 import io.vertx.reactivex.core.http.HttpClient;
 import io.vertx.reactivex.core.http.WebSocket;
-import io.vertx.reactivex.impl.AsyncResultCompletable;
+import io.vertx.reactivex.core.parsetools.RecordParser;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -102,7 +96,7 @@ public class CoreApiTest extends VertxTestBase {
           .doOnCancel(this::testComplete);
         req.response().send(f);
 
-    }).rxListen(8080, "localhost")
+      }).rxListen(8080, "localhost")
       .blockingGet();
     HttpClient client = vertx.createHttpClient();
     client.request(HttpMethod.GET, 8080, "localhost", "/", onSuccess(req -> {
@@ -115,6 +109,22 @@ public class CoreApiTest extends VertxTestBase {
         });
       }));
     }));
+    await();
+  }
+
+  @Test
+  public void testRecordParser() {
+    Single<AsyncFile> source = vertx.fileSystem().rxOpen("src/test/resources/test.txt", new OpenOptions());
+
+    waitFor(5);
+
+    source.map(file -> RecordParser.newDelimited("\n", file.toFlowable()))
+      .flatMapObservable(RecordParser::toObservable)
+      .doOnNext(v -> complete())
+      .doOnComplete(() -> complete())
+      .ignoreElements()
+      .subscribe(() -> complete(), this::fail);
+
     await();
   }
 }

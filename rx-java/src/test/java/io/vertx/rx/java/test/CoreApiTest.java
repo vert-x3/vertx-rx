@@ -1,11 +1,14 @@
 package io.vertx.rx.java.test;
 
+import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServerOptions;
 import io.vertx.lang.rx.test.SimplePojo;
+import io.vertx.rx.java.ObservableFuture;
+import io.vertx.rx.java.RxHelper;
 import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.rxjava.core.Context;
 import io.vertx.rxjava.core.Vertx;
@@ -13,6 +16,7 @@ import io.vertx.rxjava.core.buffer.Buffer;
 import io.vertx.rxjava.core.eventbus.EventBus;
 import io.vertx.rxjava.core.eventbus.Message;
 import io.vertx.rxjava.core.eventbus.MessageConsumer;
+import io.vertx.rxjava.core.file.AsyncFile;
 import io.vertx.rxjava.core.http.HttpClient;
 import io.vertx.rxjava.core.http.HttpClientRequest;
 import io.vertx.rxjava.core.http.HttpClientResponse;
@@ -22,9 +26,8 @@ import io.vertx.rxjava.core.http.ServerWebSocket;
 import io.vertx.rxjava.core.http.WebSocket;
 import io.vertx.rxjava.core.net.NetServer;
 import io.vertx.rxjava.core.net.NetSocket;
+import io.vertx.rxjava.core.parsetools.RecordParser;
 import io.vertx.rxjava.core.streams.ReadStream;
-import io.vertx.rx.java.ObservableFuture;
-import io.vertx.rx.java.RxHelper;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 import rx.Observable;
@@ -34,13 +37,11 @@ import rx.Subscriber;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -698,5 +699,22 @@ public class CoreApiTest extends VertxTestBase {
       deployLatch.countDown();
     });
     awaitLatch(deployLatch);
+  }
+
+  @Test
+  public void testRecordParser() {
+    Single<AsyncFile> source = vertx.fileSystem().rxOpen("src/test/resources/test.txt", new OpenOptions());
+
+    waitFor(5);
+
+    source.map(file -> RecordParser.newDelimited("\n", file.toObservable()))
+      .flatMapObservable(RecordParser::toObservable)
+      .doOnNext(v -> complete())
+      .doOnCompleted(() -> complete())
+      .ignoreElements()
+      .toCompletable()
+      .subscribe(() -> complete(), this::fail);
+
+    await();
   }
 }

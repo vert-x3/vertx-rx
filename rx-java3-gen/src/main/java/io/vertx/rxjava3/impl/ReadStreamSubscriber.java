@@ -10,7 +10,6 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
 import java.util.ArrayDeque;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -70,7 +69,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
         action = () -> publisher.subscribe(this);
       } else {
         Subscription s = subscription;
-        action = s::cancel;
+        action = s != null ? s::cancel : NOOP_ACTION;
       }
     }
     action.run();
