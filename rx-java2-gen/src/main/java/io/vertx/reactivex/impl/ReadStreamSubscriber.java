@@ -3,7 +3,6 @@ package io.vertx.reactivex.impl;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
-import io.reactivex.functions.Action;
 import io.vertx.core.Handler;
 import io.vertx.core.streams.ReadStream;
 import org.reactivestreams.Publisher;
@@ -11,7 +10,6 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
 import java.util.ArrayDeque;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -71,7 +69,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
         action = () -> publisher.subscribe(this);
       } else {
         Subscription s = subscription;
-        action = s::cancel;
+        action = s != null ? s::cancel : NOOP_ACTION;
       }
     }
     action.run();

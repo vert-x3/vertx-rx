@@ -2,7 +2,9 @@ package io.vertx.reactivex.test;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Single;
 import io.vertx.core.Handler;
+import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.impl.NoStackTraceThrowable;
@@ -12,11 +14,13 @@ import io.vertx.rxjava3.core.Vertx;
 import io.vertx.rxjava3.core.buffer.Buffer;
 import io.vertx.rxjava3.core.eventbus.DeliveryContext;
 import io.vertx.rxjava3.core.eventbus.EventBus;
+import io.vertx.rxjava3.core.file.AsyncFile;
 import io.vertx.rxjava3.core.http.HttpClient;
 import io.vertx.rxjava3.core.http.HttpClientRequest;
 import io.vertx.rxjava3.core.http.HttpClientResponse;
 import io.vertx.rxjava3.core.http.HttpServerResponse;
 import io.vertx.rxjava3.core.http.WebSocket;
+import io.vertx.rxjava3.core.parsetools.RecordParser;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 
@@ -182,10 +186,26 @@ public class CoreApiTest extends VertxTestBase {
           .toFlowable()
           .take(5)
           .subscribe(buff -> {
-        }, this::fail, () -> {
-          resp.request().reset();
-        });
+          }, this::fail, () -> {
+            resp.request().reset();
+          });
       }, this::fail);
+    await();
+  }
+
+  @Test
+  public void testRecordParser() {
+    Single<AsyncFile> source = vertx.fileSystem().rxOpen("src/test/resources/test.txt", new OpenOptions());
+
+    waitFor(5);
+
+    source.map(file -> RecordParser.newDelimited("\n", file.toFlowable()))
+      .flatMapObservable(RecordParser::toObservable)
+      .doOnNext(v -> complete())
+      .doOnComplete(() -> complete())
+      .ignoreElements()
+      .subscribe(() -> complete(), this::fail);
+
     await();
   }
 }
