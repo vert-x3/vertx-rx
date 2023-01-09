@@ -8,35 +8,31 @@ To handle GraphQL requests on a Rxified {@link io.vertx.rxjava3.ext.web.Route}, 
 
 GraphQL-Java expects `CompletionStage` for asynchronous results in data fetchers and batch loaders.
 
-Therefore, if you work with the Vert.x Rxified APIs (e.g. the https://vertx.io/docs/vertx-web-client/java/#_rxjava_3_api[Web Client] or the https://vertx.io/docs/vertx-cassandra-client/java/#_rxjava_3_api[Cassandra Client]), you will have to adapt the `Single` and `Maybe` objects.
-
-The `RxJavaJdk8Interop` library provides the tooling to do just that.
-Add the following to the _dependencies_ section of your Maven build file:
-
-[source,xml,subs="+attributes"]
-----
-<dependency>
-  <groupId>com.github.akarnokd</groupId>
-  <artifactId>rxjava3-jdk8-interop</artifactId>
-  <version>3.0.0-RC6</version>
-</dependency>
-----
-
-Or if you use Gradle:
-
-[source,groovy,subs="+attributes"]
-----
-implementation 'com.github.akarnokd:rxjava3-jdk8-interop:3.0.0-RC6'
-----
-
-Then you can create a data fetcher from a `Single` result:
+Therefore, if you work with the Vert.x Rxified APIs (e.g. the https://vertx.io/docs/vertx-web-client/java/#_rxjava_3_api[Web Client]), you will have to adapt the `Single` and `Maybe` objects.
 
 [source,java]
 ----
-Single<String> data = loadDataFromBackend();
 DataFetcher<CompletionStage<String>> fetcher = environment -> {
-  return data.to(SingleInterop.get());
+  Single<String> data = loadDataFromBackend();
+  return data.toCompletionStage();
 };
 ----
 
-For `Maybe` results, use `MaybeInterop`.
+[TIP]
+====
+Instead of converting `Single` or `Maybe` to `CompletionStage` manually in every data fetcher implementation, configure GraphQL-Java with the {@link io.vertx.rxjava3.ext.web.handler.graphql.instrumentation.SingleAdapter} and {@link io.vertx.rxjava3.ext.web.handler.graphql.instrumentation.MaybeAdapter} https://www.graphql-java.com/documentation/instrumentation/[instrumentations].
+
+First, declare the instrumentations while configuring GraphQL-Java.
+
+[source,$lang]
+----
+{@link examples.RxWebGraphQLExamples#singleAndMaybeAdapters}
+----
+
+Then you can return `Single` or `Maybe` directly.
+
+[source,$lang]
+----
+{@link examples.RxWebGraphQLExamples#singleDataFetcher}
+----
+====
