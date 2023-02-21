@@ -1,9 +1,6 @@
 package io.vertx.lang.rxjava;
 
-import io.vertx.codegen.ClassModel;
-import io.vertx.codegen.MethodInfo;
-import io.vertx.codegen.ParamInfo;
-import io.vertx.codegen.TypeParamInfo;
+import io.vertx.codegen.*;
 import io.vertx.codegen.type.ClassKind;
 import io.vertx.codegen.type.ClassTypeInfo;
 import io.vertx.codegen.type.ParameterizedTypeInfo;
@@ -133,10 +130,14 @@ class RxJavaGenerator extends Vertx3RxGeneratorBase {
       writer.print(method.getName());
       writer.print("(");
       writer.print(futMethod.getParams().stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
-      if (futMethod.getParams().size() > 0) {
-        writer.print(", ");
+      if (method.getKind() == MethodKind.CALLBACK) {
+        if (futMethod.getParams().size() > 0) {
+          writer.print(", ");
+        }
+        writer.println("fut);");
+      } else {
+        writer.println(").onComplete(fut);");
       }
-      writer.println("fut);");
       writer.println("    }));");
       writer.println("  }");
     } else {
@@ -147,17 +148,17 @@ class RxJavaGenerator extends Vertx3RxGeneratorBase {
 
   private MethodInfo genFutureMethod(MethodInfo method) {
     String futMethodName = genFutureMethodName(method);
-    List<ParamInfo> futParams = new ArrayList<>();
-    int count = 0;
-    int size = method.getParams().size() - 1;
-    while (count < size) {
-      ParamInfo param = method.getParam(count);
-      /* Transform ReadStream -> Observable */
-      futParams.add(param);
-      count = count + 1;
+    List<ParamInfo> futParams = new ArrayList<>(method.getParams());
+    TypeInfo futType;
+    if (method.getKind() == MethodKind.FUTURE) {
+      TypeInfo futParam = method.getReturnType();
+      futType = ((ParameterizedTypeInfo) futParam).getArg(0);
+    } else if (method.getKind() == MethodKind.CALLBACK) {
+      ParamInfo futParam = futParams.remove(futParams.size() - 1);
+      futType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getType()).getArg(0)).getArg(0);
+    } else {
+      throw new IllegalArgumentException("Method kind " + method.getKind());
     }
-    ParamInfo futParam = method.getParam(size);
-    TypeInfo futType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getType()).getArg(0)).getArg(0);
     ParameterizedTypeInfo futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(rx.Single.class).getRaw(), false, java.util.Collections.singletonList(futType));
     return method.copy().setName(futMethodName).setParams(futParams).setReturnType(futReturnType);
   }
