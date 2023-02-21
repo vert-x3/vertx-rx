@@ -36,14 +36,19 @@ public abstract class Vertx3RxGeneratorBase extends AbstractRxGenerator {
   }
 
   private void genMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
+
+    // Generate up to 3 methods
+    // - the regular methods
+    // - the handler based + fire & forget overload + single version, e.g void WriteStream#end(Handler<AsyncResult<Void>>) / void WriteStream#end() / Completable end()
+    // - the future base version + single version, e.g Future<Void> end() / Completable end()
+
+    genSimpleMethod("public", model, method, cacheDecls, genBody, writer);
+
+    if (method.getKind() == MethodKind.OTHER || method.getKind() == MethodKind.HANDLER) {
+      return;
+    }
+
     if (method.getKind() == MethodKind.CALLBACK) {
-      // Generate 3 methods
-      // 1/ the handler based method: void WriteStream#end(Handler<AsyncResult<Void>>)
-      // 2/ the fire and forget overload: void WriteStream#end()
-      // 3/ the single: Completable WriteStream#rxEnd()
-
-      genSimpleMethod("public", model, method, cacheDecls, genBody, writer);
-
       MethodInfo copy = method.copy();
       copy.getParams().remove(copy.getParams().size() - 1);
       Optional<MethodInfo> any = Stream.concat(model.getMethods().stream(), model.getAnyJavaTypeMethods().stream()).filter(m -> foo(m, copy)).findAny();
@@ -70,10 +75,9 @@ public abstract class Vertx3RxGeneratorBase extends AbstractRxGenerator {
         }
       }
 
-      genRxMethod(model, method, cacheDecls, genBody, writer);
-    } else {
-      genSimpleMethod("public", model, method, cacheDecls, genBody, writer);
     }
+
+    genRxMethod(model, method, cacheDecls, genBody, writer);
   }
 
   private boolean foo(MethodInfo m1, MethodInfo m2) {

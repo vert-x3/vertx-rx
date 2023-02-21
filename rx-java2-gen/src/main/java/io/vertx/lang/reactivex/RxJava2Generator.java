@@ -2,10 +2,7 @@ package io.vertx.lang.reactivex;
 
 import io.reactivex.Flowable;
 import io.reactivex.functions.Function;
-import io.vertx.codegen.ClassModel;
-import io.vertx.codegen.MethodInfo;
-import io.vertx.codegen.ParamInfo;
-import io.vertx.codegen.TypeParamInfo;
+import io.vertx.codegen.*;
 import io.vertx.codegen.type.ClassKind;
 import io.vertx.codegen.type.ClassTypeInfo;
 import io.vertx.codegen.type.ParameterizedTypeInfo;
@@ -167,7 +164,6 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
     ClassTypeInfo raw = futMethod.getReturnType().getRaw();
     String methodSimpleName = raw.getSimpleName();
     String adapterType = "AsyncResult" + methodSimpleName + ".to" + methodSimpleName;
-    String rxType = raw.getName();
     startMethodTemplate("public", model.getType(), futMethod, "", writer);
     if (genBody) {
       writer.println(" { ");
@@ -179,10 +175,14 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
       writer.print("(");
       List<ParamInfo> params = futMethod.getParams();
       writer.print(params.stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
-      if (params.size() > 0) {
-        writer.print(", ");
+      if (method.getKind() == MethodKind.CALLBACK) {
+        if (params.size() > 0) {
+          writer.print(", ");
+        }
+        writer.println("$handler);");
+      } else {
+        writer.println(").onComplete($handler);");
       }
-      writer.println("$handler);");
       writer.println("    });");
       writer.println("  }");
     } else {
@@ -256,18 +256,21 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
 
   private MethodInfo genFutureMethod(MethodInfo method) {
     String futMethodName = genFutureMethodName(method);
-    List<ParamInfo> futParams = new ArrayList<>();
-    int count = 0;
-    int size = method.getParams().size() - 1;
-    while (count < size) {
-      ParamInfo param = method.getParam(count);
-      /* Transform ReadStream -> Flowable */
-      futParams.add(param);
-      count = count + 1;
+    List<ParamInfo> futParams = new ArrayList<>(method.getParams());
+    TypeInfo futType;
+    TypeInfo futUnresolvedType;
+    if (method.getKind() == MethodKind.FUTURE) {
+      TypeInfo futParam = method.getReturnType();
+      futType = ((ParameterizedTypeInfo) futParam).getArg(0);
+      // getUnresolvedType ????
+      futUnresolvedType = ((ParameterizedTypeInfo) futParam).getArg(0);
+    } else if (method.getKind() == MethodKind.CALLBACK) {
+      ParamInfo futParam = futParams.remove(futParams.size() - 1);
+      futType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getType()).getArg(0)).getArg(0);
+      futUnresolvedType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getUnresolvedType()).getArg(0)).getArg(0);
+    } else {
+      throw new IllegalArgumentException("Method kind " + method.getKind());
     }
-    ParamInfo futParam = method.getParam(size);
-    TypeInfo futType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getType()).getArg(0)).getArg(0);
-    TypeInfo futUnresolvedType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getUnresolvedType()).getArg(0)).getArg(0);
     TypeInfo futReturnType;
     if (futUnresolvedType.getKind() == VOID) {
       futReturnType = io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Completable.class);
