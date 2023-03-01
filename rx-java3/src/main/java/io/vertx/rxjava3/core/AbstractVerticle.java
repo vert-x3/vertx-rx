@@ -23,7 +23,7 @@ import io.vertx.core.Vertx;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class AbstractVerticle extends io.vertx.core.AbstractVerticle {
+public abstract class AbstractVerticle extends io.vertx.core.AbstractVerticle {
 
   // Shadows the AbstractVerticle#vertx field
   protected io.vertx.rxjava3.core.Vertx vertx;
