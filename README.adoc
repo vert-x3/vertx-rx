@@ -1,6 +1,7 @@
 = Rx extension for Vert.x
 
-image:https://github.com/vert-x3/vertx-rx/workflows/CI/badge.svg?branch=master[Build Status,link=https://github.com/vert-x3/vertx-rx/actions?query=workflow%3ACI]
+image:https://github.com/vert-x3/vertx-rx/actions/workflows/ci-5.x.yml/badge.svg["Build Status (5.x)",link="https://github.com/vert-x3/vertx-rx/actions/workflows/ci-5.x.yml"]
+image:https://github.com/vert-x3/vertx-rx/actions/workflows/ci-4.x.yml/badge.svg["Build Status (4.x)",link="https://github.com/vert-x3/vertx-rx/actions/workflows/ci-4.x.yml"]
 
 Vert.x module adding support for Reactive Extensions (Rx) using the Rx libraries. This
 allows Vert.x developers to use the Rx type-safe composable API to build Vert.x verticles.
