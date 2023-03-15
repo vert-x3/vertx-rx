@@ -55,7 +55,6 @@ public class WebClientTest extends VertxTestBase {
     }
   }
 
-  @Ignore("removed for now as it cannot pass")
   @Test
   public void testPost() {
     int times = 5;
@@ -63,7 +62,7 @@ public class WebClientTest extends VertxTestBase {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
     server.requestStream().handler(req -> req.bodyHandler(buff -> {
       assertEquals("onetwothree", buff.toString());
-      // req.response().end().subscribe();
+      req.response().end("").subscribe();
     }));
     try {
       server.listen().blockingGet();
@@ -81,14 +80,13 @@ public class WebClientTest extends VertxTestBase {
     }
   }
 
-  @Ignore("removed for now as it cannot pass")
   @Test
   public void testResponseMissingBody() throws Exception {
     int times = 5;
     waitFor(times);
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
     server.requestStream().handler(req -> {
-      // req.response().setStatusCode(403).end().subscribe();
+      req.response().setStatusCode(403).end("");
     });
     try {
       server.listen().blockingGet();
