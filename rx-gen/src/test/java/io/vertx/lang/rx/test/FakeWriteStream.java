@@ -78,19 +78,9 @@ public class FakeWriteStream implements WriteStream<Integer> {
   }
 
   @Override
-  public void write(Integer data, Handler<AsyncResult<Void>> handler) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public Future<Void> end() {
     endInvoked = true;
     return Future.succeededFuture();
-  }
-
-  @Override
-  public void end(Handler<AsyncResult<Void>> handler) {
-    end().onComplete(handler);
   }
 
   @Override

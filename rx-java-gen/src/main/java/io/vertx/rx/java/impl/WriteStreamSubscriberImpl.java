@@ -89,7 +89,7 @@ public class WriteStreamSubscriberImpl<R, T> extends WriteStreamSubscriber<R> {
 
   @Override
   public void onCompleted() {
-    writeStream.end(this::writeStreamEnd);
+    writeStream.end().onComplete(this::writeStreamEnd);
   }
 
   private void writeStreamEnd(AsyncResult<Void> result) {

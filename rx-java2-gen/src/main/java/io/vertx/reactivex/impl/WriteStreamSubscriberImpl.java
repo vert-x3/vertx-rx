@@ -158,7 +158,7 @@ public class WriteStreamSubscriberImpl<R, T> implements WriteStreamSubscriber<R>
     }
 
     try {
-      writeStream.end(this::writeStreamEnd);
+      writeStream.end().onComplete(this::writeStreamEnd);
     } catch (Throwable t) {
       Exceptions.throwIfFatal(t);
       RxJavaPlugins.onError(t);
