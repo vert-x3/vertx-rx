@@ -20,11 +20,13 @@ import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractRxGenerator extends Generator<ClassModel> {
 
-  private String id;
-  private Map<MethodInfo, Map<TypeInfo, String>> methodTypeArgMap = new HashMap<>();
+  private final String id;
+  private final TypeNameTranslator typeNameTranslator;
+  private final Map<MethodInfo, Map<TypeInfo, String>> methodTypeArgMap = new HashMap<>();
 
   public AbstractRxGenerator(String id) {
     this.id = id;
+    this.typeNameTranslator = TypeNameTranslator.hierarchical(id);
     this.kinds = Collections.singleton("class");
   }
 
@@ -821,7 +823,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     StringBuilder sb = new StringBuilder();
     genTypeArg(typeArg, method, 1, sb);
     writer.print("  private static final TypeArg<");
-    writer.print(typeArg.translateName(id));
+    writer.print(translateName(typeArg));
     writer.print("> ");
     writer.print(typeArgRef);
     writer.print(" = ");
@@ -829,10 +831,39 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println(";");
   }
 
+  private String translateName(TypeInfo type) {
+    if (type instanceof ParameterizedTypeInfo) {
+      ParameterizedTypeInfo pti = (ParameterizedTypeInfo) type;
+      ClassTypeInfo raw = pti.getRaw();
+      List<TypeInfo> args = pti.getArgs();
+      StringBuilder buf = new StringBuilder(raw.translateName(typeNameTranslator)).append('<');
+      for (int i = 0; i < args.size(); i++) {
+        TypeInfo typeArgument = args.get(i);
+        if (i > 0) {
+          buf.append(',');
+        }
+        buf.append(translateName(typeArgument));
+      }
+      buf.append('>');
+      return buf.toString();
+    } else if (type instanceof ClassTypeInfo) {
+      ClassTypeInfo cti = (ClassTypeInfo) type;
+      String name = cti.getName();
+      if (type.getKind() == API) {
+        ModuleInfo module = cti.getModule();
+        return module == null ? name : typeNameTranslator.translate(module, name);
+      } else {
+        return name;
+      }
+    } else {
+      return type.getName();
+    }
+  }
+
   private void genTypeArg(TypeInfo arg, MethodInfo method, int depth, StringBuilder sb) {
     ClassKind argKind = arg.getKind();
     if (argKind == API) {
-      sb.append("new TypeArg<").append(arg.translateName(id))
+      sb.append("new TypeArg<").append(translateName(arg))
         .append(">(o").append(depth).append(" -> ");
       sb.append(arg.getRaw().translateName(id)).append(".newInstance((").append(arg.getRaw()).append(")o").append(depth);
       if (arg instanceof ParameterizedTypeInfo) {
