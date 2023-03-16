@@ -161,14 +161,14 @@ public class ContextScheduler extends Scheduler {
           workerExecutor.executeBlocking(fut -> {
             run(null);
             fut.complete();
-          }, ordered, null);
+          }, ordered);
         } else {
           Context ctx = context != null ? context : vertx.getOrCreateContext();
           if (blocking) {
             ctx.executeBlocking(fut -> {
               run(null);
               fut.complete();
-            }, ordered, null);
+            }, ordered);
           } else {
             ctx.runOnContext(this::run);
           }
