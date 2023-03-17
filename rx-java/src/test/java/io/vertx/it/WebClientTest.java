@@ -34,7 +34,7 @@ public class WebClientTest extends VertxTestBase {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
     server.requestStream().handler(req -> req.response().setChunked(true).end("some_content"));
     try {
-      server.listen(ar -> {
+      server.listen().onComplete(ar -> {
         client = WebClient.wrap(vertx.createHttpClient(new HttpClientOptions()));
         Single<HttpResponse<Buffer>> single = client
           .get(8080, "localhost", "/the_uri")
@@ -64,7 +64,7 @@ public class WebClientTest extends VertxTestBase {
       req.response().end();
     }));
     try {
-      server.listen(ar -> {
+      server.listen().onComplete(ar -> {
         client = WebClient.wrap(vertx.createHttpClient(new HttpClientOptions()));
         Observable<Buffer> stream = Observable.just(Buffer.buffer("one"), Buffer.buffer("two"), Buffer.buffer("three"));
         Single<HttpResponse<Buffer>> single = client
@@ -87,7 +87,7 @@ public class WebClientTest extends VertxTestBase {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
     server.requestStream().handler(req -> req.response().setStatusCode(403).end());
     try {
-      server.listen(ar -> {
+      server.listen().onComplete(ar -> {
         client = WebClient.wrap(vertx.createHttpClient(new HttpClientOptions()));
         Single<HttpResponse<Buffer>> single = client
           .get(8080, "localhost", "/the_uri")
@@ -112,7 +112,7 @@ public class WebClientTest extends VertxTestBase {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
     server.requestStream().handler(req -> req.response().end(expected.encode()));
     try {
-      server.listen(ar -> {
+      server.listen().onComplete(ar -> {
         client = WebClient.wrap(vertx.createHttpClient(new HttpClientOptions()));
         Single<HttpResponse<WineAndCheese>> single = client
           .get(8080, "localhost", "/the_uri")

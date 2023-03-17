@@ -13,6 +13,7 @@ import io.vertx.core.Handler;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -25,6 +26,10 @@ public class AsyncResultCompletable extends Completable {
 
   public static Completable toCompletable(Future<Void> subscriptionConsumer) {
     return RxJavaPlugins.onAssembly(new AsyncResultCompletable(subscriptionConsumer::onComplete));
+  }
+
+  public static Completable toCompletable(Supplier<Future<Void>> subscriptionConsumer) {
+    return RxJavaPlugins.onAssembly(new AsyncResultCompletable(h -> subscriptionConsumer.get().onComplete(h)));
   }
 
   private final Consumer<Handler<AsyncResult<Void>>> subscriptionConsumer;

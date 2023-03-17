@@ -50,7 +50,7 @@ public class CoreTest extends VertxTestBase {
     int chunks = 10;
     byte[] expected = TestUtils.randomAlphaString(chunkSize * chunks).getBytes();
     createFile(fileName, expected);
-    vertx.fileSystem().open(testDir + pathSep + fileName, new OpenOptions(), onSuccess(file -> subscribe(expected, file, 3)));
+    vertx.fileSystem().open(testDir + pathSep + fileName, new OpenOptions()).onComplete(onSuccess(file -> subscribe(expected, file, 3)));
     await();
   }
 

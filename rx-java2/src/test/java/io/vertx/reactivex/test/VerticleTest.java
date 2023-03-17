@@ -52,13 +52,13 @@ public class VerticleTest extends VertxTestBase {
 
   @Test
   public void testStart() {
-    vertx.deployVerticle(StartVerticle.class.getName(), onSuccess(v -> testComplete()));
+    vertx.deployVerticle(StartVerticle.class.getName()).onComplete(onSuccess(v -> testComplete()));
     await();
   }
 
   @Test
   public void testStartWithFailure() {
-    vertx.deployVerticle(StartVerticleWithFailure.class.getName(), onFailure(t -> {
+    vertx.deployVerticle(StartVerticleWithFailure.class.getName()).onComplete(onFailure(t -> {
       assertEquals(t, err);
       testComplete();
     }));
@@ -67,7 +67,7 @@ public class VerticleTest extends VertxTestBase {
 
   @Test
   public void testStartWithError() {
-    vertx.deployVerticle(StartVerticleWithError.class.getName(), onFailure(t -> {
+    vertx.deployVerticle(StartVerticleWithError.class.getName()).onComplete(onFailure(t -> {
       assertEquals(t, err);
       testComplete();
     }));
@@ -76,7 +76,7 @@ public class VerticleTest extends VertxTestBase {
 
   @Test
   public void testStartSynchronously() {
-    vertx.deployVerticle(StartVerticleSynchronously.class.getName(), onSuccess(t -> {
+    vertx.deployVerticle(StartVerticleSynchronously.class.getName()).onComplete(onSuccess(t -> {
       assertEquals(1, startedCount);
       testComplete();
     }));
@@ -113,16 +113,16 @@ public class VerticleTest extends VertxTestBase {
 
   @Test
   public void testStop() {
-    vertx.deployVerticle(StopVerticle.class.getName(), onSuccess(id -> {
-      vertx.undeploy(id, onSuccess(v -> testComplete()));
+    vertx.deployVerticle(StopVerticle.class.getName()).onComplete(onSuccess(id -> {
+      vertx.undeploy(id).onComplete(onSuccess(v -> testComplete()));
     }));
     await();
   }
 
   @Test
   public void testStopWithFailure() {
-    vertx.deployVerticle(StopVerticleWithFailure.class.getName(), onSuccess(id -> {
-      vertx.undeploy(id, onFailure(t -> {
+    vertx.deployVerticle(StopVerticleWithFailure.class.getName()).onComplete(onSuccess(id -> {
+      vertx.undeploy(id).onComplete(onFailure(t -> {
         assertEquals(t, err);
         testComplete();
       }));
@@ -132,8 +132,8 @@ public class VerticleTest extends VertxTestBase {
 
   @Test
   public void testStopWithError() {
-    vertx.deployVerticle(StopVerticleWithError.class.getName(), onSuccess(id -> {
-      vertx.undeploy(id, onFailure(t -> {
+    vertx.deployVerticle(StopVerticleWithError.class.getName()).onComplete(onSuccess(id -> {
+      vertx.undeploy(id).onComplete(onFailure(t -> {
         assertEquals(t, err);
         testComplete();
       }));
@@ -143,8 +143,8 @@ public class VerticleTest extends VertxTestBase {
 
   @Test
   public void testStopSynchronously() {
-    vertx.deployVerticle(StopVerticleSynchronously.class.getName(), onSuccess(id -> {
-      vertx.undeploy(id, onSuccess(v -> {
+    vertx.deployVerticle(StopVerticleSynchronously.class.getName()).onComplete(onSuccess(id -> {
+      vertx.undeploy(id).onComplete(onSuccess(v -> {
         assertEquals(1, stoppedCount);
         testComplete();
       }));

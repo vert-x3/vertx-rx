@@ -33,7 +33,7 @@ public class RxifiedExamples {
 
   public void toObservable(Vertx vertx) {
     FileSystem fs = vertx.fileSystem();
-    fs.open("/data.txt", new OpenOptions(), result -> {
+    fs.open("/data.txt", new OpenOptions()).onComplete(result -> {
       AsyncFile file = result.result();
       Observable<Buffer> observable = file.toObservable();
       observable.forEach(data -> System.out.println("Read data: " + data.toString("UTF-8")));
@@ -104,7 +104,7 @@ public class RxifiedExamples {
   }
 
   public void unmarshaller(FileSystem fileSystem) {
-    fileSystem.open("/data.txt", new OpenOptions(), result -> {
+    fileSystem.open("/data.txt", new OpenOptions()).onComplete(result -> {
       AsyncFile file = result.result();
       Observable<Buffer> observable = file.toObservable();
       observable.lift(io.vertx.rxjava.core.RxHelper.unmarshaller(MyPojo.class)).subscribe(

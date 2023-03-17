@@ -144,7 +144,7 @@ public class WebClientTest extends VertxTestBase {
       });
       await();
     } catch (Throwable t) {
-      fail();
+      fail(t);
     }
   }
 }

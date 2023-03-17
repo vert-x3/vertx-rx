@@ -13,6 +13,7 @@ import io.vertx.core.Handler;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -28,6 +29,13 @@ public class AsyncResultMaybe<T, U> extends Maybe<T> {
       return Maybe.error(new NullPointerException());
     }
     return RxJavaPlugins.onAssembly(new AsyncResultMaybe<>(future::onComplete, mapping));
+  }
+
+  public static <T, U> Maybe<T> toMaybe(Supplier<Future<U>> future, Function<U, T> mapping) {
+    if (future == null) {
+      return Maybe.error(new NullPointerException());
+    }
+    return RxJavaPlugins.onAssembly(new AsyncResultMaybe<>(h -> future.get().onComplete(h), mapping));
   }
 
   private final Consumer<Handler<AsyncResult<U>>> subscriptionConsumer;

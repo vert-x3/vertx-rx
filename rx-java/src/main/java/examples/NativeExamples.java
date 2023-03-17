@@ -35,7 +35,7 @@ public class NativeExamples {
 
   public void toObservable(Vertx vertx) {
     FileSystem fileSystem = vertx.fileSystem();
-    fileSystem.open("/data.txt", new OpenOptions(), result -> {
+    fileSystem.open("/data.txt", new OpenOptions()).onComplete(result -> {
       AsyncFile file = result.result();
       Observable<Buffer> observable = RxHelper.toObservable(file);
       observable.forEach(data -> System.out.println("Read data: " + data.toString("UTF-8")));
@@ -86,7 +86,7 @@ public class NativeExamples {
     vertx.createHttpServer(new HttpServerOptions().
         setPort(1234).
         setHost("localhost")
-    ).listen(observable.toHandler());
+    ).listen().onComplete(observable.toHandler());
   }
 
   public void observableToHandler() {
@@ -135,7 +135,7 @@ public class NativeExamples {
   }
 
   public void unmarshaller(FileSystem fileSystem) {
-    fileSystem.open("/data.txt", new OpenOptions(), result -> {
+    fileSystem.open("/data.txt", new OpenOptions()).onComplete(result -> {
       AsyncFile file = result.result();
       Observable<Buffer> observable = RxHelper.toObservable(file);
       observable.lift(RxHelper.unmarshaller(MyPojo.class)).subscribe(

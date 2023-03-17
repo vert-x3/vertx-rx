@@ -1,5 +1,6 @@
 package io.vertx.it.discovery;
 
+import io.reactivex.rxjava3.core.Single;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava3.core.AbstractVerticle;
@@ -104,20 +105,17 @@ public class MyRX2Verticle extends AbstractVerticle {
 
     eb.consumer("service-sugar", message -> {
       JsonObject result = new JsonObject();
-      EventBusService.getServiceProxy(discovery,
+      Single<HelloService> s = EventBusService.getServiceProxy(discovery,
         record -> record.getName().equalsIgnoreCase("my-service"),
-        HelloService.class,
-        ar -> {
-          if (ar.failed()) {
-            message.fail(0, "FAIL - no service");
-          } else {
-            HelloService client = ar.result();
-            result.put("client", client.getClass().toString());
-            ServiceDiscovery.releaseServiceObject(discovery, client);
-            result.put("bindings", getBindings(discovery));
-            message.reply(result);
-          }
-        });
+        HelloService.class);
+      s.subscribe(client -> {
+        result.put("client", client.getClass().toString());
+        ServiceDiscovery.releaseServiceObject(discovery, client);
+        result.put("bindings", getBindings(discovery));
+        message.reply(result);
+      }, err -> {
+        message.fail(0, "FAIL - no service");
+      });
     });
 
     eb.consumer("redis-ref", message ->

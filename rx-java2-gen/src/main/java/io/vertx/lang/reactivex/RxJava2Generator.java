@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.vertx.codegen.type.ClassKind.VOID;
+import static java.util.stream.Collectors.joining;
 
 class RxJava2Generator extends Vertx3RxGeneratorBase {
   RxJava2Generator() {
@@ -171,6 +172,16 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
       writer.print(adapterType);
       writer.println("($handler -> {");
       writer.print("      ");
+      if (method.isStaticMethod()) {
+        writer.print(genTranslatedTypeName(model.getType()));
+        writer.print(".");
+      } else {
+        writer.print("this.");
+      }
+      List<TypeParamInfo.Method> typeParams = method.getTypeParams();
+      if (typeParams.size()  > 0) {
+        writer.print(method.getTypeParams().stream().map(TypeParamInfo::getName).collect(joining(", ", "<", ">")));
+      }
       writer.print(method.getName());
       writer.print("(");
       List<ParamInfo> params = futMethod.getParams();

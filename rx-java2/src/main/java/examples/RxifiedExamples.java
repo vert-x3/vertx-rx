@@ -37,7 +37,7 @@ public class RxifiedExamples {
 
   public void toFlowable(Vertx vertx) {
     FileSystem fs = vertx.fileSystem();
-    fs.open("/data.txt", new OpenOptions(), result -> {
+    fs.open("/data.txt", new OpenOptions()).onComplete( result -> {
       AsyncFile file = result.result();
       Flowable<Buffer> observable = file.toFlowable();
       observable.forEach(data -> System.out.println("Read data: " + data.toString("UTF-8")));
@@ -131,7 +131,7 @@ public class RxifiedExamples {
 
   public void executeBlockingAdapter(io.vertx.core.Vertx vertx) {
     Maybe<String> maybe = MaybeHelper.toMaybe(handler -> {
-      vertx.executeBlocking(fut -> fut.complete(invokeBlocking()), handler);
+      vertx.<String>executeBlocking(fut -> fut.complete(invokeBlocking())).onComplete(handler);
     });
   }
 
@@ -159,7 +159,7 @@ public class RxifiedExamples {
   }
 
   public void unmarshaller(FileSystem fileSystem) {
-    fileSystem.open("/data.txt", new OpenOptions(), result -> {
+    fileSystem.open("/data.txt", new OpenOptions()).onComplete(result -> {
       AsyncFile file = result.result();
       Observable<Buffer> observable = file.toObservable();
       observable.compose(ObservableHelper.unmarshaller((MyPojo.class))).subscribe(

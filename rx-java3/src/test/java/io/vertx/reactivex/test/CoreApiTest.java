@@ -141,7 +141,7 @@ public class CoreApiTest extends VertxTestBase {
     };
     EventBus eventBus = vertx.eventBus();
     eventBus.addInboundInterceptor(interceptor);
-    eventBus.consumer("foo", msg -> msg.reply(msg.headers().get(headerName))).completionHandler()
+    eventBus.consumer("foo", msg -> msg.reply(msg.headers().get(headerName))).completion()
       .andThen(eventBus.rxRequest("foo", "bar").flatMapCompletable(reply -> {
         if (reply.body().equals(headerValue)) {
           return Completable.complete();
@@ -149,7 +149,9 @@ public class CoreApiTest extends VertxTestBase {
           return Completable.error(new NoStackTraceThrowable("Expected msg to be intercepted"));
         }
       }))
-      .andThen(Completable.fromAction(() -> eventBus.removeInboundInterceptor(interceptor)))
+      .andThen(Completable.fromAction(() -> {
+        eventBus.removeInboundInterceptor(interceptor);
+      }))
       .andThen(eventBus.rxRequest("foo", "bar").flatMapCompletable(reply -> {
         if (reply.body() == null) {
           return Completable.complete();

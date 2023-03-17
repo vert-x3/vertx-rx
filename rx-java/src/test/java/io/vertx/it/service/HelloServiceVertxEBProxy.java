@@ -72,7 +72,7 @@ public class HelloServiceVertxEBProxy implements HelloService {
     DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "hello");
     _deliveryOptions.getHeaders().set("action", "hello");
-    _vertx.eventBus().<String>request(_address, _json, _deliveryOptions, res -> {
+    _vertx.eventBus().<String>request(_address, _json, _deliveryOptions).onComplete(res -> {
       if (res.failed()) {
         resultHandler.handle(Future.failedFuture(res.cause()));
       } else {

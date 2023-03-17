@@ -99,8 +99,8 @@ public class CoreApiTest extends VertxTestBase {
       }).rxListen(8080, "localhost")
       .blockingGet();
     HttpClient client = vertx.createHttpClient();
-    client.request(HttpMethod.GET, 8080, "localhost", "/", onSuccess(req -> {
-      req.send(onSuccess(resp -> {
+    client.request(HttpMethod.GET, 8080, "localhost", "/").onComplete(onSuccess(req -> {
+      req.send().onComplete(onSuccess(resp -> {
         AtomicInteger count = new AtomicInteger();
         resp.handler(buff -> {
           if (count.incrementAndGet() > 5) {

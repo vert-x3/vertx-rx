@@ -201,11 +201,11 @@ class RxJava3Generator extends AbstractRxGenerator {
     String adapterType = "AsyncResult" + methodSimpleName + ".to" + methodSimpleName;
     startMethodTemplate("public", model.getType(), futMethod, "", writer);
     if (genBody) {
-      writer.println(" { ");
+      writer.println(" {");
       if (method.getKind() == MethodKind.FUTURE) {
         writer.print("    return ");
         writer.print(adapterType);
-        writer.print("(");
+        writer.print("(() -> ");
         writer.print(genInvokeDelegate(model, method));
         if (!futMethod.getReturnType().getSimpleName().equals("Completable")) {
           writer.print(", __value -> ");

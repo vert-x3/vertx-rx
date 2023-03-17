@@ -19,7 +19,7 @@ public class RXHelloServiceConsumer extends AbstractVerticle {
     io.vertx.rxjava.servicediscovery.types.EventBusService.getServiceProxyWithJsonFilter(
       discovery,
       new JsonObject().put("service.interface", io.vertx.it.service.HelloService.class.getName()),
-      HelloService.class, // service interface
+      HelloService.class).onComplete( // service interface
       ar -> {
         if (ar.failed()) {
           vertx.eventBus().send("result",

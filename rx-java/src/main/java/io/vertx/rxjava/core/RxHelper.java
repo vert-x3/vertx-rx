@@ -141,7 +141,7 @@ public class RxHelper {
    */
   public static Observable<String> deployVerticle(Vertx vertx, Verticle verticle, DeploymentOptions options) {
     ObservableFuture<String> completionHandler = io.vertx.rx.java.RxHelper.observableFuture();
-    vertx.getDelegate().deployVerticle(verticle, options, completionHandler.toHandler());
+    vertx.getDelegate().deployVerticle(verticle, options).onComplete(completionHandler.toHandler());
     return completionHandler;
   }
 }

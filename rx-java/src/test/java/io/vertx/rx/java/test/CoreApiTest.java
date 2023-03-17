@@ -198,7 +198,7 @@ public class CoreApiTest extends VertxTestBase {
     });
     Single<Message<String>> obs1 = eb.rxRequest("the-address", "msg1");
     Single<Message<String>> obs2 = eb.rxRequest("the-address", "msg2");
-    eb.request("the-address", "done", reply -> {
+    eb.request("the-address", "done").onComplete(reply -> {
       Observable<Message<String>> all = Single.concat(obs1, obs2);
       LinkedList<String> values = new LinkedList<String>();
       all.subscribe(next -> {
@@ -217,7 +217,7 @@ public class CoreApiTest extends VertxTestBase {
   public void testObservableNetSocket() {
     ObservableFuture<NetServer> onListen = RxHelper.observableFuture();
     onListen.subscribe(
-        server -> vertx.createNetClient(new NetClientOptions()).connect(1234, "localhost", ar -> {
+        server -> vertx.createNetClient(new NetClientOptions()).connect(1234, "localhost").onComplete(ar -> {
           assertTrue(ar.succeeded());
           NetSocket so = ar.result();
           so.write("foo");
@@ -264,7 +264,7 @@ public class CoreApiTest extends VertxTestBase {
         testComplete();
       }
     });
-    server.listen(onListen.toHandler());
+    server.listen().onComplete(onListen.toHandler());
     await();
   }
 
@@ -272,7 +272,7 @@ public class CoreApiTest extends VertxTestBase {
   public void testObservableWebSocket() {
     ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
     onListen.subscribe(
-        server -> vertx.createHttpClient(new HttpClientOptions()).webSocket(8080, "localhost", "/some/path", ar -> {
+        server -> vertx.createHttpClient(new HttpClientOptions()).webSocket(8080, "localhost", "/some/path").onComplete(ar -> {
           if (ar.succeeded()) {
             WebSocket ws = ar.result();
             ws.write(Buffer.buffer("foo"));
@@ -321,7 +321,7 @@ public class CoreApiTest extends VertxTestBase {
         testComplete();
       }
     });
-    server.listen(onListen.toHandler());
+    server.listen().onComplete(onListen.toHandler());
     await();
   }
 
@@ -547,7 +547,7 @@ public class CoreApiTest extends VertxTestBase {
       req.response().setChunked(true).end("some_content");
     });
     try {
-      server.listen(ar -> {
+      server.listen().onComplete(ar -> {
         HttpClient client = vertx.createHttpClient(new HttpClientOptions());
         client
           .rxRequest(HttpMethod.GET, 8080, "localhost", "/the_uri")
@@ -573,7 +573,7 @@ public class CoreApiTest extends VertxTestBase {
     server.requestStream().handler(req -> {
       req.response().setChunked(true).end("some_content");
     });
-    server.listen(ar -> {
+    server.listen().onComplete(ar -> {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
       Single<HttpClientResponse> req = client
         .rxRequest(HttpMethod.GET, 8080, "localhost", "/the_uri")
@@ -596,7 +596,7 @@ public class CoreApiTest extends VertxTestBase {
     server.requestStream().handler(req -> {
       req.response().setChunked(true).end("{\"foo\":\"bar\"}");
     });
-    server.listen(ar -> {
+    server.listen().onComplete(ar -> {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
       Single<HttpClientResponse> req = client
         .rxRequest(HttpMethod.GET, 8080, "localhost", "/the_uri")
@@ -647,9 +647,9 @@ public class CoreApiTest extends VertxTestBase {
       ws.write(Buffer.buffer("some_content"));
       ws.close();
     });
-    server.listen(ar -> {
+    server.listen().onComplete(ar -> {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-      client.webSocket(8080, "localhost", "/the_uri", ar2 -> {
+      client.webSocket(8080, "localhost", "/the_uri").onComplete(ar2 -> {
         if (ar2.succeeded()) {
           WebSocket ws = ar2.result();
           Buffer content = Buffer.buffer();
@@ -672,7 +672,7 @@ public class CoreApiTest extends VertxTestBase {
       ws.write(Buffer.buffer("some_content"));
       ws.close();
     });
-    server.listen(ar -> {
+    server.listen().onComplete(ar -> {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
       Buffer content = Buffer.buffer();
       client.

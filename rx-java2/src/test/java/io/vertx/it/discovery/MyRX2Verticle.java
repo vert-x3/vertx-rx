@@ -29,7 +29,7 @@ public class MyRX2Verticle extends AbstractVerticle {
     EventBus eb = vertx.eventBus();
 
     eb.consumer("http-ref", message ->
-      discovery.getRecord(rec -> rec.getName().equalsIgnoreCase("my-http-service"), ar -> {
+      discovery.getRecord(rec -> rec.getName().equalsIgnoreCase("my-http-service")).onComplete(ar -> {
         if (ar.failed()) {
           message.fail(0, "FAIL - No service");
         } else {
@@ -49,7 +49,7 @@ public class MyRX2Verticle extends AbstractVerticle {
 
     eb.consumer("http-sugar", message -> {
       JsonObject result = new JsonObject();
-      HttpEndpoint.getClient(discovery, record -> record.getName().equalsIgnoreCase("my-http-service"),
+      HttpEndpoint.getClient(discovery, record -> record.getName().equalsIgnoreCase("my-http-service")).onComplete(
         ar -> {
           if (ar.failed()) {
             message.fail(0, "FAIL - no service");
@@ -64,7 +64,7 @@ public class MyRX2Verticle extends AbstractVerticle {
     });
 
     eb.consumer("web-ref", message ->
-      discovery.getRecord(rec -> rec.getName().equalsIgnoreCase("my-http-service"), ar -> {
+      discovery.getRecord(rec -> rec.getName().equalsIgnoreCase("my-http-service")).onComplete(ar -> {
         if (ar.failed()) {
           message.fail(0, "FAIL - No service");
         } else {
@@ -84,8 +84,7 @@ public class MyRX2Verticle extends AbstractVerticle {
 
     eb.consumer("web-sugar", message -> {
       JsonObject result = new JsonObject();
-      HttpEndpoint.getWebClient(discovery, record -> record.getName().equalsIgnoreCase("my-http-service"),
-        ar -> {
+      HttpEndpoint.getWebClient(discovery, record -> record.getName().equalsIgnoreCase("my-http-service")).onComplete(ar -> {
           if (ar.failed()) {
             message.fail(0, "FAIL - no service");
           } else {
@@ -99,7 +98,7 @@ public class MyRX2Verticle extends AbstractVerticle {
     });
 
     eb.consumer("service-ref", message ->
-      discovery.getRecord(rec -> rec.getName().equalsIgnoreCase("my-service"), ar -> {
+      discovery.getRecord(rec -> rec.getName().equalsIgnoreCase("my-service")).onComplete(ar -> {
         if (ar.failed()) {
           message.fail(0, "FAIL - No service");
         } else {
@@ -121,8 +120,7 @@ public class MyRX2Verticle extends AbstractVerticle {
       JsonObject result = new JsonObject();
       EventBusService.getServiceProxy(discovery,
         record -> record.getName().equalsIgnoreCase("my-service"),
-        HelloService.class,
-        ar -> {
+        HelloService.class).onComplete(ar -> {
           if (ar.failed()) {
             message.fail(0, "FAIL - no service");
           } else {
@@ -136,7 +134,7 @@ public class MyRX2Verticle extends AbstractVerticle {
     });
 
     eb.consumer("ds-ref", message ->
-      discovery.getRecord(rec -> rec.getName().equalsIgnoreCase("my-data-source"), ar -> {
+      discovery.getRecord(rec -> rec.getName().equalsIgnoreCase("my-data-source")).onComplete(ar -> {
         if (ar.failed()) {
           message.fail(0, "FAIL - No service");
         } else {
@@ -156,8 +154,7 @@ public class MyRX2Verticle extends AbstractVerticle {
 
     eb.consumer("ds-sugar", message -> {
       JsonObject result = new JsonObject();
-      JDBCDataSource.getJDBCClient(discovery, record -> record.getName().equalsIgnoreCase("my-data-source"),
-        ar -> {
+      JDBCDataSource.getJDBCClient(discovery, record -> record.getName().equalsIgnoreCase("my-data-source")).onComplete(ar -> {
           if (ar.failed()) {
             message.fail(0, "FAIL - no service");
           } else {
@@ -171,7 +168,7 @@ public class MyRX2Verticle extends AbstractVerticle {
     });
 
     eb.consumer("redis-ref", message ->
-      discovery.getRecord(rec -> rec.getName().equalsIgnoreCase("my-redis-data-source"), ar -> {
+      discovery.getRecord(rec -> rec.getName().equalsIgnoreCase("my-redis-data-source")).onComplete(ar -> {
         if (ar.failed()) {
           message.fail(0, "FAIL - No service");
         } else {
@@ -191,8 +188,7 @@ public class MyRX2Verticle extends AbstractVerticle {
 
     eb.consumer("redis-sugar", message -> {
       JsonObject result = new JsonObject();
-      RedisDataSource.getRedisClient(discovery, record -> record.getName().equalsIgnoreCase("my-redis-data-source"),
-        ar -> {
+      RedisDataSource.getRedisClient(discovery, record -> record.getName().equalsIgnoreCase("my-redis-data-source")).onComplete(ar -> {
           if (ar.failed()) {
             message.fail(0, "FAIL - no service");
           } else {
@@ -206,7 +202,7 @@ public class MyRX2Verticle extends AbstractVerticle {
     });
 
     eb.consumer("mongo-ref", message ->
-      discovery.getRecord(rec -> rec.getName().equalsIgnoreCase("my-mongo-data-source"), ar -> {
+      discovery.getRecord(rec -> rec.getName().equalsIgnoreCase("my-mongo-data-source")).onComplete(ar -> {
         if (ar.failed()) {
           message.fail(0, "FAIL - No service");
         } else {
@@ -227,8 +223,7 @@ public class MyRX2Verticle extends AbstractVerticle {
     eb.consumer("mongo-sugar", message -> {
       JsonObject result = new JsonObject();
       MongoDataSource.getMongoClient(discovery,
-        record -> record.getName().equalsIgnoreCase("my-mongo-data-source"),
-        ar -> {
+        record -> record.getName().equalsIgnoreCase("my-mongo-data-source")).onComplete(ar -> {
           if (ar.failed()) {
             message.fail(0, "FAIL - no service");
           } else {
@@ -242,7 +237,7 @@ public class MyRX2Verticle extends AbstractVerticle {
     });
 
     eb.consumer("source1-ref", message ->
-      discovery.getRecord(rec -> rec.getName().equalsIgnoreCase("my-message-source-1"), ar -> {
+      discovery.getRecord(rec -> rec.getName().equalsIgnoreCase("my-message-source-1")).onComplete(ar -> {
         if (ar.failed()) {
           message.fail(0, "FAIL - No service");
         } else {
@@ -262,8 +257,7 @@ public class MyRX2Verticle extends AbstractVerticle {
 
     eb.consumer("source1-sugar", message -> {
       JsonObject result = new JsonObject();
-      MessageSource.getConsumer(discovery, record -> record.getName().equalsIgnoreCase("my-message-source-1"),
-        ar -> {
+      MessageSource.getConsumer(discovery, record -> record.getName().equalsIgnoreCase("my-message-source-1")).onComplete(ar -> {
           if (ar.failed()) {
             message.fail(0, "FAIL - no service");
           } else {

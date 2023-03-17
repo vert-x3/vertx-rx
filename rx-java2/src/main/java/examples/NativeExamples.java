@@ -34,7 +34,7 @@ public class NativeExamples {
 
   public void toFlowable(Vertx vertx) {
     FileSystem fileSystem = vertx.fileSystem();
-    fileSystem.open("/data.txt", new OpenOptions(), result -> {
+    fileSystem.open("/data.txt", new OpenOptions()).onComplete(result -> {
       AsyncFile file = result.result();
       Flowable<Buffer> observable = FlowableHelper.toFlowable(file);
       observable.forEach(data -> System.out.println("Read data: " + data.toString("UTF-8")));
@@ -100,7 +100,7 @@ public class NativeExamples {
   }
 
   public void unmarshaller(FileSystem fileSystem) {
-    fileSystem.open("/data.txt", new OpenOptions(), result -> {
+    fileSystem.open("/data.txt", new OpenOptions()).onComplete(result -> {
       AsyncFile file = result.result();
       Flowable<Buffer> observable = FlowableHelper.toFlowable(file);
       observable.compose(FlowableHelper.unmarshaller(MyPojo.class)).subscribe(

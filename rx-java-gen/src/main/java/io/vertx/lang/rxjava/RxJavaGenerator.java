@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.joining;
+
 class RxJavaGenerator extends Vertx3RxGeneratorBase {
   RxJavaGenerator() {
     super("rxjava");
@@ -127,6 +129,16 @@ class RxJavaGenerator extends Vertx3RxGeneratorBase {
       writer.println(" { ");
       writer.println("    return Single.create(new SingleOnSubscribeAdapter<>(fut -> {");
       writer.print("      ");
+      if (method.isStaticMethod()) {
+        writer.print(genTranslatedTypeName(model.getType()));
+        writer.print(".");
+      } else {
+        writer.print("this.");
+      }
+      List<TypeParamInfo.Method> typeParams = method.getTypeParams();
+      if (typeParams.size()  > 0) {
+        writer.print(method.getTypeParams().stream().map(TypeParamInfo::getName).collect(joining(", ", "<", ">")));
+      }
       writer.print(method.getName());
       writer.print("(");
       writer.print(futMethod.getParams().stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
