@@ -32,8 +32,7 @@ import io.vertx.serviceproxy.ServiceException;
 import io.vertx.serviceproxy.ServiceExceptionMessageCodec;
 import io.vertx.serviceproxy.ProxyUtils;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
+import io.vertx.core.Future;
 /*
   Generated Proxy code - DO NOT EDIT
   @author Roger the Robot
@@ -61,23 +60,16 @@ public class HelloServiceVertxEBProxy implements HelloService {
   }
 
   @Override
-  public void hello(JsonObject name, Handler<AsyncResult<String>> resultHandler){
-    if (closed) {
-      resultHandler.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
-      return;
-    }
+  public Future<String> hello(JsonObject name){
+    if (closed) return io.vertx.core.Future.failedFuture("Proxy is closed");
     JsonObject _json = new JsonObject();
     _json.put("name", name);
 
     DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "hello");
     _deliveryOptions.getHeaders().set("action", "hello");
-    _vertx.eventBus().<String>request(_address, _json, _deliveryOptions).onComplete(res -> {
-      if (res.failed()) {
-        resultHandler.handle(Future.failedFuture(res.cause()));
-      } else {
-        resultHandler.handle(Future.succeededFuture(res.result().body()));
-      }
+    return _vertx.eventBus().<String>request(_address, _json, _deliveryOptions).map(msg -> {
+      return msg.body();
     });
   }
 }

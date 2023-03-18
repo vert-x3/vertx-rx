@@ -19,6 +19,7 @@ package io.vertx.it.discovery.service;
 import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 
@@ -29,7 +30,7 @@ import io.vertx.core.json.JsonObject;
 @VertxGen
 public interface HelloService {
 
-  void hello(JsonObject name, Handler<AsyncResult<String>> resultHandler);
+  Future<String> hello(JsonObject name);
 
 
 }

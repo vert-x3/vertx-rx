@@ -49,7 +49,7 @@ public class HelloServiceImpl implements HelloService {
   }
 
   @Override
-  public void hello(JsonObject name, Handler<AsyncResult<String>> resultHandler) {
-    resultHandler.handle(Future.succeededFuture(msg + " " + name.getString("name")));
+  public Future<String> hello(JsonObject name) {
+    return Future.succeededFuture(msg + " " + name.getString("name"));
   }
 }

@@ -17,7 +17,7 @@
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
  */
-@ModuleGen(name = "test-services", groupPackage = "io.vertx")
+@ModuleGen(name = "test-services", groupPackage = "io.vertx", useFutures = true)
 package io.vertx.it.service;
 
 import io.vertx.codegen.annotations.ModuleGen;
