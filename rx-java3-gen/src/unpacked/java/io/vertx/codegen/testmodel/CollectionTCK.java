@@ -1,7 +1,7 @@
 package io.vertx.codegen.testmodel;
 
 import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -25,8 +25,8 @@ public interface CollectionTCK {
   void methodWithHandlerListAndSet(Handler<List<String>> listStringHandler, Handler<List<Integer>> listIntHandler,
                                    Handler<Set<String>> setStringHandler, Handler<Set<Integer>> setIntHandler);
 
-  void methodWithHandlerAsyncResultListString(Handler<AsyncResult<List<String>>> handler);
-  void methodWithHandlerAsyncResultListInteger(Handler<AsyncResult<List<Integer>>> handler);
+  Future<List<String>> methodWithHandlerAsyncResultListString();
+  Future<List<Integer>> methodWithHandlerAsyncResultListInteger();
   void methodWithHandlerListVertxGen(Handler<List<RefedInterface1>> listHandler);
   void methodWithHandlerListAbstractVertxGen(Handler<List<RefedInterface2>> listHandler);
   void methodWithHandlerListJsonObject(Handler<List<JsonObject>> listHandler);
@@ -36,8 +36,8 @@ public interface CollectionTCK {
   void methodWithHandlerListDataObject(Handler<List<TestDataObject>> listHandler);
   void methodWithHandlerListEnum(Handler<List<TestEnum>> listHandler);
 
-  void methodWithHandlerAsyncResultSetString(Handler<AsyncResult<Set<String>>> handler);
-  void methodWithHandlerAsyncResultSetInteger(Handler<AsyncResult<Set<Integer>>> handler);
+  Future<Set<String>> methodWithHandlerAsyncResultSetString();
+  Future<Set<Integer>> methodWithHandlerAsyncResultSetInteger();
   void methodWithHandlerSetVertxGen(Handler<Set<RefedInterface1>> listHandler);
   void methodWithHandlerSetAbstractVertxGen(Handler<Set<RefedInterface2>> listHandler);
   void methodWithHandlerSetJsonObject(Handler<Set<JsonObject>> listHandler);
@@ -47,23 +47,23 @@ public interface CollectionTCK {
   void methodWithHandlerSetDataObject(Handler<Set<TestDataObject>> setHandler);
   void methodWithHandlerSetEnum(Handler<Set<TestEnum>> setHandler);
 
-  void methodWithHandlerAsyncResultListVertxGen(Handler<AsyncResult<List<RefedInterface1>>> listHandler);
-  void methodWithHandlerAsyncResultListAbstractVertxGen(Handler<AsyncResult<List<RefedInterface2>>> listHandler);
-  void methodWithHandlerAsyncResultListJsonObject(Handler<AsyncResult<List<JsonObject>>> listHandler);
-  void methodWithHandlerAsyncResultListComplexJsonObject(Handler<AsyncResult<List<JsonObject>>> listHandler);
-  void methodWithHandlerAsyncResultListJsonArray(Handler<AsyncResult<List<JsonArray>>> listHandler);
-  void methodWithHandlerAsyncResultListComplexJsonArray(Handler<AsyncResult<List<JsonArray>>> listHandler);
-  void methodWithHandlerAsyncResultListDataObject(Handler<AsyncResult<List<TestDataObject>>> listHandler);
-  void methodWithHandlerAsyncResultListEnum(Handler<AsyncResult<List<TestEnum>>> listHandler);
+  Future<List<RefedInterface1>> methodWithHandlerAsyncResultListVertxGen();
+  Future<List<RefedInterface2>> methodWithHandlerAsyncResultListAbstractVertxGen();
+  Future<List<JsonObject>> methodWithHandlerAsyncResultListJsonObject();
+  Future<List<JsonObject>> methodWithHandlerAsyncResultListComplexJsonObject();
+  Future<List<JsonArray>> methodWithHandlerAsyncResultListJsonArray();
+  Future<List<JsonArray>> methodWithHandlerAsyncResultListComplexJsonArray();
+  Future<List<TestDataObject>> methodWithHandlerAsyncResultListDataObject();
+  Future<List<TestEnum>> methodWithHandlerAsyncResultListEnum();
 
-  void methodWithHandlerAsyncResultSetVertxGen(Handler<AsyncResult<Set<RefedInterface1>>> listHandler);
-  void methodWithHandlerAsyncResultSetAbstractVertxGen(Handler<AsyncResult<Set<RefedInterface2>>> listHandler);
-  void methodWithHandlerAsyncResultSetJsonObject(Handler<AsyncResult<Set<JsonObject>>> listHandler);
-  void methodWithHandlerAsyncResultSetComplexJsonObject(Handler<AsyncResult<Set<JsonObject>>> listHandler);
-  void methodWithHandlerAsyncResultSetJsonArray(Handler<AsyncResult<Set<JsonArray>>> listHandler);
-  void methodWithHandlerAsyncResultSetComplexJsonArray(Handler<AsyncResult<Set<JsonArray>>> listHandler);
-  void methodWithHandlerAsyncResultSetDataObject(Handler<AsyncResult<Set<TestDataObject>>> setHandler);
-  void methodWithHandlerAsyncResultSetEnum(Handler<AsyncResult<Set<TestEnum>>> setHandler);
+  Future<Set<RefedInterface1>> methodWithHandlerAsyncResultSetVertxGen();
+  Future<Set<RefedInterface2>> methodWithHandlerAsyncResultSetAbstractVertxGen();
+  Future<Set<JsonObject>> methodWithHandlerAsyncResultSetJsonObject();
+  Future<Set<JsonObject>> methodWithHandlerAsyncResultSetComplexJsonObject();
+  Future<Set<JsonArray>> methodWithHandlerAsyncResultSetJsonArray();
+  Future<Set<JsonArray>> methodWithHandlerAsyncResultSetComplexJsonArray();
+  Future<Set<TestDataObject>> methodWithHandlerAsyncResultSetDataObject();
+  Future<Set<TestEnum>> methodWithHandlerAsyncResultSetEnum();
 
   Map<String, String> methodWithMapStringReturn(Handler<String> handler);
   Map<String, Long> methodWithMapLongReturn(Handler<String> handler);

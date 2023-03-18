@@ -1,8 +1,7 @@
 package io.vertx.codegen.rxjava3;
 
 import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
+import io.vertx.core.Future;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -10,6 +9,6 @@ import io.vertx.core.Handler;
 @VertxGen
 public interface MethodWithCompletable {
 
-  void doSomethingWithResult(Handler<AsyncResult<Void>> handler);
+  Future<Void> doSomethingWithResult();
 
 }

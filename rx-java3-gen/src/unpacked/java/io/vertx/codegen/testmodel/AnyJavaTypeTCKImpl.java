@@ -1,6 +1,5 @@
 package io.vertx.codegen.testmodel;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 
@@ -105,36 +104,32 @@ public class AnyJavaTypeTCKImpl implements AnyJavaTypeTCK {
   }
 
   @Override
-  public void methodWithHandlerAsyncResultJavaTypeParam(Handler<AsyncResult<Socket>> socketHandler) {
-    assertNotNull(socketHandler);
+  public Future<Socket> methodWithHandlerAsyncResultJavaTypeParam() {
     Socket socket = new Socket();
-    socketHandler.handle(Future.succeededFuture(socket));
+    return Future.succeededFuture(socket);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListOfJavaTypeParam(Handler<AsyncResult<List<Socket>>> socketListHandler) {
-    assertNotNull(socketListHandler);
+  public Future<List<Socket>> methodWithHandlerAsyncResultListOfJavaTypeParam() {
     Socket socket = new Socket();
     ArrayList<Socket> sockets = new ArrayList<>();
     sockets.add(socket);
-    socketListHandler.handle(Future.succeededFuture(sockets));
+    return Future.succeededFuture(sockets);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetOfJavaTypeParam(Handler<AsyncResult<Set<Socket>>> socketSetHandler) {
-    assertNotNull(socketSetHandler);
+  public Future<Set<Socket>> methodWithHandlerAsyncResultSetOfJavaTypeParam() {
     Socket socket = new Socket();
     Set<Socket> sockets = new HashSet<>();
     sockets.add(socket);
-    socketSetHandler.handle(Future.succeededFuture(sockets));
+    return Future.succeededFuture(sockets);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultMapOfJavaTypeParam(Handler<AsyncResult<Map<String, Socket>>> socketMapHandler) {
-    assertNotNull(socketMapHandler);
+  public Future<Map<String, Socket>> methodWithHandlerAsyncResultMapOfJavaTypeParam() {
     Socket socket = new Socket();
     Map<String, Socket> sockets = new HashMap<>();
     sockets.put("1", socket);
-    socketMapHandler.handle(Future.succeededFuture(sockets));
+    return Future.succeededFuture(sockets);
   }
 }

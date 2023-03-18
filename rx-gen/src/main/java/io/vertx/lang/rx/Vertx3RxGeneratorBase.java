@@ -49,6 +49,7 @@ public abstract class Vertx3RxGeneratorBase extends AbstractRxGenerator {
       return;
     }
 
+/*
     if (method.getKind() == MethodKind.CALLBACK) {
       writer.println("// CALLBACK");
       MethodInfo copy = method.copy();
@@ -77,6 +78,7 @@ public abstract class Vertx3RxGeneratorBase extends AbstractRxGenerator {
         }
       }
     }
+*/
 
     writer.println("// RX");
     genRxMethod(model, method, cacheDecls, genBody, writer);

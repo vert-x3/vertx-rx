@@ -5,6 +5,7 @@ import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.Nullable;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -31,17 +32,17 @@ public interface TestInterface extends SuperInterface1, SuperInterface2 {
   <T> Handler<T> methodWithHandlerGenericReturn(Handler<T> handler);
   Handler<RefedInterface1> methodWithHandlerVertxGenReturn(String expected);
 
-  void methodWithHandlerAsyncResultByte(boolean sendFailure, Handler<AsyncResult<Byte>> handler);
-  void methodWithHandlerAsyncResultShort(boolean sendFailure, Handler<AsyncResult<Short>> handler);
-  void methodWithHandlerAsyncResultInteger(boolean sendFailure, Handler<AsyncResult<Integer>> handler);
-  void methodWithHandlerAsyncResultLong(boolean sendFailure, Handler<AsyncResult<Long>> handler);
-  void methodWithHandlerAsyncResultFloat(boolean sendFailure, Handler<AsyncResult<Float>> handler);
-  void methodWithHandlerAsyncResultDouble(boolean sendFailure, Handler<AsyncResult<Double>> handler);
-  void methodWithHandlerAsyncResultBoolean(boolean sendFailure, Handler<AsyncResult<Boolean>> handler);
-  void methodWithHandlerAsyncResultCharacter(boolean sendFailure, Handler<AsyncResult<Character>> handler);
-  void methodWithHandlerAsyncResultString(boolean sendFailure, Handler<AsyncResult<String>> handler);
-  void methodWithHandlerAsyncResultDataObject(boolean sendFailure, Handler<AsyncResult<TestDataObject>> handler);
-  void methodWithHandlerAsyncResultStringDataObject(boolean sendFailure, Handler<AsyncResult<TestStringDataObject>> handler);
+  Future<Byte> methodWithHandlerAsyncResultByte(boolean sendFailure);
+  Future<Short> methodWithHandlerAsyncResultShort(boolean sendFailure);
+  Future<Integer> methodWithHandlerAsyncResultInteger(boolean sendFailure);
+  Future<Long> methodWithHandlerAsyncResultLong(boolean sendFailure);
+  Future<Float> methodWithHandlerAsyncResultFloat(boolean sendFailure);
+  Future<Double> methodWithHandlerAsyncResultDouble(boolean sendFailure);
+  Future<Boolean> methodWithHandlerAsyncResultBoolean(boolean sendFailure);
+  Future<Character> methodWithHandlerAsyncResultCharacter(boolean sendFailure);
+  Future<String> methodWithHandlerAsyncResultString(boolean sendFailure);
+  Future<TestDataObject> methodWithHandlerAsyncResultDataObject(boolean sendFailure);
+  Future<TestStringDataObject> methodWithHandlerAsyncResultStringDataObject(boolean sendFailure);
 
   Handler<AsyncResult<String>> methodWithHandlerAsyncResultStringReturn(String expected, boolean fail);
   <T> Handler<AsyncResult<T>> methodWithHandlerAsyncResultGenericReturn(Handler<AsyncResult<T>> handler);
@@ -61,7 +62,7 @@ public interface TestInterface extends SuperInterface1, SuperInterface2 {
 
   void methodWithHandlerUserTypes(Handler<RefedInterface1> handler);
 
-  void methodWithHandlerAsyncResultUserTypes(Handler<AsyncResult<RefedInterface1>> handler);
+  Future<RefedInterface1> methodWithHandlerAsyncResultUserTypes();
 
   void methodWithConcreteHandlerUserTypeSubtype(ConcreteHandlerUserType handler);
 
@@ -71,7 +72,7 @@ public interface TestInterface extends SuperInterface1, SuperInterface2 {
 
   void methodWithHandlerVoid(Handler<Void> handler);
 
-  void methodWithHandlerAsyncResultVoid(boolean sendFailure, Handler<AsyncResult<Void>> handler);
+  Future<Void> methodWithHandlerAsyncResultVoid(boolean sendFailure);
 
   void methodWithHandlerThrowable(Handler<Throwable> handler);
 
@@ -81,7 +82,7 @@ public interface TestInterface extends SuperInterface1, SuperInterface2 {
 
   <U> void methodWithHandlerGenericUserType(U value, Handler<GenericRefedInterface<U>> handler);
 
-  <U> void methodWithHandlerAsyncResultGenericUserType(U value, Handler<AsyncResult<GenericRefedInterface<U>>> handler);
+  <U> Future<GenericRefedInterface<U>> methodWithHandlerAsyncResultGenericUserType(U value);
 
   byte methodWithByteReturn();
 
@@ -129,7 +130,7 @@ public interface TestInterface extends SuperInterface1, SuperInterface2 {
 
   <U> void methodWithGenericHandler(String type, Handler<U> handler);
 
-  <U> void methodWithGenericHandlerAsyncResult(String type, Handler<AsyncResult<U>> asyncResultHandler);
+  <U> Future<U> methodWithGenericHandlerAsyncResult(String type);
 
   @Fluent
   TestInterface fluentMethod(String str);
@@ -169,17 +170,17 @@ public interface TestInterface extends SuperInterface1, SuperInterface2 {
 
   void methodWithHandlerComplexJson(Handler<JsonObject> jsonObjectHandler, Handler<JsonArray> jsonArrayHandler);
 
-  void methodWithHandlerAsyncResultJsonObject(Handler<AsyncResult<JsonObject>> handler);
+  Future<JsonObject> methodWithHandlerAsyncResultJsonObject();
 
-  void methodWithHandlerAsyncResultNullJsonObject(Handler<AsyncResult<@Nullable JsonObject>> handler);
+  Future<@Nullable JsonObject> methodWithHandlerAsyncResultNullJsonObject();
 
-  void methodWithHandlerAsyncResultComplexJsonObject(Handler<AsyncResult<JsonObject>> handler);
+  Future<JsonObject> methodWithHandlerAsyncResultComplexJsonObject();
 
-  void methodWithHandlerAsyncResultJsonArray(Handler<AsyncResult<JsonArray>> handler);
+  Future<JsonArray> methodWithHandlerAsyncResultJsonArray();
 
-  void methodWithHandlerAsyncResultNullJsonArray(Handler<AsyncResult<@Nullable JsonArray>> handler);
+  Future<@Nullable JsonArray> methodWithHandlerAsyncResultNullJsonArray();
 
-  void methodWithHandlerAsyncResultComplexJsonArray(Handler<AsyncResult<JsonArray>> handler);
+  Future<JsonArray> methodWithHandlerAsyncResultComplexJsonArray();
 
   String methodWithEnumParam(String strVal, TestEnum weirdo);
 

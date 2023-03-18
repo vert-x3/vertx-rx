@@ -5,28 +5,12 @@ import io.vertx.test.core.VertxTestBase;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import io.vertx.rxjava3.codegen.rxjava3.MethodWithFuture;
 import io.vertx.rxjava3.codegen.rxjava3.MethodWithFunction;
 
 import java.util.function.Function;
 
 
 public class OverloadMethodsTest extends VertxTestBase {
-
-  @Test
-  public void testSingleSuccess() {
-    Single<String> single = Single.just("foobar");
-    assertTrue(MethodWithFuture.isSucceeded(single));
-    assertEquals("foobar", MethodWithFuture.getResult(single));
-  }
-
-  @Test
-  public void testSingleFailure() {
-    Throwable error = new Throwable();
-    Single<String> single = Single.error(error);
-    assertTrue(MethodWithFuture.isFailed(single));
-    assertEquals(error, MethodWithFuture.getCause(single));
-  }
 
   @Test
   public void testFunctionReturningSingleSuccess() {

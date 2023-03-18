@@ -3,7 +3,8 @@
  */
 @ModuleGen(
   name = "testmodel",
-  groupPackage = "io.vertx")
+  groupPackage = "io.vertx",
+  useFutures = true)
 package io.vertx.codegen.testmodel;
 
 import io.vertx.codegen.annotations.ModuleGen;

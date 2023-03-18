@@ -50,7 +50,7 @@ public class NullableTCKTest {
   @Test
   public void testMethodWithHandlerAsyncResultListNullJsonObject() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithListNullableJsonObjectHandlerAsyncResult(checker.asyncExpectedResult(EXPECTED));
+    obj.methodWithListNullableJsonObjectHandlerAsyncResult().onComplete(checker.asyncExpectedResult(EXPECTED));
     assertEquals(1, checker.count);
   }
 
@@ -70,7 +70,7 @@ public class NullableTCKTest {
   @Test
   public void testMethodWithHandlerAsyncResultSetNullJsonObject() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithSetNullableJsonObjectHandlerAsyncResult(checker.asyncResultHandler(it -> assertEquals(EXPECTED, new ArrayList<>(it))));
+    obj.methodWithSetNullableJsonObjectHandlerAsyncResult().onComplete(checker.asyncResultHandler(it -> assertEquals(EXPECTED, new ArrayList<>(it))));
     assertEquals(1, checker.count);
   }
 
@@ -90,7 +90,7 @@ public class NullableTCKTest {
   @Test
   public void testMethodWithHandlerAsyncResultListNullJsonArray() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithListNullableJsonArrayHandlerAsyncResult(checker.asyncExpectedResult(EXPECTED1BILT));
+    obj.methodWithListNullableJsonArrayHandlerAsyncResult().onComplete(checker.asyncExpectedResult(EXPECTED1BILT));
     assertEquals(1, checker.count);
   }
 
@@ -110,7 +110,7 @@ public class NullableTCKTest {
   @Test
   public void testMethodWithHandlerAsyncResultSetNullJsonArray() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithSetNullableJsonArrayHandlerAsyncResult(checker.asyncResultHandler(it -> assertEquals(EXPECTED1BILT, new ArrayList<>(it))));
+    obj.methodWithSetNullableJsonArrayHandlerAsyncResult().onComplete(checker.asyncResultHandler(it -> assertEquals(EXPECTED1BILT, new ArrayList<>(it))));
     assertEquals(1, checker.count);
   }
 
@@ -130,7 +130,7 @@ public class NullableTCKTest {
   @Test
   public void testMethodWithHandlerAsyncResultNullListDataObject() throws Exception {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithListNullableDataObjectHandlerAsyncResult(checker.asyncResultHandler(list -> assertEquals(TEST_DATA_OBJECTS, list)));
+    obj.methodWithListNullableDataObjectHandlerAsyncResult().onComplete(checker.asyncResultHandler(list -> assertEquals(TEST_DATA_OBJECTS, list)));
     assertEquals(1, checker.count);
   }
 
@@ -144,7 +144,7 @@ public class NullableTCKTest {
   @Test
   public void testMethodWithHandlerAsyncResultNullSetDataObject() throws Exception {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithSetNullableDataObjectHandlerAsyncResult(checker.asyncResultHandler(set -> assertEquals(TEST_DATA_OBJECTS, new ArrayList<>(set))));
+    obj.methodWithSetNullableDataObjectHandlerAsyncResult().onComplete(checker.asyncResultHandler(set -> assertEquals(TEST_DATA_OBJECTS, new ArrayList<>(set))));
     assertEquals(1, checker.count);
   }
 }

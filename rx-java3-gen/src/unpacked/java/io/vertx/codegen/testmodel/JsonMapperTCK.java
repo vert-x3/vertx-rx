@@ -2,7 +2,7 @@ package io.vertx.codegen.testmodel;
 
 import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -61,12 +61,12 @@ public interface JsonMapperTCK {
   static String serializeCustomEnum(TestCustomEnum value) {
     return (value != null) ? value.getShortName() : null;
   }
-  
+
   @GenIgnore
   static TestCustomEnum deserializeCustomEnum(String value) {
     return (value != null) ? TestCustomEnum.of(value) : null;
   }
-  
+
   // Java Type <-> Integer
 
   void methodWithTypeToIntegerParam(MyPojoToInteger myPojoToInteger);
@@ -84,10 +84,10 @@ public interface JsonMapperTCK {
   void methodWithHandlerSetOfTypeToIntegerParam(Handler<Set<MyPojoToInteger>> myPojoToIntegerSetHandler);
   void methodWithHandlerMapOfTypeToIntegerParam(Handler<Map<String, MyPojoToInteger>> myPojoToIntegerMapHandler);
 
-  void methodWithHandlerAsyncResultTypeToIntegerParam(Handler<AsyncResult<MyPojoToInteger>> myPojoToIntegerHandler);
-  void methodWithHandlerAsyncResultListOfTypeToIntegerParam(Handler<AsyncResult<List<MyPojoToInteger>>> myPojoToIntegerListHandler);
-  void methodWithHandlerAsyncResultSetOfTypeToIntegerParam(Handler<AsyncResult<Set<MyPojoToInteger>>> myPojoToIntegerSetHandler);
-  void methodWithHandlerAsyncResultMapOfTypeToIntegerParam(Handler<AsyncResult<Map<String, MyPojoToInteger>>> myPojoToIntegerMapHandler);
+  Future<MyPojoToInteger> methodWithHandlerAsyncResultTypeToIntegerParam();
+  Future<List<MyPojoToInteger>> methodWithHandlerAsyncResultListOfTypeToIntegerParam();
+  Future<Set<MyPojoToInteger>> methodWithHandlerAsyncResultSetOfTypeToIntegerParam();
+  Future<Map<String, MyPojoToInteger>> methodWithHandlerAsyncResultMapOfTypeToIntegerParam();
 
   // Java type <-> String
 
@@ -106,10 +106,10 @@ public interface JsonMapperTCK {
   void methodWithHandlerSetOfTypeToStringParam(Handler<Set<ZonedDateTime>> zonedDateTimeSetHandler);
   void methodWithHandlerMapOfTypeToStringParam(Handler<Map<String, ZonedDateTime>> zonedDateTimeMapHandler);
 
-  void methodWithHandlerAsyncResultTypeToStringParam(Handler<AsyncResult<ZonedDateTime>> zonedDateTimeHandler);
-  void methodWithHandlerAsyncResultListOfTypeToStringParam(Handler<AsyncResult<List<ZonedDateTime>>> zonedDateTimeListHandler);
-  void methodWithHandlerAsyncResultSetOfTypeToStringParam(Handler<AsyncResult<Set<ZonedDateTime>>> zonedDateTimeSetHandler);
-  void methodWithHandlerAsyncResultMapOfTypeToStringParam(Handler<AsyncResult<Map<String, ZonedDateTime>>> zonedDateTimeMapHandler);
+  Future<ZonedDateTime> methodWithHandlerAsyncResultTypeToStringParam();
+  Future<List<ZonedDateTime>> methodWithHandlerAsyncResultListOfTypeToStringParam();
+  Future<Set<ZonedDateTime>> methodWithHandlerAsyncResultSetOfTypeToStringParam();
+  Future<Map<String, ZonedDateTime>> methodWithHandlerAsyncResultMapOfTypeToStringParam();
 
   // Java type <-> MyPojoToJsonArray
 
@@ -128,10 +128,10 @@ public interface JsonMapperTCK {
   void methodWithHandlerSetOfTypeToJsonArrayParam(Handler<Set<MyPojoToJsonArray>> myPojoToJsonArraySetHandler);
   void methodWithHandlerMapOfTypeToJsonArrayParam(Handler<Map<String, MyPojoToJsonArray>> myPojoToJsonArrayMapHandler);
 
-  void methodWithHandlerAsyncResultTypeToJsonArrayParam(Handler<AsyncResult<MyPojoToJsonArray>> myPojoToJsonArrayHandler);
-  void methodWithHandlerAsyncResultListOfTypeToJsonArrayParam(Handler<AsyncResult<List<MyPojoToJsonArray>>> myPojoToJsonArrayListHandler);
-  void methodWithHandlerAsyncResultSetOfTypeToJsonArrayParam(Handler<AsyncResult<Set<MyPojoToJsonArray>>> myPojoToJsonArraySetHandler);
-  void methodWithHandlerAsyncResultMapOfTypeToJsonArrayParam(Handler<AsyncResult<Map<String, MyPojoToJsonArray>>> myPojoToJsonArrayMapHandler);
+  Future<MyPojoToJsonArray> methodWithHandlerAsyncResultTypeToJsonArrayParam();
+  Future<List<MyPojoToJsonArray>> methodWithHandlerAsyncResultListOfTypeToJsonArrayParam();
+  Future<Set<MyPojoToJsonArray>> methodWithHandlerAsyncResultSetOfTypeToJsonArrayParam();
+  Future<Map<String, MyPojoToJsonArray>> methodWithHandlerAsyncResultMapOfTypeToJsonArrayParam();
 
   // Java type <-> MyPojoToJsonObject
 
@@ -150,10 +150,10 @@ public interface JsonMapperTCK {
   void methodWithHandlerSetOfTypeToJsonObjectParam(Handler<Set<MyPojoToJsonObject>> myPojoToJsonObjectSetHandler);
   void methodWithHandlerMapOfTypeToJsonObjectParam(Handler<Map<String, MyPojoToJsonObject>> myPojoToJsonObjectMapHandler);
 
-  void methodWithHandlerAsyncResultTypeToJsonObjectParam(Handler<AsyncResult<MyPojoToJsonObject>> myPojoToJsonObjectHandler);
-  void methodWithHandlerAsyncResultListOfTypeToJsonObjectParam(Handler<AsyncResult<List<MyPojoToJsonObject>>> myPojoToJsonObjectListHandler);
-  void methodWithHandlerAsyncResultSetOfTypeToJsonObjectParam(Handler<AsyncResult<Set<MyPojoToJsonObject>>> myPojoToJsonObjectSetHandler);
-  void methodWithHandlerAsyncResultMapOfTypeToJsonObjectParam(Handler<AsyncResult<Map<String, MyPojoToJsonObject>>> myPojoToJsonObjectMapHandler);
+  Future<MyPojoToJsonObject> methodWithHandlerAsyncResultTypeToJsonObjectParam();
+  Future<List<MyPojoToJsonObject>> methodWithHandlerAsyncResultListOfTypeToJsonObjectParam();
+  Future<Set<MyPojoToJsonObject>> methodWithHandlerAsyncResultSetOfTypeToJsonObjectParam();
+  Future<Map<String, MyPojoToJsonObject>> methodWithHandlerAsyncResultMapOfTypeToJsonObjectParam();
 
   // CustomEnum <-> String
 
@@ -172,9 +172,9 @@ public interface JsonMapperTCK {
   void methodWithHandlerSetOfCustomEnumToStringParam(Handler<Set<TestCustomEnum>> customEnumSetHandler);
   void methodWithHandlerMapOfCustomEnumToStringParam(Handler<Map<String, TestCustomEnum>> customEnumMapHandler);
 
-  void methodWithHandlerAsyncResultCustomEnumToStringParam(Handler<AsyncResult<TestCustomEnum>> customEnumHandler);
-  void methodWithHandlerAsyncResultListOfCustomEnumToStringParam(Handler<AsyncResult<List<TestCustomEnum>>> customEnumListHandler);
-  void methodWithHandlerAsyncResultSetOfCustomEnumToStringParam(Handler<AsyncResult<Set<TestCustomEnum>>> customEnumSetHandler);
-  void methodWithHandlerAsyncResultMapOfCustomEnumToStringParam(Handler<AsyncResult<Map<String, TestCustomEnum>>> customEnumMapHandler);
+  Future<TestCustomEnum> methodWithHandlerAsyncResultCustomEnumToStringParam();
+  Future<List<TestCustomEnum>> methodWithHandlerAsyncResultListOfCustomEnumToStringParam();
+  Future<Set<TestCustomEnum>> methodWithHandlerAsyncResultSetOfCustomEnumToStringParam();
+  Future<Map<String, TestCustomEnum>> methodWithHandlerAsyncResultMapOfCustomEnumToStringParam();
 
 }

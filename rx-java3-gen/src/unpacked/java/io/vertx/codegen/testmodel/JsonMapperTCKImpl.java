@@ -1,6 +1,5 @@
 package io.vertx.codegen.testmodel;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 
@@ -81,23 +80,23 @@ public class JsonMapperTCKImpl implements JsonMapperTCK {
   }
 
   @Override
-  public void methodWithHandlerAsyncResultTypeToIntegerParam(Handler<AsyncResult<MyPojoToInteger>> myPojoToIntegerHandler) {
-    myPojoToIntegerHandler.handle(Future.succeededFuture(methodWithTypeToIntegerReturn()));
+  public Future<MyPojoToInteger> methodWithHandlerAsyncResultTypeToIntegerParam() {
+    return Future.succeededFuture(methodWithTypeToIntegerReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListOfTypeToIntegerParam(Handler<AsyncResult<List<MyPojoToInteger>>> myPojoToIntegerListHandler) {
-    myPojoToIntegerListHandler.handle(Future.succeededFuture(methodWithListOfTypeToIntegerReturn()));
+  public Future<List<MyPojoToInteger>> methodWithHandlerAsyncResultListOfTypeToIntegerParam() {
+    return Future.succeededFuture(methodWithListOfTypeToIntegerReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetOfTypeToIntegerParam(Handler<AsyncResult<Set<MyPojoToInteger>>> myPojoToIntegerSetHandler) {
-    myPojoToIntegerSetHandler.handle(Future.succeededFuture(methodWithSetOfTypeToIntegerReturn()));
+  public Future<Set<MyPojoToInteger>> methodWithHandlerAsyncResultSetOfTypeToIntegerParam() {
+    return Future.succeededFuture(methodWithSetOfTypeToIntegerReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultMapOfTypeToIntegerParam(Handler<AsyncResult<Map<String, MyPojoToInteger>>> myPojoToIntegerMapHandler) {
-    myPojoToIntegerMapHandler.handle(Future.succeededFuture(methodWithMapOfTypeToIntegerReturn()));
+  public Future<Map<String, MyPojoToInteger>> methodWithHandlerAsyncResultMapOfTypeToIntegerParam() {
+    return Future.succeededFuture(methodWithMapOfTypeToIntegerReturn());
   }
 
   @Override
@@ -170,23 +169,23 @@ public class JsonMapperTCKImpl implements JsonMapperTCK {
   }
 
   @Override
-  public void methodWithHandlerAsyncResultTypeToStringParam(Handler<AsyncResult<ZonedDateTime>> zonedDateTimeHandler) {
-    zonedDateTimeHandler.handle(Future.succeededFuture(methodWithTypeToStringReturn()));
+  public Future<ZonedDateTime> methodWithHandlerAsyncResultTypeToStringParam() {
+    return Future.succeededFuture(methodWithTypeToStringReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListOfTypeToStringParam(Handler<AsyncResult<List<ZonedDateTime>>> zonedDateTimeListHandler) {
-    zonedDateTimeListHandler.handle(Future.succeededFuture(methodWithListOfTypeToStringReturn()));
+  public Future<List<ZonedDateTime>> methodWithHandlerAsyncResultListOfTypeToStringParam() {
+    return Future.succeededFuture(methodWithListOfTypeToStringReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetOfTypeToStringParam(Handler<AsyncResult<Set<ZonedDateTime>>> zonedDateTimeSetHandler) {
-    zonedDateTimeSetHandler.handle(Future.succeededFuture(methodWithSetOfTypeToStringReturn()));
+  public Future<Set<ZonedDateTime>> methodWithHandlerAsyncResultSetOfTypeToStringParam() {
+    return Future.succeededFuture(methodWithSetOfTypeToStringReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultMapOfTypeToStringParam(Handler<AsyncResult<Map<String, ZonedDateTime>>> zonedDateTimeMapHandler) {
-    zonedDateTimeMapHandler.handle(Future.succeededFuture(methodWithMapOfTypeToStringReturn()));
+  public Future<Map<String, ZonedDateTime>> methodWithHandlerAsyncResultMapOfTypeToStringParam() {
+    return Future.succeededFuture(methodWithMapOfTypeToStringReturn());
   }
 
   @Override
@@ -259,23 +258,23 @@ public class JsonMapperTCKImpl implements JsonMapperTCK {
   }
 
   @Override
-  public void methodWithHandlerAsyncResultTypeToJsonArrayParam(Handler<AsyncResult<MyPojoToJsonArray>> myPojoToJsonArrayHandler) {
-    myPojoToJsonArrayHandler.handle(Future.succeededFuture(methodWithTypeToJsonArrayReturn()));
+  public Future<MyPojoToJsonArray> methodWithHandlerAsyncResultTypeToJsonArrayParam() {
+    return Future.succeededFuture(methodWithTypeToJsonArrayReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListOfTypeToJsonArrayParam(Handler<AsyncResult<List<MyPojoToJsonArray>>> myPojoToJsonArrayListHandler) {
-    myPojoToJsonArrayListHandler.handle(Future.succeededFuture(methodWithListOfTypeToJsonArrayReturn()));
+  public Future<List<MyPojoToJsonArray>> methodWithHandlerAsyncResultListOfTypeToJsonArrayParam() {
+    return Future.succeededFuture(methodWithListOfTypeToJsonArrayReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetOfTypeToJsonArrayParam(Handler<AsyncResult<Set<MyPojoToJsonArray>>> myPojoToJsonArraySetHandler) {
-    myPojoToJsonArraySetHandler.handle(Future.succeededFuture(methodWithSetOfTypeToJsonArrayReturn()));
+  public Future<Set<MyPojoToJsonArray>> methodWithHandlerAsyncResultSetOfTypeToJsonArrayParam() {
+    return Future.succeededFuture(methodWithSetOfTypeToJsonArrayReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultMapOfTypeToJsonArrayParam(Handler<AsyncResult<Map<String, MyPojoToJsonArray>>> myPojoToJsonArrayMapHandler) {
-    myPojoToJsonArrayMapHandler.handle(Future.succeededFuture(methodWithMapOfTypeToJsonArrayReturn()));
+  public Future<Map<String, MyPojoToJsonArray>> methodWithHandlerAsyncResultMapOfTypeToJsonArrayParam() {
+    return Future.succeededFuture(methodWithMapOfTypeToJsonArrayReturn());
   }
 
   @Override
@@ -348,23 +347,23 @@ public class JsonMapperTCKImpl implements JsonMapperTCK {
   }
 
   @Override
-  public void methodWithHandlerAsyncResultTypeToJsonObjectParam(Handler<AsyncResult<MyPojoToJsonObject>> myPojoToJsonObjectHandler) {
-    myPojoToJsonObjectHandler.handle(Future.succeededFuture(methodWithTypeToJsonObjectReturn()));
+  public Future<MyPojoToJsonObject> methodWithHandlerAsyncResultTypeToJsonObjectParam() {
+    return Future.succeededFuture(methodWithTypeToJsonObjectReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListOfTypeToJsonObjectParam(Handler<AsyncResult<List<MyPojoToJsonObject>>> myPojoToJsonObjectListHandler) {
-    myPojoToJsonObjectListHandler.handle(Future.succeededFuture(methodWithListOfTypeToJsonObjectReturn()));
+  public Future<List<MyPojoToJsonObject>> methodWithHandlerAsyncResultListOfTypeToJsonObjectParam() {
+    return Future.succeededFuture(methodWithListOfTypeToJsonObjectReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetOfTypeToJsonObjectParam(Handler<AsyncResult<Set<MyPojoToJsonObject>>> myPojoToJsonObjectSetHandler) {
-    myPojoToJsonObjectSetHandler.handle(Future.succeededFuture(methodWithSetOfTypeToJsonObjectReturn()));
+  public Future<Set<MyPojoToJsonObject>> methodWithHandlerAsyncResultSetOfTypeToJsonObjectParam() {
+    return Future.succeededFuture(methodWithSetOfTypeToJsonObjectReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultMapOfTypeToJsonObjectParam(Handler<AsyncResult<Map<String, MyPojoToJsonObject>>> myPojoToJsonObjectMapHandler) {
-    myPojoToJsonObjectMapHandler.handle(Future.succeededFuture(methodWithMapOfTypeToJsonObjectReturn()));
+  public Future<Map<String, MyPojoToJsonObject>> methodWithHandlerAsyncResultMapOfTypeToJsonObjectParam() {
+    return Future.succeededFuture(methodWithMapOfTypeToJsonObjectReturn());
   }
 
   @Override
@@ -385,7 +384,7 @@ public class JsonMapperTCKImpl implements JsonMapperTCK {
     assertEquals(2, customEnumSet.size());
     assertTrue(customEnumSet.contains(TestCustomEnum.of("development")));
     assertTrue(customEnumSet.contains(TestCustomEnum.of("integration-test")));
-    
+
   }
 
   @Override
@@ -440,27 +439,22 @@ public class JsonMapperTCKImpl implements JsonMapperTCK {
   }
 
   @Override
-  public void methodWithHandlerAsyncResultCustomEnumToStringParam(
-      Handler<AsyncResult<TestCustomEnum>> customEnumHandler) {
-    customEnumHandler.handle(Future.succeededFuture(methodWithCustomEnumToStringReturn()));
+  public Future<TestCustomEnum> methodWithHandlerAsyncResultCustomEnumToStringParam() {
+    return Future.succeededFuture(methodWithCustomEnumToStringReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListOfCustomEnumToStringParam(
-      Handler<AsyncResult<List<TestCustomEnum>>> customEnumListHandler) {
-    customEnumListHandler.handle(Future.succeededFuture(methodWithListOfCustomEnumToStringReturn()));
+  public Future<List<TestCustomEnum>> methodWithHandlerAsyncResultListOfCustomEnumToStringParam() {
+    return Future.succeededFuture(methodWithListOfCustomEnumToStringReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetOfCustomEnumToStringParam(
-      Handler<AsyncResult<Set<TestCustomEnum>>> customEnumSetHandler) {
-    customEnumSetHandler.handle(Future.succeededFuture(methodWithSetOfCustomEnumToStringReturn()));
+  public Future<Set<TestCustomEnum>> methodWithHandlerAsyncResultSetOfCustomEnumToStringParam() {
+    return Future.succeededFuture(methodWithSetOfCustomEnumToStringReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultMapOfCustomEnumToStringParam(
-      Handler<AsyncResult<Map<String, TestCustomEnum>>> customEnumMapHandler) {
-    customEnumMapHandler.handle(Future.succeededFuture(methodWithMapOfCustomEnumToStringReturn()));
+  public Future<Map<String, TestCustomEnum>> methodWithHandlerAsyncResultMapOfCustomEnumToStringParam() {
+    return Future.succeededFuture(methodWithMapOfCustomEnumToStringReturn());
   }
-
 }

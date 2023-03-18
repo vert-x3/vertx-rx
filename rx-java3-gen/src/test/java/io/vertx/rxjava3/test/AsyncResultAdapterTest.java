@@ -14,7 +14,7 @@ public class AsyncResultAdapterTest extends VertxTestBase {
   @Test
   public void testSingleReportingSubscribeUncheckedException() {
     RuntimeException cause = new RuntimeException();
-    MethodWithSingleString meth = new MethodWithSingleString(handler -> {
+    MethodWithSingleString meth = new MethodWithSingleString(() -> {
       throw cause;
     });
     Single<String> single = meth.doSomethingWithResult();
@@ -25,7 +25,7 @@ public class AsyncResultAdapterTest extends VertxTestBase {
   @Test
   public void testMaybeReportingSubscribeUncheckedException() {
     RuntimeException cause = new RuntimeException();
-    MethodWithMaybeString meth = new MethodWithMaybeString(handler -> {
+    MethodWithMaybeString meth = new MethodWithMaybeString(() -> {
       throw cause;
     });
     Maybe<String> single = meth.doSomethingWithMaybeResult();
@@ -36,7 +36,7 @@ public class AsyncResultAdapterTest extends VertxTestBase {
   @Test
   public void testCompletableReportingSubscribeUncheckedException() {
     RuntimeException cause = new RuntimeException();
-    MethodWithCompletable meth = new MethodWithCompletable(handler -> {
+    MethodWithCompletable meth = new MethodWithCompletable(() -> {
       throw cause;
     });
     Completable single = meth.doSomethingWithResult();

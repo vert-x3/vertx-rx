@@ -71,26 +71,26 @@ public class ApiTCKTest {
   @Test
   public void testMethodWithHandlerAsyncResultBasicTypes() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultByte(false, checker.asyncExpectedResult((byte) 123));
-    obj.methodWithHandlerAsyncResultShort(false, checker.asyncExpectedResult((short) 12345));
-    obj.methodWithHandlerAsyncResultInteger(false, checker.asyncExpectedResult(1234567));
-    obj.methodWithHandlerAsyncResultLong(false, checker.asyncExpectedResult(1265615234l));
-    obj.methodWithHandlerAsyncResultFloat(false, checker.asyncExpectedResult(12.345f));
-    obj.methodWithHandlerAsyncResultDouble(false, checker.asyncExpectedResult(12.34566d));
-    obj.methodWithHandlerAsyncResultBoolean(false, checker.asyncExpectedResult(true));
-    obj.methodWithHandlerAsyncResultCharacter(false, checker.asyncExpectedResult('X'));
-    obj.methodWithHandlerAsyncResultString(false, checker.asyncExpectedResult("quux!"));
+    obj.methodWithHandlerAsyncResultByte(false).onComplete(checker.asyncExpectedResult((byte) 123));
+    obj.methodWithHandlerAsyncResultShort(false).onComplete(checker.asyncExpectedResult((short) 12345));
+    obj.methodWithHandlerAsyncResultInteger(false).onComplete(checker.asyncExpectedResult(1234567));
+    obj.methodWithHandlerAsyncResultLong(false).onComplete(checker.asyncExpectedResult(1265615234l));
+    obj.methodWithHandlerAsyncResultFloat(false).onComplete(checker.asyncExpectedResult(12.345f));
+    obj.methodWithHandlerAsyncResultDouble(false).onComplete(checker.asyncExpectedResult(12.34566d));
+    obj.methodWithHandlerAsyncResultBoolean(false).onComplete(checker.asyncExpectedResult(true));
+    obj.methodWithHandlerAsyncResultCharacter(false).onComplete(checker.asyncExpectedResult('X'));
+    obj.methodWithHandlerAsyncResultString(false).onComplete(checker.asyncExpectedResult("quux!"));
     assertEquals(9, checker.count);
     checker.count = 0;
-    obj.methodWithHandlerAsyncResultByte(true, checker.failureAsserter("foobar!"));
-    obj.methodWithHandlerAsyncResultShort(true, checker.failureAsserter("foobar!"));
-    obj.methodWithHandlerAsyncResultInteger(true, checker.failureAsserter("foobar!"));
-    obj.methodWithHandlerAsyncResultLong(true, checker.failureAsserter("foobar!"));
-    obj.methodWithHandlerAsyncResultFloat(true, checker.failureAsserter("foobar!"));
-    obj.methodWithHandlerAsyncResultDouble(true, checker.failureAsserter("foobar!"));
-    obj.methodWithHandlerAsyncResultBoolean(true, checker.failureAsserter("foobar!"));
-    obj.methodWithHandlerAsyncResultCharacter(true, checker.failureAsserter("foobar!"));
-    obj.methodWithHandlerAsyncResultString(true, checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultByte(true).onComplete(checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultShort(true).onComplete(checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultInteger(true).onComplete(checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultLong(true).onComplete(checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultFloat(true).onComplete(checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultDouble(true).onComplete(checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultBoolean(true).onComplete(checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultCharacter(true).onComplete(checker.failureAsserter("foobar!"));
+    obj.methodWithHandlerAsyncResultString(true).onComplete(checker.failureAsserter("foobar!"));
     assertEquals(9, checker.count);
   }
 
@@ -182,7 +182,7 @@ public class ApiTCKTest {
     dataObject.setFoo("foo");
     dataObject.setBar(123);
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultDataObject(false, result -> {
+    obj.methodWithHandlerAsyncResultDataObject(false).onComplete(result -> {
       assertTrue(result.succeeded());
         assertFalse(result.failed());
         TestDataObject res = result.result();
@@ -190,7 +190,7 @@ public class ApiTCKTest {
         assertNull(result.cause());
         checker.count++;
     });
-    obj.methodWithHandlerAsyncResultDataObject(true, result -> {
+    obj.methodWithHandlerAsyncResultDataObject(true).onComplete(result -> {
       checker.assertAsyncFailure("foobar!", result);
     });
     assertEquals(2, checker.count);
@@ -294,7 +294,7 @@ public class ApiTCKTest {
   @Test
   public void testMethodWithHandlerAsyncResultUserTypes() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultUserTypes(checker.<RefedInterface1>asyncResultHandler(it -> assertEquals("cheetahs", it.getString())));
+    obj.methodWithHandlerAsyncResultUserTypes().onComplete(checker.<RefedInterface1>asyncResultHandler(it -> assertEquals("cheetahs", it.getString())));
     assertEquals(1, checker.count);
   }
 
@@ -314,7 +314,7 @@ public class ApiTCKTest {
   @Test
   public void testMethodWithHandlerAsyncResultVoid() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultVoid(false, checker.<Void>asyncResultHandler(Assert::assertNull));
+    obj.methodWithHandlerAsyncResultVoid(false).onComplete(checker.<Void>asyncResultHandler(Assert::assertNull));
     assertEquals(1, checker.count);
   }
 
@@ -327,7 +327,7 @@ public class ApiTCKTest {
   @Test
   public void testMethodWithHandlerAsyncResultVoidFails() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultVoid(true, checker.<Void>failureAsserter("foo!"));
+    obj.methodWithHandlerAsyncResultVoid(true).onComplete(checker.<Void>failureAsserter("foo!"));
     assertEquals(1, checker.count);
   }
 
@@ -367,10 +367,10 @@ public class ApiTCKTest {
   @Test
   public void testMethodWithGenericHandlerAsyncResult() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithGenericHandlerAsyncResult("String", checker.asyncExpectedResult("foo"));
-    obj.methodWithGenericHandlerAsyncResult("Ref", checker.<RefedInterface1Impl>asyncResultHandler(it -> assertEquals("bar", it.getString())));
-    obj.methodWithGenericHandlerAsyncResult("JsonObject", checker.asyncExpectedResult(new JsonObject().put("foo", "hello").put("bar", 123)));
-    obj.methodWithGenericHandlerAsyncResult("JsonArray", checker.asyncExpectedResult(new JsonArray().add("foo").add("bar").add("wib")));
+    obj.methodWithGenericHandlerAsyncResult("String").onComplete(checker.asyncExpectedResult("foo"));
+    obj.<RefedInterface1Impl>methodWithGenericHandlerAsyncResult("Ref").onComplete(checker.asyncResultHandler(it -> assertEquals("bar", it.getString())));
+    obj.methodWithGenericHandlerAsyncResult("JsonObject").onComplete(checker.asyncExpectedResult(new JsonObject().put("foo", "hello").put("bar", 123)));
+    obj.methodWithGenericHandlerAsyncResult("JsonArray").onComplete(checker.asyncExpectedResult(new JsonArray().add("foo").add("bar").add("wib")));
     assertEquals(4, checker.count);
   }
 
@@ -543,16 +543,16 @@ public class ApiTCKTest {
   @Test
   public void testJsonHandlerAsyncResultParams() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultJsonObject(checker.<JsonObject>asyncResultHandler(it -> assertEquals(new JsonObject().put("cheese", "stilton"), it)));
-    obj.methodWithHandlerAsyncResultJsonArray(checker.<JsonArray>asyncResultHandler(it -> assertEquals(new JsonArray().add("socks").add("shoes"), it)));
+    obj.methodWithHandlerAsyncResultJsonObject().onComplete(checker.<JsonObject>asyncResultHandler(it -> assertEquals(new JsonObject().put("cheese", "stilton"), it)));
+    obj.methodWithHandlerAsyncResultJsonArray().onComplete(checker.<JsonArray>asyncResultHandler(it -> assertEquals(new JsonArray().add("socks").add("shoes"), it)));
     assertEquals(2, checker.count);
   }
 
   @Test
   public void testNullJsonHandlerAsyncResultParams() {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultNullJsonObject(checker.<JsonObject>asyncResultHandler(it -> assertEquals(null, it)));
-    obj.methodWithHandlerAsyncResultNullJsonArray(checker.<JsonArray>asyncResultHandler(it -> assertEquals(null, it)));
+    obj.methodWithHandlerAsyncResultNullJsonObject().onComplete(checker.<JsonObject>asyncResultHandler(it -> assertEquals(null, it)));
+    obj.methodWithHandlerAsyncResultNullJsonArray().onComplete(checker.<JsonArray>asyncResultHandler(it -> assertEquals(null, it)));
     assertEquals(2, checker.count);
   }
 

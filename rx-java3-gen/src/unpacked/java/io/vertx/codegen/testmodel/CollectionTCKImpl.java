@@ -131,27 +131,27 @@ public class CollectionTCKImpl implements CollectionTCK {
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListString(Handler<AsyncResult<List<String>>> handler) {
+  public Future<List<String>> methodWithHandlerAsyncResultListString() {
     List<String> listString = Arrays.asList("foo", "bar", "wibble");
-    handler.handle(Future.succeededFuture(listString));
+    return Future.succeededFuture(listString);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListInteger(Handler<AsyncResult<List<Integer>>> handler) {
+  public Future<List<Integer>> methodWithHandlerAsyncResultListInteger() {
     List<Integer> listInt = Arrays.asList(5, 12, 100);
-    handler.handle(Future.succeededFuture(listInt));
+    return Future.succeededFuture(listInt);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetString(Handler<AsyncResult<Set<String>>> handler) {
+  public Future<Set<String>> methodWithHandlerAsyncResultSetString() {
     Set<String> setString = new LinkedHashSet<>( Arrays.asList("foo", "bar", "wibble"));
-    handler.handle(Future.succeededFuture(setString));
+    return Future.succeededFuture(setString);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetInteger(Handler<AsyncResult<Set<Integer>>> handler) {
+  public Future<Set<Integer>> methodWithHandlerAsyncResultSetInteger() {
     Set<Integer> setInt = new LinkedHashSet<>(Arrays.asList(5, 12, 100));
-    handler.handle(Future.succeededFuture(setInt));
+    return Future.succeededFuture(setInt);
   }
 
   @Override
@@ -252,99 +252,99 @@ public class CollectionTCKImpl implements CollectionTCK {
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListVertxGen(Handler<AsyncResult<List<RefedInterface1>>> listHandler) {
+  public Future<List<RefedInterface1>> methodWithHandlerAsyncResultListVertxGen() {
     List<RefedInterface1> list = Arrays.asList(new RefedInterface1Impl().setString("foo"), new RefedInterface1Impl().setString("bar"));
-    listHandler.handle(Future.succeededFuture(list));
+    return Future.succeededFuture(list);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetVertxGen(Handler<AsyncResult<Set<RefedInterface1>>> setHandler) {
+  public Future<Set<RefedInterface1>> methodWithHandlerAsyncResultSetVertxGen() {
     Set<RefedInterface1> list = new LinkedHashSet<>(Arrays.asList(new RefedInterface1Impl().setString("foo"), new RefedInterface1Impl().setString("bar")));
-    setHandler.handle(Future.succeededFuture(list));
+    return Future.succeededFuture(list);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListAbstractVertxGen(Handler<AsyncResult<List<RefedInterface2>>> listHandler) {
+  public Future<List<RefedInterface2>> methodWithHandlerAsyncResultListAbstractVertxGen() {
     List<RefedInterface2> list = Arrays.asList(new RefedInterface2Impl().setString("abstractfoo"), new RefedInterface2Impl().setString("abstractbar"));
-    listHandler.handle(Future.succeededFuture(list));
+    return Future.succeededFuture(list);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetAbstractVertxGen(Handler<AsyncResult<Set<RefedInterface2>>> setHandler) {
+  public Future<Set<RefedInterface2>> methodWithHandlerAsyncResultSetAbstractVertxGen() {
     Set<RefedInterface2> list = new LinkedHashSet<>(Arrays.asList(new RefedInterface2Impl().setString("abstractfoo"), new RefedInterface2Impl().setString("abstractbar")));
-    setHandler.handle(Future.succeededFuture(list));
+    return Future.succeededFuture(list);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListJsonObject(Handler<AsyncResult<List<JsonObject>>> listHandler) {
+  public Future<List<JsonObject>> methodWithHandlerAsyncResultListJsonObject() {
     List<JsonObject> list = Arrays.asList(new JsonObject().put("cheese", "stilton"), new JsonObject().put("socks", "tartan"));
-    listHandler.handle(Future.succeededFuture(list));
+    return Future.succeededFuture(list);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListComplexJsonObject(Handler<AsyncResult<List<JsonObject>>> listHandler) {
+  public Future<List<JsonObject>> methodWithHandlerAsyncResultListComplexJsonObject() {
     List<JsonObject> list = Arrays.asList(new JsonObject().put("outer", new JsonObject().put("socks", "tartan")).put("list", new JsonArray().add("yellow").add("blue")));
-    listHandler.handle(Future.succeededFuture(list));
+    return Future.succeededFuture(list);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetJsonObject(Handler<AsyncResult<Set<JsonObject>>> setHandler) {
+  public Future<Set<JsonObject>> methodWithHandlerAsyncResultSetJsonObject() {
     Set<JsonObject> set = new LinkedHashSet<>(Arrays.asList(new JsonObject().put("cheese", "stilton"), new JsonObject().put("socks", "tartan")));
-    setHandler.handle(Future.succeededFuture(set));
+    return Future.succeededFuture(set);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetComplexJsonObject(Handler<AsyncResult<Set<JsonObject>>> setHandler) {
+  public Future<Set<JsonObject>> methodWithHandlerAsyncResultSetComplexJsonObject() {
     Set<JsonObject> set = new LinkedHashSet<>(Arrays.asList(new JsonObject().put("outer", new JsonObject().put("socks", "tartan")).put("list", new JsonArray().add("yellow").add("blue"))));
-    setHandler.handle(Future.succeededFuture(set));
+    return Future.succeededFuture(set);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListJsonArray(Handler<AsyncResult<List<JsonArray>>> listHandler) {
+  public Future<List<JsonArray>> methodWithHandlerAsyncResultListJsonArray() {
     List<JsonArray> list = Arrays.asList(new JsonArray().add("green").add("blue"), new JsonArray().add("yellow").add("purple"));
-    listHandler.handle(Future.succeededFuture(list));
+    return Future.succeededFuture(list);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListComplexJsonArray(Handler<AsyncResult<List<JsonArray>>> listHandler) {
+  public Future<List<JsonArray>> methodWithHandlerAsyncResultListComplexJsonArray() {
     List<JsonArray> list = Arrays.asList(new JsonArray().add(new JsonObject().put("foo", "hello")), new JsonArray().add(new JsonObject().put("bar", "bye")));
-    listHandler.handle(Future.succeededFuture(list));
+    return Future.succeededFuture(list);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetJsonArray(Handler<AsyncResult<Set<JsonArray>>> listHandler) {
+  public Future<Set<JsonArray>> methodWithHandlerAsyncResultSetJsonArray() {
     Set<JsonArray> set = new LinkedHashSet<>(Arrays.asList(new JsonArray().add("green").add("blue"), new JsonArray().add("yellow").add("purple")));
-    listHandler.handle(Future.succeededFuture(set));
+    return Future.succeededFuture(set);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetComplexJsonArray(Handler<AsyncResult<Set<JsonArray>>> listHandler) {
+  public Future<Set<JsonArray>> methodWithHandlerAsyncResultSetComplexJsonArray() {
     Set<JsonArray> set = new LinkedHashSet<>(Arrays.asList(new JsonArray().add(new JsonObject().put("foo", "hello")), new JsonArray().add(new JsonObject().put("bar", "bye"))));
-    listHandler.handle(Future.succeededFuture(set));
+    return Future.succeededFuture(set);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListDataObject(Handler<AsyncResult<List<TestDataObject>>> listHandler) {
+  public Future<List<TestDataObject>> methodWithHandlerAsyncResultListDataObject() {
     List<TestDataObject> list =
         Arrays.asList(new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1), new TestDataObject().setFoo("String 2").setBar(2).setWibble(2.2));
-    listHandler.handle(Future.succeededFuture(list));
+    return Future.succeededFuture(list);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetDataObject(Handler<AsyncResult<Set<TestDataObject>>> setHandler) {
+  public Future<Set<TestDataObject>> methodWithHandlerAsyncResultSetDataObject() {
     Set<TestDataObject> set =
         new LinkedHashSet<>(Arrays.asList(new TestDataObject().setFoo("String 1").setBar(1).setWibble(1.1), new TestDataObject().setFoo("String 2").setBar(2).setWibble(2.2)));
-    setHandler.handle(Future.succeededFuture(set));
+    return Future.succeededFuture(set);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListEnum(Handler<AsyncResult<List<TestEnum>>> listHandler) {
-    listHandler.handle(Future.succeededFuture(Arrays.asList(TestEnum.TIM, TestEnum.JULIEN)));
+  public Future<List<TestEnum>> methodWithHandlerAsyncResultListEnum() {
+    return Future.succeededFuture(Arrays.asList(TestEnum.TIM, TestEnum.JULIEN));
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetEnum(Handler<AsyncResult<Set<TestEnum>>> setHandler) {
-    setHandler.handle(Future.succeededFuture(new LinkedHashSet<>(Arrays.asList(TestEnum.TIM, TestEnum.JULIEN))));
+  public Future<Set<TestEnum>> methodWithHandlerAsyncResultSetEnum() {
+    return Future.succeededFuture(new LinkedHashSet<>(Arrays.asList(TestEnum.TIM, TestEnum.JULIEN)));
   }
 
   @Override

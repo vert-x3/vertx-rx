@@ -200,93 +200,93 @@ public class GenericsTCKImpl implements GenericsTCK {
   }
 
   @Override
-  public void methodWithHandlerAsyncResultByteParameterized(Handler<AsyncResult<GenericRefedInterface<Byte>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithByteParameterizedReturn()));
+  public Future<GenericRefedInterface<Byte>> methodWithHandlerAsyncResultByteParameterized() {
+    return Future.succeededFuture(methodWithByteParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultShortParameterized(Handler<AsyncResult<GenericRefedInterface<Short>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithShortParameterizedReturn()));
+  public Future<GenericRefedInterface<Short>> methodWithHandlerAsyncResultShortParameterized() {
+    return Future.succeededFuture(methodWithShortParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultIntegerParameterized(Handler<AsyncResult<GenericRefedInterface<Integer>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithIntegerParameterizedReturn()));
+  public Future<GenericRefedInterface<Integer>> methodWithHandlerAsyncResultIntegerParameterized() {
+    return Future.succeededFuture(methodWithIntegerParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultLongParameterized(Handler<AsyncResult<GenericRefedInterface<Long>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithLongParameterizedReturn()));
+  public Future<GenericRefedInterface<Long>> methodWithHandlerAsyncResultLongParameterized() {
+    return Future.succeededFuture(methodWithLongParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultFloatParameterized(Handler<AsyncResult<GenericRefedInterface<Float>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithFloatParameterizedReturn()));
+  public Future<GenericRefedInterface<Float>> methodWithHandlerAsyncResultFloatParameterized() {
+    return Future.succeededFuture(methodWithFloatParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultDoubleParameterized(Handler<AsyncResult<GenericRefedInterface<Double>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithDoubleParameterizedReturn()));
+  public Future<GenericRefedInterface<Double>> methodWithHandlerAsyncResultDoubleParameterized() {
+    return Future.succeededFuture(methodWithDoubleParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultBooleanParameterized(Handler<AsyncResult<GenericRefedInterface<Boolean>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithBooleanParameterizedReturn()));
+  public Future<GenericRefedInterface<Boolean>> methodWithHandlerAsyncResultBooleanParameterized() {
+    return Future.succeededFuture(methodWithBooleanParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultCharacterParameterized(Handler<AsyncResult<GenericRefedInterface<Character>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithCharacterParameterizedReturn()));
+  public Future<GenericRefedInterface<Character>> methodWithHandlerAsyncResultCharacterParameterized() {
+    return Future.succeededFuture(methodWithCharacterParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultStringParameterized(Handler<AsyncResult<GenericRefedInterface<String>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithStringParameterizedReturn()));
+  public Future<GenericRefedInterface<String>> methodWithHandlerAsyncResultStringParameterized() {
+    return Future.succeededFuture(methodWithStringParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultJsonObjectParameterized(Handler<AsyncResult<GenericRefedInterface<JsonObject>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithJsonObjectParameterizedReturn()));
+  public Future<GenericRefedInterface<JsonObject>> methodWithHandlerAsyncResultJsonObjectParameterized() {
+    return Future.succeededFuture(methodWithJsonObjectParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultJsonArrayParameterized(Handler<AsyncResult<GenericRefedInterface<JsonArray>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithJsonArrayParameterizedReturn()));
+  public Future<GenericRefedInterface<JsonArray>> methodWithHandlerAsyncResultJsonArrayParameterized() {
+    return Future.succeededFuture(methodWithJsonArrayParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultDataObjectParameterized(Handler<AsyncResult<GenericRefedInterface<TestDataObject>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithDataObjectParameterizedReturn()));
+  public Future<GenericRefedInterface<TestDataObject>> methodWithHandlerAsyncResultDataObjectParameterized() {
+    return Future.succeededFuture(methodWithDataObjectParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultEnumParameterized(Handler<AsyncResult<GenericRefedInterface<TestEnum>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithEnumParameterizedReturn()));
+  public Future<GenericRefedInterface<TestEnum>> methodWithHandlerAsyncResultEnumParameterized() {
+    return Future.succeededFuture(methodWithEnumParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultGenEnumParameterized(Handler<AsyncResult<GenericRefedInterface<TestGenEnum>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithGenEnumParameterizedReturn()));
+  public Future<GenericRefedInterface<TestGenEnum>> methodWithHandlerAsyncResultGenEnumParameterized() {
+    return Future.succeededFuture(methodWithGenEnumParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultUserTypeParameterized(Handler<AsyncResult<GenericRefedInterface<RefedInterface1>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithUserTypeParameterizedReturn()));
+  public Future<GenericRefedInterface<RefedInterface1>> methodWithHandlerAsyncResultUserTypeParameterized() {
+    return Future.succeededFuture(methodWithUserTypeParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultListOfObjectsParameterized(Handler<AsyncResult<GenericRefedInterface<List<Object>>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListOfObjectsParameterizedReturn()));
+  public Future<GenericRefedInterface<List<Object>>> methodWithHandlerAsyncResultListOfObjectsParameterized() {
+    return Future.succeededFuture(methodWithListOfObjectsParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultSetOfObjectsParameterized(Handler<AsyncResult<GenericRefedInterface<Set<Object>>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetOfObjectsParameterizedReturn()));
+  public Future<GenericRefedInterface<Set<Object>>> methodWithHandlerAsyncResultSetOfObjectsParameterized() {
+    return Future.succeededFuture(methodWithSetOfObjectsParameterizedReturn());
   }
 
   @Override
-  public void methodWithHandlerAsyncResultMapOfObjectsParameterized(Handler<AsyncResult<GenericRefedInterface<Map<String, Object>>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithMapOfObjectsParameterizedReturn()));
+  public Future<GenericRefedInterface<Map<String, Object>>> methodWithHandlerAsyncResultMapOfObjectsParameterized() {
+    return Future.succeededFuture(methodWithMapOfObjectsParameterizedReturn());
   }
 
   @Override
@@ -448,8 +448,8 @@ public class GenericsTCKImpl implements GenericsTCK {
   }
 
   @Override
-  public <U> void methodWithClassTypeHandlerAsyncResult(Class<U> type, Handler<AsyncResult<U>> f) {
-    f.handle(Future.succeededFuture(methodWithClassTypeReturn(type)));
+  public <U> Future<U> methodWithClassTypeHandlerAsyncResult(Class<U> type) {
+    return Future.succeededFuture(methodWithClassTypeReturn(type));
   }
 
   @Override
@@ -468,8 +468,8 @@ public class GenericsTCKImpl implements GenericsTCK {
   }
 
   @Override
-  public <U> void methodWithHandlerAsyncResultClassTypeParameterized(Class<U> type, Handler<AsyncResult<GenericRefedInterface<U>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithClassTypeParameterizedReturn(type)));
+  public <U> Future<GenericRefedInterface<U>> methodWithHandlerAsyncResultClassTypeParameterized(Class<U> type) {
+    return Future.succeededFuture(methodWithClassTypeParameterizedReturn(type));
   }
 
   @Override
@@ -562,8 +562,8 @@ public class GenericsTCKImpl implements GenericsTCK {
   }
 
   @Override
-  public void methodWithHandlerAsyncResultGenericNullableApi(boolean notNull, Handler<AsyncResult<GenericNullableRefedInterface<RefedInterface1>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithGenericNullableApiReturn(notNull)));
+  public Future<GenericNullableRefedInterface<RefedInterface1>> methodWithHandlerAsyncResultGenericNullableApi(boolean notNull) {
+    return Future.succeededFuture(methodWithGenericNullableApiReturn(notNull));
   }
 
   @Override
@@ -577,7 +577,7 @@ public class GenericsTCKImpl implements GenericsTCK {
   }
 
   @Override
-  public <T> void methodWithHandlerAsyncResultParamInfered(GenericRefedInterface<T> param, Handler<AsyncResult<GenericRefedInterface<T>>> handler) {
-    handler.handle(Future.succeededFuture(param));
+  public <T> Future<GenericRefedInterface<T>> methodWithHandlerAsyncResultParamInfered(GenericRefedInterface<T> param) {
+    return Future.succeededFuture(param);
   }
 }

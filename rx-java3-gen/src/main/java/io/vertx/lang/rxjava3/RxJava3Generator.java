@@ -159,7 +159,7 @@ class RxJava3Generator extends AbstractRxGenerator {
       // Work around for now
       return;
     }
-    if (method.getKind() == MethodKind.CALLBACK || method.getKind() == MethodKind.FUTURE) {
+    if (method.getKind() == MethodKind.FUTURE) {
       genRxMethod(model, method, genBody, writer);
       genLazyRxMethod(model, method, genBody, writer);
     } else {

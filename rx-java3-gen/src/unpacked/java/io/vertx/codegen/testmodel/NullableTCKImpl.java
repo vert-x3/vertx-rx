@@ -47,8 +47,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableByteHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Byte>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableByteReturn(notNull)));
+  public Future<@Nullable Byte> methodWithNullableByteHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableByteReturn(notNull));
   }
 
   @Override
@@ -72,8 +72,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableShortHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Short>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableShortReturn(notNull)));
+  public Future<@Nullable Short> methodWithNullableShortHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableShortReturn(notNull));
   }
 
   @Override
@@ -97,8 +97,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableIntegerHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Integer>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableIntegerReturn(notNull)));
+  public Future<@Nullable Integer> methodWithNullableIntegerHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableIntegerReturn(notNull));
   }
 
   @Override
@@ -122,8 +122,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableLongHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Long>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableLongReturn(notNull)));
+  public Future<@Nullable Long> methodWithNullableLongHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableLongReturn(notNull));
   }
 
   @Override
@@ -147,8 +147,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableFloatHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Float>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableFloatReturn(notNull)));
+  public Future<@Nullable Float> methodWithNullableFloatHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableFloatReturn(notNull));
   }
 
   @Override
@@ -172,8 +172,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableDoubleHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Double>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableDoubleReturn(notNull)));
+  public Future<@Nullable Double> methodWithNullableDoubleHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableDoubleReturn(notNull));
   }
 
   @Override
@@ -197,8 +197,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableBooleanHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Boolean>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableBooleanReturn(notNull)));
+  public Future<@Nullable Boolean> methodWithNullableBooleanHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableBooleanReturn(notNull));
   }
 
   @Override
@@ -222,8 +222,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableStringHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable String>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableStringReturn(notNull)));
+  public Future<@Nullable String> methodWithNullableStringHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableStringReturn(notNull));
   }
 
   @Override
@@ -247,8 +247,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableCharHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Character>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableCharReturn(notNull)));
+  public Future<@Nullable Character> methodWithNullableCharHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableCharReturn(notNull));
   }
 
   @Override
@@ -272,8 +272,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableJsonObjectHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable JsonObject>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableJsonObjectReturn(notNull)));
+  public Future<@Nullable JsonObject> methodWithNullableJsonObjectHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableJsonObjectReturn(notNull));
   }
 
   @Override
@@ -301,8 +301,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableJsonArrayHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable JsonArray>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableJsonArrayReturn(notNull)));
+  public Future<@Nullable JsonArray> methodWithNullableJsonArrayHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableJsonArrayReturn(notNull));
   }
 
   @Override
@@ -326,8 +326,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableApiHandlerAsyncResult(boolean notNull, Handler<AsyncResult<RefedInterface1>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableApiReturn(notNull)));
+  public Future<RefedInterface1> methodWithNullableApiHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableApiReturn(notNull));
   }
 
   @Override
@@ -355,8 +355,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableDataObjectHandlerAsyncResult(boolean notNull, Handler<AsyncResult<TestDataObject>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableDataObjectReturn(notNull)));
+  public Future<TestDataObject> methodWithNullableDataObjectHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableDataObjectReturn(notNull));
   }
 
   @Override
@@ -384,8 +384,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableJsonMappedHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable ZonedDateTime>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableJsonMappedReturn(notNull)));
+  public Future<@Nullable ZonedDateTime> methodWithNullableJsonMappedHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableJsonMappedReturn(notNull));
   }
 
   @Override
@@ -409,8 +409,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableEnumHandlerAsyncResult(boolean notNull, Handler<AsyncResult<TestEnum>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableEnumReturn(notNull)));
+  public Future<TestEnum> methodWithNullableEnumHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableEnumReturn(notNull));
   }
 
   @Override
@@ -434,8 +434,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableGenEnumHandlerAsyncResult(boolean notNull, Handler<AsyncResult<TestGenEnum>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableGenEnumReturn(notNull)));
+  public Future<TestGenEnum> methodWithNullableGenEnumHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableGenEnumReturn(notNull));
   }
 
   @Override
@@ -462,11 +462,11 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public <T> void methodWithNullableTypeVariableHandlerAsyncResult(boolean notNull, T value, Handler<AsyncResult<T>> handler) {
+  public <T> Future<T> methodWithNullableTypeVariableHandlerAsyncResult(boolean notNull, T value) {
     if (notNull) {
-      handler.handle(Future.succeededFuture(value));
+      return Future.succeededFuture(value);
     } else {
-      handler.handle(Future.succeededFuture(null));
+      return Future.succeededFuture(null);
     }
 }
 
@@ -496,8 +496,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListByteHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<Byte>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListByteReturn(notNull)));
+  public Future<@Nullable List<Byte>> methodWithNullableListByteHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListByteReturn(notNull));
   }
 
   @Override
@@ -525,8 +525,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListShortHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<Short>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListShortReturn(notNull)));
+  public Future<@Nullable List<Short>> methodWithNullableListShortHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListShortReturn(notNull));
   }
 
   @Override
@@ -554,8 +554,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListIntegerHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<Integer>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListIntegerReturn(notNull)));
+  public Future<@Nullable List<Integer>> methodWithNullableListIntegerHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListIntegerReturn(notNull));
   }
 
   @Override
@@ -583,8 +583,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListLongHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<Long>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListLongReturn(notNull)));
+  public Future<@Nullable List<Long>> methodWithNullableListLongHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListLongReturn(notNull));
   }
 
   @Override
@@ -612,8 +612,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListFloatHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<Float>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListFloatReturn(notNull)));
+  public Future<@Nullable List<Float>> methodWithNullableListFloatHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListFloatReturn(notNull));
   }
 
   @Override
@@ -641,8 +641,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListDoubleHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<Double>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListDoubleReturn(notNull)));
+  public Future<@Nullable List<Double>> methodWithNullableListDoubleHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListDoubleReturn(notNull));
   }
 
   @Override
@@ -670,8 +670,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListBooleanHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<Boolean>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListBooleanReturn(notNull)));
+  public Future<@Nullable List<Boolean>> methodWithNullableListBooleanHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListBooleanReturn(notNull));
   }
 
   @Override
@@ -699,8 +699,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListStringHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<String>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListStringReturn(notNull)));
+  public Future<@Nullable List<String>> methodWithNullableListStringHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListStringReturn(notNull));
   }
 
   @Override
@@ -728,8 +728,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListCharHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<Character>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListCharReturn(notNull)));
+  public Future<@Nullable List<Character>> methodWithNullableListCharHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListCharReturn(notNull));
   }
 
   @Override
@@ -757,8 +757,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListJsonObjectHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<JsonObject>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListJsonObjectReturn(notNull)));
+  public Future<@Nullable List<JsonObject>> methodWithNullableListJsonObjectHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListJsonObjectReturn(notNull));
   }
 
   @Override
@@ -786,8 +786,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListJsonArrayHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<JsonArray>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListJsonArrayReturn(notNull)));
+  public Future<@Nullable List<JsonArray>> methodWithNullableListJsonArrayHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListJsonArrayReturn(notNull));
   }
 
   @Override
@@ -815,8 +815,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListApiHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<RefedInterface1>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListApiReturn(notNull)));
+  public Future<@Nullable List<RefedInterface1>> methodWithNullableListApiHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListApiReturn(notNull));
   }
 
   @Override
@@ -844,8 +844,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListDataObjectHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<TestDataObject>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListDataObjectReturn(notNull)));
+  public Future<@Nullable List<TestDataObject>> methodWithNullableListDataObjectHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListDataObjectReturn(notNull));
   }
 
   @Override
@@ -869,8 +869,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListEnumHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<TestEnum>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListEnumReturn(notNull)));
+  public Future<@Nullable List<TestEnum>> methodWithNullableListEnumHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListEnumReturn(notNull));
   }
 
   @Override
@@ -894,8 +894,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableListGenEnumHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable List<TestGenEnum>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableListGenEnumReturn(notNull)));
+  public Future<@Nullable List<TestGenEnum>> methodWithNullableListGenEnumHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableListGenEnumReturn(notNull));
   }
 
   @Override
@@ -919,8 +919,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetByteHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<Byte>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetByteReturn(notNull)));
+  public Future<@Nullable Set<Byte>> methodWithNullableSetByteHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetByteReturn(notNull));
   }
 
   @Override
@@ -948,8 +948,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetShortHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<Short>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetShortReturn(notNull)));
+  public Future<@Nullable Set<Short>> methodWithNullableSetShortHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetShortReturn(notNull));
   }
 
   @Override
@@ -977,8 +977,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetIntegerHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<Integer>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetIntegerReturn(notNull)));
+  public Future<@Nullable Set<Integer>> methodWithNullableSetIntegerHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetIntegerReturn(notNull));
   }
 
   @Override
@@ -1006,8 +1006,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetLongHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<Long>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetLongReturn(notNull)));
+  public Future<@Nullable Set<Long>> methodWithNullableSetLongHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetLongReturn(notNull));
   }
 
   @Override
@@ -1035,8 +1035,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetFloatHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<Float>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetFloatReturn(notNull)));
+  public Future<@Nullable Set<Float>> methodWithNullableSetFloatHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetFloatReturn(notNull));
   }
 
   @Override
@@ -1064,8 +1064,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetDoubleHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<Double>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetDoubleReturn(notNull)));
+  public Future<@Nullable Set<Double>> methodWithNullableSetDoubleHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetDoubleReturn(notNull));
   }
 
   @Override
@@ -1093,8 +1093,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetBooleanHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<Boolean>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetBooleanReturn(notNull)));
+  public Future<@Nullable Set<Boolean>> methodWithNullableSetBooleanHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetBooleanReturn(notNull));
   }
 
   @Override
@@ -1122,8 +1122,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetStringHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<String>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetStringReturn(notNull)));
+  public Future<@Nullable Set<String>> methodWithNullableSetStringHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetStringReturn(notNull));
   }
 
   @Override
@@ -1151,8 +1151,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetCharHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<Character>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetCharReturn(notNull)));
+  public Future<@Nullable Set<Character>> methodWithNullableSetCharHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetCharReturn(notNull));
   }
 
   @Override
@@ -1180,8 +1180,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetJsonObjectHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<JsonObject>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetJsonObjectReturn(notNull)));
+  public Future<@Nullable Set<JsonObject>> methodWithNullableSetJsonObjectHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetJsonObjectReturn(notNull));
   }
 
   @Override
@@ -1209,8 +1209,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetJsonArrayHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<JsonArray>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetJsonArrayReturn(notNull)));
+  public Future<@Nullable Set<JsonArray>> methodWithNullableSetJsonArrayHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetJsonArrayReturn(notNull));
   }
 
   @Override
@@ -1238,8 +1238,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetApiHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<RefedInterface1>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetApiReturn(notNull)));
+  public Future<@Nullable Set<RefedInterface1>> methodWithNullableSetApiHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetApiReturn(notNull));
   }
 
   @Override
@@ -1267,8 +1267,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetDataObjectHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<TestDataObject>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetDataObjectReturn(notNull)));
+  public Future<@Nullable Set<TestDataObject>> methodWithNullableSetDataObjectHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetDataObjectReturn(notNull));
   }
 
   @Override
@@ -1292,8 +1292,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetEnumHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<TestEnum>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetEnumReturn(notNull)));
+  public Future<@Nullable Set<TestEnum>> methodWithNullableSetEnumHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetEnumReturn(notNull));
   }
 
   @Override
@@ -1317,8 +1317,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableSetGenEnumHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Set<TestGenEnum>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableSetGenEnumReturn(notNull)));
+  public Future<@Nullable Set<TestGenEnum>> methodWithNullableSetGenEnumHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableSetGenEnumReturn(notNull));
   }
 
   @Override
@@ -1342,8 +1342,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableMapByteHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Map<String, Byte>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableMapByteReturn(notNull)));
+  public Future<@Nullable Map<String, Byte>> methodWithNullableMapByteHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableMapByteReturn(notNull));
   }
 
   @Override
@@ -1371,8 +1371,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableMapShortHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Map<String, Short>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableMapShortReturn(notNull)));
+  public Future<@Nullable Map<String, Short>> methodWithNullableMapShortHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableMapShortReturn(notNull));
   }
 
   @Override
@@ -1400,8 +1400,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableMapIntegerHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Map<String, Integer>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableMapIntegerReturn(notNull)));
+  public Future<@Nullable Map<String, Integer>> methodWithNullableMapIntegerHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableMapIntegerReturn(notNull));
   }
 
   @Override
@@ -1429,8 +1429,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableMapLongHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Map<String, Long>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableMapLongReturn(notNull)));
+  public Future<@Nullable Map<String, Long>> methodWithNullableMapLongHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableMapLongReturn(notNull));
   }
 
   @Override
@@ -1458,8 +1458,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableMapFloatHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Map<String, Float>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableMapFloatReturn(notNull)));
+  public Future<@Nullable Map<String, Float>> methodWithNullableMapFloatHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableMapFloatReturn(notNull));
   }
 
   @Override
@@ -1487,8 +1487,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableMapDoubleHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Map<String, Double>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableMapDoubleReturn(notNull)));
+  public Future<@Nullable Map<String, Double>> methodWithNullableMapDoubleHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableMapDoubleReturn(notNull));
   }
 
   @Override
@@ -1516,8 +1516,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableMapBooleanHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Map<String, Boolean>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableMapBooleanReturn(notNull)));
+  public Future<@Nullable Map<String, Boolean>> methodWithNullableMapBooleanHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableMapBooleanReturn(notNull));
   }
 
   @Override
@@ -1545,8 +1545,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableMapStringHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Map<String, String>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableMapStringReturn(notNull)));
+  public Future<@Nullable Map<String, String>> methodWithNullableMapStringHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableMapStringReturn(notNull));
   }
 
   @Override
@@ -1574,8 +1574,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableMapCharHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Map<String, Character>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableMapCharReturn(notNull)));
+  public Future<@Nullable Map<String, Character>> methodWithNullableMapCharHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableMapCharReturn(notNull));
   }
 
   @Override
@@ -1603,8 +1603,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableMapJsonObjectHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Map<String, JsonObject>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableMapJsonObjectReturn(notNull)));
+  public Future<@Nullable Map<String, JsonObject>> methodWithNullableMapJsonObjectHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableMapJsonObjectReturn(notNull));
   }
 
   @Override
@@ -1632,8 +1632,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableMapJsonArrayHandlerAsyncResult(boolean notNull, Handler<AsyncResult<@Nullable Map<String, JsonArray>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithNullableMapJsonArrayReturn(notNull)));
+  public Future<@Nullable Map<String, JsonArray>> methodWithNullableMapJsonArrayHandlerAsyncResult(boolean notNull) {
+    return Future.succeededFuture(methodWithNullableMapJsonArrayReturn(notNull));
   }
 
   @Override
@@ -1670,8 +1670,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableByteHandlerAsyncResult(Handler<AsyncResult<List<@Nullable Byte>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableByteReturn()));
+  public Future<List<@Nullable Byte>> methodWithListNullableByteHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableByteReturn());
   }
 
   @Override
@@ -1694,8 +1694,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableShortHandlerAsyncResult(Handler<AsyncResult<List<@Nullable Short>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableShortReturn()));
+  public Future<List<@Nullable Short>> methodWithListNullableShortHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableShortReturn());
   }
 
   @Override
@@ -1718,8 +1718,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableIntegerHandlerAsyncResult(Handler<AsyncResult<List<@Nullable Integer>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableIntegerReturn()));
+  public Future<List<@Nullable Integer>> methodWithListNullableIntegerHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableIntegerReturn());
   }
 
   @Override
@@ -1742,8 +1742,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableLongHandlerAsyncResult(Handler<AsyncResult<List<@Nullable Long>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableLongReturn()));
+  public Future<List<@Nullable Long>> methodWithListNullableLongHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableLongReturn());
   }
 
   @Override
@@ -1766,8 +1766,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableFloatHandlerAsyncResult(Handler<AsyncResult<List<@Nullable Float>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableFloatReturn()));
+  public Future<List<@Nullable Float>> methodWithListNullableFloatHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableFloatReturn());
   }
 
   @Override
@@ -1790,8 +1790,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableDoubleHandlerAsyncResult(Handler<AsyncResult<List<@Nullable Double>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableDoubleReturn()));
+  public Future<List<@Nullable Double>> methodWithListNullableDoubleHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableDoubleReturn());
   }
 
   @Override
@@ -1814,8 +1814,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableBooleanHandlerAsyncResult(Handler<AsyncResult<List<@Nullable Boolean>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableBooleanReturn()));
+  public Future<List<@Nullable Boolean>> methodWithListNullableBooleanHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableBooleanReturn());
   }
 
   @Override
@@ -1838,8 +1838,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableCharHandlerAsyncResult(Handler<AsyncResult<List<@Nullable Character>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableCharReturn()));
+  public Future<List<@Nullable Character>> methodWithListNullableCharHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableCharReturn());
   }
 
   @Override
@@ -1862,8 +1862,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableStringHandlerAsyncResult(Handler<AsyncResult<List<@Nullable String>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableStringReturn()));
+  public Future<List<@Nullable String>> methodWithListNullableStringHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableStringReturn());
   }
 
   @Override
@@ -1887,8 +1887,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableJsonObjectHandlerAsyncResult(Handler<AsyncResult<List<@Nullable JsonObject>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableJsonObjectReturn()));
+  public Future<List<@Nullable JsonObject>> methodWithListNullableJsonObjectHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableJsonObjectReturn());
   }
 
   @Override
@@ -1911,8 +1911,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableJsonArrayHandlerAsyncResult(Handler<AsyncResult<List<@Nullable JsonArray>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableJsonArrayReturn()));
+  public Future<List<@Nullable JsonArray>> methodWithListNullableJsonArrayHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableJsonArrayReturn());
   }
 
   @Override
@@ -1935,8 +1935,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableApiHandlerAsyncResult(Handler<AsyncResult<List<@Nullable RefedInterface1>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableApiReturn()));
+  public Future<List<@Nullable RefedInterface1>> methodWithListNullableApiHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableApiReturn());
   }
 
   @Override
@@ -1960,8 +1960,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableDataObjectHandlerAsyncResult(Handler<AsyncResult<List<@Nullable TestDataObject>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableDataObjectReturn()));
+  public Future<List<@Nullable TestDataObject>> methodWithListNullableDataObjectHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableDataObjectReturn());
   }
 
   @Override
@@ -1984,8 +1984,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableEnumHandlerAsyncResult(Handler<AsyncResult<List<@Nullable TestEnum>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableEnumReturn()));
+  public Future<List<@Nullable TestEnum>> methodWithListNullableEnumHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableEnumReturn());
   }
 
   @Override
@@ -2008,8 +2008,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithListNullableGenEnumHandlerAsyncResult(Handler<AsyncResult<List<@Nullable TestGenEnum>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithListNullableGenEnumReturn()));
+  public Future<List<@Nullable TestGenEnum>> methodWithListNullableGenEnumHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithListNullableGenEnumReturn());
   }
 
   @Override
@@ -2032,8 +2032,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableByteHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable Byte>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableByteReturn()));
+  public Future<Set<@Nullable Byte>> methodWithSetNullableByteHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableByteReturn());
   }
 
   @Override
@@ -2056,8 +2056,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableShortHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable Short>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableShortReturn()));
+  public Future<Set<@Nullable Short>> methodWithSetNullableShortHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableShortReturn());
   }
 
   @Override
@@ -2080,8 +2080,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableIntegerHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable Integer>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableIntegerReturn()));
+  public Future<Set<@Nullable Integer>> methodWithSetNullableIntegerHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableIntegerReturn());
   }
 
   @Override
@@ -2104,8 +2104,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableLongHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable Long>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableLongReturn()));
+  public Future<Set<@Nullable Long>> methodWithSetNullableLongHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableLongReturn());
   }
 
   @Override
@@ -2128,8 +2128,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableFloatHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable Float>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableFloatReturn()));
+  public Future<Set<@Nullable Float>> methodWithSetNullableFloatHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableFloatReturn());
   }
 
   @Override
@@ -2152,8 +2152,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableDoubleHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable Double>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableDoubleReturn()));
+  public Future<Set<@Nullable Double>> methodWithSetNullableDoubleHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableDoubleReturn());
   }
 
   @Override
@@ -2176,8 +2176,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableBooleanHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable Boolean>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableBooleanReturn()));
+  public Future<Set<@Nullable Boolean>> methodWithSetNullableBooleanHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableBooleanReturn());
   }
 
   @Override
@@ -2200,8 +2200,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableCharHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable Character>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableCharReturn()));
+  public Future<Set<@Nullable Character>> methodWithSetNullableCharHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableCharReturn());
   }
 
   @Override
@@ -2224,8 +2224,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableStringHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable String>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableStringReturn()));
+  public Future<Set<@Nullable String>> methodWithSetNullableStringHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableStringReturn());
   }
 
   @Override
@@ -2249,8 +2249,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableJsonObjectHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable JsonObject>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableJsonObjectReturn()));
+  public Future<Set<@Nullable JsonObject>> methodWithSetNullableJsonObjectHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableJsonObjectReturn());
   }
 
   @Override
@@ -2273,8 +2273,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableJsonArrayHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable JsonArray>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableJsonArrayReturn()));
+  public Future<Set<@Nullable JsonArray>> methodWithSetNullableJsonArrayHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableJsonArrayReturn());
   }
 
   @Override
@@ -2297,8 +2297,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableApiHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable RefedInterface1>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableApiReturn()));
+  public Future<Set<@Nullable RefedInterface1>> methodWithSetNullableApiHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableApiReturn());
   }
 
   @Override
@@ -2322,8 +2322,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableDataObjectHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable TestDataObject>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableDataObjectReturn()));
+  public Future<Set<@Nullable TestDataObject>> methodWithSetNullableDataObjectHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableDataObjectReturn());
   }
 
   @Override
@@ -2346,8 +2346,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableEnumHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable TestEnum>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableEnumReturn()));
+  public Future<Set<@Nullable TestEnum>> methodWithSetNullableEnumHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableEnumReturn());
   }
 
   @Override
@@ -2370,8 +2370,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithSetNullableGenEnumHandlerAsyncResult(Handler<AsyncResult<Set<@Nullable TestGenEnum>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithSetNullableGenEnumReturn()));
+  public Future<Set<@Nullable TestGenEnum>> methodWithSetNullableGenEnumHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithSetNullableGenEnumReturn());
   }
 
   @Override
@@ -2394,8 +2394,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithMapNullableByteHandlerAsyncResult(Handler<AsyncResult<Map<String, @Nullable Byte>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithMapNullableByteReturn()));
+  public Future<Map<String, @Nullable Byte>> methodWithMapNullableByteHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithMapNullableByteReturn());
   }
 
   @Override
@@ -2414,8 +2414,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithMapNullableShortHandlerAsyncResult(Handler<AsyncResult<Map<String, @Nullable Short>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithMapNullableShortReturn()));
+  public Future<Map<String, @Nullable Short>> methodWithMapNullableShortHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithMapNullableShortReturn());
   }
 
   @Override
@@ -2434,8 +2434,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithMapNullableIntegerHandlerAsyncResult(Handler<AsyncResult<Map<String, @Nullable Integer>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithMapNullableIntegerReturn()));
+  public Future<Map<String, @Nullable Integer>> methodWithMapNullableIntegerHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithMapNullableIntegerReturn());
   }
 
   @Override
@@ -2454,8 +2454,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithMapNullableLongHandlerAsyncResult(Handler<AsyncResult<Map<String, @Nullable Long>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithMapNullableLongReturn()));
+  public Future<Map<String, @Nullable Long>> methodWithMapNullableLongHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithMapNullableLongReturn());
   }
 
   @Override
@@ -2474,8 +2474,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithMapNullableFloatHandlerAsyncResult(Handler<AsyncResult<Map<String, @Nullable Float>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithMapNullableFloatReturn()));
+  public Future<Map<String, @Nullable Float>> methodWithMapNullableFloatHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithMapNullableFloatReturn());
   }
 
   @Override
@@ -2494,8 +2494,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithMapNullableDoubleHandlerAsyncResult(Handler<AsyncResult<Map<String, @Nullable Double>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithMapNullableDoubleReturn()));
+  public Future<Map<String, @Nullable Double>> methodWithMapNullableDoubleHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithMapNullableDoubleReturn());
   }
 
   @Override
@@ -2514,8 +2514,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithMapNullableBooleanHandlerAsyncResult(Handler<AsyncResult<Map<String, @Nullable Boolean>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithMapNullableBooleanReturn()));
+  public Future<Map<String, @Nullable Boolean>> methodWithMapNullableBooleanHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithMapNullableBooleanReturn());
   }
 
   @Override
@@ -2534,8 +2534,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithMapNullableCharHandlerAsyncResult(Handler<AsyncResult<Map<String, @Nullable Character>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithMapNullableCharReturn()));
+  public Future<Map<String, @Nullable Character>> methodWithMapNullableCharHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithMapNullableCharReturn());
   }
 
   @Override
@@ -2554,8 +2554,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithMapNullableStringHandlerAsyncResult(Handler<AsyncResult<Map<String, @Nullable String>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithMapNullableStringReturn()));
+  public Future<Map<String, @Nullable String>> methodWithMapNullableStringHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithMapNullableStringReturn());
   }
 
   @Override
@@ -2575,8 +2575,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithMapNullableJsonObjectHandlerAsyncResult(Handler<AsyncResult<Map<String, @Nullable JsonObject>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithMapNullableJsonObjectReturn()));
+  public Future<Map<String, @Nullable JsonObject>> methodWithMapNullableJsonObjectHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithMapNullableJsonObjectReturn());
   }
 
   @Override
@@ -2595,8 +2595,8 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithMapNullableJsonArrayHandlerAsyncResult(Handler<AsyncResult<Map<String, @Nullable JsonArray>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithMapNullableJsonArrayReturn()));
+  public Future<Map<String, @Nullable JsonArray>> methodWithMapNullableJsonArrayHandlerAsyncResult() {
+    return Future.succeededFuture(methodWithMapNullableJsonArrayReturn());
   }
 
   @Override
@@ -2623,11 +2623,11 @@ public class NullableTCKImpl implements NullableTCK {
   }
 
   @Override
-  public void methodWithNullableHandlerAsyncResult(boolean expectNull, Handler<AsyncResult<String>> handler) {
+  public Future<String> methodWithNullableHandlerAsyncResult(boolean expectNull) {
     if (expectNull) {
-      assertNull(handler);
+      return null;
     } else {
-      handler.handle(Future.succeededFuture(methodWithNullableStringReturn(true)));
+      return Future.succeededFuture(methodWithNullableStringReturn(true));
     }
   }
 

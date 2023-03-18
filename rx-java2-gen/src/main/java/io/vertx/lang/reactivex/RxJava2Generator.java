@@ -186,14 +186,7 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
       writer.print("(");
       List<ParamInfo> params = futMethod.getParams();
       writer.print(params.stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
-      if (method.getKind() == MethodKind.CALLBACK) {
-        if (params.size() > 0) {
-          writer.print(", ");
-        }
-        writer.println("$handler);");
-      } else {
-        writer.println(").onComplete($handler);");
-      }
+      writer.println(").onComplete($handler);");
       writer.println("    });");
       writer.println("  }");
     } else {
@@ -275,10 +268,6 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
       futType = ((ParameterizedTypeInfo) futParam).getArg(0);
       // getUnresolvedType ????
       futUnresolvedType = ((ParameterizedTypeInfo) futParam).getArg(0);
-    } else if (method.getKind() == MethodKind.CALLBACK) {
-      ParamInfo futParam = futParams.remove(futParams.size() - 1);
-      futType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getType()).getArg(0)).getArg(0);
-      futUnresolvedType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getUnresolvedType()).getArg(0)).getArg(0);
     } else {
       throw new IllegalArgumentException("Method kind " + method.getKind());
     }

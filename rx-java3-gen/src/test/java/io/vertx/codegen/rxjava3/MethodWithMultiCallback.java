@@ -3,6 +3,7 @@ package io.vertx.codegen.rxjava3;
 import io.vertx.codegen.annotations.Nullable;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 
 /**
@@ -10,7 +11,7 @@ import io.vertx.core.Handler;
  */
 @VertxGen
 public interface MethodWithMultiCallback {
-  void multiCompletable(Handler<AsyncResult<Void>> handler);
-  void multiMaybe(Handler<AsyncResult<@Nullable String>> handler);
-  void multiSingle(Handler<AsyncResult<String>> handler);
+  Future<Void> multiCompletable();
+  Future<@Nullable String> multiMaybe();
+  Future<String> multiSingle();
 }

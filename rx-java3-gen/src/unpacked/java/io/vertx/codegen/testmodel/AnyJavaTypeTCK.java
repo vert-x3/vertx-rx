@@ -2,7 +2,7 @@ package io.vertx.codegen.testmodel;
 
 import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 
 import java.net.Socket;
@@ -28,8 +28,9 @@ public interface AnyJavaTypeTCK {
   @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithHandlerSetOfJavaTypeParam(Handler<Set<Socket>> socketSetHandler);
   @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithHandlerMapOfJavaTypeParam(Handler<Map<String, Socket>> socketMapHandler);
 
-  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithHandlerAsyncResultJavaTypeParam(Handler<AsyncResult<Socket>> socketHandler);
-  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithHandlerAsyncResultListOfJavaTypeParam(Handler<AsyncResult<List<Socket>>> socketListHandler);
-  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithHandlerAsyncResultSetOfJavaTypeParam(Handler<AsyncResult<Set<Socket>>> socketSetHandler);
-  @GenIgnore(GenIgnore.PERMITTED_TYPE) void methodWithHandlerAsyncResultMapOfJavaTypeParam(Handler<AsyncResult<Map<String, Socket>>> socketMapHandler);
+  @GenIgnore(GenIgnore.PERMITTED_TYPE)
+  Future<Socket> methodWithHandlerAsyncResultJavaTypeParam();
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) Future<List<Socket>> methodWithHandlerAsyncResultListOfJavaTypeParam();
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) Future<Set<Socket>> methodWithHandlerAsyncResultSetOfJavaTypeParam();
+  @GenIgnore(GenIgnore.PERMITTED_TYPE) Future<Map<String, Socket>> methodWithHandlerAsyncResultMapOfJavaTypeParam();
 }

@@ -43,7 +43,7 @@ public class GenericsTCKTest {
   @Test
   public void testMethodWithGenericNullableApiHandlerAsyncResult() throws Exception {
     AsyncResultChecker checker = new AsyncResultChecker();
-    obj.methodWithHandlerAsyncResultGenericNullableApi(false, checker.resultHandler(ret -> {
+    obj.methodWithHandlerAsyncResultGenericNullableApi(false).onComplete(checker.resultHandler(ret -> {
       assertEquals(null, ret.result().getValue());
     }));
   }
@@ -79,7 +79,7 @@ public class GenericsTCKTest {
   @Test
   public void testMethodWithHandlerAsyncResultParamInfered() throws Exception {
     GenericRefedInterface<RefedInterface1> refed = obj.methodWithUserTypeParameterizedReturn();
-    obj.methodWithHandlerAsyncResultParamInfered(refed, ret -> {
+    obj.methodWithHandlerAsyncResultParamInfered(refed).onComplete(ret -> {
       assertSame(refed.getDelegate(), ret.result().getDelegate());
     });
   }
@@ -100,7 +100,7 @@ public class GenericsTCKTest {
   @Test
   public void testMethodWithClassTypeHandlerAsyncResult() throws Exception {
     AtomicReference<RefedInterface1> refed = new AtomicReference<>();
-    obj.methodWithClassTypeHandlerAsyncResult(RefedInterface1.class, ar -> refed.set(ar.result()));
+    obj.methodWithClassTypeHandlerAsyncResult(RefedInterface1.class).onComplete(ar -> refed.set(ar.result()));
     assertEquals("foo", refed.get().getString());
   }
 }

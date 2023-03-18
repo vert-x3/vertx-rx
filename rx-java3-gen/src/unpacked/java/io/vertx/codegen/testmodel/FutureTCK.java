@@ -12,6 +12,5 @@ import io.vertx.core.Handler;
 public interface FutureTCK {
 
   Future<Void> asyncMethod();
-  void asyncMethod(Handler<AsyncResult<Void>> handler);
 
 }

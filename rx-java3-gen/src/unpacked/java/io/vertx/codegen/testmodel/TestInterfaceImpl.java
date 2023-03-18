@@ -87,112 +87,112 @@ public class TestInterfaceImpl implements TestInterface {
   }
 
   @Override
-  public void methodWithHandlerAsyncResultByte(boolean sendFailure, Handler<AsyncResult<Byte>> handler) {
+  public Future<Byte> methodWithHandlerAsyncResultByte(boolean sendFailure) {
     if (sendFailure) {
       Exception e = new Exception("foobar!");
-      handler.handle(Future.failedFuture(e));
+      return Future.failedFuture(e);
     } else {
-      handler.handle(Future.succeededFuture((byte) 123));
+      return Future.succeededFuture((byte) 123);
     }
   }
 
   @Override
-  public void methodWithHandlerAsyncResultShort(boolean sendFailure, Handler<AsyncResult<Short>> handler) {
+  public Future<Short> methodWithHandlerAsyncResultShort(boolean sendFailure) {
     if (sendFailure) {
       Exception e = new Exception("foobar!");
-      handler.handle(Future.failedFuture(e));
+      return Future.failedFuture(e);
     } else {
-      handler.handle(Future.succeededFuture((short) 12345));
+      return Future.succeededFuture((short) 12345);
     }
   }
 
   @Override
-  public void methodWithHandlerAsyncResultInteger(boolean sendFailure, Handler<AsyncResult<Integer>> handler) {
+  public Future<Integer> methodWithHandlerAsyncResultInteger(boolean sendFailure) {
     if (sendFailure) {
       Exception e = new Exception("foobar!");
-      handler.handle(Future.failedFuture(e));
+      return Future.failedFuture(e);
     } else {
-      handler.handle(Future.succeededFuture(1234567));
+      return Future.succeededFuture(1234567);
     }
   }
 
   @Override
-  public void methodWithHandlerAsyncResultLong(boolean sendFailure, Handler<AsyncResult<Long>> handler) {
+  public Future<Long> methodWithHandlerAsyncResultLong(boolean sendFailure) {
     if (sendFailure) {
       Exception e = new Exception("foobar!");
-      handler.handle(Future.failedFuture(e));
+      return Future.failedFuture(e);
     } else {
-      handler.handle(Future.succeededFuture(1265615234l));
+      return Future.succeededFuture(1265615234l);
     }
   }
 
   @Override
-  public void methodWithHandlerAsyncResultFloat(boolean sendFailure, Handler<AsyncResult<Float>> handler) {
+  public Future<Float> methodWithHandlerAsyncResultFloat(boolean sendFailure) {
     if (sendFailure) {
       Exception e = new Exception("foobar!");
-      handler.handle(Future.failedFuture(e));
+      return Future.failedFuture(e);
     } else {
-      handler.handle(Future.succeededFuture(12.345f));
+      return Future.succeededFuture(12.345f);
     }
   }
 
   @Override
-  public void methodWithHandlerAsyncResultDouble(boolean sendFailure, Handler<AsyncResult<Double>> handler) {
+  public Future<Double> methodWithHandlerAsyncResultDouble(boolean sendFailure) {
     if (sendFailure) {
       Exception e = new Exception("foobar!");
-      handler.handle(Future.failedFuture(e));
+      return Future.failedFuture(e);
     } else {
-      handler.handle(Future.succeededFuture(12.34566d));
+      return Future.succeededFuture(12.34566d);
     }
   }
 
   @Override
-  public void methodWithHandlerAsyncResultBoolean(boolean sendFailure, Handler<AsyncResult<Boolean>> handler) {
+  public Future<Boolean> methodWithHandlerAsyncResultBoolean(boolean sendFailure) {
     if (sendFailure) {
       Exception e = new Exception("foobar!");
-      handler.handle(Future.failedFuture(e));
+      return Future.failedFuture(e);
     } else {
-      handler.handle(Future.succeededFuture(true));
+      return Future.succeededFuture(true);
     }
   }
 
   @Override
-  public void methodWithHandlerAsyncResultCharacter(boolean sendFailure, Handler<AsyncResult<Character>> handler) {
+  public Future<Character> methodWithHandlerAsyncResultCharacter(boolean sendFailure) {
     if (sendFailure) {
       Exception e = new Exception("foobar!");
-      handler.handle(Future.failedFuture(e));
+      return Future.failedFuture(e);
     } else {
-      handler.handle(Future.succeededFuture('X'));
+      return Future.succeededFuture('X');
     }
   }
 
   @Override
-  public void methodWithHandlerAsyncResultString(boolean sendFailure, Handler<AsyncResult<String>> handler) {
+  public Future<String> methodWithHandlerAsyncResultString(boolean sendFailure) {
     if (sendFailure) {
       Exception e = new Exception("foobar!");
-      handler.handle(Future.failedFuture(e));
+      return Future.failedFuture(e);
     } else {
-      handler.handle(Future.succeededFuture("quux!"));
+      return Future.succeededFuture("quux!");
     }
   }
 
   @Override
-  public void methodWithHandlerAsyncResultDataObject(boolean sendFailure, Handler<AsyncResult<TestDataObject>> handler) {
+  public Future<TestDataObject> methodWithHandlerAsyncResultDataObject(boolean sendFailure) {
     if (sendFailure) {
       Exception e = new Exception("foobar!");
-      handler.handle(Future.failedFuture(e));
+      return Future.failedFuture(e);
     } else {
-      handler.handle(Future.succeededFuture(new TestDataObject().setFoo("foo").setBar(123)));
+      return Future.succeededFuture(new TestDataObject().setFoo("foo").setBar(123));
     }
   }
 
   @Override
-  public void methodWithHandlerAsyncResultStringDataObject(boolean sendFailure, Handler<AsyncResult<TestStringDataObject>> handler) {
+  public Future<TestStringDataObject> methodWithHandlerAsyncResultStringDataObject(boolean sendFailure) {
     if (sendFailure) {
       Exception e = new Exception("foobar!");
-      handler.handle(Future.failedFuture(e));
+      return Future.failedFuture(e);
     } else {
-      handler.handle(Future.succeededFuture(new TestStringDataObject().setValue("foo")));
+      return Future.succeededFuture(new TestStringDataObject().setValue("foo"));
     }
   }
 
@@ -314,10 +314,10 @@ public class TestInterfaceImpl implements TestInterface {
   }
 
   @Override
-  public void methodWithHandlerAsyncResultUserTypes(Handler<AsyncResult<RefedInterface1>> handler) {
+  public Future<RefedInterface1> methodWithHandlerAsyncResultUserTypes() {
     RefedInterface1 refed = new RefedInterface1Impl();
     refed.setString("cheetahs");
-    handler.handle(Future.succeededFuture(refed));
+    return Future.succeededFuture(refed);
   }
 
   @Override
@@ -347,11 +347,11 @@ public class TestInterfaceImpl implements TestInterface {
   }
 
   @Override
-  public void methodWithHandlerAsyncResultVoid(boolean sendFailure, Handler<AsyncResult<Void>> handler) {
+  public Future<Void> methodWithHandlerAsyncResultVoid(boolean sendFailure) {
     if (sendFailure) {
-      handler.handle(Future.failedFuture(new VertxException("foo!")));
+      return Future.failedFuture(new VertxException("foo!"));
     } else {
-      handler.handle(Future.succeededFuture((Void) null));
+      return Future.succeededFuture((Void) null);
     }
   }
 
@@ -376,8 +376,8 @@ public class TestInterfaceImpl implements TestInterface {
   }
 
   @Override
-  public <U> void methodWithHandlerAsyncResultGenericUserType(U value, Handler<AsyncResult<GenericRefedInterface<U>>> handler) {
-    handler.handle(Future.succeededFuture(methodWithGenericUserTypeReturn(value)));
+  public <U> Future<GenericRefedInterface<U>> methodWithHandlerAsyncResultGenericUserType(U value) {
+    return Future.succeededFuture(methodWithGenericUserTypeReturn(value));
   }
 
   @Override
@@ -583,9 +583,9 @@ public class TestInterfaceImpl implements TestInterface {
   }
 
   @Override
-  public <U> void methodWithGenericHandlerAsyncResult(String type, Handler<AsyncResult<U>> asyncResultHandler) {
+  public <U> Future<U> methodWithGenericHandlerAsyncResult(String type) {
     U value = methodWithGenericReturn(type);
-    asyncResultHandler.handle(Future.succeededFuture(value));
+    return Future.succeededFuture(value);
   }
 
   @Override
@@ -674,39 +674,33 @@ public class TestInterfaceImpl implements TestInterface {
   }
 
   @Override
-  public void methodWithHandlerAsyncResultJsonObject(Handler<AsyncResult<JsonObject>> handler) {
-    assertNotNull(handler);
-    handler.handle(Future.succeededFuture(new JsonObject().put("cheese", "stilton")));
+  public Future<JsonObject> methodWithHandlerAsyncResultJsonObject() {
+    return Future.succeededFuture(new JsonObject().put("cheese", "stilton"));
   }
 
   @Override
-  public void methodWithHandlerAsyncResultNullJsonObject(Handler<AsyncResult<JsonObject>> handler) {
-    assertNotNull(handler);
-    handler.handle(Future.succeededFuture(null));
+  public Future<JsonObject> methodWithHandlerAsyncResultNullJsonObject() {
+    return Future.succeededFuture(null);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultComplexJsonObject(Handler<AsyncResult<JsonObject>> handler) {
-    assertNotNull(handler);
-    handler.handle(Future.succeededFuture(new JsonObject().put("outer", new JsonObject().put("socks", "tartan")).put("list", new JsonArray().add("yellow").add("blue"))));
+  public Future<JsonObject> methodWithHandlerAsyncResultComplexJsonObject() {
+    return Future.succeededFuture(new JsonObject().put("outer", new JsonObject().put("socks", "tartan")).put("list", new JsonArray().add("yellow").add("blue")));
   }
 
   @Override
-  public void methodWithHandlerAsyncResultJsonArray(Handler<AsyncResult<JsonArray>> handler) {
-    assertNotNull(handler);
-    handler.handle(Future.succeededFuture(new JsonArray().add("socks").add("shoes")));
+  public Future<JsonArray> methodWithHandlerAsyncResultJsonArray() {
+    return Future.succeededFuture(new JsonArray().add("socks").add("shoes"));
   }
 
   @Override
-  public void methodWithHandlerAsyncResultNullJsonArray(Handler<AsyncResult<JsonArray>> handler) {
-    assertNotNull(handler);
-    handler.handle(Future.succeededFuture(null));
+  public Future<JsonArray> methodWithHandlerAsyncResultNullJsonArray() {
+    return Future.succeededFuture(null);
   }
 
   @Override
-  public void methodWithHandlerAsyncResultComplexJsonArray(Handler<AsyncResult<JsonArray>> handler) {
-    assertNotNull(handler);
-    handler.handle(Future.succeededFuture(new JsonArray().add(new JsonObject().put("foo", "hello")).add(new JsonObject().put("bar", "bye"))));
+  public Future<JsonArray> methodWithHandlerAsyncResultComplexJsonArray() {
+    return Future.succeededFuture(new JsonArray().add(new JsonObject().put("foo", "hello")).add(new JsonObject().put("bar", "bye")));
   }
 
   @Override

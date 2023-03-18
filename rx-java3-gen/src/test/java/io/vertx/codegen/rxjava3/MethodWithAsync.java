@@ -4,6 +4,7 @@ import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.Nullable;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 
@@ -16,17 +17,17 @@ import java.util.function.Consumer;
 public interface MethodWithAsync {
 
   @GenIgnore(GenIgnore.PERMITTED_TYPE)
-  static void singleMethod(Consumer<Handler<AsyncResult<String>>> control, Handler<AsyncResult<String>> handler) {
-    control.accept(handler);
+  static Future<String> singleMethod(Consumer<Handler<AsyncResult<String>>> control) {
+    return Future.future(control::accept);
   }
 
   @GenIgnore(GenIgnore.PERMITTED_TYPE)
-  static void completableMethod(Consumer<Handler<AsyncResult<Void>>> control, Handler<AsyncResult<Void>> handler) {
-    control.accept(handler);
+  static Future<Void> completableMethod(Consumer<Handler<AsyncResult<Void>>> control) {
+    return Future.future(control::accept);
   }
 
   @GenIgnore(GenIgnore.PERMITTED_TYPE)
-  static void maybeMethod(Consumer<Handler<AsyncResult<String>>> control, Handler<AsyncResult<@Nullable  String>> handler) {
-    control.accept(handler);
+  static Future<@Nullable String> maybeMethod(Consumer<Handler<AsyncResult<String>>> control) {
+    return Future.future(control::accept);
   }
 }

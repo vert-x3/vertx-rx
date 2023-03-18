@@ -1,7 +1,7 @@
 package io.vertx.codegen.testmodel;
 
 import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -55,24 +55,24 @@ public interface GenericsTCK {
   void methodWithHandlerSetOfObjectsParameterized(Handler<GenericRefedInterface<Set<Object>>> handler);
   void methodWithHandlerMapOfObjectsParameterized(Handler<GenericRefedInterface<Map<String, Object>>> handler);
 
-  void methodWithHandlerAsyncResultByteParameterized(Handler<AsyncResult<GenericRefedInterface<Byte>>> handler);
-  void methodWithHandlerAsyncResultShortParameterized(Handler<AsyncResult<GenericRefedInterface<Short>>> handler);
-  void methodWithHandlerAsyncResultIntegerParameterized(Handler<AsyncResult<GenericRefedInterface<Integer>>> handler);
-  void methodWithHandlerAsyncResultLongParameterized(Handler<AsyncResult<GenericRefedInterface<Long>>> handler);
-  void methodWithHandlerAsyncResultFloatParameterized(Handler<AsyncResult<GenericRefedInterface<Float>>> handler);
-  void methodWithHandlerAsyncResultDoubleParameterized(Handler<AsyncResult<GenericRefedInterface<Double>>> handler);
-  void methodWithHandlerAsyncResultBooleanParameterized(Handler<AsyncResult<GenericRefedInterface<Boolean>>> handler);
-  void methodWithHandlerAsyncResultCharacterParameterized(Handler<AsyncResult<GenericRefedInterface<Character>>> handler);
-  void methodWithHandlerAsyncResultStringParameterized(Handler<AsyncResult<GenericRefedInterface<String>>> handler);
-  void methodWithHandlerAsyncResultJsonObjectParameterized(Handler<AsyncResult<GenericRefedInterface<JsonObject>>> handler);
-  void methodWithHandlerAsyncResultJsonArrayParameterized(Handler<AsyncResult<GenericRefedInterface<JsonArray>>> handler);
-  void methodWithHandlerAsyncResultDataObjectParameterized(Handler<AsyncResult<GenericRefedInterface<TestDataObject>>> handler);
-  void methodWithHandlerAsyncResultEnumParameterized(Handler<AsyncResult<GenericRefedInterface<TestEnum>>> handler);
-  void methodWithHandlerAsyncResultGenEnumParameterized(Handler<AsyncResult<GenericRefedInterface<TestGenEnum>>> handler);
-  void methodWithHandlerAsyncResultUserTypeParameterized(Handler<AsyncResult<GenericRefedInterface<RefedInterface1>>> handler);
-  void methodWithHandlerAsyncResultListOfObjectsParameterized(Handler<AsyncResult<GenericRefedInterface<List<Object>>>> handler);
-  void methodWithHandlerAsyncResultSetOfObjectsParameterized(Handler<AsyncResult<GenericRefedInterface<Set<Object>>>> handler);
-  void methodWithHandlerAsyncResultMapOfObjectsParameterized(Handler<AsyncResult<GenericRefedInterface<Map<String, Object>>>> handler);
+  Future<GenericRefedInterface<Byte>> methodWithHandlerAsyncResultByteParameterized();
+  Future<GenericRefedInterface<Short>> methodWithHandlerAsyncResultShortParameterized();
+  Future<GenericRefedInterface<Integer>> methodWithHandlerAsyncResultIntegerParameterized();
+  Future<GenericRefedInterface<Long>> methodWithHandlerAsyncResultLongParameterized();
+  Future<GenericRefedInterface<Float>> methodWithHandlerAsyncResultFloatParameterized();
+  Future<GenericRefedInterface<Double>> methodWithHandlerAsyncResultDoubleParameterized();
+  Future<GenericRefedInterface<Boolean>> methodWithHandlerAsyncResultBooleanParameterized();
+  Future<GenericRefedInterface<Character>> methodWithHandlerAsyncResultCharacterParameterized();
+  Future<GenericRefedInterface<String>> methodWithHandlerAsyncResultStringParameterized();
+  Future<GenericRefedInterface<JsonObject>> methodWithHandlerAsyncResultJsonObjectParameterized();
+  Future<GenericRefedInterface<JsonArray>> methodWithHandlerAsyncResultJsonArrayParameterized();
+  Future<GenericRefedInterface<TestDataObject>> methodWithHandlerAsyncResultDataObjectParameterized();
+  Future<GenericRefedInterface<TestEnum>> methodWithHandlerAsyncResultEnumParameterized();
+  Future<GenericRefedInterface<TestGenEnum>> methodWithHandlerAsyncResultGenEnumParameterized();
+  Future<GenericRefedInterface<RefedInterface1>> methodWithHandlerAsyncResultUserTypeParameterized();
+  Future<GenericRefedInterface<List<Object>>> methodWithHandlerAsyncResultListOfObjectsParameterized();
+  Future<GenericRefedInterface<Set<Object>>> methodWithHandlerAsyncResultSetOfObjectsParameterized();
+  Future<GenericRefedInterface<Map<String, Object>>> methodWithHandlerAsyncResultMapOfObjectsParameterized();
 
   void methodWithFunctionParamByteParameterized(Function<GenericRefedInterface<Byte>, String> handler);
   void methodWithFunctionParamShortParameterized(Function<GenericRefedInterface<Short>, String> handler);
@@ -95,13 +95,13 @@ public interface GenericsTCK {
 
   <U> GenericRefedInterface<U> methodWithClassTypeParameterizedReturn(Class<U> type);
   <U> void methodWithHandlerClassTypeParameterized(Class<U> type, Handler<GenericRefedInterface<U>> handler);
-  <U> void methodWithHandlerAsyncResultClassTypeParameterized(Class<U> type, Handler<AsyncResult<GenericRefedInterface<U>>> handler);
+  <U> Future<GenericRefedInterface<U>> methodWithHandlerAsyncResultClassTypeParameterized(Class<U> type);
   <U> void methodWithFunctionParamClassTypeParameterized(Class<U> type, Function<GenericRefedInterface<U>, String> handler);
 
   <U> void methodWithClassTypeParam(Class<U> type, U u);
   <U> U methodWithClassTypeReturn(Class<U> type);
   <U> void methodWithClassTypeHandler(Class<U> type, Handler<U> f);
-  <U> void methodWithClassTypeHandlerAsyncResult(Class<U> type, Handler<AsyncResult<U>> f);
+  <U> Future<U> methodWithClassTypeHandlerAsyncResult(Class<U> type);
   <U> void methodWithClassTypeFunctionParam(Class<U> type, Function<U, String> f);
   <U> void methodWithClassTypeFunctionReturn(Class<U> type, Function<String, U> f);
 
@@ -112,11 +112,11 @@ public interface GenericsTCK {
   // Test GenericNullableRefedInterface can return a null value
   // todo : add other types ?
   void methodWithHandlerGenericNullableApi(boolean notNull, Handler<GenericNullableRefedInterface<RefedInterface1>> handler);
-  void methodWithHandlerAsyncResultGenericNullableApi(boolean notNull, Handler<AsyncResult<GenericNullableRefedInterface<RefedInterface1>>> handler);
+  Future<GenericNullableRefedInterface<RefedInterface1>> methodWithHandlerAsyncResultGenericNullableApi(boolean notNull);
   GenericNullableRefedInterface<RefedInterface1> methodWithGenericNullableApiReturn(boolean notNull);
 
   <T> GenericRefedInterface<T> methodWithParamInferedReturn(GenericRefedInterface<T> param);
   <T> void methodWithHandlerParamInfered(GenericRefedInterface<T> param, Handler<GenericRefedInterface<T>> handler);
-  <T> void methodWithHandlerAsyncResultParamInfered(GenericRefedInterface<T> param, Handler<AsyncResult<GenericRefedInterface<T>>> handler);
+  <T> Future<GenericRefedInterface<T>> methodWithHandlerAsyncResultParamInfered(GenericRefedInterface<T> param);
 
 }

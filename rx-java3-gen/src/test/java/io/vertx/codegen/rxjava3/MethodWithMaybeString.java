@@ -2,13 +2,12 @@ package io.vertx.codegen.rxjava3;
 
 import io.vertx.codegen.annotations.Nullable;
 import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
+import io.vertx.core.Future;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 @VertxGen
 public interface MethodWithMaybeString {
-  void doSomethingWithMaybeResult(Handler<AsyncResult<@Nullable String>> handler);
+  Future<@Nullable String> doSomethingWithMaybeResult();
 }
