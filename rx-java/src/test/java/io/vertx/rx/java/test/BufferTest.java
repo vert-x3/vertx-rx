@@ -20,7 +20,7 @@ import static junit.framework.TestCase.assertEquals;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class BufferTest {
+public class  BufferTest {
 
   @Test
   public void testBufferReduce() {
