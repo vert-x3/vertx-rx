@@ -559,8 +559,8 @@
               <goal>unpack-dependencies</goal>
             </goals>
             <configuration>
-              <includes>io/vertx/**/*.java,examples/**/*.java</includes>
-              <excludes>**/impl/**/*.java,io/vertx/groovy/**,io/vertx/reactivex/**,io/vertx/rxjava/**,examples/override/**</excludes>
+              <includes>io/vertx/**/*.java</includes>
+              <excludes>**/impl/**/*.java,io/vertx/groovy/**,io/vertx/reactivex/**,io/vertx/rxjava/**,examples/**</excludes>
               <outputDirectory>${project.build.directory}/sources/java</outputDirectory>
             </configuration>
           </execution>
