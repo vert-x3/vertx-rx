@@ -94,7 +94,9 @@ public class ObservableReadStream<T, U> extends Observable<U> {
       return;
     }
     Subscription sub = new Subscription(o);
+    stream.pause();
     sub.set();
     o.onSubscribe(sub);
+    stream.resume();
   }
 }
