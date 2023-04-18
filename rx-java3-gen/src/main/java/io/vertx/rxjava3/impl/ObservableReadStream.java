@@ -19,6 +19,8 @@ public class ObservableReadStream<T, U> extends Observable<U> {
   private final AtomicReference<Observer<? super U>> observer = new AtomicReference<>();
 
   public ObservableReadStream(ReadStream<T> stream, Function<T, U> f) {
+    stream.pause();
+
     this.stream = stream;
     this.f = f;
   }
@@ -94,7 +96,12 @@ public class ObservableReadStream<T, U> extends Observable<U> {
       return;
     }
     Subscription sub = new Subscription(o);
+
+    stream.pause();
+
     sub.set();
     o.onSubscribe(sub);
+
+    stream.resume();
   }
 }
