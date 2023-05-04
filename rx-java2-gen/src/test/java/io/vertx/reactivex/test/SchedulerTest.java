@@ -1,5 +1,6 @@
 package io.vertx.reactivex.test;
 
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.disposables.Disposable;
@@ -417,5 +418,17 @@ public class SchedulerTest extends VertxTestBase {
     }, 10, 10, MILLISECONDS));
     awaitLatch(latch);
     waitUntil(() -> worker.countActions() == 0);
+  }
+
+  @Test
+  public void testTimeoutDoesNotFireAfterSubscriptionIsDisposed() throws Exception {
+    CountDownLatch latch = new CountDownLatch(2);
+    Scheduler scheduler = RxHelper.scheduler(vertx);
+    Flowable.fromArray("tick")
+      .timeout(500, MILLISECONDS, scheduler)
+      .doOnError(t -> latch.countDown())
+      .firstOrError()
+      .subscribe(value -> latch.countDown());
+    assertFalse("doOnError should not have been invoked", latch.await(1, SECONDS));
   }
 }

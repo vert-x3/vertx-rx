@@ -15,6 +15,7 @@ import rx.plugins.RxJavaPlugins;
 import rx.plugins.RxJavaSchedulersHook;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -428,5 +429,17 @@ public class SchedulerTest extends VertxTestBase {
     }, 10, 10, MILLISECONDS));
     awaitLatch(latch);
     waitUntil(() -> worker.countActions() == 0);
+  }
+
+  @Test
+  public void testTimeoutDoesNotFireAfterSubscriptionIsDisposed() throws Exception {
+    CountDownLatch latch = new CountDownLatch(2);
+    Scheduler scheduler = RxHelper.scheduler(vertx);
+    Observable.from(Arrays.asList("tick"))
+      .timeout(500, MILLISECONDS, scheduler)
+      .doOnError(t -> latch.countDown())
+      .first()
+      .subscribe(value -> latch.countDown());
+    assertFalse("doOnError should not have been invoked", latch.await(1, SECONDS));
   }
 }

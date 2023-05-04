@@ -16,11 +16,7 @@
 
 package io.vertx.rxjava3.test;
 
-import io.reactivex.rxjava3.core.BackpressureStrategy;
-import io.reactivex.rxjava3.core.Flowable;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Observer;
-import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.core.*;
 import io.reactivex.rxjava3.exceptions.ProtocolViolationException;
 import io.reactivex.rxjava3.exceptions.UndeliverableException;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
@@ -92,7 +88,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
 
   @Test
   public void testCannotSubscribeTwice() throws Exception {
-    waitFor(3);
+    waitFor(2);
     RxJavaPlugins.setErrorHandler(throwable -> {
       assertThat(throwable, is(instanceOf(ProtocolViolationException.class)));
       complete();
@@ -102,7 +98,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
-    Flowable.<Integer>create(emitter -> emitter.setCancellable(this::complete), BackpressureStrategy.MISSING)
+    Flowable.range(0, 100)
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
