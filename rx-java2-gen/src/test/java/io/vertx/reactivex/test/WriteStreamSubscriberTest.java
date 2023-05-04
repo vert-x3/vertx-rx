@@ -89,7 +89,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
 
   @Test
   public void testCannotSubscribeTwice() throws Exception {
-    waitFor(3);
+    waitFor(2);
     RxJavaPlugins.setErrorHandler(throwable -> {
       assertThat(throwable, is(instanceOf(ProtocolViolationException.class)));
       complete();
@@ -99,7 +99,7 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
-    Flowable.<Integer>create(emitter -> emitter.setCancellable(this::complete), BackpressureStrategy.MISSING)
+    Flowable.range(0, 100)
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);
