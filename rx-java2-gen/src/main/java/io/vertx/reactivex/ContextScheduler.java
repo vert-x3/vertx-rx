@@ -17,9 +17,11 @@ package io.vertx.reactivex;
 
 import io.reactivex.Scheduler;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
+import io.vertx.core.WorkerExecutor;
 import io.vertx.core.impl.WorkerExecutorInternal;
 import io.vertx.core.json.JsonObject;
 
@@ -27,8 +29,6 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import io.vertx.core.WorkerExecutor;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -102,6 +102,9 @@ public class ContextScheduler extends Scheduler {
 
     @Override
     public Disposable schedule(Runnable action, long delayTime, TimeUnit unit) {
+      if (cancelled.get()) {
+        return Disposables.disposed();
+      }
       action = RxJavaPlugins.onSchedule(action);
       long delayMillis = unit.toMillis(delayTime);
       TimedAction timed = new TimedAction(action, 0);
@@ -112,6 +115,9 @@ public class ContextScheduler extends Scheduler {
 
     @Override
     public Disposable schedulePeriodically(Runnable action, long initialDelay, long period, TimeUnit unit) {
+      if (cancelled.get()) {
+        return Disposables.disposed();
+      }
       action = RxJavaPlugins.onSchedule(action);
       long delayMillis = unit.toMillis(initialDelay);
       TimedAction timed = new TimedAction(action, unit.toMillis(period));

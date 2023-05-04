@@ -1,5 +1,6 @@
 package io.vertx.rxjava3.test;
 
+import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -58,21 +59,21 @@ public class SchedulerTest extends VertxTestBase {
   }
 
   @Test
-  public void testScheduleImmediatly() throws Exception {
-    testScheduleImmediatly(() -> new ContextScheduler(vertx, false), this::assertEventLoopThread);
+  public void testScheduleImmediately() throws Exception {
+    testScheduleImmediately(() -> new ContextScheduler(vertx, false), this::assertEventLoopThread);
   }
 
   @Test
-  public void testScheduleImmediatlyBlocking() throws Exception {
-    testScheduleImmediatly(() -> new ContextScheduler(vertx, true), this::assertWorkerThread);
+  public void testScheduleImmediatelyBlocking() throws Exception {
+    testScheduleImmediately(() -> new ContextScheduler(vertx, true), this::assertWorkerThread);
   }
 
   @Test
-  public void testScheduleImmediatlyWorkerExecutor() throws Exception {
-    testScheduleImmediatly(() -> new ContextScheduler(workerExecutor), this::assertWorkerExecutorThread);
+  public void testScheduleImmediatelyWorkerExecutor() throws Exception {
+    testScheduleImmediately(() -> new ContextScheduler(workerExecutor), this::assertWorkerExecutorThread);
   }
 
-  private void testScheduleImmediatly(Supplier<ContextScheduler> scheduler, Consumer<Thread> threadAssert) throws Exception {
+  private void testScheduleImmediately(Supplier<ContextScheduler> scheduler, Consumer<Thread> threadAssert) throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
     ContextScheduler scheduler2 = scheduler.get();
     Scheduler.Worker worker = scheduler2.createWorker();
@@ -98,9 +99,9 @@ public class SchedulerTest extends VertxTestBase {
       }).observeOn(scheduler).doOnNext(o -> assertEquals(Vertx.currentContext(), testContext));
       new Thread(() -> {
         observable.subscribe(
-            item -> assertEquals("expected", item),
-            this::fail,
-            this::testComplete);
+          item -> assertEquals("expected", item),
+          this::fail,
+          this::testComplete);
       }).start();
     });
     await();
@@ -120,9 +121,9 @@ public class SchedulerTest extends VertxTestBase {
       }).delay(10, MILLISECONDS, scheduler).doOnNext(o -> assertEquals(Vertx.currentContext(), testContext));
       new Thread(() -> {
         observable.subscribe(
-            item -> assertEquals("expected", item),
-            this::fail,
-            this::testComplete);
+          item -> assertEquals("expected", item),
+          this::fail,
+          this::testComplete);
       }).start();
     });
     assertFalse(isOnVertxThread.get());
@@ -289,7 +290,7 @@ public class SchedulerTest extends VertxTestBase {
   }
 
   @Test
-  public void testWorkerUnsubscribeBlocking() throws Exception  {
+  public void testWorkerUnsubscribeBlocking() throws Exception {
     testWorkerUnsubscribe(() -> new ContextScheduler(vertx, true));
   }
 
@@ -417,5 +418,17 @@ public class SchedulerTest extends VertxTestBase {
     }, 10, 10, MILLISECONDS));
     awaitLatch(latch);
     waitUntil(() -> worker.countActions() == 0);
+  }
+
+  @Test
+  public void testTimeoutDoesNotFireAfterSubscriptionIsDisposed() throws Exception {
+    CountDownLatch latch = new CountDownLatch(2);
+    Scheduler scheduler = RxHelper.scheduler(vertx);
+    Flowable.fromArray("tick")
+      .timeout(500, MILLISECONDS, scheduler)
+      .doOnError(t -> latch.countDown())
+      .firstOrError()
+      .subscribe(value -> latch.countDown());
+    assertFalse("doOnError should not have been invoked", latch.await(1, SECONDS));
   }
 }

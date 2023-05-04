@@ -10,6 +10,7 @@ import rx.Subscription;
 import rx.functions.Action0;
 import rx.plugins.RxJavaPlugins;
 import rx.plugins.RxJavaSchedulersHook;
+import rx.subscriptions.Subscriptions;
 
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -90,6 +91,9 @@ public class ContextScheduler extends Scheduler {
 
     @Override
     public Subscription schedule(Action0 action, long delayTime, TimeUnit unit) {
+      if (cancelled.get()) {
+        return Subscriptions.unsubscribed();
+      }
       action = schedulersHook.onSchedule(action);
       long delayMillis = unit.toMillis(delayTime);
       TimedAction timed = new TimedAction(action, 0);
@@ -100,6 +104,9 @@ public class ContextScheduler extends Scheduler {
 
     @Override
     public Subscription schedulePeriodically(Action0 action, long initialDelay, long period, TimeUnit unit) {
+      if (cancelled.get()) {
+        return Subscriptions.unsubscribed();
+      }
       action = schedulersHook.onSchedule(action);
       long delayMillis = unit.toMillis(initialDelay);
       TimedAction timed = new TimedAction(action, unit.toMillis(period));
