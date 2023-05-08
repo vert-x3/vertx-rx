@@ -641,26 +641,24 @@ public class CoreApiTest extends VertxTestBase {
   }
 
   @Test
-  public void testWebsocketClient() {
+  public void testWebsocketClient() throws Exception {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
+    HttpClient client = vertx.createHttpClient(new HttpClientOptions());
     server.webSocketStream().handler(ws -> {
       ws.write(Buffer.buffer("some_content"));
       ws.close();
     });
-    server.listen().onComplete(ar -> {
-      HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-      client.webSocket(8080, "localhost", "/the_uri").onComplete(ar2 -> {
-        if (ar2.succeeded()) {
-          WebSocket ws = ar2.result();
-          Buffer content = Buffer.buffer();
-          Observable<Buffer> observable = ws.toObservable();
-          observable.forEach(content::appendBuffer, err -> fail(), () -> {
-            server.close();
-            assertEquals("some_content", content.toString("UTF-8"));
-            testComplete();
-          });
-        }
-      });
+    awaitFuture(server.listen());
+    vertx.getDelegate().runOnContext(v -> {
+      client.webSocket(8080, "localhost", "/the_uri").onComplete(onSuccess(ws -> {
+        Buffer content = Buffer.buffer();
+        Observable<Buffer> observable = ws.toObservable();
+        observable.forEach(content::appendBuffer, err -> fail(), () -> {
+          server.close();
+          assertEquals("some_content", content.toString("UTF-8"));
+          testComplete();
+        });
+      }));
     });
     await();
   }
