@@ -239,17 +239,6 @@ public class RxifiedExamples {
         });
   }
 
-  public void websocketServer(HttpServer server) {
-    Observable<ServerWebSocket> socketObservable = server.webSocketStream().toObservable();
-    socketObservable.subscribe(
-        socket -> System.out.println("Web socket connect"),
-        failure -> System.out.println("Should never be called"),
-        () -> {
-          System.out.println("Subscription ended or server closed");
-        }
-    );
-  }
-
   public void websocketServerBuffer(Flowable<ServerWebSocket> socketObservable) {
     socketObservable.subscribe(
         socket -> {
@@ -328,64 +317,14 @@ public class RxifiedExamples {
       );
   }
 
-  public void httpServerRequest(HttpServer server) {
-    Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
-    requestObservable.subscribe(request -> {
-      // Process request
-    });
+  public void httpServerRequestObservable(HttpServerRequest request) {
+    Observable<Buffer> observable = request.toObservable();
   }
 
-  public void httpServerRequestObservable(HttpServer server) {
-    Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
-    requestObservable.subscribe(request -> {
-      Observable<Buffer> observable = request.toObservable();
-    });
-  }
-
-  public void httpServerRequestObservableUnmarshall(HttpServer server) {
-    Observable<HttpServerRequest> requestObservable = server.requestStream().toObservable();
-    requestObservable.subscribe(request -> {
-      Observable<MyPojo> observable = request.
-        toObservable().
-        compose(io.vertx.reactivex.core.ObservableHelper.unmarshaller(MyPojo.class));
-    });
-  }
-
-  public void timer(Vertx vertx) {
-    vertx.timerStream(1000).
-        toObservable().
-        subscribe(
-            id -> {
-              System.out.println("Callback after 1 second");
-            }
-        );
-  }
-
-  public void periodic(Vertx vertx) {
-    vertx.periodicStream(1000).
-        toObservable().
-        subscribe(
-            id -> {
-              System.out.println("Callback every second");
-            }
-        );
-  }
-
-  public void periodicUnsubscribe(Vertx vertx) {
-    vertx.periodicStream(1000).
-        toObservable().
-        subscribe(new Observer<Long>() {
-          private Disposable sub;
-          public void onSubscribe(@NonNull Disposable d) {
-            sub = d;
-          }
-          public void onNext(Long aLong) {
-            // Callback
-            sub.dispose();
-          }
-          public void onError(Throwable e) {}
-          public void onComplete() {}
-        });
+  public void httpServerRequestObservableUnmarshall(HttpServerRequest request) {
+    Observable<MyPojo> observable = request.
+      toObservable().
+      compose(io.vertx.reactivex.core.ObservableHelper.unmarshaller(MyPojo.class));
   }
 
   public void writeStreamSubscriberAdapter(Flowable<io.vertx.core.buffer.Buffer> flowable, io.vertx.core.http.HttpServerResponse response) {

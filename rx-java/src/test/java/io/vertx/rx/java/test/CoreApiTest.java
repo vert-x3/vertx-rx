@@ -226,43 +226,29 @@ public class CoreApiTest extends VertxTestBase {
         error -> fail(error.getMessage())
     );
     NetServer server = vertx.createNetServer(new NetServerOptions().setPort(1234).setHost("localhost"));
-    Observable<NetSocket> socketObs = server.connectStream().toObservable();
-    socketObs.subscribe(new Subscriber<NetSocket>() {
-      @Override
-      public void onNext(NetSocket o) {
-        Observable<Buffer> dataObs = o.toObservable();
-        dataObs.subscribe(new Observer<Buffer>() {
+    server.connectHandler(o -> {
+      Observable<Buffer> dataObs = o.toObservable();
+      dataObs.subscribe(new Observer<Buffer>() {
 
-          LinkedList<Buffer> buffers = new LinkedList<>();
+        LinkedList<Buffer> buffers = new LinkedList<>();
 
-          @Override
-          public void onNext(Buffer buffer) {
-            buffers.add(buffer);
-          }
+        @Override
+        public void onNext(Buffer buffer) {
+          buffers.add(buffer);
+        }
 
-          @Override
-          public void onError(Throwable e) {
-            fail(e.getMessage());
-          }
+        @Override
+        public void onError(Throwable e) {
+          fail(e.getMessage());
+        }
 
-          @Override
-          public void onCompleted() {
-            assertEquals(1, buffers.size());
-            assertEquals("foo", buffers.get(0).toString("UTF-8"));
-            server.close();
-          }
-        });
-      }
-
-      @Override
-      public void onError(Throwable e) {
-        fail(e.getMessage());
-      }
-
-      @Override
-      public void onCompleted() {
-        testComplete();
-      }
+        @Override
+        public void onCompleted() {
+          assertEquals(1, buffers.size());
+          assertEquals("foo", buffers.get(0).toString("UTF-8"));
+          server.close();
+        }
+      });
     });
     server.listen().onComplete(onListen.toHandler());
     await();
@@ -283,43 +269,29 @@ public class CoreApiTest extends VertxTestBase {
         })
     );
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
-    Observable<ServerWebSocket> socketObs = server.webSocketStream().toObservable();
-    socketObs.subscribe(new Subscriber<ServerWebSocket>() {
-      @Override
-      public void onNext(ServerWebSocket o) {
-        Observable<Buffer> dataObs = o.toObservable();
-        dataObs.subscribe(new Observer<Buffer>() {
+    server.webSocketHandler(o -> {
+      Observable<Buffer> dataObs = o.toObservable();
+      dataObs.subscribe(new Observer<Buffer>() {
 
-          LinkedList<Buffer> buffers = new LinkedList<>();
+        LinkedList<Buffer> buffers = new LinkedList<>();
 
-          @Override
-          public void onNext(Buffer buffer) {
-            buffers.add(buffer);
-          }
+        @Override
+        public void onNext(Buffer buffer) {
+          buffers.add(buffer);
+        }
 
-          @Override
-          public void onError(Throwable e) {
-            fail(e.getMessage());
-          }
+        @Override
+        public void onError(Throwable e) {
+          fail(e.getMessage());
+        }
 
-          @Override
-          public void onCompleted() {
-            assertEquals(1, buffers.size());
-            assertEquals("foo", buffers.get(0).toString("UTF-8"));
-            server.close();
-          }
-        });
-      }
-
-      @Override
-      public void onError(Throwable e) {
-        fail(e.getMessage());
-      }
-
-      @Override
-      public void onCompleted() {
-        testComplete();
-      }
+        @Override
+        public void onCompleted() {
+          assertEquals(1, buffers.size());
+          assertEquals("foo", buffers.get(0).toString("UTF-8"));
+          server.close();
+        }
+      });
     });
     server.listen().onComplete(onListen.toHandler());
     await();
@@ -328,43 +300,29 @@ public class CoreApiTest extends VertxTestBase {
   @Test
   public void testObservableHttpRequest() {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
-    Observable<HttpServerRequest> socketObs = server.requestStream().toObservable();
-    socketObs.subscribe(new Subscriber<HttpServerRequest>() {
-      @Override
-      public void onNext(HttpServerRequest o) {
-        Observable<Buffer> dataObs = o.toObservable();
-        dataObs.subscribe(new Observer<Buffer>() {
+    server.requestHandler(o -> {
+      Observable<Buffer> dataObs = o.toObservable();
+      dataObs.subscribe(new Observer<Buffer>() {
 
-          LinkedList<Buffer> buffers = new LinkedList<>();
+        LinkedList<Buffer> buffers = new LinkedList<>();
 
-          @Override
-          public void onNext(Buffer buffer) {
-            buffers.add(buffer);
-          }
+        @Override
+        public void onNext(Buffer buffer) {
+          buffers.add(buffer);
+        }
 
-          @Override
-          public void onError(Throwable e) {
-            fail(e.getMessage());
-          }
+        @Override
+        public void onError(Throwable e) {
+          fail(e.getMessage());
+        }
 
-          @Override
-          public void onCompleted() {
-            assertEquals(1, buffers.size());
-            assertEquals("foo", buffers.get(0).toString("UTF-8"));
-            server.close();
-          }
-        });
-      }
-
-      @Override
-      public void onError(Throwable e) {
-        fail(e.getMessage());
-      }
-
-      @Override
-      public void onCompleted() {
-        testComplete();
-      }
+        @Override
+        public void onCompleted() {
+          assertEquals(1, buffers.size());
+          assertEquals("foo", buffers.get(0).toString("UTF-8"));
+          server.close();
+        }
+      });
     });
     Single<HttpServer> onListen = server.rxListen();
     onListen.subscribe(
@@ -378,21 +336,6 @@ public class CoreApiTest extends VertxTestBase {
         },
         error -> fail(error.getMessage())
     );
-    await();
-  }
-
-  @Test
-  public void testConcatOperator() {
-    Observable<Long> o1 = vertx.timerStream(100).toObservable();
-    Observable<Long> o2 = vertx.timerStream(100).toObservable();
-    Observable<Long> obs = Observable.concat(o1, o2);
-    AtomicInteger count = new AtomicInteger();
-    obs.subscribe(msg -> count.incrementAndGet(),
-        err -> fail(),
-        () -> {
-          assertEquals(2, count.get());
-          testComplete();
-        });
     await();
   }
 
@@ -543,7 +486,7 @@ public class CoreApiTest extends VertxTestBase {
   @Test
   public void testHttpClient() {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    server.requestStream().handler(req -> {
+    server.requestHandler(req -> {
       req.response().setChunked(true).end("some_content");
     });
     try {
@@ -570,7 +513,7 @@ public class CoreApiTest extends VertxTestBase {
   @Test
   public void testHttpClientFlatMap() {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    server.requestStream().handler(req -> {
+    server.requestHandler(req -> {
       req.response().setChunked(true).end("some_content");
     });
     server.listen().onComplete(ar -> {
@@ -593,7 +536,7 @@ public class CoreApiTest extends VertxTestBase {
   @Test
   public void testHttpClientFlatMapUnmarshallPojo() {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    server.requestStream().handler(req -> {
+    server.requestHandler(req -> {
       req.response().setChunked(true).end("{\"foo\":\"bar\"}");
     });
     server.listen().onComplete(ar -> {
@@ -644,7 +587,7 @@ public class CoreApiTest extends VertxTestBase {
   public void testWebsocketClient() throws Exception {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
     HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-    server.webSocketStream().handler(ws -> {
+    server.webSocketHandler(ws -> {
       ws.write(Buffer.buffer("some_content"));
       ws.close();
     });
@@ -666,7 +609,7 @@ public class CoreApiTest extends VertxTestBase {
   @Test
   public void testWebsocketClientFlatMap() {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    server.webSocketStream().handler(ws -> {
+    server.webSocketHandler(ws -> {
       ws.write(Buffer.buffer("some_content"));
       ws.close();
     });

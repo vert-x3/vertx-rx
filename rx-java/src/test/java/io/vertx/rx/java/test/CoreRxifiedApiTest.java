@@ -56,26 +56,4 @@ public class CoreRxifiedApiTest extends VertxTestBase {
     });
     await();
   }
-
-  @Test
-  public void testObservablePeriodic() throws Exception {
-    Vertx vertx = new Vertx(this.vertx);
-    Observable<Long> stream = vertx.periodicStream(1).toObservable();
-    stream.subscribe(new Subscriber<Long>() {
-      @Override
-      public void onNext(Long aLong) {
-        unsubscribe();
-        testComplete();
-      }
-      @Override
-      public void onCompleted() {
-        fail();
-      }
-      @Override
-      public void onError(Throwable e) {
-        fail(e.getMessage());
-      }
-    });
-    await();
-  }
 }

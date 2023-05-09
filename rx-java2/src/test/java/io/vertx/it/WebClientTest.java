@@ -32,7 +32,7 @@ public class WebClientTest extends VertxTestBase {
     int times = 5;
     waitFor(times);
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    server.requestStream().handler(req -> req.response().setChunked(true).end("some_content"));
+    server.requestHandler(req -> req.response().setChunked(true).end("some_content"));
     try {
       server.listen().onComplete(ar -> {
         client = WebClient.wrap(vertx.createHttpClient(new HttpClientOptions()));
@@ -59,7 +59,7 @@ public class WebClientTest extends VertxTestBase {
     int times = 5;
     waitFor(times);
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    server.requestStream().handler(req -> req.bodyHandler(buff -> {
+    server.requestHandler(req -> req.bodyHandler(buff -> {
       assertEquals("onetwothree", buff.toString());
       req.response().end();
     }));
@@ -85,7 +85,7 @@ public class WebClientTest extends VertxTestBase {
     int times = 5;
     waitFor(times);
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    server.requestStream().handler(req -> req.response().setStatusCode(403).end());
+    server.requestHandler(req -> req.response().setStatusCode(403).end());
     try {
       server.listen().onComplete(ar -> {
         client = WebClient.wrap(vertx.createHttpClient(new HttpClientOptions()));
@@ -110,7 +110,7 @@ public class WebClientTest extends VertxTestBase {
   public void testResponseBodyAsAsJsonMapped() throws Exception {
     JsonObject expected = new JsonObject().put("cheese", "Goat Cheese").put("wine", "Condrieu");
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    server.requestStream().handler(req -> req.response().end(expected.encode()));
+    server.requestHandler(req -> req.response().end(expected.encode()));
     try {
       server.listen().onComplete(ar -> {
         client = WebClient.wrap(vertx.createHttpClient(new HttpClientOptions()));
