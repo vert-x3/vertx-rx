@@ -360,29 +360,6 @@ RxJava map/reduce composition style can then be used:
 {@link examples.RxifiedExamples#eventBusMapReduce(io.vertx.rxjava3.core.Vertx)}
 ----
 
-=== Timers
-
-Timer task can be created with {@link io.vertx.rxjava3.core.Vertx#timerStream(long)}:
-
-[source,java]
-----
-{@link examples.RxifiedExamples#timer(io.vertx.rxjava3.core.Vertx)}
-----
-
-Periodic task can be created with {@link io.vertx.rxjava3.core.Vertx#periodicStream(long)}:
-
-[source,java]
-----
-{@link examples.RxifiedExamples#periodic(io.vertx.rxjava3.core.Vertx)}
-----
-
-The observable can be cancelled with an unsubscription:
-
-[source,java]
-----
-{@link examples.RxifiedExamples#periodicUnsubscribe(io.vertx.rxjava3.core.Vertx)}
-----
-
 === Http client requests
 
 You can easily use the http client to create a request and process the response:
@@ -403,27 +380,19 @@ You can also use the http://vertx.io/docs/vertx-web-client/java/#_rxjava_api[Ver
 
 === Http server requests
 
-The {@link io.vertx.rxjava3.core.http.HttpServer#requestStream()} provides a callback for each incoming
-request:
+A {@link io.vertx.core.http.HttpServerRequest} can be adapted to an `Observable<Buffer>`:
 
 [source,java]
 ----
-{@link examples.RxifiedExamples#httpServerRequest}
+{@link examples.RxifiedExamples#httpServerRequestObservable}
 ----
 
-The {@link io.vertx.core.http.HttpServerRequest} can then be adapted to an `Observable<Buffer>`:
-
-[source,java]
-----
-{@link examples.RxifiedExamples#httpServerRequestObservable(io.vertx.rxjava3.core.http.HttpServer)}
-----
-
-The {@link io.vertx.rxjava3.ObservableHelper#unmarshaller(Class)} can be used to parse and map
+{@link io.vertx.rxjava3.ObservableHelper#unmarshaller(Class)} can be used to parse and map
 a json request to an object:
 
 [source,java]
 ----
-{@link examples.RxifiedExamples#httpServerRequestObservableUnmarshall(io.vertx.rxjava3.core.http.HttpServer)}
+{@link examples.RxifiedExamples#httpServerRequestObservableUnmarshall}
 ----
 
 === WebSocket client
@@ -445,15 +414,7 @@ The {@link io.vertx.rxjava3.core.http.WebSocket} can then be turned into an `Obs
 
 === WebSocket server
 
-The {@link io.vertx.rxjava3.core.http.HttpServer#webSocketStream()} provides a callback for each incoming
-connection:
-
-[source,java]
-----
-{@link examples.RxifiedExamples#webSocketServer(io.vertx.rxjava3.core.http.HttpServer)}
-----
-
-The {@link io.vertx.core.http.ServerWebSocket} can be turned into an `Observable<Buffer>` easily:
+A {@link io.vertx.core.http.ServerWebSocket} can be turned into an `Observable<Buffer>` easily:
 
 [source,java]
 ----
