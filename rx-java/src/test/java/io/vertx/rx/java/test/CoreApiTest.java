@@ -247,6 +247,7 @@ public class CoreApiTest extends VertxTestBase {
           assertEquals(1, buffers.size());
           assertEquals("foo", buffers.get(0).toString("UTF-8"));
           server.close();
+          testComplete();
         }
       });
     });
@@ -290,6 +291,7 @@ public class CoreApiTest extends VertxTestBase {
           assertEquals(1, buffers.size());
           assertEquals("foo", buffers.get(0).toString("UTF-8"));
           server.close();
+          testComplete();
         }
       });
     });
@@ -321,6 +323,7 @@ public class CoreApiTest extends VertxTestBase {
           assertEquals(1, buffers.size());
           assertEquals("foo", buffers.get(0).toString("UTF-8"));
           server.close();
+          testComplete();
         }
       });
     });
