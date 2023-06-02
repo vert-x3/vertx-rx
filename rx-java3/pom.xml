@@ -150,11 +150,6 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-web-api-contract</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
       <artifactId>vertx-web-openapi</artifactId>
       <optional>true</optional>
     </dependency>
@@ -531,7 +526,6 @@
             vertx-web-common,
             vertx-web-client,
             vertx-web,
-            vertx-web-api-contract,
             vertx-web-openapi,
             vertx-web-templ-freemarker,
             vertx-web-templ-handlebars,
