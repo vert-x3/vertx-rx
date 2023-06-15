@@ -86,7 +86,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
 
     List<String> interfaces = new ArrayList<>();
     if ("io.vertx.core.buffer.Buffer".equals(type.getName())) {
-      interfaces.add("io.vertx.core.shareddata.impl.ClusterSerializable");
+      interfaces.add("io.vertx.core.shareddata.ClusterSerializable");
     }
     interfaces.addAll(model.getAbstractSuperTypes().stream().map(this::genTranslatedTypeName).collect(toList()));
     if (model.isHandler()) {
