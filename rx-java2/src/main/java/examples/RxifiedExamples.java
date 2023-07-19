@@ -131,7 +131,7 @@ public class RxifiedExamples {
 
   public void executeBlockingAdapter(io.vertx.core.Vertx vertx) {
     Maybe<String> maybe = MaybeHelper.toMaybe(handler -> {
-      vertx.<String>executeBlocking(fut -> fut.complete(invokeBlocking())).onComplete(handler);
+      vertx.executeBlocking(() -> invokeBlocking()).onComplete(handler);
     });
   }
 

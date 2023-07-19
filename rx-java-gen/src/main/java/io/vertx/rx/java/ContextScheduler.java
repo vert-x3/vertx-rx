@@ -151,16 +151,16 @@ public class ContextScheduler extends Scheduler {
 
       private void execute(Object arg) {
         if (workerExecutor != null) {
-          workerExecutor.executeBlocking(fut -> {
+          workerExecutor.executeBlocking(() -> {
             run(null);
-            fut.complete();
+            return null;
           }, ordered);
         } else {
           Context ctx = context != null ? context : vertx.getOrCreateContext();
           if (blocking) {
-            ctx.executeBlocking(fut -> {
+            ctx.executeBlocking(() -> {
               run(null);
-              fut.complete();
+              return null;
             }, ordered);
           } else {
             ctx.runOnContext(this::run);
