@@ -139,7 +139,7 @@
               <artifactItems>
                 <artifactItem>
                   <groupId>io.vertx</groupId>
-                  <artifactId>vertx-codegen</artifactId>
+                  <artifactId>vertx-codegen-processor</artifactId>
                   <classifier>tck-sources</classifier>
                 </artifactItem>
               </artifactItems>
