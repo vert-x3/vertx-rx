@@ -350,11 +350,6 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-shell</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
       <artifactId>vertx-micrometer-metrics</artifactId>
       <optional>true</optional>
     </dependency>
@@ -561,7 +556,6 @@
             vertx-sql-client-templates,
             vertx-rabbitmq-client,
             vertx-health-check,
-            vertx-shell,
             vertx-micrometer-metrics,
             vertx-tcp-eventbus-bridge,
             vertx-json-schema,
