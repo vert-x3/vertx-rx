@@ -269,6 +269,15 @@ class RxJava3Generator extends AbstractRxGenerator {
             functionType.isNullable(),
             Arrays.asList(argType, retType));
         }
+      } else if (type.getKind() == ClassKind.SUPPLIER) {
+        ParameterizedTypeInfo supplierType = (ParameterizedTypeInfo) type;
+        TypeInfo retType = rewriteParamType(supplierType.getArg(0));
+        if (retType != supplierType.getArg(0)) {
+          return new ParameterizedTypeInfo(
+            supplierType.getRaw(),
+            supplierType.isNullable(),
+            Arrays.asList(retType));
+        }
       }
     }
     return type;

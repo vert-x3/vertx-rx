@@ -102,6 +102,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       TypeInfo[] functionArgs = model.getFunctionArgs();
       interfaces.add("Function<" + genTranslatedTypeName(functionArgs[0]) + ", " + genTranslatedTypeName(functionArgs[1]) + ">");
     }
+    if (model.isSupplier()) {
+      TypeInfo supplierArg = model.getSupplierArg();
+      interfaces.add("Supplier<" + genTranslatedTypeName(supplierArg) + ">");
+    }
 
     if (!interfaces.isEmpty()) {
       writer.print(interfaces.stream().collect(joining(", ", model.isConcrete() ? " implements " : " extends ", "")));
@@ -160,6 +164,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       }
       if (model.isFunction()) {
         generateFunctionMethod(model, writer);
+      }
+      if (model.isSupplier()) {
+        generateSupplierMethod(model, writer);
       }
 
       generateClassBody(model, model.getIfaceSimpleName(), writer);
@@ -332,6 +339,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.println("  }");
       writer.println();
     }
+  }
+
+  private void generateSupplierMethod(ClassModel model, PrintWriter writer) {
+    throw new UnsupportedOperationException("Not implementet (yet)");
   }
 
   protected abstract void genReadStream(List<? extends TypeParamInfo> typeParams, PrintWriter writer);
@@ -554,6 +565,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       case STRING:
       case VOID:
       case FUNCTION:
+      case SUPPLIER:
         return true;
       default:
         return false;
@@ -680,6 +692,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println("import java.util.List;");
     writer.println("import java.util.Iterator;");
     writer.println("import java.util.function.Function;");
+    writer.println("import java.util.function.Supplier;");
     writer.println("import java.util.stream.Collectors;");
     writer.println("import io.vertx.core.Handler;");
     writer.println("import io.vertx.core.AsyncResult;");
@@ -731,6 +744,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         return isSameType(parameterizedTypeInfo.getArg(0), method);
       } else if (kind == FUNCTION) {
         return isSameType(parameterizedTypeInfo.getArg(0), method) && isSameType(parameterizedTypeInfo.getArg(1), method);
+      } else if (kind == SUPPLIER) {
+        return isSameType(parameterizedTypeInfo.getArg(0), method);
       }
     }
     return false;
@@ -779,6 +794,15 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         return "new Function<" + argName + "," + retName + ">() {\n" +
           "      public " + retName + " apply(" + argName + " arg) {\n" +
           "        " + genParamTypeDecl(retType) + " ret = " + expr + ".apply(" + genConvReturn(argType, method, "arg") + ");\n" +
+          "        return " + genConvParam(retType, method, "ret") + ";\n" +
+          "      }\n" +
+          "    }";
+      } else if (kind == SUPPLIER) {
+        TypeInfo retType = parameterizedTypeInfo.getArg(0);
+        String retName = genTypeName(retType);
+        return "new Supplier<" + retName + ">() {\n" +
+          "      public " + retName + " get() {\n" +
+          "        " + genParamTypeDecl(retType) + " ret = " + expr + ".get();\n" +
           "        return " + genConvParam(retType, method, "ret") + ";\n" +
           "      }\n" +
           "    }";

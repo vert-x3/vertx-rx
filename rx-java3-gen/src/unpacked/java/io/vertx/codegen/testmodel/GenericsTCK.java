@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -93,10 +94,30 @@ public interface GenericsTCK {
   void methodWithFunctionParamSetOfObjectsParameterized(Function<GenericRefedInterface<Set<Object>>, String> handler);
   void methodWithFunctionParamMapOfObjectsParameterized(Function<GenericRefedInterface<Map<String, Object>>, String> handler);
 
+  void methodWithSupplierParamByteParameterized(Supplier<GenericRefedInterface<Byte>> handler);
+  void methodWithSupplierParamShortParameterized(Supplier<GenericRefedInterface<Short>> handler);
+  void methodWithSupplierParamIntegerParameterized(Supplier<GenericRefedInterface<Integer>> handler);
+  void methodWithSupplierParamLongParameterized(Supplier<GenericRefedInterface<Long>> handler);
+  void methodWithSupplierParamFloatParameterized(Supplier<GenericRefedInterface<Float>> handler);
+  void methodWithSupplierParamDoubleParameterized(Supplier<GenericRefedInterface<Double>> handler);
+  void methodWithSupplierParamBooleanParameterized(Supplier<GenericRefedInterface<Boolean>> handler);
+  void methodWithSupplierParamCharacterParameterized(Supplier<GenericRefedInterface<Character>> handler);
+  void methodWithSupplierParamStringParameterized(Supplier<GenericRefedInterface<String>> handler);
+  void methodWithSupplierParamJsonObjectParameterized(Supplier<GenericRefedInterface<JsonObject>> handler);
+  void methodWithSupplierParamJsonArrayParameterized(Supplier<GenericRefedInterface<JsonArray>> handler);
+  void methodWithSupplierParamDataObjectParameterized(Supplier<GenericRefedInterface<TestDataObject>> handler);
+  void methodWithSupplierParamEnumParameterized(Supplier<GenericRefedInterface<TestEnum>> handler);
+  void methodWithSupplierParamGenEnumParameterized(Supplier<GenericRefedInterface<TestGenEnum>> handler);
+  void methodWithSupplierParamUserTypeParameterized(Supplier<GenericRefedInterface<RefedInterface1>> handler);
+  void methodWithSupplierParamListOfObjectsParameterized(Supplier<GenericRefedInterface<List<Object>>> handler);
+  void methodWithSupplierParamSetOfObjectsParameterized(Supplier<GenericRefedInterface<Set<Object>>> handler);
+  void methodWithSupplierParamMapOfObjectsParameterized(Supplier<GenericRefedInterface<Map<String, Object>>> handler);
+
   <U> GenericRefedInterface<U> methodWithClassTypeParameterizedReturn(Class<U> type);
   <U> void methodWithHandlerClassTypeParameterized(Class<U> type, Handler<GenericRefedInterface<U>> handler);
   <U> Future<GenericRefedInterface<U>> methodWithHandlerAsyncResultClassTypeParameterized(Class<U> type);
   <U> void methodWithFunctionParamClassTypeParameterized(Class<U> type, Function<GenericRefedInterface<U>, String> handler);
+  <U> void methodWithSupplierParamClassTypeParameterized(Class<U> type, Supplier<GenericRefedInterface<U>> handler);
 
   <U> void methodWithClassTypeParam(Class<U> type, U u);
   <U> U methodWithClassTypeReturn(Class<U> type);
@@ -104,6 +125,7 @@ public interface GenericsTCK {
   <U> Future<U> methodWithClassTypeHandlerAsyncResult(Class<U> type);
   <U> void methodWithClassTypeFunctionParam(Class<U> type, Function<U, String> f);
   <U> void methodWithClassTypeFunctionReturn(Class<U> type, Function<String, U> f);
+  <U> void methodWithClassTypeSupplierReturn(Class<U> type, Supplier<U> f);
 
   InterfaceWithApiArg interfaceWithApiArg(RefedInterface1 value);
   InterfaceWithStringArg interfaceWithStringArg(String value);

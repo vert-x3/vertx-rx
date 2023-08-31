@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -380,6 +381,78 @@ public class GenericsTCKImpl implements GenericsTCK {
   }
 
   @Override
+  public void methodWithSupplierParamByteParameterized(Supplier<GenericRefedInterface<Byte>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamShortParameterized(Supplier<GenericRefedInterface<Short>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamIntegerParameterized(Supplier<GenericRefedInterface<Integer>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamLongParameterized(Supplier<GenericRefedInterface<Long>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamFloatParameterized(Supplier<GenericRefedInterface<Float>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamDoubleParameterized(Supplier<GenericRefedInterface<Double>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamBooleanParameterized(Supplier<GenericRefedInterface<Boolean>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamCharacterParameterized(Supplier<GenericRefedInterface<Character>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamStringParameterized(Supplier<GenericRefedInterface<String>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamJsonObjectParameterized(Supplier<GenericRefedInterface<JsonObject>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamJsonArrayParameterized(Supplier<GenericRefedInterface<JsonArray>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamDataObjectParameterized(Supplier<GenericRefedInterface<TestDataObject>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamEnumParameterized(Supplier<GenericRefedInterface<TestEnum>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamGenEnumParameterized(Supplier<GenericRefedInterface<TestGenEnum>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamUserTypeParameterized(Supplier<GenericRefedInterface<RefedInterface1>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamListOfObjectsParameterized(Supplier<GenericRefedInterface<List<Object>>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamSetOfObjectsParameterized(Supplier<GenericRefedInterface<Set<Object>>> handler) {
+  }
+
+  @Override
+  public void methodWithSupplierParamMapOfObjectsParameterized(Supplier<GenericRefedInterface<Map<String, Object>>> handler) {
+  }
+
+  @Override
   public <U> GenericRefedInterface<U> methodWithClassTypeParameterizedReturn(Class<U> type) {
     if (type == Byte.class) {
       return (GenericRefedInterface<U>) methodWithByteParameterizedReturn();
@@ -463,6 +536,11 @@ public class GenericsTCKImpl implements GenericsTCK {
   }
 
   @Override
+  public <U> void methodWithClassTypeSupplierReturn(Class<U> type, Supplier<U> f) {
+    methodWithClassTypeParam(type, f.get());
+  }
+
+  @Override
   public <U> void methodWithHandlerClassTypeParameterized(Class<U> type, Handler<GenericRefedInterface<U>> handler) {
     handler.handle(methodWithClassTypeParameterizedReturn(type));
   }
@@ -475,6 +553,10 @@ public class GenericsTCKImpl implements GenericsTCK {
   @Override
   public <U> void methodWithFunctionParamClassTypeParameterized(Class<U> type, Function<GenericRefedInterface<U>, String> function) {
     function.apply(methodWithClassTypeParameterizedReturn(type));
+  }
+
+  @Override
+  public <U> void methodWithSupplierParamClassTypeParameterized(Class<U> type, Supplier<GenericRefedInterface<U>> handler) {
   }
 
   private <U> GenericRefedInterface<U> methodWithClassTypeParameterizedReturn(U val) {
