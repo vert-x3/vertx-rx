@@ -4,6 +4,7 @@ import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.WebSocketClientOptions;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServerOptions;
 import io.vertx.lang.rx.test.SimplePojo;
@@ -18,6 +19,7 @@ import io.vertx.rxjava.core.eventbus.Message;
 import io.vertx.rxjava.core.eventbus.MessageConsumer;
 import io.vertx.rxjava.core.file.AsyncFile;
 import io.vertx.rxjava.core.http.HttpClient;
+import io.vertx.rxjava.core.http.WebSocketClient;
 import io.vertx.rxjava.core.http.HttpClientRequest;
 import io.vertx.rxjava.core.http.HttpClientResponse;
 import io.vertx.rxjava.core.http.HttpServer;
@@ -259,7 +261,7 @@ public class CoreApiTest extends VertxTestBase {
   public void testObservableWebSocket() {
     ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
     onListen.subscribe(
-        server -> vertx.createHttpClient(new HttpClientOptions()).webSocket(8080, "localhost", "/some/path").onComplete(ar -> {
+        server -> vertx.createWebSocketClient(new WebSocketClientOptions()).connect(8080, "localhost", "/some/path").onComplete(ar -> {
           if (ar.succeeded()) {
             WebSocket ws = ar.result();
             ws.write(Buffer.buffer("foo"));
@@ -589,14 +591,14 @@ public class CoreApiTest extends VertxTestBase {
   @Test
   public void testWebsocketClient() throws Exception {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    HttpClient client = vertx.createHttpClient(new HttpClientOptions());
+    WebSocketClient client = vertx.createWebSocketClient(new WebSocketClientOptions());
     server.webSocketHandler(ws -> {
       ws.write(Buffer.buffer("some_content"));
       ws.close();
     });
     awaitFuture(server.listen());
     vertx.getDelegate().runOnContext(v -> {
-      client.webSocket(8080, "localhost", "/the_uri").onComplete(onSuccess(ws -> {
+      client.connect(8080, "localhost", "/the_uri").onComplete(onSuccess(ws -> {
         Buffer content = Buffer.buffer();
         Observable<Buffer> observable = ws.toObservable();
         observable.forEach(content::appendBuffer, err -> fail(), () -> {
@@ -617,10 +619,10 @@ public class CoreApiTest extends VertxTestBase {
       ws.close();
     });
     server.listen().onComplete(ar -> {
-      HttpClient client = vertx.createHttpClient(new HttpClientOptions());
+      WebSocketClient client = vertx.createWebSocketClient(new WebSocketClientOptions());
       Buffer content = Buffer.buffer();
       client.
-          rxWebSocket(8080, "localhost", "/the_uri").
+          rxConnect(8080, "localhost", "/the_uri").
           flatMapObservable(WebSocket::toObservable).
           forEach(content::appendBuffer, err -> fail(), () -> {
             server.close();

@@ -12,6 +12,7 @@ import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.core.file.AsyncFile;
 import io.vertx.reactivex.core.http.HttpClient;
 import io.vertx.reactivex.core.http.WebSocket;
+import io.vertx.reactivex.core.http.WebSocketClient;
 import io.vertx.reactivex.core.parsetools.RecordParser;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
@@ -63,9 +64,9 @@ public class CoreApiTest extends VertxTestBase {
           complete();
         }, this::fail);
     }).rxListen(8080, "localhost").blockingGet();
-    HttpClient client = vertx.createHttpClient();
+    WebSocketClient client = vertx.createWebSocketClient();
     AtomicLong clientReceived = new AtomicLong();
-    client.rxWebSocket(8080, "localhost", "/")
+    client.rxConnect(8080, "localhost", "/")
       .doAfterSuccess(ws -> {
         ws.writeTextMessage("ping");
       })

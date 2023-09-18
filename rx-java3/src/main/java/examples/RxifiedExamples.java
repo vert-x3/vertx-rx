@@ -17,6 +17,7 @@ import io.vertx.core.Verticle;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.WebSocketClientOptions;
 import io.vertx.core.impl.NoStackTraceThrowable;
 import io.vertx.docgen.Source;
 import io.vertx.rxjava3.MaybeHelper;
@@ -291,8 +292,8 @@ public class RxifiedExamples {
   }
 
   public void webSocketClient(Vertx vertx) {
-    HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-    client.rxWebSocket(8080, "localhost", "/the_uri").subscribe(
+    WebSocketClient client = vertx.createWebSocketClient(new WebSocketClientOptions());
+    client.rxConnect(8080, "localhost", "/the_uri").subscribe(
         ws -> {
           // Use the websocket
         },
