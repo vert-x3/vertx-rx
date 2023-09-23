@@ -14,8 +14,6 @@ package io.vertx.reactivex.sqlclient;
 import io.reactivex.Maybe;
 import io.reactivex.functions.Function;
 import io.vertx.pgclient.PgConnectOptions;
-import io.vertx.reactivex.pgclient.PgPool;
-import io.vertx.sqlclient.PoolOptions;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -37,7 +35,7 @@ public class SqlClientTest extends VertxTestBase {
   @ClassRule
   public static final PostgreSQLContainer<?> container = new PostgreSQLContainer<>(DockerImageName.parse("postgres:10.10"));
 
-  protected PgPool pool;
+  protected Pool pool;
 
   @Override
   public void setUp() throws Exception {
@@ -48,7 +46,7 @@ public class SqlClientTest extends VertxTestBase {
     connectOptions.setDatabase(container.getDatabaseName());
     connectOptions.setUser(container.getUsername());
     connectOptions.setPassword(container.getPassword());
-    pool = PgPool.newInstance(io.vertx.pgclient.PgPool.pool(connectOptions, new PoolOptions()));
+    pool = Pool.newInstance(io.vertx.pgclient.PgBuilder.pool(builder -> builder.connectingTo(connectOptions)));
     pool
       .query("drop table if exists folks")
       .rxExecute()

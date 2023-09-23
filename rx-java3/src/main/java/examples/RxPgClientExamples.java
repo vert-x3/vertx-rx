@@ -5,7 +5,6 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
-import io.vertx.rxjava3.pgclient.*;
 import io.vertx.rxjava3.sqlclient.*;
 import io.vertx.docgen.Source;
 import org.reactivestreams.Subscriber;
@@ -16,7 +15,7 @@ import java.util.function.Function;
 @Source
 public class RxPgClientExamples {
 
-  public void simpleQuery01Example(PgPool pool) {
+  public void simpleQuery01Example(Pool pool) {
 
     // A simple query
     Single<RowSet<Row>> single = pool.query("SELECT * FROM users WHERE id='julien'").rxExecute();
@@ -29,7 +28,7 @@ public class RxPgClientExamples {
     });
   }
 
-  public void streamingQuery01Example(PgPool pool) {
+  public void streamingQuery01Example(Pool pool) {
 
     // Create an Observable
     Observable<Row> observable = pool.rxGetConnection().flatMapObservable(conn -> conn
@@ -54,7 +53,7 @@ public class RxPgClientExamples {
     });
   }
 
-  public void streamingQuery02Example(PgPool pool) {
+  public void streamingQuery02Example(Pool pool) {
 
     // Create an Observable
     Flowable<Row> flowable = pool.rxGetConnection().flatMapPublisher(conn -> conn
@@ -98,7 +97,7 @@ public class RxPgClientExamples {
     });
   }
 
-  public void connection01Example(PgPool pool) {
+  public void connection01Example(Pool pool) {
 
     Maybe<RowSet<Row>> maybe = pool.withConnection(conn ->
       conn
@@ -116,7 +115,7 @@ public class RxPgClientExamples {
     });
   }
 
-  public void transaction01Example(PgPool pool) {
+  public void transaction01Example(Pool pool) {
 
     Completable completable = pool.withTransaction(conn ->
       conn
