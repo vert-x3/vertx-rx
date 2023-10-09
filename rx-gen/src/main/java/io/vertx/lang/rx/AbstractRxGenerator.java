@@ -676,7 +676,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       writer.println("/**");
       Token.toHtml(doc.getTokens(), " *", this::renderLinkToHtml, "\n", writer);
       writer.println(" *");
-      writer.println(" * <p/>");
+      writer.println(" * <p>");
       writer.print(" * NOTE: This class has been automatically generated from the {@link ");
       writer.print(type.getName());
       writer.println(" original} non RX-ified interface using Vert.x codegen.");
