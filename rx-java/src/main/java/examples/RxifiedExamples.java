@@ -12,7 +12,7 @@ import io.vertx.rx.java.WriteStreamSubscriber;
 import io.vertx.rxjava.core.RxHelper;
 import io.vertx.rxjava.core.Vertx;
 import io.vertx.rxjava.core.WorkerExecutor;
-import io.vertx.rxjava.core.buffer.Buffer;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.rxjava.core.eventbus.EventBus;
 import io.vertx.rxjava.core.eventbus.Message;
 import io.vertx.rxjava.core.eventbus.MessageConsumer;

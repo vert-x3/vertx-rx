@@ -85,9 +85,6 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     }
 
     List<String> interfaces = new ArrayList<>();
-    if ("io.vertx.core.buffer.Buffer".equals(type.getName())) {
-      interfaces.add("io.vertx.core.shareddata.ClusterSerializable");
-    }
     interfaces.addAll(model.getAbstractSuperTypes().stream().map(this::genTranslatedTypeName).collect(toList()));
     if (model.isHandler()) {
       interfaces.add("Handler<" + genTranslatedTypeName(model.getHandlerArg()) + ">");
@@ -115,19 +112,6 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println();
 
     if (model.isConcrete()) {
-      if ("io.vertx.core.buffer.Buffer".equals(type.getName())) {
-        writer.println("  @Override");
-        writer.println("  public void writeToBuffer(io.vertx.core.buffer.Buffer buffer) {");
-        writer.println("    delegate.writeToBuffer(buffer);");
-        writer.println("  }");
-        writer.println();
-        writer.println("  @Override");
-        writer.println("  public int readFromBuffer(int pos, io.vertx.core.buffer.Buffer buffer) {");
-        writer.println("    return delegate.readFromBuffer(pos, buffer);");
-        writer.println("  }");
-        writer.println();
-      }
-
       List<MethodInfo> methods = model.getMethods();
       if (methods.stream().noneMatch(it -> it.getParams().isEmpty() && "toString".equals(it.getName()))) {
         writer.println("  @Override");

@@ -6,7 +6,7 @@ import io.vertx.core.json.JsonObject;
 /**
  * @author <a href="mailto:oreilldf@gmail.com">Dan O'Reilly</a>
  */
-@DataObject(generateConverter = true)
+@DataObject
 public class DataObjectWithOnlyJsonObjectConstructor {
   private String foo;
 

@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-@DataObject(generateConverter = true)
+@DataObject
 public class DataObjectWithBuffer {
 
   private Buffer buffer;

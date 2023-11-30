@@ -68,13 +68,13 @@ public class  BufferTest {
 
   @Test
   public void testClusterSerializable() throws Exception {
-    io.vertx.rxjava.core.buffer.Buffer buff = io.vertx.rxjava.core.buffer.Buffer.buffer("hello-world");
+    io.vertx.core.buffer.Buffer buff = io.vertx.core.buffer.Buffer.buffer("hello-world");
     Buffer actual = Buffer.buffer();
     buff.writeToBuffer(actual);
     Buffer expected = Buffer.buffer();
     Buffer.buffer("hello-world").writeToBuffer(expected);
     assertEquals(expected, actual);
-    buff = io.vertx.rxjava.core.buffer.Buffer.buffer("hello-world");
+    buff = io.vertx.core.buffer.Buffer.buffer("hello-world");
     assertEquals(expected.length(), buff.readFromBuffer(0, expected));
     assertEquals("hello-world", buff.toString());
   }

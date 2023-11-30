@@ -18,7 +18,7 @@ import io.vertx.reactivex.core.ObservableHelper;
 import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.WorkerExecutor;
-import io.vertx.reactivex.core.buffer.Buffer;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.reactivex.core.dns.DnsClient;
 import io.vertx.reactivex.core.eventbus.EventBus;
 import io.vertx.reactivex.core.eventbus.Message;
