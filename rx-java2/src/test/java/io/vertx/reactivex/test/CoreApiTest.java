@@ -8,7 +8,7 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.reactivex.core.AbstractVerticle;
 import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
-import io.vertx.reactivex.core.buffer.Buffer;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.reactivex.core.file.AsyncFile;
 import io.vertx.reactivex.core.http.HttpClient;
 import io.vertx.reactivex.core.http.WebSocket;

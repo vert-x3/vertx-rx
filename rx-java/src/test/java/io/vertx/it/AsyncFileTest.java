@@ -18,7 +18,7 @@ package io.vertx.it;
 
 import io.vertx.core.file.OpenOptions;
 import io.vertx.rxjava.core.Vertx;
-import io.vertx.rxjava.core.buffer.Buffer;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.rxjava.core.file.AsyncFile;
 import io.vertx.test.core.Repeat;
 import io.vertx.test.core.TestUtils;

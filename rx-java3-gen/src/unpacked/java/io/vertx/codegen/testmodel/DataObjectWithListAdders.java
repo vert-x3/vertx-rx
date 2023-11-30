@@ -9,7 +9,7 @@ import java.time.Instant;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-@DataObject(generateConverter = true)
+@DataObject
 public class DataObjectWithListAdders {
 
   DataObjectWithLists value = new DataObjectWithLists();

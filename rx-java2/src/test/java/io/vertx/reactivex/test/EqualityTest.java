@@ -17,7 +17,7 @@
 package io.vertx.reactivex.test;
 
 import io.vertx.core.net.impl.SocketAddressImpl;
-import io.vertx.reactivex.core.buffer.Buffer;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.reactivex.core.net.SocketAddress;
 import org.junit.Test;
 

@@ -5,7 +5,7 @@ import io.vertx.core.Verticle;
 import io.vertx.rx.java.ContextScheduler;
 import io.vertx.rx.java.ObservableFuture;
 import io.vertx.rx.java.UnmarshallerOperator;
-import io.vertx.rxjava.core.buffer.Buffer;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.rxjava.core.http.HttpClient;
 import io.vertx.rxjava.core.http.HttpClientRequest;
 import io.vertx.rxjava.core.http.HttpClientResponse;
@@ -113,7 +113,7 @@ public class RxHelper {
     return new UnmarshallerOperator<T, Buffer>(mappedType) {
       @Override
       public io.vertx.core.buffer.Buffer unwrap(Buffer buffer) {
-        return buffer.getDelegate();
+        return buffer;
       }
     };
   }

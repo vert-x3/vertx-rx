@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-@DataObject(generateConverter = true)
+@DataObject
 public class DataObjectWithLists {
 
   private static <T> JsonArray toArray(List<T> list) {

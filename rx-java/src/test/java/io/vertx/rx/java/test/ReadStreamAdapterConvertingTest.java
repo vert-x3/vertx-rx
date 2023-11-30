@@ -5,7 +5,7 @@ import io.vertx.core.streams.ReadStream;
 import io.vertx.lang.rx.test.ReadStreamAdapterTestBase;
 import io.vertx.lang.rx.test.TestSubscriber;
 import io.vertx.rx.java.test.stream.BufferReadStream;
-import io.vertx.rxjava.core.buffer.Buffer;
+import io.vertx.core.buffer.Buffer;
 import rx.Observable;
 
 /**

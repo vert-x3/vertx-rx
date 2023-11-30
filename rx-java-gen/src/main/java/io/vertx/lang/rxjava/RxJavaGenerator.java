@@ -1,10 +1,7 @@
 package io.vertx.lang.rxjava;
 
 import io.vertx.codegen.*;
-import io.vertx.codegen.type.ClassKind;
-import io.vertx.codegen.type.ClassTypeInfo;
-import io.vertx.codegen.type.ParameterizedTypeInfo;
-import io.vertx.codegen.type.TypeInfo;
+import io.vertx.codegen.type.*;
 import io.vertx.lang.rx.Vertx3RxGeneratorBase;
 
 import java.io.PrintWriter;
@@ -205,11 +202,10 @@ class RxJavaGenerator extends Vertx3RxGeneratorBase {
     if (type.isParameterized() && type.getRaw().getName().equals("rx.Observable")) {
       String adapterFunction;
       ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;
-
-      if (parameterizedType.getArg(0).isVariable()) {
-        adapterFunction = "Function.identity()";
-      } else {
+      if (parameterizedType.getArg(0) instanceof ApiTypeInfo) {
         adapterFunction = "obj -> (" + parameterizedType.getArg(0).getRaw().getName() + ")obj.getDelegate()";
+      } else {
+        adapterFunction = "Function.identity()";
       }
       return "io.vertx.rx.java.ReadStreamSubscriber.asReadStream(" + expr + "," + adapterFunction + ").resume()";
     }

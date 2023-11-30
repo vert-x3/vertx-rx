@@ -55,7 +55,7 @@ public class CoreTest extends VertxTestBase {
 
   private void subscribe(byte[] expected, AsyncFile file, int times) {
     file.setReadPos(0);
-    Flowable<Buffer> flowable = file.toFlowable().map(io.vertx.rxjava3.core.buffer.Buffer::getDelegate);
+    Flowable<Buffer> flowable = file.toFlowable();
     Buffer actual = Buffer.buffer();
     flowable.subscribe(
       actual::appendBuffer,

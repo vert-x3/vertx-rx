@@ -17,7 +17,7 @@
 package io.vertx.rx.java.test;
 
 import io.vertx.core.net.impl.SocketAddressImpl;
-import io.vertx.rxjava.core.buffer.Buffer;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.rxjava.core.net.SocketAddress;
 import org.junit.Test;
 
