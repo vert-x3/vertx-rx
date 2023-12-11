@@ -15,7 +15,6 @@ import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.docgen.Source;
 import io.vertx.rxjava3.CompletableHelper;
@@ -48,8 +47,7 @@ public class NativeExamples {
   public void toReadStream(HttpServerResponse response) {
     Flowable<Buffer> observable = getFlowable();
     ReadStream<Buffer> readStream = FlowableHelper.toReadStream(observable);
-    Pump pump = Pump.pump(readStream, response);
-    pump.start();
+    readStream.pipeTo(response);
   }
 
   public <T> Handler<AsyncResult<T>> getHandler() {
