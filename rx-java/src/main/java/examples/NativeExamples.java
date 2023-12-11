@@ -10,7 +10,6 @@ import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.docgen.Source;
 import io.vertx.rx.java.ObservableFuture;
@@ -49,8 +48,7 @@ public class NativeExamples {
   public void toReadStream(io.vertx.rxjava.core.Vertx vertx, HttpServerResponse response) {
     Observable<Buffer> observable = getObservable();
     ReadStream<Buffer> readStream = RxHelper.toReadStream(observable);
-    Pump pump = Pump.pump(readStream, response);
-    pump.start();
+    readStream.pipeTo(response);
   }
 
   public void observableHandler(Vertx vertx) {
