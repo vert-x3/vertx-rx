@@ -7,11 +7,11 @@
   <parent>
     <artifactId>vertx-rx</artifactId>
     <groupId>io.vertx</groupId>
-    <version>4.5.1-SNAPSHOT</version>
+    <version>4.5.1</version>
   </parent>
 
   <artifactId>vertx-rx-java2-gen</artifactId>
-  <version>4.5.1-SNAPSHOT</version>
+  <version>4.5.1</version>
 
   <name>Vert.x RxJava2 Code Generator</name>
 
@@ -36,7 +36,7 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-rx-gen</artifactId>
-      <version>4.5.1-SNAPSHOT</version>
+      <version>4.5.1</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -58,7 +58,7 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-rx-gen</artifactId>
-      <version>4.5.1-SNAPSHOT</version>
+      <version>4.5.1</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
