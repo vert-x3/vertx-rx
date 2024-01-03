@@ -3,9 +3,7 @@ package io.vertx.rxjava3.impl;
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Observable;
-import io.vertx.core.Context;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import io.vertx.core.streams.ReadStream;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -56,12 +54,10 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
   private int requested = 0;
   private Subscription subscription;
   private Publisher<R> publisher;
-  private Context readerContext;
 
   public ReadStreamSubscriber(Function<R, J> adapter, Publisher<R> publisher) {
     this.adapter = adapter;
     this.publisher = publisher;
-    this.readerContext = Vertx.currentContext();
   }
 
   @Override
@@ -114,7 +110,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
     synchronized (this) {
       subscription = s;
     }
-    readerContext.runOnContext(unused -> checkStatus());
+    checkStatus();
   }
 
   private void checkStatus() {
@@ -211,7 +207,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
       }
       completed = e;
     }
-    readerContext.runOnContext(unused -> checkStatus());
+    checkStatus();
   }
 
   @Override
@@ -219,6 +215,6 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
     synchronized (this) {
       pending.add(item);
     }
-    readerContext.runOnContext(unused -> checkStatus());
+    checkStatus();
   }
 }
