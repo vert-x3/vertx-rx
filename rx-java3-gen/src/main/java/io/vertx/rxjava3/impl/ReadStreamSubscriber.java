@@ -45,15 +45,16 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
   }
 
   private final Function<R, J> adapter;
+  private final ArrayDeque<R> pending = new ArrayDeque<>();
+  private final Publisher<R> publisher;
   private Handler<Void> endHandler;
   private Handler<Throwable> exceptionHandler;
   private Handler<J> elementHandler;
   private long demand = Long.MAX_VALUE;
   private Throwable completed;
-  private ArrayDeque<R> pending = new ArrayDeque<>();
   private int requested = 0;
+  private int expectedOnNext = 0;
   private Subscription subscription;
-  private Publisher<R> publisher;
 
   public ReadStreamSubscriber(Function<R, J> adapter, Publisher<R> publisher) {
     this.adapter = adapter;
@@ -73,7 +74,6 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
       }
     }
     action.run();
-    checkStatus();
     return this;
   }
 
@@ -90,13 +90,24 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
     if (amount < 0L) {
       throw new IllegalArgumentException("Invalid amount: " + amount);
     }
+    Runnable action = NOOP_ACTION;
     synchronized (this) {
       demand += amount;
-      if (demand < 0L) {
+      if (demand < 0L) { // on overflow
         demand = Long.MAX_VALUE;
       }
+      if(completed != null) {
+        action = this::checkStatus; // possibly send last elements + completion/failure signal
+      } else if (expectedOnNext == 0 && subscription != null) {
+        // there will be no more onNext calls, we need to trigger one
+        int request = pending.size() >= BUFFER_SIZE ? 1 : BUFFER_SIZE - pending.size();
+        requested += request;
+        expectedOnNext += request;
+        action = () -> subscription.request(request);
+      }
     }
-    checkStatus();
+    action.run();
+
     return this;
   }
 
@@ -110,7 +121,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
     synchronized (this) {
       subscription = s;
     }
-    checkStatus();
+    fetch(BUFFER_SIZE);
   }
 
   private void checkStatus() {
@@ -120,13 +131,14 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
       Handler<J> handler;
       synchronized (this) {
         if (demand > 0L && (handler = elementHandler) != null && pending.size() > 0) {
+          // elements pending to be sent & OK to send.
           if (demand != Long.MAX_VALUE) {
             demand--;
           }
           requested--;
-          R item = pending.poll();
-          adapted = adapter.apply(item);
+          adapted = adapter.apply(pending.poll());
         } else {
+          // no pending elements to send
           if (completed != null) {
             if (pending.isEmpty()) {
               Handler<Throwable> onError;
@@ -154,9 +166,11 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
               };
             }
           } else if (elementHandler != null && requested < BUFFER_SIZE / 2) {
+            // Not ended, no more elements to send,
             int request = BUFFER_SIZE - requested;
-            action = () -> subscription.request(request);
             requested = BUFFER_SIZE;
+            expectedOnNext += request;
+            action = () -> subscription.request(request);
           }
           break;
         }
@@ -173,7 +187,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
         endHandler = handler;
       } else {
         if (handler != null) {
-          throw new IllegalStateException();
+          throw new IllegalStateException("This ReadStream has already completed");
         }
       }
     }
@@ -187,7 +201,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
         exceptionHandler = handler;
       } else {
         if (handler != null) {
-          throw new IllegalStateException();
+          throw new IllegalStateException("This ReadStream has already completed");
         }
       }
     }
@@ -205,6 +219,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
       if (completed != null) {
         return;
       }
+      expectedOnNext = 0;
       completed = e;
     }
     checkStatus();
@@ -213,6 +228,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
   @Override
   public void onNext(R item) {
     synchronized (this) {
+      expectedOnNext--;
       pending.add(item);
     }
     checkStatus();
