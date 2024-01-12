@@ -8,7 +8,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -294,5 +296,39 @@ public abstract class ReadStreamSubscriberTestBase extends VertxTestBase {
     sender.emit();
     sender.stream.handler(null);
     assertTrue(sender.isUnsubscribed());
+  }
+
+  @Test
+  public void testReadStreamElementsMustBeSerialized() {
+    // Serialized means the ReadStream handler must never be called concurrently, the previous handler call must have
+    // returned for the next one to start.
+    Sender sender = sender();
+    List<String> receivedElements = Collections.synchronizedList(new ArrayList<>());
+    AtomicReference<Thread> threadThatReceivedFirstItem = new AtomicReference<>();
+    AtomicReference<Thread> threadThatReceivedSecondItem = new AtomicReference<>();
+    sender.stream.handler(item -> {
+      if (threadThatReceivedFirstItem.get() != null) {
+        threadThatReceivedSecondItem.set(Thread.currentThread());
+      } else {
+        threadThatReceivedFirstItem.set(Thread.currentThread());
+        publishItemFromAnotherThread(sender);
+      }
+      receivedElements.add(item);
+    });
+    sender.stream.pause();
+    sender.emit();
+    sender.stream.resume();
+    assertEquals(Arrays.asList("0", "1"), receivedElements);
+    assertEquals(threadThatReceivedFirstItem.get(), threadThatReceivedSecondItem.get());
+  }
+
+  private static void publishItemFromAnotherThread(final Sender readStream) {
+    Thread t = new Thread(readStream::emit);
+    t.start();
+    try {
+      t.join(); // Be sure the item has been handled by the Subscriber.
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
