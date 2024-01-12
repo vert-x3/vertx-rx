@@ -54,6 +54,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
   private int requested = 0;
   private Subscription subscription;
   private Publisher<R> publisher;
+  private boolean emitting;
 
   public ReadStreamSubscriber(Function<R, J> adapter, Publisher<R> publisher) {
     this.adapter = adapter;
@@ -73,7 +74,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
       }
     }
     action.run();
-    checkStatus();
+    serializedCheckStatus();
     return this;
   }
 
@@ -96,7 +97,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
         demand = Long.MAX_VALUE;
       }
     }
-    checkStatus();
+    serializedCheckStatus();
     return this;
   }
 
@@ -110,7 +111,24 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
     synchronized (this) {
       subscription = s;
     }
-    checkStatus();
+    serializedCheckStatus();
+  }
+
+  /** Ensure checkStatus is never called concurrently. */
+  private void serializedCheckStatus() {
+    synchronized (this) {
+      if (emitting) {
+        return;
+      }
+      emitting = true;
+    }
+    try {
+      checkStatus();
+    } finally {
+      synchronized (this) {
+        emitting = false;
+      }
+    }
   }
 
   private void checkStatus() {
@@ -207,7 +225,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
       }
       completed = e;
     }
-    checkStatus();
+    serializedCheckStatus();
   }
 
   @Override
@@ -215,6 +233,6 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
     synchronized (this) {
       pending.add(item);
     }
-    checkStatus();
+    serializedCheckStatus();
   }
 }

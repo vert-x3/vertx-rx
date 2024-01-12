@@ -46,6 +46,7 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
   private ArrayDeque<R> pending = new ArrayDeque<>();
   private int requested = 0;
   private Consumer<Subscriber<R>> doSubscribe;
+  private Thread emitting;
 
   public ReadStreamSubscriber(Function<R, J> adapter, Consumer<Subscriber<R>> doSubscribe) {
     this.adapter = adapter;
@@ -65,7 +66,7 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
       }
     }
     action.run();
-    checkStatus();
+    serializedCheckStatus();
     return this;
   }
 
@@ -88,13 +89,30 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
         demand = Long.MAX_VALUE;
       }
     }
-    checkStatus();
+    serializedCheckStatus();
     return this;
   }
 
   @Override
   public ReadStream<J> resume() {
     return fetch(Long.MAX_VALUE);
+  }
+
+  /** Ensure checkStatus is never called concurrently. */
+  private void serializedCheckStatus() {
+    synchronized (this) {
+      if (emitting != null && emitting != Thread.currentThread()) {
+        return;
+      }
+      emitting = Thread.currentThread();
+    }
+    try {
+      checkStatus();
+    } finally {
+      synchronized (this) {
+        emitting = null;
+      }
+    }
   }
 
   private void checkStatus() {
@@ -191,7 +209,7 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
       }
       completed = e;
     }
-    checkStatus();
+    serializedCheckStatus();
   }
 
   @Override
@@ -199,6 +217,6 @@ public class ReadStreamSubscriber<R, J> extends Subscriber<R> implements ReadStr
     synchronized (this) {
       pending.add(item);
     }
-    checkStatus();
+    serializedCheckStatus();
   }
 }
