@@ -2,8 +2,15 @@ package io.vertx.rxjava3.test;
 
 import io.vertx.rxjava3.impl.ReadStreamSubscriber;
 import io.vertx.lang.rx.test.ReadStreamSubscriberTestBase;
+import org.junit.Test;
 import org.reactivestreams.Subscription;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 /**
@@ -22,7 +29,7 @@ public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
 
       private boolean cancelled;
 
-      private ReadStreamSubscriber<String, String> subscriber = new ReadStreamSubscriber<>(Function.identity(), subscriber -> {
+      public ReadStreamSubscriber<String, String> subscriber = new ReadStreamSubscriber<>(Function.identity(), subscriber -> {
         subscriber.onSubscribe(new Subscription() {
           @Override
           public void request(long n) {
@@ -56,5 +63,46 @@ public class ReadStreamSubscriberTest extends ReadStreamSubscriberTestBase {
         return cancelled;
       }
     };
+  }
+
+  @Test
+  public void testFoo() {
+
+    ReadStreamSubscriber<String, String> subscriber = new ReadStreamSubscriber<>(Function.identity(), s -> {
+      s.onSubscribe(new Subscription() {
+        @Override
+        public void request(long n) {
+        }
+        @Override
+        public void cancel() {
+        }
+      });
+    });
+
+    List<String> elements = Collections.synchronizedList(new ArrayList<>());
+    AtomicBoolean ok = new AtomicBoolean(true);
+    AtomicReference<Thread> current = new AtomicReference<>();
+    subscriber.handler(item -> {
+      if (current.get() != null) {
+        ok.set(current.get() == Thread.currentThread());
+      } else {
+        current.set(Thread.currentThread());
+        Thread t = new Thread(() -> {
+          subscriber.onNext("elt2");
+        });
+        t.start();
+        try {
+          t.join();
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+      }
+      elements.add(item);
+    });
+    subscriber.pause();
+    subscriber.onNext("elt1");
+    subscriber.resume();
+    assertEquals(Arrays.asList("elt1", "elt2"), elements);
+    assertTrue(ok.get());
   }
 }

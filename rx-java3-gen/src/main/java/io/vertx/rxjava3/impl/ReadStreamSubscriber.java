@@ -54,6 +54,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
   private int requested = 0;
   private Subscription subscription;
   private Publisher<R> publisher;
+  private boolean emitting;
 
   public ReadStreamSubscriber(Function<R, J> adapter, Publisher<R> publisher) {
     this.adapter = adapter;
@@ -114,6 +115,22 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
   }
 
   private void checkStatus() {
+    synchronized (this) {
+      if (emitting) {
+        return;
+      }
+      emitting = true;
+    }
+    try {
+      checkStatus_();
+    } finally {
+      synchronized (this) {
+        emitting = false;
+      }
+    }
+  }
+
+  private void checkStatus_() {
     Runnable action = NOOP_ACTION;
     while (true) {
       J adapted;

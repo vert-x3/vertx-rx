@@ -21,7 +21,7 @@ public abstract class ReadStreamSubscriberTestBase extends VertxTestBase {
 
   public abstract class Sender {
 
-    protected ReadStream<String> stream;
+    public ReadStream<String> stream;
     protected long requested;
     protected int seq;
 
