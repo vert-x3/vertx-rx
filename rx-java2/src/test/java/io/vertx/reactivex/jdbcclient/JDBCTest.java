@@ -16,11 +16,10 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import io.vertx.core.json.JsonObject;
+import io.vertx.jdbcclient.JDBCConnectOptions;
 import io.vertx.reactivex.core.Vertx;
-import io.vertx.reactivex.sqlclient.Row;
-import io.vertx.reactivex.sqlclient.RowSet;
-import io.vertx.reactivex.sqlclient.SqlClient;
-import io.vertx.reactivex.sqlclient.SqlConnection;
+import io.vertx.reactivex.sqlclient.*;
+import io.vertx.sqlclient.PoolOptions;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 
@@ -42,16 +41,12 @@ public class JDBCTest extends VertxTestBase {
 
   protected static final String INSERT_FOLK_SQL = "insert into folks (firstname) values ('%s')";
 
-  private static final JsonObject config = new JsonObject()
-    .put("driver_class", "org.hsqldb.jdbcDriver")
-    .put("url", "jdbc:hsqldb:mem:test?shutdown=true");
-
-  protected JDBCPool client;
+  protected Pool client;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    client = JDBCPool.pool(Vertx.newInstance(vertx), config);
+    client = JDBCPool.pool(Vertx.newInstance(vertx), new JDBCConnectOptions().setJdbcUrl("jdbc:hsqldb:mem:test?shutdown=true"), new PoolOptions());
     client.rxGetConnection().flatMapCompletable(conn -> {
       Single<RowSet<Row>> setup = conn
         .query("drop table folks if exists")
