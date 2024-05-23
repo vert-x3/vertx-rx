@@ -199,6 +199,14 @@ class RxJavaGenerator extends Vertx3RxGeneratorBase {
   }
 
   @Override
+  protected void genWriteStream(List<? extends TypeParamInfo> typeParams, PrintWriter writer) {
+    writer.print("  WriteStreamSubscriber<");
+    writer.print(typeParams.get(0).getName());
+    writer.println("> toSubscriber();");
+    writer.println();
+  }
+
+  @Override
   protected String genConvParam(TypeInfo type, MethodInfo method, String expr) {
     if (type.isParameterized() && type.getRaw().getName().equals("rx.Observable")) {
       String adapterFunction;

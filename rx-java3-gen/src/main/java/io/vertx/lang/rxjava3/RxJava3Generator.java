@@ -1,11 +1,7 @@
 package io.vertx.lang.rxjava3;
 
 import io.reactivex.rxjava3.core.Flowable;
-import io.vertx.codegen.ClassModel;
-import io.vertx.codegen.MethodInfo;
-import io.vertx.codegen.MethodKind;
-import io.vertx.codegen.ParamInfo;
-import io.vertx.codegen.TypeParamInfo;
+import io.vertx.codegen.*;
 import io.vertx.codegen.type.ClassKind;
 import io.vertx.codegen.type.ClassTypeInfo;
 import io.vertx.codegen.type.ParameterizedTypeInfo;
@@ -235,6 +231,18 @@ class RxJava3Generator extends AbstractRxGenerator {
     writer.print("  io.reactivex.rxjava3.core.Flowable<");
     writer.print(typeParams.get(0).getName());
     writer.println("> toFlowable();");
+    writer.println();
+  }
+
+  @Override
+  protected void genWriteStream(List<? extends TypeParamInfo> typeParams, PrintWriter writer) {
+    writer.print("  WriteStreamObserver<");
+    writer.print(typeParams.get(0).getName());
+    writer.println("> toObserver();");
+    writer.println();
+    writer.print("  WriteStreamSubscriber<");
+    writer.print(typeParams.get(0).getName());
+    writer.println("> toSubscriber();");
     writer.println();
   }
 
