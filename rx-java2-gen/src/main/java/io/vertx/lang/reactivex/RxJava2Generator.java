@@ -208,6 +208,18 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
   }
 
   @Override
+  protected void genWriteStream(List<? extends TypeParamInfo> typeParams, PrintWriter writer) {
+    writer.print("  WriteStreamObserver<");
+    writer.print(typeParams.get(0).getName());
+    writer.println("> toObserver();");
+    writer.println();
+    writer.print("  WriteStreamSubscriber<");
+    writer.print(typeParams.get(0).getName());
+    writer.println("> toSubscriber();");
+    writer.println();
+  }
+
+  @Override
   protected String genConvParam(TypeInfo type, MethodInfo method, String expr) {
     if (type.isParameterized() && (type.getRaw().getName().equals("io.reactivex.Flowable") || type.getRaw().getName().equals("io.reactivex.Observable"))) {
       ParameterizedTypeInfo parameterizedType = (ParameterizedTypeInfo) type;

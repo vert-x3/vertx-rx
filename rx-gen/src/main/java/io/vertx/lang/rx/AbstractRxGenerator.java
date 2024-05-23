@@ -166,6 +166,8 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
 
       if (type.getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
         genReadStream(type.getParams(), writer);
+      } else if (type.getRaw().getName().equals("io.vertx.core.streams.WriteStream")) {
+        genWriteStream(type.getParams(), writer);
       }
     }
 
@@ -330,6 +332,9 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
   }
 
   protected abstract void genReadStream(List<? extends TypeParamInfo> typeParams, PrintWriter writer);
+
+  protected void genWriteStream(List<? extends TypeParamInfo> typeParams, PrintWriter writer) {
+  }
 
   private void generateClassBody(ClassModel model, String constructor, PrintWriter writer) {
     ClassTypeInfo type = model.getType();
