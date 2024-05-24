@@ -186,13 +186,11 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
     assertTrue("Expected writeStream end method to be invoked", writeStream.endInvoked());
   }
 
-  @Ignore
   @Test
   public void testWriteStreamError() throws Exception {
     testWriteStreamError(false);
   }
 
-  @Ignore
   @Test
   public void testWriteStreamErrorAfterComplete() throws Exception {
     testWriteStreamError(true);
@@ -202,17 +200,17 @@ public class WriteStreamSubscriberTest extends VertxTestBase {
     waitFor(2);
     RuntimeException expected = new RuntimeException();
     FakeWriteStream writeStream = new FakeWriteStream(vertx).failAfterWrite(expected);
-    Observer<Integer> subscriber = RxHelper.toObserver(writeStream).onWriteStreamError(throwable -> {
+    Subscriber<Integer> subscriber = RxHelper.toSubscriber(writeStream).onWriteStreamError(throwable -> {
       assertThat(throwable, is(sameInstance(expected)));
       complete();
     });
-    Observable.<Integer>create(emitter -> {
+    Flowable.<Integer>create(emitter -> {
       emitter.setCancellable(this::complete);
       emitter.onNext(0);
       if (complete) {
         emitter.onComplete();
       }
-    })
+    }, BackpressureStrategy.MISSING)
       .observeOn(RxHelper.scheduler(vertx))
       .subscribeOn(RxHelper.scheduler(vertx))
       .subscribe(subscriber);

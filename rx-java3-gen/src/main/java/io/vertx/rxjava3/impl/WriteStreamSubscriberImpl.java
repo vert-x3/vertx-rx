@@ -65,10 +65,7 @@ public class WriteStreamSubscriberImpl<R, T> implements WriteStreamSubscriber<R>
       return;
     }
     writeStream.exceptionHandler(t -> {
-      if (!setDone()) {
-        RxJavaPlugins.onError(t);
-        return;
-      }
+      setDone();
       getSubscription().cancel();
       Consumer<? super Throwable> c;
       synchronized (this) {
