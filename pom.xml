@@ -27,7 +27,7 @@
 
   <properties>
     <stack.version>5.0.0-SNAPSHOT</stack.version>
-    <micrometer.version>1.9.5</micrometer.version>
+    <micrometer.version>1.13.0</micrometer.version>
   </properties>
 
   <dependencyManagement>
