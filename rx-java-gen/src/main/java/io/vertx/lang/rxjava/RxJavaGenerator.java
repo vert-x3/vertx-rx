@@ -1,7 +1,7 @@
 package io.vertx.lang.rxjava;
 
-import io.vertx.codegen.*;
-import io.vertx.codegen.type.*;
+import io.vertx.codegen.processor.*;
+import io.vertx.codegen.processor.type.*;
 import io.vertx.lang.rx.Vertx3RxGeneratorBase;
 
 import java.io.PrintWriter;
@@ -158,7 +158,7 @@ class RxJavaGenerator extends Vertx3RxGeneratorBase {
     } else {
       throw new IllegalArgumentException("Method kind " + method.getKind());
     }
-    ParameterizedTypeInfo futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(rx.Single.class).getRaw(), false, java.util.Collections.singletonList(futType));
+    ParameterizedTypeInfo futReturnType = new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(rx.Single.class).getRaw(), false, java.util.Collections.singletonList(futType));
     return method.copy().setName(futMethodName).setParams(futParams).setReturnType(futReturnType);
   }
 
@@ -170,12 +170,12 @@ class RxJavaGenerator extends Vertx3RxGeneratorBase {
         if (params == null) {
           params = new java.util.ArrayList<>(method.getParams());
         }
-        ParameterizedTypeInfo paramType = new io.vertx.codegen.type.ParameterizedTypeInfo(
-          io.vertx.codegen.type.TypeReflectionFactory.create(rx.Observable.class).getRaw(),
+        ParameterizedTypeInfo paramType = new io.vertx.codegen.processor.type.ParameterizedTypeInfo(
+          io.vertx.codegen.processor.type.TypeReflectionFactory.create(rx.Observable.class).getRaw(),
           false,
           java.util.Collections.singletonList(((ParameterizedTypeInfo) param.getType()).getArg(0))
         );
-        params.set(count, new io.vertx.codegen.ParamInfo(
+        params.set(count, new io.vertx.codegen.processor.ParamInfo(
           param.getIndex(),
           param.getName(),
           param.getDescription(),

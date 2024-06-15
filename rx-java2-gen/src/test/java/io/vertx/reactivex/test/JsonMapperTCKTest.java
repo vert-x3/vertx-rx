@@ -106,6 +106,6 @@ public class JsonMapperTCKTest {
     impl.methodWithMapOfCustomEnumToStringParam(
         test.rxMethodWithHandlerAsyncResultMapOfCustomEnumToStringParam().blockingGet()
     );
-    
+
   }
 }
