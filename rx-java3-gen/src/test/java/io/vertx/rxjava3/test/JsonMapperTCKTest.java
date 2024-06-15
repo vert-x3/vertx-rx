@@ -1,13 +1,8 @@
 package io.vertx.rxjava3.test;
 
 import io.vertx.codegen.testmodel.JsonMapperTCKImpl;
-import io.vertx.codegen.testmodel.MyPojoToInteger;
 import io.vertx.rxjava3.codegen.testmodel.JsonMapperTCK;
 import org.junit.Test;
-
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 public class JsonMapperTCKTest {
 

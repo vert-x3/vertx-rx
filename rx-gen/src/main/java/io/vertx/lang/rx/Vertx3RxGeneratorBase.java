@@ -1,11 +1,11 @@
 package io.vertx.lang.rx;
 
-import io.vertx.codegen.ClassModel;
-import io.vertx.codegen.MethodInfo;
-import io.vertx.codegen.MethodKind;
-import io.vertx.codegen.ParamInfo;
-import io.vertx.codegen.type.ParameterizedTypeInfo;
-import io.vertx.codegen.type.TypeInfo;
+import io.vertx.codegen.processor.ClassModel;
+import io.vertx.codegen.processor.MethodInfo;
+import io.vertx.codegen.processor.MethodKind;
+import io.vertx.codegen.processor.ParamInfo;
+import io.vertx.codegen.processor.type.ParameterizedTypeInfo;
+import io.vertx.codegen.processor.type.TypeInfo;
 
 import java.io.PrintWriter;
 import java.util.List;

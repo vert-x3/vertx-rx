@@ -1,12 +1,12 @@
 package io.vertx.lang.rx;
 
-import io.vertx.codegen.*;
+import io.vertx.codegen.processor.*;
 import io.vertx.codegen.annotations.ModuleGen;
 import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.codegen.doc.Doc;
-import io.vertx.codegen.doc.Tag;
-import io.vertx.codegen.doc.Token;
-import io.vertx.codegen.type.*;
+import io.vertx.codegen.processor.doc.Doc;
+import io.vertx.codegen.processor.doc.Tag;
+import io.vertx.codegen.processor.doc.Token;
+import io.vertx.codegen.processor.type.*;
 
 import javax.lang.model.element.Element;
 import java.io.PrintWriter;
@@ -14,7 +14,7 @@ import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-import static io.vertx.codegen.type.ClassKind.*;
+import static io.vertx.codegen.processor.type.ClassKind.*;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 

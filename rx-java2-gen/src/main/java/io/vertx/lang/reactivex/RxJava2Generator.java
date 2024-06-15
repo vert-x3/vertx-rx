@@ -2,11 +2,11 @@ package io.vertx.lang.reactivex;
 
 import io.reactivex.Flowable;
 import io.reactivex.functions.Function;
-import io.vertx.codegen.*;
-import io.vertx.codegen.type.ClassKind;
-import io.vertx.codegen.type.ClassTypeInfo;
-import io.vertx.codegen.type.ParameterizedTypeInfo;
-import io.vertx.codegen.type.TypeInfo;
+import io.vertx.codegen.processor.*;
+import io.vertx.codegen.processor.type.ClassKind;
+import io.vertx.codegen.processor.type.ClassTypeInfo;
+import io.vertx.codegen.processor.type.ParameterizedTypeInfo;
+import io.vertx.codegen.processor.type.TypeInfo;
 import io.vertx.lang.rx.Vertx3RxGeneratorBase;
 
 import java.io.PrintWriter;
@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.vertx.codegen.type.ClassKind.VOID;
+import static io.vertx.codegen.processor.type.ClassKind.VOID;
 import static java.util.stream.Collectors.joining;
 
 class RxJava2Generator extends Vertx3RxGeneratorBase {
@@ -285,11 +285,11 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
     }
     TypeInfo futReturnType;
     if (futUnresolvedType.getKind() == VOID) {
-      futReturnType = io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Completable.class);
+      futReturnType = io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Completable.class);
     } else if (futUnresolvedType.isNullable()) {
-      futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Maybe.class).getRaw(), false, Collections.singletonList(futType));
+      futReturnType = new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Maybe.class).getRaw(), false, Collections.singletonList(futType));
     } else {
-      futReturnType = new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Single.class).getRaw(), false, Collections.singletonList(futType));
+      futReturnType = new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Single.class).getRaw(), false, Collections.singletonList(futType));
     }
     return method.copy().setName(futMethodName).setReturnType(futReturnType).setParams(futParams);
   }
@@ -303,7 +303,7 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
         if (params == null) {
           params = new ArrayList<>(method.getParams());
         }
-        params.set(count, new io.vertx.codegen.ParamInfo(
+        params.set(count, new io.vertx.codegen.processor.ParamInfo(
           param.getIndex(),
           param.getName(),
           param.getDescription(),
@@ -320,8 +320,8 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
 
   private TypeInfo genOverloadedType(TypeInfo type) {
     if (type.isParameterized() && type.getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
-      return new io.vertx.codegen.type.ParameterizedTypeInfo(
-        io.vertx.codegen.type.TypeReflectionFactory.create(Flowable.class).getRaw(),
+      return new io.vertx.codegen.processor.type.ParameterizedTypeInfo(
+        io.vertx.codegen.processor.type.TypeReflectionFactory.create(Flowable.class).getRaw(),
         false,
         java.util.Collections.singletonList(((ParameterizedTypeInfo) type).getArg(0))
       );
@@ -331,18 +331,18 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
       TypeInfo retType = genOverloadedType(functionType.getArg(1));
       if (argType != functionType.getArg(0) || retType != functionType.getArg(1)) {
         return new ParameterizedTypeInfo(
-          io.vertx.codegen.type.TypeReflectionFactory.create(Function.class).getRaw(),
+          io.vertx.codegen.processor.type.TypeReflectionFactory.create(Function.class).getRaw(),
           functionType.isNullable(),
           Arrays.asList(argType, retType));
       }
     } else if (type.getKind() == ClassKind.FUTURE) {
       TypeInfo futType = ((ParameterizedTypeInfo) type).getArg(0);
       if (futType.getKind() == VOID) {
-        return io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Completable.class);
+        return io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Completable.class);
       } else if (futType.isNullable()) {
-        return new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Maybe.class).getRaw(), false, Collections.singletonList(futType));
+        return new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Maybe.class).getRaw(), false, Collections.singletonList(futType));
       } else {
-        return new io.vertx.codegen.type.ParameterizedTypeInfo(io.vertx.codegen.type.TypeReflectionFactory.create(io.reactivex.Single.class).getRaw(), false, Collections.singletonList(futType));
+        return new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Single.class).getRaw(), false, Collections.singletonList(futType));
       }
     }
     return type;
