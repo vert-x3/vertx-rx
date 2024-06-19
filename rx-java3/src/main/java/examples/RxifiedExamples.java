@@ -11,11 +11,11 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Verticle;
+import io.vertx.core.VertxException;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.WebSocketClientOptions;
-import io.vertx.core.impl.NoStackTraceThrowable;
 import io.vertx.docgen.Source;
 import io.vertx.rxjava3.MaybeHelper;
 import io.vertx.rxjava3.WriteStreamSubscriber;
@@ -262,7 +262,7 @@ public class RxifiedExamples {
           if (response.statusCode() == 200) {
             return response.body();
           } else {
-            return Single.error(new NoStackTraceThrowable("Invalid response"));
+            return Single.error(VertxException.noStackTrace("Invalid response"));
           }
         }))
       .subscribe(body -> {
@@ -279,7 +279,7 @@ public class RxifiedExamples {
           if (response.statusCode() == 200) {
             return response.toFlowable();
           } else {
-            return Flowable.error(new NoStackTraceThrowable("Invalid response"));
+            return Flowable.error(VertxException.noStackTrace("Invalid response"));
           }
         }))
       .subscribe(chunk -> {

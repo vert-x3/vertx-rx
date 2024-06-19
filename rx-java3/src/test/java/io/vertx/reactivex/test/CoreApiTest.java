@@ -4,10 +4,10 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 import io.vertx.core.Handler;
+import io.vertx.core.VertxException;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.core.impl.NoStackTraceThrowable;
 import io.vertx.rxjava3.core.AbstractVerticle;
 import io.vertx.rxjava3.core.RxHelper;
 import io.vertx.rxjava3.core.Vertx;
@@ -142,7 +142,7 @@ public class CoreApiTest extends VertxTestBase {
         if (reply.body().equals(headerValue)) {
           return Completable.complete();
         } else {
-          return Completable.error(new NoStackTraceThrowable("Expected msg to be intercepted"));
+          return Completable.error(VertxException.noStackTrace("Expected msg to be intercepted"));
         }
       }))
       .andThen(Completable.fromAction(() -> {
@@ -152,7 +152,7 @@ public class CoreApiTest extends VertxTestBase {
         if (reply.body() == null) {
           return Completable.complete();
         } else {
-          return Completable.error(new NoStackTraceThrowable("Expected msg not to be intercepted"));
+          return Completable.error(VertxException.noStackTrace("Expected msg not to be intercepted"));
         }
       })).subscribe(() -> testComplete(), throwable -> fail(throwable));
     await();

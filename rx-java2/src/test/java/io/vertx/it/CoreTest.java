@@ -1,9 +1,9 @@
 package io.vertx.it;
 
+import io.netty.util.internal.PlatformDependent;
 import io.reactivex.Flowable;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.OpenOptions;
-import io.vertx.core.impl.Utils;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.file.AsyncFile;
@@ -79,7 +79,7 @@ public class CoreTest extends VertxTestBase {
   }
 
   private void setDefaultPerms(Path path) {
-    if (!Utils.isWindows()) {
+    if (!PlatformDependent.isWindows()) {
       try {
         Files.setPosixFilePermissions( path, PosixFilePermissions.fromString(DEFAULT_FILE_PERMS) );
       }
