@@ -224,46 +224,6 @@ public class ApiTCKTest {
   }
 
   @Test
-  public void testMethodWithHandlerAsyncResultStringReturn() {
-    Handler<AsyncResult<String>> succeedingHandler = obj.methodWithHandlerAsyncResultStringReturn("the-result", false);
-    succeedingHandler.handle(Future.succeededFuture("the-result"));
-    boolean failed = false;
-    try {
-      succeedingHandler.handle(Future.succeededFuture("not-expected"));
-    }  catch (Throwable ignore) {
-      failed = true;
-    }
-    assertTrue(failed);
-    Handler<AsyncResult<String>> failingHandler = obj.methodWithHandlerAsyncResultStringReturn("an-error", true);
-    failingHandler.handle(Future.failedFuture("an-error"));
-    failed = false;
-    try {
-      failingHandler.handle(Future.succeededFuture("whatever"));
-    } catch (Throwable ignore) {
-      failed = true;
-    }
-    assertTrue(failed);
-  }
-
-  @Test
-  public void testMethodWithHandlerAsyncResultGenericReturn() {
-    AtomicReference<Object> result = new AtomicReference<>();
-    Handler<AsyncResult<Object>> succeedingHandler = obj.methodWithHandlerAsyncResultGenericReturn(ar -> {
-        result.set(ar.succeeded() ? ar.result() : ar.cause());
-    });
-    succeedingHandler.handle(Future.succeededFuture("the-result"));
-    assertEquals("the-result", result.get());
-    succeedingHandler.handle(Future.succeededFuture(obj));
-    assertEquals(obj, result.get());
-  }
-
-  @Test
-  public void testMethodWithHandlerAsyncResultVertxGenReturn() {
-    obj.<String>methodWithHandlerAsyncResultVertxGenReturn("the-gen-result", false).handle(Future.succeededFuture(new RefedInterface1(new RefedInterface1Impl().setString("the-gen-result"))));
-    obj.<String>methodWithHandlerAsyncResultVertxGenReturn("it-failed-dude", true).handle(Future.failedFuture(new Exception("it-failed-dude")));
-  }
-
-  @Test
   public void testMethodWithHandlerUserTypes() {
     AsyncResultChecker checker = new AsyncResultChecker();
     obj.methodWithHandlerUserTypes(checker.<RefedInterface1>resultHandler(it -> assertEquals("echidnas", it.getString())));

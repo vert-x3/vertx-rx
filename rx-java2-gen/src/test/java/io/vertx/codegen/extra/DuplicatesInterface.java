@@ -3,8 +3,6 @@ package io.vertx.codegen.extra;
 import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.codegen.extra.duplicates.SomeRandomType;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 
 @VertxGen
 public interface DuplicatesInterface {
@@ -14,8 +12,8 @@ public interface DuplicatesInterface {
   }
 
   @GenIgnore(GenIgnore.PERMITTED_TYPE)
-  void abc(SomeRandomType arg, Handler<AsyncResult<SomeRandomType>> handler);
+  void abc(SomeRandomType arg);
 
   @GenIgnore(GenIgnore.PERMITTED_TYPE)
-  void def(io.vertx.codegen.extra.duplicates.nested.SomeRandomType arg, Handler<AsyncResult<io.vertx.codegen.extra.duplicates.nested.SomeRandomType>> handler);
+  void def(io.vertx.codegen.extra.duplicates.nested.SomeRandomType arg);
 }

@@ -4,7 +4,6 @@ import io.vertx.codegen.annotations.CacheReturn;
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.Nullable;
 import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
@@ -43,10 +42,6 @@ public interface TestInterface extends SuperInterface1, SuperInterface2 {
   Future<String> methodWithHandlerAsyncResultString(boolean sendFailure);
   Future<TestDataObject> methodWithHandlerAsyncResultDataObject(boolean sendFailure);
   Future<TestStringDataObject> methodWithHandlerAsyncResultStringDataObject(boolean sendFailure);
-
-  Handler<AsyncResult<String>> methodWithHandlerAsyncResultStringReturn(String expected, boolean fail);
-  <T> Handler<AsyncResult<T>> methodWithHandlerAsyncResultGenericReturn(Handler<AsyncResult<T>> handler);
-  Handler<AsyncResult<RefedInterface1>> methodWithHandlerAsyncResultVertxGenReturn(String expected, boolean fail);
 
   void methodWithUserTypes(RefedInterface1 refed);
 

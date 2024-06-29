@@ -546,7 +546,6 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     switch (type.getKind()) {
       case JSON_OBJECT:
       case JSON_ARRAY:
-      case ASYNC_RESULT:
       case HANDLER:
       case LIST:
       case SET:
@@ -725,7 +724,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       }
     } else if (type.isParameterized()) {
       ParameterizedTypeInfo parameterizedTypeInfo = (ParameterizedTypeInfo) type;
-      if (kind == LIST || kind == SET || kind == ASYNC_RESULT) {
+      if (kind == LIST || kind == SET) {
         return isSameType(parameterizedTypeInfo.getArg(0), method);
       } else if (kind == MAP) {
         return isSameType(parameterizedTypeInfo.getArg(1), method);
@@ -769,12 +768,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       if (kind == HANDLER) {
         TypeInfo eventType = parameterizedTypeInfo.getArg(0);
         ClassKind eventKind = eventType.getKind();
-        if (eventKind == ASYNC_RESULT) {
-          TypeInfo resultType = ((ParameterizedTypeInfo) eventType).getArg(0);
-          return "new io.vertx.lang.rx.DelegatingHandler<>(" + expr + ", ar -> ar.map(event -> " + genConvReturn(resultType, method, "event") + "))";
-        } else {
-          return "new io.vertx.lang.rx.DelegatingHandler<>(" + expr + ", event -> " + genConvReturn(eventType, method, "event") + ")";
-        }
+        return "new io.vertx.lang.rx.DelegatingHandler<>(" + expr + ", event -> " + genConvReturn(eventType, method, "event") + ")";
       } else if (kind == FUNCTION) {
         TypeInfo argType = parameterizedTypeInfo.getArg(0);
         TypeInfo retType = parameterizedTypeInfo.getArg(1);
@@ -945,24 +939,11 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       ParameterizedTypeInfo parameterizedTypeInfo = (ParameterizedTypeInfo) type;
       if (kind == HANDLER) {
         TypeInfo abc = parameterizedTypeInfo.getArg(0);
-        if (abc.getKind() == ASYNC_RESULT) {
-          TypeInfo tutu = ((ParameterizedTypeInfo) abc).getArg(0);
-          return "new Handler<AsyncResult<" + genParamTypeDecl(tutu) + ">>() {\n" +
-            "      public void handle(AsyncResult<" + genParamTypeDecl(tutu) + "> ar) {\n" +
-            "        if (ar.succeeded()) {\n" +
-            "          " + expr + ".handle(io.vertx.core.Future.succeededFuture(" + genConvParam(tutu, method, "ar.result()") + "));\n" +
-            "        } else {\n" +
-            "          " + expr + ".handle(io.vertx.core.Future.failedFuture(ar.cause()));\n" +
-            "        }\n" +
-            "      }\n" +
-            "    }";
-        } else {
-          return "new Handler<" + genParamTypeDecl(abc) + ">() {\n" +
-            "      public void handle(" + genParamTypeDecl(abc) + " event) {\n" +
-            "          " + expr + ".handle(" + genConvParam(abc, method, "event") + ");\n" +
-            "      }\n" +
-            "    }";
-        }
+        return "new Handler<" + genParamTypeDecl(abc) + ">() {\n" +
+          "      public void handle(" + genParamTypeDecl(abc) + " event) {\n" +
+          "          " + expr + ".handle(" + genConvParam(abc, method, "event") + ");\n" +
+          "      }\n" +
+          "    }";
       } else if (kind == LIST || kind == SET) {
         return expr + ".stream().map(elt -> " + genConvReturn(parameterizedTypeInfo.getArg(0), method, "elt") + ").collect(Collectors.to" + type.getRaw().getSimpleName() + "())";
       } else if (kind == MAP) {

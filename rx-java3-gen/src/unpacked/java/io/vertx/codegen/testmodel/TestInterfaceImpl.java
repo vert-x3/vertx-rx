@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.VertxException;
@@ -194,38 +193,6 @@ public class TestInterfaceImpl implements TestInterface {
     } else {
       return Future.succeededFuture(new TestStringDataObject().setValue("foo"));
     }
-  }
-
-  @Override
-  public Handler<AsyncResult<String>> methodWithHandlerAsyncResultStringReturn(String expected, boolean fail) {
-    return ar -> {
-      if (!fail) {
-        assertTrue(ar.succeeded());
-        assertEquals(expected, ar.result());
-      } else {
-        assertEquals(false, ar.succeeded());
-        assertEquals(expected, ar.cause().getMessage());
-      }
-    };
-  }
-
-  @Override
-  public <T> Handler<AsyncResult<T>> methodWithHandlerAsyncResultGenericReturn(Handler<AsyncResult<T>> handler) {
-    // Does a bidirectionnal conversion on purpose
-    return handler::handle;
-  }
-
-  @Override
-  public Handler<AsyncResult<RefedInterface1>> methodWithHandlerAsyncResultVertxGenReturn(String expected, boolean fail) {
-    return ar -> {
-      if (!fail) {
-        assertTrue(ar.succeeded());
-        assertEquals(expected, ar.result().getString());
-      } else {
-        assertEquals(false, ar.succeeded());
-        assertEquals(expected, ar.cause().getMessage());
-      }
-    };
   }
 
   @Override
