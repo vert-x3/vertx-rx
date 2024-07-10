@@ -319,7 +319,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         writer.format("    Function<%s, %s> outConv = (Function<%s, %s>) __typeArg_1.wrap;%n", typeVar, typeVar, typeVar, typeVar);
         writer.println("    return outConv.apply(ret);");
       } else {
-        writer.println("    return delegate.iterator();");
+        writer.println("    return ret;");
       }
 
       writer.println("  }");
