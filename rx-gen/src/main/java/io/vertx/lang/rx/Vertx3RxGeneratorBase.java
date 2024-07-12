@@ -42,45 +42,12 @@ public abstract class Vertx3RxGeneratorBase extends AbstractRxGenerator {
     // - the handler based + fire & forget overload + single version, e.g void WriteStream#end(Handler<AsyncResult<Void>>) / void WriteStream#end() / Completable end()
     // - the future base version + single version, e.g Future<Void> end() / Completable end()
 
-    writer.println("// SIMPLE " + method.getKind());
     genSimpleMethod("public", model, method, cacheDecls, genBody, writer);
 
     if (method.getKind() == MethodKind.OTHER || method.getKind() == MethodKind.HANDLER) {
       return;
     }
 
-/*
-    if (method.getKind() == MethodKind.CALLBACK) {
-      writer.println("// CALLBACK");
-      MethodInfo copy = method.copy();
-      copy.getParams().remove(copy.getParams().size() - 1);
-      Optional<MethodInfo> any = Stream.concat(model.getMethods().stream(), model.getAnyJavaTypeMethods().stream()).filter(m -> foo(m, copy)).findAny();
-      if (!any.isPresent()) {
-        startMethodTemplate("public", model.getType(), copy, "", writer);
-        if (genBody) {
-          writer.println(" {");
-          writer.print("    ");
-          if (!copy.getReturnType().isVoid()) {
-            writer.println("return ");
-          }
-          writer.print(method.getName());
-          writer.print("(");
-          writer.print(copy.getParams().stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
-          if (copy.getParams().size() > 0) {
-            writer.print(", ");
-          }
-          writer.println("ar -> { });");
-          writer.println("  }");
-          writer.println();
-        } else {
-          writer.println(";");
-          writer.println();
-        }
-      }
-    }
-*/
-
-    writer.println("// RX");
     genRxMethod(model, method, cacheDecls, genBody, writer);
   }
 
