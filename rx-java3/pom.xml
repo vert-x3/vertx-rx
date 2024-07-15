@@ -240,6 +240,11 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
+      <artifactId>vertx-web-proxy</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
       <artifactId>vertx-circuit-breaker</artifactId>
       <optional>true</optional>
     </dependency>
@@ -574,6 +579,7 @@
             vertx-web-validation,
             vertx-web-openapi,
             vertx-web-openapi-router,
+            vertx-web-proxy,
             vertx-circuit-breaker,
             vertx-dropwizard-metrics,
             vertx-redis-client,
