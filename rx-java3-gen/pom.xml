@@ -146,9 +146,6 @@
               <processors>
                 <processor>io.vertx.codegen.CodeGenProcessor</processor>
               </processors>
-              <optionMap>
-                <codegen.output>${project.basedir}/src/main</codegen.output>
-              </optionMap>
               <excludes>
                 <exclude>examples/**/*.java</exclude>
               </excludes>
@@ -168,7 +165,6 @@
                 <processor>io.vertx.codegen.CodeGenProcessor</processor>
               </processors>
               <optionMap>
-                <codegen.output>${project.basedir}/src/test</codegen.output>
                 <codegen.generators>RxJava3</codegen.generators>
               </optionMap>
             </configuration>
@@ -187,7 +183,6 @@
                 <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
               </annotationProcessors>
               <compilerArgs>
-                <arg>-Acodegen.output=${project.basedir}/src/test</arg>
                 <arg>-Acodegen.generators=RxJava3</arg>
               </compilerArgs>
             </configuration>

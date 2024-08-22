@@ -22,4 +22,4 @@ test-tmp
 *.class
 rx-java-gen/src/unpacked
 rx-java2-gen/src/unpacked
-
+rx-java3-gen/src/unpacked
