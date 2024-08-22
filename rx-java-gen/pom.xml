@@ -100,7 +100,6 @@
                 <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
               </annotationProcessors>
               <compilerArgs>
-                <arg>-Acodegen.output=${project.basedir}/src/test</arg>
                 <arg>-Acodegen.generators=RxJava</arg>
               </compilerArgs>
             </configuration>

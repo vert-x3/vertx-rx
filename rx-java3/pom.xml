@@ -17,12 +17,6 @@
   <name>Vert.x RxJava3 API</name>
 
   <properties>
-    <asciidoc.dir>${project.build.directory}/asciidoc</asciidoc.dir>
-    <!-- There is an issue with source plugin because we don't get the generated sources
-         because of BSC plugin, also the source is messy because we keep a version of vert.x core
-         so better use the assembly plugin instead -->
-    <source.skip>true</source.skip>
-
     <!-- The path to the assembly jar descriptor -->
     <rxjava2.descriptor>${basedir}/src/main/assembly/artifact.xml</rxjava2.descriptor>
     <log4j2.version>2.17.1</log4j2.version>
@@ -418,17 +412,30 @@
       <version>5.0.0-SNAPSHOT</version>
     </dependency>
 
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.1</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-influx</artifactId>
+      <version>${micrometer.version}</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-jmx</artifactId>
+      <version>${micrometer.version}</version>
+      <optional>true</optional>
+    </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
       <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -484,26 +491,6 @@
 
   <build>
     <plugins>
-
-      <!-- Configure the execution of the compiler to execute the codegen processor -->
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>default-testCompile</id>
-            <configuration>
-              <annotationProcessors>
-                <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
-              </annotationProcessors>
-              <compilerArgs>
-                <arg>-Acodegen.output=${project.basedir}/src/test</arg>
-                <arg>-Acodegen.generators=RxJava3</arg>
-              </compilerArgs>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
 
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -619,146 +606,79 @@
       </plugin>
 
       <plugin>
-        <groupId>org.bsc.maven</groupId>
-        <artifactId>maven-processor-plugin</artifactId>
-        <version>3.1.0</version>
-        <configuration>
-          <systemProperties>
-            <java.util.logging.SimpleFormatter.format>%4$s: %3$s - %5$s %6$s%n</java.util.logging.SimpleFormatter.format>
-            <mvel2.disable.jit>true</mvel2.disable.jit>
-          </systemProperties>
-        </configuration>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
         <executions>
-          <!-- Run the annotation processor on java sources and generate the API -->
           <execution>
-            <id>generate-api</id>
-            <goals>
-              <goal>process</goal>
-            </goals>
+            <id>rx-ify</id>
             <phase>generate-sources</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
             <configuration>
-              <sourceDirectory>${project.build.directory}/sources/java</sourceDirectory>
-              <processors>
-                <processor>io.vertx.codegen.CodeGenProcessor</processor>
-              </processors>
-              <optionMap>
-                <codegen.generators>RxJava3</codegen.generators>
-              </optionMap>
-              <excludes>
-                <exclude>examples/**/*.java</exclude>
-              </excludes>
+              <proc>only</proc>
+              <compileSourceRoots>
+                <compileSourceRoot>${project.build.directory}/sources/java</compileSourceRoot>
+              </compileSourceRoots>
+              <createMissingPackageInfoClass>false</createMissingPackageInfoClass>
+              <annotationProcessors>
+                <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
+              </annotationProcessors>
+              <annotationProcessorPaths>
+                <annotationProcessorPath>
+                  <groupId>io.vertx</groupId>
+                  <artifactId>vertx-codegen</artifactId>
+                </annotationProcessorPath>
+                <dependency>
+                  <groupId>io.vertx</groupId>
+                  <artifactId>vertx-rx-java3-gen</artifactId>
+                  <version>5.0.0-SNAPSHOT</version>
+                </dependency>
+              </annotationProcessorPaths>
+              <generatedSourcesDirectory>${project.build.directory}/generated/java</generatedSourcesDirectory>
             </configuration>
           </execution>
-
-          <!-- Run the annotation processor on asciidoc sources and generate the docs -->
           <execution>
-            <id>generate-doc</id>
-            <goals>
-              <goal>process</goal>
-            </goals>
-            <phase>generate-sources</phase>
+            <id>default-compile</id>
             <configuration>
-              <sourceDirectory>${project.build.directory}/sources/java</sourceDirectory>
-              <processors>
-                <processor>io.vertx.docgen.JavaDocGenProcessor</processor>
-              </processors>
-              <additionalSourceDirectories>
-                <additionalSourceDirectory>${project.basedir}/src/main/java/</additionalSourceDirectory>
-                <additionalSourceDirectory>${project.build.directory}/generated-sources/apt/</additionalSourceDirectory>
-              </additionalSourceDirectories>
-              <optionMap>
-                <docgen.source>${project.basedir}/src/main/asciidoc</docgen.source>
-                <docgen.output>${project.build.directory}/asciidoc</docgen.output>
-                <maven.groupId>${project.groupId}</maven.groupId>
-                <maven.artifactId>${project.artifactId}</maven.artifactId>
-                <maven.version>${project.version}</maven.version>
-              </optionMap>
+              <compileSourceRoots>
+                <compileSourceRoot>${project.basedir}/src/main/java</compileSourceRoot>
+                <compileSourceRoot>${project.build.directory}/generated/java</compileSourceRoot>
+              </compileSourceRoots>
+              <annotationProcessors>
+                <annotationProcessor>io.vertx.docgen.JavaDocGenProcessor</annotationProcessor>
+              </annotationProcessors>
+              <annotationProcessorPaths>
+                <annotationProcessorPath>
+                  <groupId>io.vertx</groupId>
+                  <artifactId>vertx-docgen</artifactId>
+                </annotationProcessorPath>
+              </annotationProcessorPaths>
             </configuration>
           </execution>
-
           <execution>
-            <id>generate-test-sources</id>
+            <id>default-testCompile</id>
             <goals>
-              <goal>process-test</goal>
+              <goal>testCompile</goal>
             </goals>
-            <phase>generate-test-sources</phase>
             <configuration>
-              <processors>
-                <processor>io.vertx.codegen.CodeGenProcessor</processor>
-              </processors>
-              <optionMap>
-                <codegen.output>${project.basedir}/src/test</codegen.output>
-                <codegen.output.service_proxy>${project.basedir}/src/test/java</codegen.output.service_proxy>
-                <codegen.output.service_proxy_handler>${project.basedir}/src/test/java</codegen.output.service_proxy_handler>
-              </optionMap>
-              <defaultOutputDirectory>${project.build.directory}/generated-test-sources/test-annotations</defaultOutputDirectory>
+              <annotationProcessors>
+                <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
+              </annotationProcessors>
+              <annotationProcessorPaths>
+                <annotationProcessorPath>
+                  <groupId>io.vertx</groupId>
+                  <artifactId>vertx-codegen</artifactId>
+                </annotationProcessorPath>
+                <dependency>
+                  <groupId>io.vertx</groupId>
+                  <artifactId>vertx-rx-java3-gen</artifactId>
+                  <version>5.0.0-SNAPSHOT</version>
+                </dependency>
+              </annotationProcessorPaths>
             </configuration>
           </execution>
         </executions>
-        <dependencies>
-          <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.1</version>
-          </dependency>
-          <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>2.4.7</version>
-          </dependency>
-          <dependency>
-            <groupId>com.netflix.hystrix</groupId>
-            <artifactId>hystrix-core</artifactId>
-            <version>1.5.2</version>
-            <exclusions>
-              <exclusion>
-                <groupId>io.reactivex</groupId>
-                <artifactId>rxjava</artifactId>
-              </exclusion>
-            </exclusions>
-          </dependency>
-          <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j2.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j2.version}</version>
-          </dependency>
-
-          <!-- Transitive dependencies declared as optional in other modules, and needed for instance in docgen -->
-          <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>${micrometer.version}</version>
-            <optional>true</optional>
-          </dependency>
-          <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-influx</artifactId>
-            <version>${micrometer.version}</version>
-            <optional>true</optional>
-          </dependency>
-          <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-jmx</artifactId>
-            <version>${micrometer.version}</version>
-            <optional>true</optional>
-          </dependency>
-          <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-graphite</artifactId>
-            <version>${micrometer.version}</version>
-            <optional>true</optional>
-          </dependency>
-        </dependencies>
       </plugin>
 
       <plugin>
@@ -784,66 +704,5 @@
       </plugin>
     </plugins>
   </build>
-
-  <!-- Java 8 => use Maven Toolchain to compile this module with JDK 11
-     The config file .m2/toolchains.xml is needed with this content
-
-     <toolchains>
-       <toolchain>
-         <type>jdk</type>
-         <provides>
-           <id>Java11</id>
-           <version>11</version>
-         </provides>
-         <configuration>
-           <jdkHome>/PATH/TO/JDK/11</jdkHome>
-         </configuration>
-       </toolchain>
-     </toolchains>
--->
-  <profiles>
-    <profile>
-      <id>Java8</id>
-      <activation>
-        <jdk>[1.8,11)</jdk>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.bsc.maven</groupId>
-            <artifactId>maven-processor-plugin</artifactId>
-            <version>5.0-jdk8-rc3</version>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-toolchains-plugin</artifactId>
-            <version>1.0</version>
-            <executions>
-              <execution>
-                <phase>validate</phase>
-                <goals>
-                  <goal>toolchain</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <toolchains>
-                <jdk>
-                  <version>11</version>
-                </jdk>
-              </toolchains>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-              <release>8</release>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
 </project>
