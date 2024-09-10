@@ -36,12 +36,7 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-rx-gen</artifactId>
-      <version>5.0.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-docgen</artifactId>
-      <optional>true</optional>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -58,7 +53,7 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-rx-gen</artifactId>
-      <version>5.0.0-SNAPSHOT</version>
+      <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
@@ -123,55 +118,6 @@
         </executions>
       </plugin>
 
-      <plugin>
-        <groupId>org.bsc.maven</groupId>
-        <artifactId>maven-processor-plugin</artifactId>
-        <version>3.1.0</version>
-        <configuration>
-          <systemProperties>
-            <java.util.logging.SimpleFormatter.format>%4$s: %3$s - %5$s %6$s%n</java.util.logging.SimpleFormatter.format>
-            <mvel2.disable.jit>true</mvel2.disable.jit>
-          </systemProperties>
-        </configuration>
-        <executions>
-          <!-- Run the annotation processor on java sources and generate the API -->
-          <execution>
-            <id>generate-api</id>
-            <goals>
-              <goal>process</goal>
-            </goals>
-            <phase>generate-sources</phase>
-            <configuration>
-              <sourceDirectory>${project.build.directory}/sources/java</sourceDirectory>
-              <processors>
-                <processor>io.vertx.codegen.CodeGenProcessor</processor>
-              </processors>
-              <excludes>
-                <exclude>examples/**/*.java</exclude>
-              </excludes>
-            </configuration>
-          </execution>
-
-          <!-- Run the annotation processor to produce test stubs -->
-          <execution>
-            <id>generate-stubs</id>
-            <goals>
-              <goal>process-test</goal>
-            </goals>
-            <phase>generate-test-sources</phase>
-            <configuration>
-              <sourceDirectory>${project.basedir}/src/test/stubs</sourceDirectory>
-              <processors>
-                <processor>io.vertx.codegen.CodeGenProcessor</processor>
-              </processors>
-              <optionMap>
-                <codegen.generators>RxJava3</codegen.generators>
-              </optionMap>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- Configure the execution of the compiler to execute the codegen processor -->
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -180,7 +126,7 @@
             <id>default-testCompile</id>
             <configuration>
               <annotationProcessors>
-                <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
+                <annotationProcessor>io.vertx.codegen.processor.Processor</annotationProcessor>
               </annotationProcessors>
               <compilerArgs>
                 <arg>-Acodegen.generators=RxJava3</arg>
@@ -227,6 +173,25 @@
               </artifactItems>
               <outputDirectory>${project.basedir}/src/unpacked/java</outputDirectory>
               <includes>**/*.java,META-INF/vertx/json-mappers.properties</includes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unpack-core</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <!-- We use unpack instead of unpack-dependencies on purpose to not depend on the jar because it can confuse the IDE -->
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>io.vertx</groupId>
+                  <artifactId>vertx-core</artifactId>
+                  <classifier>sources</classifier>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.basedir}/src/unpacked/java</outputDirectory>
+              <includes>io/vertx/core/package-info.java,io/vertx/core/streams/ReadStream.java,io/vertx/core/streams/Pipe.java,io/vertx/core/streams/StreamBase.java,io/vertx/core/streams/WriteStream.java</includes>
             </configuration>
           </execution>
         </executions>

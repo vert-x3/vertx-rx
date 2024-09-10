@@ -14,7 +14,7 @@
  *  You may elect to redistribute this code under either of these licenses.
  */
 
-@Document(fileName = "index.adoc")
+// @Document(fileName = "index.adoc")
 package io.vertx.rxjava3;
 
-import io.vertx.docgen.Document;
+// import io.vertx.docgen.Document;
