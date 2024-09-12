@@ -17,16 +17,34 @@ public interface MethodWithAsync {
 
   @GenIgnore(GenIgnore.PERMITTED_TYPE)
   static Future<String> singleMethod(Consumer<Handler<AsyncResult<String>>> control) {
-    return Future.future(control::accept);
+    return Future.future(p -> control.accept(ar -> {
+      if (ar.succeeded()) {
+        p.complete(ar.result());
+      } else {
+        p.fail(ar.cause());
+      }
+    }));
   }
 
   @GenIgnore(GenIgnore.PERMITTED_TYPE)
   static Future<Void> completableMethod(Consumer<Handler<AsyncResult<Void>>> control) {
-    return Future.future(control::accept);
+    return Future.future(p -> control.accept(ar -> {
+      if (ar.succeeded()) {
+        p.complete(ar.result());
+      } else {
+        p.fail(ar.cause());
+      }
+    }));
   }
 
   @GenIgnore(GenIgnore.PERMITTED_TYPE)
   static Future<@Nullable String> maybeMethod(Consumer<Handler<AsyncResult<String>>> control) {
-    return Future.future(control::accept);
+    return Future.future(p -> control.accept(ar -> {
+      if (ar.succeeded()) {
+        p.complete(ar.result());
+      } else {
+        p.fail(ar.cause());
+      }
+    }));
   }
 }

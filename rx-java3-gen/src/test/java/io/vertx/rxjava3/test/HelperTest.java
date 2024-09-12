@@ -10,7 +10,9 @@ import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleObserver;
 import io.reactivex.rxjava3.functions.Function;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.rxjava3.CompletableHelper;
 import io.vertx.rxjava3.FlowableHelper;
@@ -27,6 +29,17 @@ import static java.util.function.Function.identity;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class HelperTest extends VertxTestBase {
+
+  public static <T> Handler<AsyncResult<T>> toHAR(Promise<T> promise) {
+    return ar -> {
+      if (ar.succeeded()) {
+        promise.complete(ar.result());
+      } else {
+        promise.fail(ar.cause());
+      }
+    };
+  }
+
 
   @Test
   public void testToFutureSuccess() {
@@ -48,7 +61,7 @@ public class HelperTest extends VertxTestBase {
   @Test
   public void testToSingleObserverSuccess() {
     Promise<String> promise = Promise.promise();
-    SingleObserver<String> observer = SingleHelper.toObserver(promise);
+    SingleObserver<String> observer = SingleHelper.toObserver(toHAR(promise));
     Single<String> s = Single.just("foobar");
     s.subscribe(observer);
     assertTrue(promise.future().succeeded());
@@ -58,7 +71,7 @@ public class HelperTest extends VertxTestBase {
   @Test
   public void testToSingleObserverFailure() {
     Promise<String> promise = Promise.promise();
-    SingleObserver<String> observer = SingleHelper.toObserver(promise);
+    SingleObserver<String> observer = SingleHelper.toObserver(toHAR(promise));
     RuntimeException cause = new RuntimeException();
     Single<String> s = Single.error(cause);
     s.subscribe(observer);
@@ -69,7 +82,7 @@ public class HelperTest extends VertxTestBase {
   @Test
   public void testToMaybeObserverSuccess() {
     Promise<String> promise = Promise.promise();
-    MaybeObserver<String> observer = MaybeHelper.toObserver(promise);
+    MaybeObserver<String> observer = MaybeHelper.toObserver(toHAR(promise));
     Maybe<String> s = Maybe.just("foobar");
     s.subscribe(observer);
     assertTrue(promise.future().succeeded());
@@ -79,7 +92,7 @@ public class HelperTest extends VertxTestBase {
   @Test
   public void testToMaybeObserverEmpty() {
     Promise<String> promise = Promise.promise();
-    MaybeObserver<String> observer = MaybeHelper.toObserver(promise);
+    MaybeObserver<String> observer = MaybeHelper.toObserver(toHAR(promise));
     Maybe<String> s = Maybe.empty();
     s.subscribe(observer);
     assertTrue(promise.future().succeeded());
@@ -89,7 +102,7 @@ public class HelperTest extends VertxTestBase {
   @Test
   public void testToMaybeObserverFailure() {
     Promise<String> promise = Promise.promise();
-    MaybeObserver<String> observer = MaybeHelper.toObserver(promise);
+    MaybeObserver<String> observer = MaybeHelper.toObserver(toHAR(promise));
     RuntimeException cause = new RuntimeException();
     Maybe<String> s = Maybe.error(cause);
     s.subscribe(observer);
@@ -100,7 +113,7 @@ public class HelperTest extends VertxTestBase {
   @Test
   public void testToCompletableObserverSuccess() {
     Promise<String> promise = Promise.promise();
-    CompletableObserver observer = CompletableHelper.toObserver(promise);
+    CompletableObserver observer = CompletableHelper.toObserver(toHAR(promise));
     Completable s = Completable.complete();
     s.subscribe(observer);
     assertTrue(promise.future().succeeded());
@@ -110,7 +123,7 @@ public class HelperTest extends VertxTestBase {
   @Test
   public void testToCompletableObserverFailure() {
     Promise<String> promise = Promise.promise();
-    CompletableObserver observer = CompletableHelper.toObserver(promise);
+    CompletableObserver observer = CompletableHelper.toObserver(toHAR(promise));
     RuntimeException cause = new RuntimeException();
     Completable s = Completable.error(cause);
     s.subscribe(observer);
