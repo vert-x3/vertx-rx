@@ -667,22 +667,13 @@
         <executions>
           <execution>
             <id>package-docs</id>
+            <goals>
+              <goal>single</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
 
-      <!-- Run it to preview docs : mvn asciidoctor:process-asciidoc -->
-      <plugin>
-        <groupId>org.asciidoctor</groupId>
-        <artifactId>asciidoctor-maven-plugin</artifactId>
-        <configuration>
-          <attributes>
-            <toc>left</toc>
-          </attributes>
-          <sourceDirectory>${project.build.directory}/docs</sourceDirectory>
-          <outputDirectory>${project.build.directory}/html</outputDirectory>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
 

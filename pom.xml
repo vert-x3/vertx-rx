@@ -119,6 +119,18 @@
 
     <plugins>
 
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>package-docs</id>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- Set logging -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
