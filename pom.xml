@@ -27,6 +27,7 @@
 
   <properties>
     <micrometer.version>1.13.0</micrometer.version>
+    <vertx.javadoc.legacyMode>true</vertx.javadoc.legacyMode>
   </properties>
 
   <dependencies>
