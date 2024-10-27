@@ -206,4 +206,33 @@ public class CoreApiTest extends VertxTestBase {
 
     await();
   }
+
+  @Test
+  public void testHttpResponseExpectation() {
+    waitFor(2);
+    HttpServer server = vertx.createHttpServer().requestHandler(req -> {
+        req.response().end("Hello World");
+      }).listen(8080, "localhost").blockingGet();
+    HttpClient client = vertx.createHttpClient();
+    client.rxRequest(HttpMethod.GET, 8080, "localhost", "/")
+      .flatMap(req -> req.rxSend())
+      .lift(HttpResponseExpectation.status(200))
+      .flatMap(resp -> resp.rxBody())
+      .subscribe((body, err) -> {
+        assertNull(err);
+        assertEquals("Hello World", body.toString());
+        complete();
+      });
+    client.rxRequest(HttpMethod.GET, 8080, "localhost", "/")
+      .flatMap(req -> req.rxSend())
+      .lift(HttpResponseExpectation.status(201))
+      .flatMap(resp -> resp.rxBody())
+      .subscribe((body, err) -> {
+        assertNull(body);
+        assertNotNull(err);
+        assertEquals("Response status code 200 is not equal to 201", err.getMessage());
+        complete();
+      });
+    await();
+  }
 }
