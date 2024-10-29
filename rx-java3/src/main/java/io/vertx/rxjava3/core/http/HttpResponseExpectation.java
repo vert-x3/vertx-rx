@@ -1,7 +1,7 @@
 package io.vertx.rxjava3.core.http;
 
-import io.reactivex.rxjava3.core.SingleOperator;
-import io.vertx.rxjava3.core.ExpectationOperator;
+import io.reactivex.rxjava3.core.SingleTransformer;
+import io.vertx.rxjava3.core.ExpectationTransformer;
 
 import java.util.List;
 
@@ -20,8 +20,8 @@ public class HttpResponseExpectation {
    *
    * @param statusCode the expected status code
    */
-  public static <H extends HttpResponseHead> SingleOperator<H, H> status(int statusCode) {
-    return new ExpectationOperator<>(io.vertx.core.http.HttpResponseExpectation.status(statusCode), HttpResponseHead::getDelegate);
+  public static <H extends HttpResponseHead> SingleTransformer<H, H> status(int statusCode) {
+    return new ExpectationTransformer<>(io.vertx.core.http.HttpResponseExpectation.status(statusCode), HttpResponseHead::getDelegate);
   }
 
   /**
@@ -30,8 +30,8 @@ public class HttpResponseExpectation {
    * @param min the min status code
    * @param max the max status code
    */
-  public static <H extends HttpResponseHead> SingleOperator<H, H> status(int min, int max) {
-    return new ExpectationOperator<>(io.vertx.core.http.HttpResponseExpectation.status(min, max), HttpResponseHead::getDelegate);
+  public static <H extends HttpResponseHead> SingleTransformer<H, H> status(int min, int max) {
+    return new ExpectationTransformer<>(io.vertx.core.http.HttpResponseExpectation.status(min, max), HttpResponseHead::getDelegate);
   }
 
   /**
@@ -39,8 +39,8 @@ public class HttpResponseExpectation {
    *
    * @param mimeType the mime type
    */
-  public static <H extends HttpResponseHead> SingleOperator<H, H> contentType(String mimeType) {
-    return new ExpectationOperator<>(io.vertx.core.http.HttpResponseExpectation.contentType(mimeType), HttpResponseHead::getDelegate);
+  public static <H extends HttpResponseHead> SingleTransformer<H, H> contentType(String mimeType) {
+    return new ExpectationTransformer<>(io.vertx.core.http.HttpResponseExpectation.contentType(mimeType), HttpResponseHead::getDelegate);
   }
 
   /**
@@ -48,8 +48,8 @@ public class HttpResponseExpectation {
    *
    * @param mimeTypes the list of mime types
    */
-  public static <H extends HttpResponseHead> SingleOperator<H, H> contentType(String... mimeTypes) {
-    return new ExpectationOperator<>(io.vertx.core.http.HttpResponseExpectation.contentType(mimeTypes), HttpResponseHead::getDelegate);
+  public static <H extends HttpResponseHead> SingleTransformer<H, H> contentType(String... mimeTypes) {
+    return new ExpectationTransformer<>(io.vertx.core.http.HttpResponseExpectation.contentType(mimeTypes), HttpResponseHead::getDelegate);
   }
 
   /**
@@ -57,7 +57,7 @@ public class HttpResponseExpectation {
    *
    * @param mimeTypes the list of mime types
    */
-  public static <H extends HttpResponseHead> SingleOperator<H, H> contentType(List<String> mimeTypes) {
-    return new ExpectationOperator<>(io.vertx.core.http.HttpResponseExpectation.contentType(mimeTypes), HttpResponseHead::getDelegate);
+  public static <H extends HttpResponseHead> SingleTransformer<H, H> contentType(List<String> mimeTypes) {
+    return new ExpectationTransformer<>(io.vertx.core.http.HttpResponseExpectation.contentType(mimeTypes), HttpResponseHead::getDelegate);
   }
 }

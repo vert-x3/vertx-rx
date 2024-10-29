@@ -2,16 +2,13 @@ package io.vertx.reactivex.test;
 
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import io.vertx.core.Expectation;
-import io.vertx.core.Future;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.core.http.RequestOptions;
 import io.vertx.reactivex.core.AbstractVerticle;
 import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.reactivex.core.file.AsyncFile;
 import io.vertx.reactivex.core.http.*;
 import io.vertx.reactivex.core.parsetools.RecordParser;
@@ -140,7 +137,7 @@ public class CoreApiTest extends VertxTestBase {
     HttpClient client = vertx.createHttpClient();
     client.rxRequest(HttpMethod.GET, 8080, "localhost", "/")
       .flatMap(req -> req.rxSend())
-      .lift(HttpResponseExpectation.status(200))
+      .compose(HttpResponseExpectation.status(200))
       .flatMap(resp -> resp.rxBody())
       .subscribe((body, err) -> {
         assertNull(err);
@@ -149,7 +146,7 @@ public class CoreApiTest extends VertxTestBase {
       });
     client.rxRequest(HttpMethod.GET, 8080, "localhost", "/")
       .flatMap(req -> req.rxSend())
-      .lift(HttpResponseExpectation.status(201))
+      .compose(HttpResponseExpectation.status(201))
       .flatMap(resp -> resp.rxBody())
       .subscribe((body, err) -> {
         assertNull(body);
