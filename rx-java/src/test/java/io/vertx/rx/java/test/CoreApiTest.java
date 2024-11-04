@@ -1,5 +1,6 @@
 package io.vertx.rx.java.test;
 
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
@@ -13,17 +14,11 @@ import io.vertx.rx.java.RxHelper;
 import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.rxjava.core.Context;
 import io.vertx.rxjava.core.Vertx;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.rxjava.core.eventbus.EventBus;
 import io.vertx.rxjava.core.eventbus.Message;
 import io.vertx.rxjava.core.eventbus.MessageConsumer;
 import io.vertx.rxjava.core.file.AsyncFile;
-import io.vertx.rxjava.core.http.HttpClient;
-import io.vertx.rxjava.core.http.WebSocketClient;
-import io.vertx.rxjava.core.http.HttpClientRequest;
-import io.vertx.rxjava.core.http.HttpClientResponse;
-import io.vertx.rxjava.core.http.HttpServer;
-import io.vertx.rxjava.core.http.WebSocket;
+import io.vertx.rxjava.core.http.*;
 import io.vertx.rxjava.core.net.NetServer;
 import io.vertx.rxjava.core.net.NetSocket;
 import io.vertx.rxjava.core.parsetools.RecordParser;
@@ -258,8 +253,9 @@ public class CoreApiTest extends VertxTestBase {
   @Test
   public void testObservableWebSocket() {
     ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
+    WebSocketClient webSocketClient = vertx.createWebSocketClient(new WebSocketClientOptions());
     onListen.subscribe(
-        server -> vertx.createWebSocketClient(new WebSocketClientOptions()).connect(8080, "localhost", "/some/path").onComplete(ar -> {
+      server -> webSocketClient.connect(8080, "localhost", "/some/path").onComplete(ar -> {
           if (ar.succeeded()) {
             WebSocket ws = ar.result();
             ws.write(Buffer.buffer("foo"));
@@ -272,7 +268,7 @@ public class CoreApiTest extends VertxTestBase {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
     server.webSocketHandler(o -> {
       Observable<Buffer> dataObs = o.toObservable();
-      dataObs.subscribe(new Observer<Buffer>() {
+      dataObs.subscribe(new Observer<>() {
 
         LinkedList<Buffer> buffers = new LinkedList<>();
 
