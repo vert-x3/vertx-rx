@@ -2,9 +2,10 @@ package examples;
 
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.docgen.Source;
-import io.vertx.core.buffer.Buffer;
+import io.vertx.rxjava3.core.http.HttpResponseExpectation;
 import io.vertx.rxjava3.ext.web.client.HttpResponse;
 import io.vertx.rxjava3.ext.web.client.WebClient;
 import io.vertx.rxjava3.ext.web.codec.BodyCodec;
@@ -72,5 +73,15 @@ public class RxWebClientExamples {
       System.out.println(resp.statusCode());
       System.out.println(resp.body());
     });
+  }
+
+  public void httpResponseExpectations(WebClient client) {
+    Single<HttpResponse<Buffer>> single = client
+      .get(8080, "myserver.mycompany.com", "/some-uri")
+      .rxSend()
+      // Transforms the single into a failed single if the HTTP response is not successful
+      .compose(HttpResponseExpectation.status(200))
+      // Transforms the single into a failed single if the HTTP response content is not JSON
+      .compose(HttpResponseExpectation.contentType("application/json"));
   }
 }

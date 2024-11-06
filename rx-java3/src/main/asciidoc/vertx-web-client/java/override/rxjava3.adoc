@@ -16,15 +16,14 @@ The obtained `Single` can be composed and chained naturally with the RxJava API
 {@link examples.RxWebClientExamples#flatMap(io.vertx.rxjava3.ext.web.client.WebClient)}
 ----
 
-The same APIs is available
+The same APIs are available:
 
 [source,java]
 ----
 {@link examples.RxWebClientExamples#moreComplex(io.vertx.rxjava3.ext.web.client.WebClient)}
 ----
 
-The {@link io.vertx.rxjava3.ext.web.client.HttpRequest#rxSendStream(io.reactivex.rxjava3.core.Flowable)} shall
-be preferred for sending bodies `Flowable<Buffer>`.
+The {@link io.vertx.rxjava3.ext.web.client.HttpRequest#rxSendStream(io.reactivex.rxjava3.core.Flowable)} shall be preferred for sending bodies `Flowable<Buffer>`.
 
 [source,java]
 ----
@@ -32,3 +31,14 @@ be preferred for sending bodies `Flowable<Buffer>`.
 ----
 
 Upon subscription, the `body` will be subscribed and its content used for the request.
+
+=== HTTP Response Expectations
+
+Interacting with an HTTP backend often involves verifying HTTP response codes and/or content types.
+
+To streamline the process of verification, use the {@link io.vertx.rxjava3.core.http.HttpResponseExpectation} methods:
+
+[source,java]
+----
+{@link examples.RxWebClientExamples#httpResponseExpectations(io.vertx.rxjava3.ext.web.client.WebClient)}
+----
