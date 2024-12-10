@@ -29,7 +29,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>vertx-junit5-rx-java</module>
     <module>vertx-junit5-rx-java2</module>
     <module>vertx-junit5-rx-java3</module>
   </modules>
