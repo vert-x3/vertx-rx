@@ -16,13 +16,11 @@
 
 package io.vertx.it.discovery.service;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.serviceproxy.ProxyHelper;
+import io.vertx.serviceproxy.ServiceBinder;
 
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
@@ -31,6 +29,7 @@ public class HelloServiceImpl implements HelloService {
 
   private final String msg;
   private MessageConsumer<JsonObject> service;
+  private ServiceBinder binder;
 
   public HelloServiceImpl() {
     this("Hello");
@@ -41,11 +40,12 @@ public class HelloServiceImpl implements HelloService {
   }
 
   public void start(Vertx vertx, String address) {
-    service = ProxyHelper.registerService(HelloService.class, vertx, this, address);
+    binder = new ServiceBinder(vertx).setAddress(address);
+    binder.register(HelloService.class, this);
   }
 
   public void stop() {
-    ProxyHelper.unregisterService(service);
+    binder.unregister(service);
   }
 
   @Override
