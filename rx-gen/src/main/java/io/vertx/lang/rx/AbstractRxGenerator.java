@@ -1,8 +1,24 @@
+/*
+ * Copyright 2024 Red Hat, Inc.
+ *
+ * Red Hat licenses this file to you under the Apache License, version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License.  You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+
 package io.vertx.lang.rx;
 
-import io.vertx.codegen.processor.*;
 import io.vertx.codegen.annotations.ModuleGen;
 import io.vertx.codegen.annotations.VertxGen;
+import io.vertx.codegen.processor.*;
 import io.vertx.codegen.processor.doc.Doc;
 import io.vertx.codegen.processor.doc.Tag;
 import io.vertx.codegen.processor.doc.Token;
@@ -16,7 +32,6 @@ import java.util.*;
 
 import static io.vertx.codegen.processor.type.ClassKind.*;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractRxGenerator extends Generator<ClassModel> {
 
@@ -85,7 +100,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     }
 
     List<String> interfaces = new ArrayList<>();
-    interfaces.addAll(model.getAbstractSuperTypes().stream().map(this::genTranslatedTypeName).collect(toList()));
+    interfaces.add("RxDelegate");
+    for (TypeInfo typeInfo : model.getAbstractSuperTypes()) {
+      interfaces.add(genTranslatedTypeName(typeInfo));
+    }
     if (model.isHandler()) {
       interfaces.add("Handler<" + genTranslatedTypeName(model.getHandlerArg()) + ">");
     }
@@ -155,6 +173,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
 
       generateClassBody(model, model.getIfaceSimpleName(), writer);
     } else {
+      writer.println("  @Override ");
       writer.print("  ");
       writer.print(type.getName());
       writer.println(" getDelegate();");
@@ -420,6 +439,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println("  }");
     writer.println();
 
+    writer.println("  @Override ");
     writer.print("  public ");
     writer.print(type.getName());
     writer.println(" getDelegate() {");
@@ -686,6 +706,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println("import io.vertx.core.AsyncResult;");
     writer.println("import io.vertx.core.json.JsonObject;");
     writer.println("import io.vertx.core.json.JsonArray;");
+    writer.println("import io.vertx.lang.rx.RxDelegate;");
     writer.println("import io.vertx.lang.rx.RxGen;");
     writer.println("import io.vertx.lang.rx.TypeArg;");
     writer.println("import io.vertx.lang.rx.MappingIterator;");
@@ -767,8 +788,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       ParameterizedTypeInfo parameterizedTypeInfo = (ParameterizedTypeInfo) type;
       if (kind == HANDLER) {
         TypeInfo eventType = parameterizedTypeInfo.getArg(0);
-        ClassKind eventKind = eventType.getKind();
-        return "new io.vertx.lang.rx.DelegatingHandler<>(" + expr + ", event -> " + genConvReturn(eventType, method, "event") + ")";
+        return "io.vertx.lang." + id + ".Helper.convertHandler(" + expr + ", event -> " + genConvReturn(eventType, method, "event") + ")";
       } else if (kind == FUNCTION) {
         TypeInfo argType = parameterizedTypeInfo.getArg(0);
         TypeInfo retType = parameterizedTypeInfo.getArg(1);
