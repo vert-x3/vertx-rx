@@ -17,7 +17,7 @@
 package io.vertx.rxjava3.ext.web.handler.graphql.instrumentation;
 
 import graphql.execution.instrumentation.InstrumentationState;
-import graphql.execution.instrumentation.SimpleInstrumentation;
+import graphql.execution.instrumentation.SimplePerformantInstrumentation;
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters;
 import graphql.schema.DataFetcher;
 import io.reactivex.rxjava3.core.Single;
@@ -30,7 +30,7 @@ import java.util.function.Function;
  * Instrument data fetchers so that {@link Single} results are automatically converted to {@link java.util.concurrent.CompletionStage}.
  */
 @SuppressWarnings("rawtypes")
-public class SingleAdapter extends SimpleInstrumentation {
+public class SingleAdapter extends SimplePerformantInstrumentation {
 
   private final ToCompletionStage<Single> toCompletionStage;
 

@@ -17,7 +17,7 @@
 package io.vertx.rxjava3.ext.web.handler.graphql.instrumentation;
 
 import graphql.execution.instrumentation.InstrumentationState;
-import graphql.execution.instrumentation.SimpleInstrumentation;
+import graphql.execution.instrumentation.SimplePerformantInstrumentation;
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters;
 import graphql.schema.DataFetcher;
 import io.reactivex.rxjava3.core.Maybe;
@@ -30,7 +30,7 @@ import java.util.function.Function;
  * Instrument data fetchers so that {@link Maybe} results are automatically converted to {@link CompletionStage}.
  */
 @SuppressWarnings("rawtypes")
-public class MaybeAdapter extends SimpleInstrumentation {
+public class MaybeAdapter extends SimplePerformantInstrumentation {
 
   private final ToCompletionStage<Maybe> toCompletionStage;
 
