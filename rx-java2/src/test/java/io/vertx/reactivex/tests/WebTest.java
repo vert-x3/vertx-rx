@@ -18,7 +18,7 @@ package io.vertx.reactivex.tests;
 
 import io.vertx.core.http.HttpMethod;
 import io.vertx.reactivex.core.Vertx;
-import io.vertx.reactivex.core.http.HttpClientAgent;
+import io.vertx.reactivex.core.http.HttpClient;
 import io.vertx.reactivex.core.http.HttpClientResponse;
 import io.vertx.reactivex.core.http.HttpServer;
 import io.vertx.reactivex.ext.web.Router;
@@ -31,7 +31,7 @@ public class WebTest extends VertxTestBase {
   private Vertx vertx;
   private Router router;
   private HttpServer server;
-  private HttpClientAgent client;
+  private HttpClient client;
 
   @Override
   public void setUp() throws Exception {
@@ -40,8 +40,8 @@ public class WebTest extends VertxTestBase {
     router = Router.router(vertx);
     server = vertx.createHttpServer()
       .requestHandler(router)
-      .listen(8080, "localhost")
-      .await();
+      .rxListen(8080, "localhost")
+      .blockingGet();
     client = vertx.createHttpClient();
   }
 
@@ -59,10 +59,10 @@ public class WebTest extends VertxTestBase {
   @Override
   public void tearDown() throws Exception {
     if (client != null) {
-      client.close();
+      client.rxClose().onErrorComplete().blockingAwait();
     }
     if (server != null) {
-      server.close();
+      server.rxClose().onErrorComplete().blockingAwait();
     }
     super.tearDown();
   }
