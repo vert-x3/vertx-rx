@@ -49,7 +49,7 @@ public class Helper {
    * Convert a handler for a generated reactive type to a handler for the corresponding core type.
    */
   public static <CORE, REACTIVE> Handler<CORE> convertHandler(Handler<REACTIVE> rxHandler, Function<CORE, REACTIVE> mapper) {
-    if (rxHandler.getClass().isAnnotationPresent(RxGen.class) && rxHandler instanceof RxDelegate) {
+    if (rxHandler instanceof RxDelegate) {
       RxDelegate rxDelegate = (RxDelegate) rxHandler;
       return (Handler<CORE>) rxDelegate.getDelegate();
     }
