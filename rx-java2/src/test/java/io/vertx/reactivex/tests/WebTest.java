@@ -59,10 +59,10 @@ public class WebTest extends VertxTestBase {
   @Override
   public void tearDown() throws Exception {
     if (client != null) {
-      client.close();
+      client.rxClose().onErrorComplete().blockingAwait();
     }
     if (server != null) {
-      server.close();
+      server.rxClose().onErrorComplete().blockingAwait();
     }
     super.tearDown();
   }
