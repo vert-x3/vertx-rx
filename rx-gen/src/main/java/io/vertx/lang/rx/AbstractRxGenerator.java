@@ -83,6 +83,10 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.print(type.getName());
     writer.println(".class)");
 
+    if (model.isDeprecated()) {
+      writer.println("@Deprecated()");
+    }
+
     writer.print("public ");
     if (model.isConcrete()) {
       writer.print("class");
@@ -199,7 +203,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
 
     // Gen newInstance
     writer.print("  public static ");
-    if (type.getParams().size() > 0) {
+    if (!type.getParams().isEmpty()) {
       writer.print(genTypeParamsDecl(type));
       writer.print(" ");
     }
@@ -219,7 +223,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.println();
 
     // Gen parameterized newInstance
-    if (type.getParams().size() > 0) {
+    if (!type.getParams().isEmpty()) {
       writer.print("  public static ");
       writer.print(genTypeParamsDecl(type));
       writer.print(" ");
@@ -379,7 +383,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     writer.print("  private final ");
     writer.print(Helper.getNonGenericType(model.getIfaceFQCN()));
     List<TypeParamInfo.Class> typeParams = model.getTypeParams();
-    if (typeParams.size() > 0) {
+    if (!typeParams.isEmpty()) {
       writer.print(typeParams.stream().map(TypeParamInfo.Class::getName).collect(joining(",", "<", ">")));
     }
     writer.println(" delegate;");
@@ -477,7 +481,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
       }
     }
     // Cosmetic space
-    if (methodTypeArgMap.size() > 0) {
+    if (!methodTypeArgMap.isEmpty()) {
       writer.println();
     }
 
@@ -538,13 +542,13 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
         }
         writer.println();
       }
-      if (deprecated != null && deprecated.length() > 0) {
+      if (deprecated != null && !deprecated.isEmpty()) {
         writer.print("   * @deprecated ");
         writer.println(deprecated);
       }
       writer.println("   */");
     }
-    if (method.isDeprecated() || deprecated != null && deprecated.length() > 0) {
+    if (method.isDeprecated() || deprecated != null && !deprecated.isEmpty()) {
       writer.println("  @Deprecated()");
     }
     writer.print("  ");
@@ -553,7 +557,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     if (method.isStaticMethod()) {
       writer.print("static ");
     }
-    if (method.getTypeParams().size() > 0) {
+    if (!method.getTypeParams().isEmpty()) {
       writer.print(method.getTypeParams().stream().map(TypeParamInfo::getName).collect(joining(", ", "<", ">")));
       writer.print(" ");
     }
@@ -962,7 +966,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
   }
 
   private String genTypeParamsDecl(ClassTypeInfo type) {
-    if (type.getParams().size() > 0) {
+    if (!type.getParams().isEmpty()) {
       return type.getParams().stream().map(TypeParamInfo::getName).collect(joining(",", "<", ">"));
     } else {
       return "";
@@ -1001,7 +1005,7 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
           /* todo find a way for translating the complete signature */
           ret += "#" + elt.getSimpleName().toString();
         }
-        if (label.length() > 0) {
+        if (!label.isEmpty()) {
           ret += " " + label;
         }
         ret += "}";
