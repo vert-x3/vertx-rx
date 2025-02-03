@@ -11,7 +11,7 @@ import io.reactivex.rxjava3.core.ObservableTransformer;
 import io.reactivex.rxjava3.core.Single;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
-import io.vertx.core.json.jackson.JacksonFactory;
+import io.vertx.core.json.jackson.DatabindCodec;
 
 import static java.util.Objects.nonNull;
 
@@ -21,6 +21,8 @@ import static java.util.Objects.nonNull;
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public class ObservableUnmarshaller<T, B> implements ObservableTransformer<B, T> {
+
+  private static final DatabindCodec DATABIND_CODEC = Json.CODEC instanceof DatabindCodec ? (DatabindCodec) Json.CODEC : new DatabindCodec();
 
   private final java.util.function.Function<B, Buffer> unwrap;
   private final Class<T> mappedType;
@@ -80,7 +82,7 @@ public class ObservableUnmarshaller<T, B> implements ObservableTransformer<B, T>
   static <T> T getT(Buffer buffer, Class<T> mappedType, TypeReference<T> mappedTypeRef) {
     T obj;
     obj = nonNull(mappedType) ? Json.CODEC.fromBuffer(buffer, mappedType) :
-      JacksonFactory.CODEC.fromBuffer(buffer, mappedTypeRef);
+      DATABIND_CODEC.fromBuffer(buffer, mappedTypeRef);
     return obj;
   }
 }
