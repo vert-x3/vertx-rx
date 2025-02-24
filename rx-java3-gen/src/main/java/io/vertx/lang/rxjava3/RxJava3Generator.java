@@ -160,15 +160,37 @@ class RxJava3Generator extends AbstractRxGenerator {
       return;
     }
     if (method.getKind() == MethodKind.FUTURE) {
-      genRxMethod(model, method, genBody, writer);
-      genLazyRxMethod(model, method, genBody, writer);
+      TypeInfo futType = ((ParameterizedTypeInfo)method.getReturnType()).getArg(0);
+      if (futType.getKind() == ClassKind.API && futType.getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
+        MethodInfo futMethod = genFutureReadStreamMethod(method);
+        genRxMethod(model, method, futMethod, genBody, writer);
+        genLazyRxReadStreamMethod(model, method, futMethod, genBody, writer);
+      } else {
+        MethodInfo futMethod = genFutureMethod(method);
+        genRxMethod(model, method, futMethod, genBody, writer);
+        genLazyRxMethod(model, method, futMethod, genBody, writer);
+      }
     } else {
       genSimpleMethod("public", model, method, cacheDecls, genBody, writer);
     }
   }
 
-  private void genRxMethod(ClassModel model, MethodInfo method, boolean genBody, PrintWriter writer) {
-    MethodInfo futMethod = genFutureMethod(method);
+  private void genLazyRxReadStreamMethod(ClassModel model, MethodInfo method, MethodInfo futMethod, boolean genBody, PrintWriter writer) {
+    futMethod.setName(genFutureMethodName(futMethod));
+    startMethodTemplate("public", model.getType(), futMethod, "", writer);
+    if (genBody) {
+      writer.println(" {");
+      writer.print("    return io.vertx.rxjava3.FlowableHelper.toFlowable(() -> ");
+      writer.print(genInvokeDelegate(model, method));
+      writer.println(");");
+      writer.println("  }");
+    } else {
+      writer.println(";");
+    }
+    writer.println();
+  }
+
+  private void genRxMethod(ClassModel model, MethodInfo method, MethodInfo futMethod, boolean genBody, PrintWriter writer) {
     startMethodTemplate("public", model.getType(), futMethod, "", writer);
     if (genBody) {
       String rxName = genFutureMethodName(method);
@@ -193,8 +215,7 @@ class RxJava3Generator extends AbstractRxGenerator {
     writer.println();
   }
 
-  private void genLazyRxMethod(ClassModel model, MethodInfo method, boolean genBody, PrintWriter writer) {
-    MethodInfo futMethod = genFutureMethod(method);
+  private void genLazyRxMethod(ClassModel model, MethodInfo method, MethodInfo futMethod, boolean genBody, PrintWriter writer) {
     futMethod.setName(genFutureMethodName(futMethod));
     ClassTypeInfo raw = futMethod.getReturnType().getRaw();
     String methodSimpleName = raw.getSimpleName();
@@ -328,15 +349,22 @@ class RxJava3Generator extends AbstractRxGenerator {
   private MethodInfo genFutureMethod(MethodInfo method) {
     List<ParamInfo> futParams = new ArrayList<>(method.getParams());
     TypeInfo futType = ((ParameterizedTypeInfo) method.getReturnType()).getArg(0);
-    TypeInfo futUnresolvedType = futType;
     TypeInfo futReturnType;
-    if (futUnresolvedType.getKind() == VOID) {
+    if (futType.getKind() == VOID) {
       futReturnType = io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Completable.class);
-    } else if (futUnresolvedType.isNullable()) {
+    } else if (futType.isNullable()) {
       futReturnType = new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Maybe.class).getRaw(), false, Collections.singletonList(futType));
     } else {
       futReturnType = new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Single.class).getRaw(), false, Collections.singletonList(futType));
     }
+    return method.copy().setReturnType(futReturnType).setParams(futParams);
+  }
+
+  private MethodInfo genFutureReadStreamMethod(MethodInfo method) {
+    List<ParamInfo> futParams = new ArrayList<>(method.getParams());
+    TypeInfo futType = ((ParameterizedTypeInfo) method.getReturnType()).getArg(0);
+    ParameterizedTypeInfo readStreamType = (ParameterizedTypeInfo) futType;
+    TypeInfo futReturnType = new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Flowable.class).getRaw(), false, Collections.singletonList(readStreamType.getArg(0)));
     return method.copy().setReturnType(futReturnType).setParams(futParams);
   }
 }

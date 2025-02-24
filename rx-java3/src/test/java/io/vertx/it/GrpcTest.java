@@ -8,6 +8,8 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.net.SocketAddress;
+import io.vertx.core.streams.ReadStream;
+import io.vertx.core.streams.WriteStream;
 import io.vertx.grpc.common.GrpcReadStream;
 import io.vertx.grpc.common.GrpcWriteStream;
 import io.vertx.rxjava3.core.Vertx;
@@ -35,7 +37,7 @@ public class GrpcTest extends VertxTestBase {
           .build());
       }
       @Override
-      protected void sayHelloStreaming(GrpcReadStream<HelloRequest> request, GrpcWriteStream<HelloReply> response) {
+      protected void sayHelloStreaming(ReadStream<HelloRequest> request, WriteStream<HelloReply> response) {
         request.handler(hello -> response.write(HelloReply.newBuilder().setMessage("Hello " + hello.getName()).build()));
         request.endHandler(v -> response.end());
       }
@@ -58,7 +60,6 @@ public class GrpcTest extends VertxTestBase {
 
     List<String> result = client
       .sayHelloStreaming(stream)
-      .flatMapPublisher(io.vertx.rxjava3.grpc.common.GrpcReadStream::toFlowable)
       .map(HelloReply::getMessage)
       .collect(Collectors.toList())
       .blockingGet();
