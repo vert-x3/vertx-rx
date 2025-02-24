@@ -326,27 +326,9 @@ class RxJava3Generator extends AbstractRxGenerator {
   }
 
   private MethodInfo genFutureMethod(MethodInfo method) {
-    List<ParamInfo> futParams;
-    TypeInfo futType;
-    TypeInfo futUnresolvedType;
-    if (method.getKind() == MethodKind.FUTURE) {
-      futParams = new ArrayList<>(method.getParams());
-      futType = ((ParameterizedTypeInfo) method.getReturnType()).getArg(0);
-      futUnresolvedType = futType;
-    } else {
-      futParams = new ArrayList<>();
-      int count = 0;
-      int size = method.getParams().size() - 1;
-      while (count < size) {
-        ParamInfo param = method.getParam(count);
-        /* Transform ReadStream -> Flowable */
-        futParams.add(param);
-        count = count + 1;
-      }
-      ParamInfo futParam = method.getParam(size);
-      futType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getType()).getArg(0)).getArg(0);
-      futUnresolvedType = ((ParameterizedTypeInfo) ((ParameterizedTypeInfo) futParam.getUnresolvedType()).getArg(0)).getArg(0);
-    }
+    List<ParamInfo> futParams = new ArrayList<>(method.getParams());
+    TypeInfo futType = ((ParameterizedTypeInfo) method.getReturnType()).getArg(0);
+    TypeInfo futUnresolvedType = futType;
     TypeInfo futReturnType;
     if (futUnresolvedType.getKind() == VOID) {
       futReturnType = io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.rxjava3.core.Completable.class);

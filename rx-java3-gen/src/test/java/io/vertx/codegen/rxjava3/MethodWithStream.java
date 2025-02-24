@@ -1,6 +1,7 @@
 package io.vertx.codegen.rxjava3;
 
 import io.vertx.codegen.annotations.VertxGen;
+import io.vertx.core.Future;
 import io.vertx.core.streams.ReadStream;
 
 /**
@@ -13,5 +14,9 @@ public interface MethodWithStream {
   }
 
   static void apiStream(ReadStream<MethodWithStream> stream) {
+  }
+
+  static Future<ReadStream<String>> futureOfStream() {
+    return null;
   }
 }
