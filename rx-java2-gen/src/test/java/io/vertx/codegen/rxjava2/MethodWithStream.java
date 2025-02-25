@@ -1,4 +1,4 @@
-package io.vertx.codegen.rxjava3;
+package io.vertx.codegen.rxjava2;
 
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.Future;
@@ -19,4 +19,5 @@ public interface MethodWithStream {
   static Future<ReadStream<String>> futureOfStream() {
     return null;
   }
+
 }

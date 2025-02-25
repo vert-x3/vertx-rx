@@ -7,7 +7,7 @@ import io.vertx.codegen.processor.type.ClassKind;
 import io.vertx.codegen.processor.type.ClassTypeInfo;
 import io.vertx.codegen.processor.type.ParameterizedTypeInfo;
 import io.vertx.codegen.processor.type.TypeInfo;
-import io.vertx.lang.rx.Vertx3RxGeneratorBase;
+import io.vertx.lang.rx.AbstractRxGenerator;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -16,14 +16,41 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.vertx.codegen.processor.type.ClassKind.API;
 import static io.vertx.codegen.processor.type.ClassKind.VOID;
 import static java.util.stream.Collectors.joining;
 
-class RxJava2Generator extends Vertx3RxGeneratorBase {
+class RxJava2Generator extends AbstractRxGenerator {
   RxJava2Generator() {
     super("reactivex");
     this.kinds = Collections.singleton("class");
     this.name = "RxJava2";
+  }
+
+  @Override
+  protected final void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
+    genMethod(model, method, cacheDecls, genBody, writer);
+    MethodInfo overload = genOverloadedMethod(method);
+    if (overload != null) {
+      genMethod(model, overload, cacheDecls, genBody, writer);
+    }
+  }
+
+
+  private void genMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
+
+    // Generate up to 3 methods
+    // - the regular methods
+    // - the handler based + fire & forget overload + single version, e.g void WriteStream#end(Handler<AsyncResult<Void>>) / void WriteStream#end() / Completable end()
+    // - the future base version + single version, e.g Future<Void> end() / Completable end()
+
+    genSimpleMethod("public", model, method, cacheDecls, genBody, writer);
+
+    if (method.getKind() == MethodKind.OTHER || method.getKind() == MethodKind.HANDLER) {
+      return;
+    }
+
+    genRxMethod(model, method, cacheDecls, genBody, writer);
   }
 
   @Override
@@ -34,6 +61,7 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
     writer.println("import io.vertx.reactivex.impl.AsyncResultMaybe;");
     writer.println("import io.vertx.reactivex.impl.AsyncResultSingle;");
     writer.println("import io.vertx.reactivex.impl.AsyncResultCompletable;");
+    writer.println("import io.vertx.reactivex.impl.AsyncResultFlowable;");
     writer.println("import io.vertx.reactivex.WriteStreamObserver;");
     writer.println("import io.vertx.reactivex.WriteStreamSubscriber;");
     super.genImports(model, writer);
@@ -70,7 +98,7 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
     writer.print(rxName);
     writer.println(" == null) {");
 
-    if (streamType.getKind() == ClassKind.API) {
+    if (streamType.getKind() == API) {
       writer.print("      Function<");
       writer.print(streamType.getName());
       writer.print(", ");
@@ -140,7 +168,7 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
 
     writer.format("    if (%s == null) {%n", rxName);
 
-    if (streamType.getKind() == ClassKind.API) {
+    if (streamType.getKind() == API) {
       writer.format("      Function<%s, %s> conv = %s::getDelegate;%n", genTranslatedTypeName(streamType.getRaw()), streamType.getName(), genTranslatedTypeName(streamType));
 
       writer.format("      %s = RxHelper.to%s(getDelegate(), conv);%n", rxName, rxType);
@@ -159,8 +187,7 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
     writer.println();
   }
 
-  @Override
-  protected void genRxMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
+  private void genRxMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
     MethodInfo futMethod = genFutureMethod(method);
     ClassTypeInfo raw = futMethod.getReturnType().getRaw();
     String methodSimpleName = raw.getSimpleName();
@@ -186,7 +213,12 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
       writer.print("(");
       List<ParamInfo> params = futMethod.getParams();
       writer.print(params.stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
-      writer.println(").onComplete($handler);");
+      writer.print(")");
+      if (methodSimpleName.equals("Flowable")) {
+        TypeInfo arg = ((ParameterizedTypeInfo) futMethod.getReturnType()).getArg(0);
+        writer.print(".map(stream_ -> (io.vertx.core.streams.ReadStream<" + arg.getName() + ">)stream_.getDelegate())");
+      }
+      writer.println(".onComplete($handler);");
       writer.println("    });");
       writer.println("  }");
     } else {
@@ -273,20 +305,15 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
   private MethodInfo genFutureMethod(MethodInfo method) {
     String futMethodName = genFutureMethodName(method);
     List<ParamInfo> futParams = new ArrayList<>(method.getParams());
-    TypeInfo futType;
-    TypeInfo futUnresolvedType;
-    if (method.getKind() == MethodKind.FUTURE) {
-      TypeInfo futParam = method.getReturnType();
-      futType = ((ParameterizedTypeInfo) futParam).getArg(0);
-      // getUnresolvedType ????
-      futUnresolvedType = ((ParameterizedTypeInfo) futParam).getArg(0);
-    } else {
-      throw new IllegalArgumentException("Method kind " + method.getKind());
-    }
+    TypeInfo futParam = method.getReturnType();
+    TypeInfo futType = ((ParameterizedTypeInfo) futParam).getArg(0);
     TypeInfo futReturnType;
-    if (futUnresolvedType.getKind() == VOID) {
+    if (futType.getKind() == API && futType.getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
+      ParameterizedTypeInfo readStreamType = (ParameterizedTypeInfo) futType;
+      futReturnType = new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Flowable.class).getRaw(), false, Collections.singletonList(readStreamType.getArg(0)));
+    } else if (futType.getKind() == VOID) {
       futReturnType = io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Completable.class);
-    } else if (futUnresolvedType.isNullable()) {
+    } else if (futType.isNullable()) {
       futReturnType = new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Maybe.class).getRaw(), false, Collections.singletonList(futType));
     } else {
       futReturnType = new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Single.class).getRaw(), false, Collections.singletonList(futType));
