@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.vertx.codegen.processor.type.ClassKind.API;
 import static io.vertx.codegen.processor.type.ClassKind.VOID;
 import static java.util.stream.Collectors.joining;
 
@@ -60,6 +61,7 @@ class RxJava2Generator extends AbstractRxGenerator {
     writer.println("import io.vertx.reactivex.impl.AsyncResultMaybe;");
     writer.println("import io.vertx.reactivex.impl.AsyncResultSingle;");
     writer.println("import io.vertx.reactivex.impl.AsyncResultCompletable;");
+    writer.println("import io.vertx.reactivex.impl.AsyncResultFlowable;");
     writer.println("import io.vertx.reactivex.WriteStreamObserver;");
     writer.println("import io.vertx.reactivex.WriteStreamSubscriber;");
     super.genImports(model, writer);
@@ -96,7 +98,7 @@ class RxJava2Generator extends AbstractRxGenerator {
     writer.print(rxName);
     writer.println(" == null) {");
 
-    if (streamType.getKind() == ClassKind.API) {
+    if (streamType.getKind() == API) {
       writer.print("      Function<");
       writer.print(streamType.getName());
       writer.print(", ");
@@ -166,7 +168,7 @@ class RxJava2Generator extends AbstractRxGenerator {
 
     writer.format("    if (%s == null) {%n", rxName);
 
-    if (streamType.getKind() == ClassKind.API) {
+    if (streamType.getKind() == API) {
       writer.format("      Function<%s, %s> conv = %s::getDelegate;%n", genTranslatedTypeName(streamType.getRaw()), streamType.getName(), genTranslatedTypeName(streamType));
 
       writer.format("      %s = RxHelper.to%s(getDelegate(), conv);%n", rxName, rxType);
@@ -211,7 +213,12 @@ class RxJava2Generator extends AbstractRxGenerator {
       writer.print("(");
       List<ParamInfo> params = futMethod.getParams();
       writer.print(params.stream().map(ParamInfo::getName).collect(Collectors.joining(", ")));
-      writer.println(").onComplete($handler);");
+      writer.print(")");
+      if (methodSimpleName.equals("Flowable")) {
+        TypeInfo arg = ((ParameterizedTypeInfo) futMethod.getReturnType()).getArg(0);
+        writer.print(".map(stream_ -> (io.vertx.core.streams.ReadStream<" + arg.getName() + ">)stream_.getDelegate())");
+      }
+      writer.println(".onComplete($handler);");
       writer.println("    });");
       writer.println("  }");
     } else {
@@ -301,7 +308,10 @@ class RxJava2Generator extends AbstractRxGenerator {
     TypeInfo futParam = method.getReturnType();
     TypeInfo futType = ((ParameterizedTypeInfo) futParam).getArg(0);
     TypeInfo futReturnType;
-    if (futType.getKind() == VOID) {
+    if (futType.getKind() == API && futType.getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
+      ParameterizedTypeInfo readStreamType = (ParameterizedTypeInfo) futType;
+      futReturnType = new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Flowable.class).getRaw(), false, Collections.singletonList(readStreamType.getArg(0)));
+    } else if (futType.getKind() == VOID) {
       futReturnType = io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Completable.class);
     } else if (futType.isNullable()) {
       futReturnType = new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Maybe.class).getRaw(), false, Collections.singletonList(futType));

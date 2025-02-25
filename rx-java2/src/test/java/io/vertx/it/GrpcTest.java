@@ -1,21 +1,22 @@
 package io.vertx.it;
 
-import io.grpc.examples.rxjava3.helloworld.GreeterClient;
 import io.grpc.examples.helloworld.GreeterService;
-import io.grpc.examples.helloworld.HelloRequest;
 import io.grpc.examples.helloworld.HelloReply;
-import io.reactivex.rxjava3.core.Flowable;
+import io.grpc.examples.helloworld.HelloRequest;
+import io.grpc.examples.reactivex.helloworld.GreeterClient;
+import io.reactivex.Flowable;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.net.SocketAddress;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
-import io.vertx.rxjava3.core.Vertx;
-import io.vertx.rxjava3.grpc.client.GrpcClient;
 import io.vertx.grpc.server.GrpcServer;
+import io.vertx.reactivex.core.Vertx;
+import io.vertx.reactivex.grpc.client.GrpcClient;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -49,7 +50,7 @@ public class GrpcTest extends VertxTestBase {
     GreeterClient client = GreeterClient.create(grpcClient, SocketAddress.inetSocketAddress(8080, "localhost"));
 
     HelloReply reply = client
-      .sayHello(HelloRequest.newBuilder().setName("World").build())
+      .rxSayHello(HelloRequest.newBuilder().setName("World").build())
       .blockingGet();
     assertEquals("Hello World", reply.getMessage());
 
@@ -57,9 +58,9 @@ public class GrpcTest extends VertxTestBase {
       .map(name -> HelloRequest.newBuilder().setName(name).build());
 
     List<String> result = client
-      .sayHelloStreaming(stream)
+      .rxSayHelloStreaming(stream)
       .map(HelloReply::getMessage)
-      .collect(Collectors.toList())
+      .collectInto(new ArrayList<String>(), ArrayList::add)
       .blockingGet();
     assertEquals(Arrays.asList("Hello World", "Hello Monde", "Hello Mundo"), result);
   }

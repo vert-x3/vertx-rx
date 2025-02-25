@@ -19,8 +19,4 @@ public interface MethodWithStream {
   static Future<ReadStream<String>> futureOfStream() {
     return null;
   }
-
-  static Future<ReadStream<String>> futureOfStreamExt() {
-    return null;
-  }
 }
