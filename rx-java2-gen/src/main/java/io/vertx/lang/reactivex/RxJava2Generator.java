@@ -273,20 +273,12 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
   private MethodInfo genFutureMethod(MethodInfo method) {
     String futMethodName = genFutureMethodName(method);
     List<ParamInfo> futParams = new ArrayList<>(method.getParams());
-    TypeInfo futType;
-    TypeInfo futUnresolvedType;
-    if (method.getKind() == MethodKind.FUTURE) {
-      TypeInfo futParam = method.getReturnType();
-      futType = ((ParameterizedTypeInfo) futParam).getArg(0);
-      // getUnresolvedType ????
-      futUnresolvedType = ((ParameterizedTypeInfo) futParam).getArg(0);
-    } else {
-      throw new IllegalArgumentException("Method kind " + method.getKind());
-    }
+    TypeInfo futParam = method.getReturnType();
+    TypeInfo futType = ((ParameterizedTypeInfo) futParam).getArg(0);
     TypeInfo futReturnType;
-    if (futUnresolvedType.getKind() == VOID) {
+    if (futType.getKind() == VOID) {
       futReturnType = io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Completable.class);
-    } else if (futUnresolvedType.isNullable()) {
+    } else if (futType.isNullable()) {
       futReturnType = new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Maybe.class).getRaw(), false, Collections.singletonList(futType));
     } else {
       futReturnType = new io.vertx.codegen.processor.type.ParameterizedTypeInfo(io.vertx.codegen.processor.type.TypeReflectionFactory.create(io.reactivex.Single.class).getRaw(), false, Collections.singletonList(futType));
