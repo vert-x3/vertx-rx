@@ -7,7 +7,7 @@ import io.vertx.codegen.processor.type.ClassKind;
 import io.vertx.codegen.processor.type.ClassTypeInfo;
 import io.vertx.codegen.processor.type.ParameterizedTypeInfo;
 import io.vertx.codegen.processor.type.TypeInfo;
-import io.vertx.lang.rx.Vertx3RxGeneratorBase;
+import io.vertx.lang.rx.AbstractRxGenerator;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -19,11 +19,60 @@ import java.util.stream.Collectors;
 import static io.vertx.codegen.processor.type.ClassKind.VOID;
 import static java.util.stream.Collectors.joining;
 
-class RxJava2Generator extends Vertx3RxGeneratorBase {
+class RxJava2Generator extends AbstractRxGenerator {
   RxJava2Generator() {
     super("reactivex");
     this.kinds = Collections.singleton("class");
     this.name = "RxJava2";
+  }
+
+  @Override
+  protected final void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
+    genMethod(model, method, cacheDecls, genBody, writer);
+    MethodInfo overload = genOverloadedMethod(method);
+    if (overload != null) {
+      genMethod(model, overload, cacheDecls, genBody, writer);
+    }
+  }
+
+
+  private void genMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
+
+    // Generate up to 3 methods
+    // - the regular methods
+    // - the handler based + fire & forget overload + single version, e.g void WriteStream#end(Handler<AsyncResult<Void>>) / void WriteStream#end() / Completable end()
+    // - the future base version + single version, e.g Future<Void> end() / Completable end()
+
+    genSimpleMethod("public", model, method, cacheDecls, genBody, writer);
+
+    if (method.getKind() == MethodKind.OTHER || method.getKind() == MethodKind.HANDLER) {
+      return;
+    }
+
+    genRxMethod(model, method, cacheDecls, genBody, writer);
+  }
+
+  private boolean foo(MethodInfo m1, MethodInfo m2) {
+    int numParams = m1.getParams().size();
+    if (m1.getName().equals(m2.getName()) && numParams == m2.getParams().size()) {
+      for (int index = 0; index < numParams; index++) {
+        TypeInfo t1 = unwrap(m1.getParam(index).getType());
+        TypeInfo t2 = unwrap(m2.getParam(index).getType());
+        if (!t1.equals(t2)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  private static TypeInfo unwrap(TypeInfo type) {
+    if (type instanceof ParameterizedTypeInfo) {
+      return type.getRaw();
+    } else {
+      return type;
+    }
   }
 
   @Override
@@ -159,8 +208,7 @@ class RxJava2Generator extends Vertx3RxGeneratorBase {
     writer.println();
   }
 
-  @Override
-  protected void genRxMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
+  private void genRxMethod(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
     MethodInfo futMethod = genFutureMethod(method);
     ClassTypeInfo raw = futMethod.getReturnType().getRaw();
     String methodSimpleName = raw.getSimpleName();
