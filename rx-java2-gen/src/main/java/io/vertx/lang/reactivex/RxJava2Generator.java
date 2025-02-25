@@ -52,29 +52,6 @@ class RxJava2Generator extends AbstractRxGenerator {
     genRxMethod(model, method, cacheDecls, genBody, writer);
   }
 
-  private boolean foo(MethodInfo m1, MethodInfo m2) {
-    int numParams = m1.getParams().size();
-    if (m1.getName().equals(m2.getName()) && numParams == m2.getParams().size()) {
-      for (int index = 0; index < numParams; index++) {
-        TypeInfo t1 = unwrap(m1.getParam(index).getType());
-        TypeInfo t2 = unwrap(m2.getParam(index).getType());
-        if (!t1.equals(t2)) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return false;
-  }
-
-  private static TypeInfo unwrap(TypeInfo type) {
-    if (type instanceof ParameterizedTypeInfo) {
-      return type.getRaw();
-    } else {
-      return type;
-    }
-  }
-
   @Override
   protected void genImports(ClassModel model, PrintWriter writer) {
     writer.println("import io.vertx.reactivex.RxHelper;");
