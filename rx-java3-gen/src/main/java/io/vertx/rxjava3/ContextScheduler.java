@@ -21,7 +21,7 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.WorkerExecutor;
-import io.vertx.core.impl.WorkerExecutorInternal;
+import io.vertx.core.internal.WorkerExecutorInternal;
 import io.vertx.core.json.JsonObject;
 
 import java.util.Objects;
