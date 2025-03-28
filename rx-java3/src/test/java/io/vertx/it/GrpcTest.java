@@ -27,7 +27,7 @@ public class GrpcTest extends VertxTestBase {
   public void testHelloWorld() throws Exception {
     // Create gRPC Server
     GrpcServer grpcServer = GrpcServer.server(vertx);
-    new GreeterService() {
+    grpcServer.addService(new GreeterService() {
       @Override
       public Future<HelloReply> sayHello(HelloRequest request) {
         return Future.succeededFuture(HelloReply.newBuilder()
@@ -39,7 +39,7 @@ public class GrpcTest extends VertxTestBase {
         request.handler(hello -> response.write(HelloReply.newBuilder().setMessage("Hello " + hello.getName()).build()));
         request.endHandler(v -> response.end());
       }
-    }.bind(GreeterService.SayHello, GreeterService.SayHelloStreaming).to(grpcServer);
+    });
     HttpServer httpServer = vertx.createHttpServer();
     httpServer.requestHandler(grpcServer)
       .listen(8080).toCompletionStage().toCompletableFuture().get(20, TimeUnit.SECONDS);
