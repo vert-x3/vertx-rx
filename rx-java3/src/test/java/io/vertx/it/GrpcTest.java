@@ -1,7 +1,7 @@
 package io.vertx.it;
 
-import io.grpc.examples.rxjava3.helloworld.GreeterClient;
-import io.grpc.examples.helloworld.GreeterService;
+import io.grpc.examples.rxjava3.helloworld.GreeterGrpcClient;
+import io.grpc.examples.helloworld.GreeterGrpcService;
 import io.grpc.examples.helloworld.HelloRequest;
 import io.grpc.examples.helloworld.HelloReply;
 import io.reactivex.rxjava3.core.Flowable;
@@ -27,7 +27,7 @@ public class GrpcTest extends VertxTestBase {
   public void testHelloWorld() throws Exception {
     // Create gRPC Server
     GrpcServer grpcServer = GrpcServer.server(vertx);
-    grpcServer.addService(new GreeterService() {
+    grpcServer.addService(new GreeterGrpcService() {
       @Override
       public Future<HelloReply> sayHello(HelloRequest request) {
         return Future.succeededFuture(HelloReply.newBuilder()
@@ -46,7 +46,7 @@ public class GrpcTest extends VertxTestBase {
 
     // Create gRPC Client
     GrpcClient grpcClient = GrpcClient.client(new Vertx(vertx));
-    GreeterClient client = GreeterClient.create(grpcClient, SocketAddress.inetSocketAddress(8080, "localhost"));
+    GreeterGrpcClient client = GreeterGrpcClient.create(grpcClient, SocketAddress.inetSocketAddress(8080, "localhost"));
 
     HelloReply reply = client
       .sayHello(HelloRequest.newBuilder().setName("World").build())
