@@ -656,7 +656,6 @@
                 <codegen.output.service_proxy>${project.basedir}/src/test/java</codegen.output.service_proxy>
                 <codegen.output.service_proxy_handler>${project.basedir}/src/test/java</codegen.output.service_proxy_handler>
               </optionMap>
-              <defaultOutputDirectory>${project.build.directory}/generated-test-sources/test-annotations</defaultOutputDirectory>
             </configuration>
           </execution>
         </executions>
