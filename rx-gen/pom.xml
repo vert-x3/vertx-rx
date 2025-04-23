@@ -7,11 +7,11 @@
   <parent>
     <artifactId>vertx-rx</artifactId>
     <groupId>io.vertx</groupId>
-    <version>5.0.0.CR7</version>
+    <version>5.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>vertx-rx-gen</artifactId>
-  <version>5.0.0.CR7</version>
+  <version>5.0.0-SNAPSHOT</version>
 
   <name>Vert.x Rx Code Generator</name>
 
