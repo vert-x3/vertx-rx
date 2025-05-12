@@ -611,6 +611,9 @@
               <artifactId>vertx-grpc-protoc-plugin2</artifactId>
               <version>${project.version}</version>
               <mainClass>io.vertx.grpc.plugin.VertxGrpcGenerator</mainClass>
+              <args>
+                <arg>--vertx-codegen</arg>
+              </args>
             </protocPlugin>
           </protocPlugins>
         </configuration>
@@ -622,6 +625,13 @@
             </goals>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-grpc-protoc-plugin2</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
 
       <plugin>
