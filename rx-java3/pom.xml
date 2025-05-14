@@ -7,11 +7,11 @@
   <parent>
     <artifactId>vertx-rx</artifactId>
     <groupId>io.vertx</groupId>
-    <version>5.0.0</version>
+    <version>5.0.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>vertx-rx-java3</artifactId>
-  <version>5.0.0</version>
+  <version>5.0.1-SNAPSHOT</version>
 
   <name>Vert.x RxJava3 API</name>
 
