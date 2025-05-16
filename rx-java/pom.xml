@@ -7,12 +7,12 @@
   <parent>
     <artifactId>vertx-rx</artifactId>
     <groupId>io.vertx</groupId>
-    <version>4.5.15</version>
+    <version>4.5.16-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>vertx-rx-java</artifactId>
-  <version>4.5.15</version>
+  <version>4.5.16-SNAPSHOT</version>
 
   <name>Vert.x RxJava API</name>
 
