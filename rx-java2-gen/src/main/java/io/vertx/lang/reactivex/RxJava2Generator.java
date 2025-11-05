@@ -29,6 +29,10 @@ class RxJava2Generator extends AbstractRxGenerator {
 
   @Override
   protected final void genMethods(ClassModel model, MethodInfo method, List<String> cacheDecls, boolean genBody, PrintWriter writer) {
+    if (isStreamMethod(model, method)) {
+      genStreamMethod(model, writer);
+      return;
+    }
     genMethod(model, method, cacheDecls, genBody, writer);
     MethodInfo overload = genOverloadedMethod(method);
     if (overload != null) {
