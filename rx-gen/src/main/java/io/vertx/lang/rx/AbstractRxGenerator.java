@@ -357,6 +357,17 @@ public abstract class AbstractRxGenerator extends Generator<ClassModel> {
     }
   }
 
+  protected boolean isStreamMethod(ClassModel model, MethodInfo method) {
+    return model.isIterable() && method.getName().equals("stream") && method.getParams().isEmpty() && method.getReturnType().getRaw().getName().equals("java.util.stream.Stream");
+  }
+
+  protected void genStreamMethod(ClassModel model, PrintWriter writer) {
+    writer.printf("  public java.util.stream.Stream<%s> stream() {%n", genTranslatedTypeName(model.getIterableArg()));
+    writer.println("    return java.util.stream.StreamSupport.stream(spliterator(), false);");
+    writer.println("  }");
+    writer.println();
+  }
+
   protected abstract void genReadStream(List<? extends TypeParamInfo> typeParams, PrintWriter writer);
 
   protected void genWriteStream(List<? extends TypeParamInfo> typeParams, PrintWriter writer) {
