@@ -159,6 +159,10 @@ class RxJava3Generator extends AbstractRxGenerator {
       // Work around for now
       return;
     }
+    if (isStreamMethod(model, method)) {
+      genStreamMethod(model, writer);
+      return;
+    }
     if (method.getKind() == MethodKind.FUTURE) {
       TypeInfo futType = ((ParameterizedTypeInfo)method.getReturnType()).getArg(0);
       if (futType.getKind() == ClassKind.API && futType.getRaw().getName().equals("io.vertx.core.streams.ReadStream")) {
