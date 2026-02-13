@@ -32,6 +32,7 @@
   <properties>
     <micrometer.version>1.13.0</micrometer.version>
     <vertx.javadoc.legacyMode>true</vertx.javadoc.legacyMode>
+    <testcontainers.version>1.21.4</testcontainers.version>
   </properties>
 
   <dependencies>
