@@ -33,6 +33,7 @@
 
   <properties>
     <micrometer.version>1.9.5</micrometer.version>
+    <testcontainers.version>1.21.4</testcontainers.version>
   </properties>
 
   <dependencyManagement>
