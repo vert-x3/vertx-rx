@@ -27,7 +27,6 @@ import io.vertx.rxjava3.core.Vertx;
 import org.junit.After;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 /**
@@ -72,7 +71,7 @@ public class RxHelperTest {
       single.blockingGet();
       fail("Verticle deployment should fail");
     } catch (RuntimeException e) {
-      assertThat(e.getCause(), instanceOf(MyException.class));
+      assertEquals(MyException.class, e.getCause().getClass());
       assertNotNull(verticle.config);
       assertTrue(verticle.config.isEmpty());
     }

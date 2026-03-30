@@ -26,8 +26,6 @@ import io.vertx.reactivex.RxHelper;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.*;
-
 /**
  * @author Thomas Segismont
  */
@@ -44,7 +42,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
     Exception expected = new Exception();
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
     Observer<Integer> observer = RxHelper.toObserver(writeStream).onError(throwable -> {
-      assertThat(throwable, is(sameInstance(expected)));
+      assertSame(expected, throwable);
       complete();
     });
     Observable.<Integer>error(expected)
@@ -74,7 +72,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
   public void testCannotSubscribeTwice() throws Exception {
     waitFor(2);
     RxJavaPlugins.setErrorHandler(throwable -> {
-      assertThat(throwable, is(instanceOf(ProtocolViolationException.class)));
+      assertEquals(ProtocolViolationException.class, throwable.getClass());
       complete();
     });
     Observer<Integer> observer = RxHelper.toObserver(new FakeWriteStream(vertx)).onWriteStreamEnd(this::complete);
@@ -93,7 +91,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
   public void testOnNextThrowsFatal() throws Exception {
     UnknownError expected = new UnknownError();
     vertx.exceptionHandler(throwable -> {
-      assertThat(throwable, is(sameInstance(expected)));
+      assertSame(expected, throwable);
       complete();
     });
     FakeWriteStream writeStream = new FakeWriteStream(vertx).setOnWrite(() -> {
@@ -116,7 +114,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
       throw expected;
     });
     Observer<Integer> observer = RxHelper.toObserver(writeStream).onError(throwable -> {
-      assertThat(throwable, is(sameInstance(expected)));
+      assertSame(expected, throwable);
       complete();
     });
     Observable.<Integer>create(emitter -> {
@@ -133,8 +131,8 @@ public class WriteStreamObserverTest extends VertxTestBase {
   public void testOnErrorThrowsException() throws Exception {
     RuntimeException expected = new RuntimeException();
     RxJavaPlugins.setErrorHandler(throwable -> {
-      assertThat(throwable, is(instanceOf(UndeliverableException.class)));
-      assertThat(throwable.getCause(), is(sameInstance(expected)));
+      assertEquals(UndeliverableException.class, throwable.getClass());
+      assertSame(expected, throwable.getCause());
       complete();
     });
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
@@ -153,8 +151,8 @@ public class WriteStreamObserverTest extends VertxTestBase {
   public void testOnWriteStreamEndThrowsException() throws Exception {
     RuntimeException expected = new RuntimeException();
     RxJavaPlugins.setErrorHandler(throwable -> {
-      assertThat(throwable, is(instanceOf(UndeliverableException.class)));
-      assertThat(throwable.getCause(), is(sameInstance(expected)));
+      assertEquals(UndeliverableException.class, throwable.getClass());
+      assertSame(expected, throwable.getCause());
       complete();
     });
     FakeWriteStream writeStream = new FakeWriteStream(vertx);
@@ -175,7 +173,7 @@ public class WriteStreamObserverTest extends VertxTestBase {
     RuntimeException expected = new RuntimeException();
     FakeWriteStream writeStream = new FakeWriteStream(vertx).failAfterWrite(expected);
     Observer<Integer> observer = RxHelper.toObserver(writeStream).onWriteStreamError(throwable -> {
-      assertThat(throwable, is(sameInstance(expected)));
+      assertSame(expected, throwable);
       complete();
     });
     Observable.<Integer>create(emitter -> {
