@@ -5,9 +5,6 @@ import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Verticle;
-import io.vertx.rxjava3.core.Context;
-import io.vertx.rxjava3.core.Vertx;
-import io.vertx.rxjava3.core.WorkerExecutor;
 import io.vertx.rxjava3.impl.AsyncResultSingle;
 
 /**

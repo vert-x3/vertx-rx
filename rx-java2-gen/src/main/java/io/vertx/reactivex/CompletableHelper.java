@@ -2,7 +2,6 @@ package io.vertx.reactivex;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
-import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.annotations.NonNull;
@@ -15,7 +14,6 @@ import io.vertx.reactivex.impl.AsyncResultCompletable;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>

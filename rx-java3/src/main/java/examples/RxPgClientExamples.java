@@ -10,7 +10,6 @@ import io.vertx.docgen.Source;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-import java.util.function.Function;
 
 @Source
 public class RxPgClientExamples {

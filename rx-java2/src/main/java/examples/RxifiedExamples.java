@@ -1,7 +1,6 @@
 package examples;
 
 import io.reactivex.*;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.vertx.core.AsyncResult;

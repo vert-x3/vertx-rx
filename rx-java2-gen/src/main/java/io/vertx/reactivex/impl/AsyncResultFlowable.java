@@ -3,12 +3,10 @@ package io.vertx.reactivex.impl;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.reactivex.FlowableHelper;
 
-import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>

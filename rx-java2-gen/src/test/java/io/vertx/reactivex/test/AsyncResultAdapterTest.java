@@ -3,7 +3,6 @@ package io.vertx.reactivex.test;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import io.vertx.core.Future;
 import io.vertx.reactivex.codegen.rxjava2.MethodWithCompletable;
 import io.vertx.reactivex.codegen.rxjava2.MethodWithMaybeString;
 import io.vertx.reactivex.codegen.rxjava2.MethodWithSingleString;

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeObserver;
 import io.reactivex.MaybeTransformer;
-import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.vertx.core.AsyncResult;

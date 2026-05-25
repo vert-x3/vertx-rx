@@ -3,7 +3,6 @@ package io.vertx.rxjava3;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.CompletableObserver;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.MaybeObserver;
 import io.reactivex.rxjava3.core.MaybeTransformer;

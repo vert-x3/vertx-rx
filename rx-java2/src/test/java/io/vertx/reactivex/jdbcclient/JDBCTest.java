@@ -15,7 +15,6 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
-import io.vertx.core.json.JsonObject;
 import io.vertx.jdbcclient.JDBCConnectOptions;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.sqlclient.*;

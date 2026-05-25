@@ -15,13 +15,11 @@
  */
 package io.vertx.junit5.rxjava2;
 
-import io.vertx.junit5.Timeout;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import io.vertx.reactivex.core.AbstractVerticle;
 import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

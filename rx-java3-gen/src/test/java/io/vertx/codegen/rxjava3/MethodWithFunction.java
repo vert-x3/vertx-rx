@@ -1,6 +1,5 @@
 package io.vertx.codegen.rxjava3;
 
-import io.reactivex.rxjava3.core.Single;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.Future;
 

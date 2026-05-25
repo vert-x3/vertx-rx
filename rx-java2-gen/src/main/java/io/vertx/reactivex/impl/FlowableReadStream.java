@@ -1,10 +1,7 @@
 package io.vertx.reactivex.impl;
 
 import io.reactivex.Flowable;
-import io.reactivex.FlowableSubscriber;
-import io.reactivex.internal.subscriptions.BasicIntQueueSubscription;
 import io.reactivex.internal.subscriptions.EmptySubscription;
-import io.reactivex.processors.UnicastProcessor;
 import io.vertx.core.streams.ReadStream;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;

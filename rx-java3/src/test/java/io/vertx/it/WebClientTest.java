@@ -7,7 +7,6 @@ import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.lang.rx.it.WineAndCheese;
-import io.vertx.rxjava3.core.FlowableHelper;
 import io.vertx.rxjava3.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.rxjava3.core.http.HttpServer;
@@ -15,7 +14,6 @@ import io.vertx.rxjava3.ext.web.client.HttpResponse;
 import io.vertx.rxjava3.ext.web.client.WebClient;
 import io.vertx.rxjava3.ext.web.codec.BodyCodec;
 import io.vertx.test.core.VertxTestBase;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class WebClientTest extends VertxTestBase {

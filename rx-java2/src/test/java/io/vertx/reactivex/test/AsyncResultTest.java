@@ -19,7 +19,6 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.plugins.RxJavaPlugins;
-import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.reactivex.impl.AsyncResultCompletable;
 import io.vertx.reactivex.impl.AsyncResultMaybe;
