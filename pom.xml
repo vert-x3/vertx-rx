@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>vertx-rx</artifactId>
-  <version>5.1.5</version>
+  <version>5.1.6-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <scm>
