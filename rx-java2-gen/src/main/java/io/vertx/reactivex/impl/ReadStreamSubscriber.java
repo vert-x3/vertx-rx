@@ -55,6 +55,7 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
   private Subscription subscription;
   private Publisher<R> publisher;
   private boolean emitting;
+  private boolean missed;
 
   public ReadStreamSubscriber(Function<R, J> adapter, Publisher<R> publisher) {
     this.adapter = adapter;
@@ -114,19 +115,38 @@ public class ReadStreamSubscriber<R, J> implements Subscriber<R>, ReadStream<J> 
     serializedCheckStatus();
   }
 
-  /** Ensure checkStatus is never called concurrently. */
+  /**
+   * Ensure checkStatus is never called concurrently, and that a signal received while it runs is not lost.
+   * <p>
+   * checkStatus() requests more elements from the upstream (see {@code action}) while {@code emitting} is still
+   * set, and an idle synchronous upstream answers by calling {@link #onNext} re-entrantly. Such a call, like a
+   * {@link #fetch} or {@link #onComplete} from another thread, must not run checkStatus() itself, so it records
+   * that it happened and the thread that is emitting checks the status again before it gives up the flag.
+   */
   private void serializedCheckStatus() {
     synchronized (this) {
       if (emitting) {
+        missed = true;
         return;
       }
       emitting = true;
     }
-    try {
-      checkStatus();
-    } finally {
+    while (true) {
+      try {
+        checkStatus();
+      } catch (Throwable t) {
+        synchronized (this) {
+          emitting = false;
+          missed = false;
+        }
+        throw t;
+      }
       synchronized (this) {
-        emitting = false;
+        if (!missed) {
+          emitting = false;
+          return;
+        }
+        missed = false;
       }
     }
   }
